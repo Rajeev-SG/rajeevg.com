@@ -43,8 +43,8 @@ export function BlogIndexClient({
   }
 
   return (
-    <main className="container mx-auto max-w-3xl py-10 space-y-6">
-      <h1 className="text-3xl font-bold">Blog</h1>
+    <section className="space-y-6">
+      <h1 className="text-3xl font-bold tracking-tight">Blog</h1>
 
       <div className="flex flex-col gap-3">
         <Input
@@ -115,6 +115,6 @@ export function BlogIndexClient({
           <li className="text-sm text-muted-foreground">No matching posts.</li>
         )}
       </ul>
-    </main>
+    </section>
   )
 }

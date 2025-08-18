@@ -39,10 +39,18 @@ export default function RootLayout({
           <SidebarProvider>
             <AppSidebar />
             <SidebarInset>
-              <header className="border-b border-border bg-background sticky top-0 z-30 flex h-12 items-center gap-2 px-4">
-                <SidebarTrigger />
+              <header className="border-b border-border bg-background sticky top-0 z-30">
+                <div className="mx-auto xl:mx-0 xl:mr-auto w-full max-w-screen-lg px-4 sm:px-6 md:px-8">
+                  <div className="flex h-12 items-center gap-2">
+                    <SidebarTrigger />
+                  </div>
+                </div>
               </header>
-              <main className="min-w-0">{children}</main>
+              <main className="min-w-0">
+                <div className="mx-auto xl:mx-0 xl:mr-auto w-full max-w-screen-lg px-4 sm:px-6 md:px-8">
+                  <div className="py-8 md:py-10">{children}</div>
+                </div>
+              </main>
             </SidebarInset>
           </SidebarProvider>
         </ThemeProvider>

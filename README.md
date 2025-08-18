@@ -71,6 +71,17 @@ You can edit the home page at `src/app/page.tsx`. Blog content lives in `content
   - Edit `data.navMain` and/or the `postsList` mapping in `src/components/app-sidebar.tsx`.
   - For new routes (e.g. `/about`, `/projects`), add items under the "Site" group.
 
+## Layout and spacing (containers + alignment)
+
+- **Global container**: `src/app/layout.tsx` wraps page content in a single max-width container
+  - Width: `max-w-screen-lg`
+  - Gutters: `px-4 sm:px-6 md:px-8`
+  - Vertical rhythm: `py-8 md:py-10`
+- **Header alignment**: the header wraps the `SidebarTrigger` in the same container, so the left edges of the toggle and page content align.
+- **Wide screens**: on `xl+` viewports, the container is left-aligned via `xl:mx-0 xl:mr-auto` to avoid excessive left margin while staying aligned with the sidebar.
+- **Blog index**: `src/components/blog-index-client.tsx` no longer adds its own outer container; it relies on the global container and uses a local `section.space-y-6`.
+- **Article page**: `src/app/blog/[slug]/page.tsx` uses `<article className="space-y-6">` (no outer container) and fixes Next params typing to `{ params: { slug: string } }`.
+
 ## Syntax highlighting + Copy button (Shiki + rehype-pretty-code)
 
 - **Config**: `web/velite.config.ts` uses dual themes:

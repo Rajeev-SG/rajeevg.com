@@ -2,21 +2,21 @@ import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { posts, type Post } from "#velite"
 
-interface PostParamsAsync {
-  params: Promise<{ slug: string }>
+interface PostParams {
+  params: { slug: string }
 }
 
 function getPostBySlug(slug: string) {
   return posts.find((p: Post) => p.slug === slug)
 }
 
-export default async function PostPage({ params }: PostParamsAsync) {
-  const { slug } = await params
+export default async function PostPage({ params }: PostParams) {
+  const { slug } = params
   const post = getPostBySlug(slug)
   if (!post) return notFound()
 
   return (
-    <article className="mx-auto max-w-3xl py-10">
+    <article className="space-y-6">
       <header className="mb-6 space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">{post.title}</h1>
         {post.description ? (
@@ -34,8 +34,8 @@ export default async function PostPage({ params }: PostParamsAsync) {
   )
 }
 
-export async function generateMetadata({ params }: PostParamsAsync): Promise<Metadata> {
-  const { slug } = await params
+export async function generateMetadata({ params }: PostParams): Promise<Metadata> {
+  const { slug } = params
   const post = getPostBySlug(slug)
   if (!post) return {}
   return {
