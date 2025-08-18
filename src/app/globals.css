@@ -212,19 +212,35 @@ pre:has(code) { position: relative; }
 
 /* Copy button styling */
 pre button.rehype-pretty-copy {
-  right: 1px;
+  right: 6px;
+  top: 6px;
   padding: 0;
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   display: flex;
-  margin-top: 2px;
-  margin-right: 8px;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
   position: absolute;
-  border-radius: 25%;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background-color: color-mix(in oklab, var(--background) 85%, var(--foreground) 15%);
+  backdrop-filter: blur(4px);
   opacity: 0; /* reveal on hover */
+  cursor: pointer;
+  z-index: 10;
+  line-height: 0;
 }
+pre button.rehype-pretty-copy:hover { border-color: var(--ring); }
 
-pre button.rehype-pretty-copy span { width: 100%; aspect-ratio: 1 / 1; }
+pre button.rehype-pretty-copy span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-size: 60% 60%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
 pre button.rehype-pretty-copy .ready { background-image: var(--copy-icon); }
 pre button.rehype-pretty-copy .success { display: none; background-image: var(--success-icon); }
 
@@ -232,9 +248,25 @@ pre button.rehype-pretty-copy.rehype-pretty-copied { opacity: 1; }
 pre button.rehype-pretty-copy.rehype-pretty-copied .ready { display: none; }
 pre button.rehype-pretty-copy.rehype-pretty-copied .success { display: block; }
 
-figure[data-rehype-pretty-code-figure]:hover > pre > code button.rehype-pretty-copy { opacity: 1; }
-/* Also reveal on pre hover for broader support */
+/* Reveal on figure or pre hover */
+figure[data-rehype-pretty-code-figure]:hover button.rehype-pretty-copy { opacity: 1; }
 pre:hover button.rehype-pretty-copy { opacity: 1; }
+
+/* Heading anchor link styles (from rehype-autolink-headings) */
+.prose :is(h1,h2,h3,h4,h5,h6) > a.heading-anchor {
+  color: inherit;
+  text-decoration: none;
+}
+.prose :is(h2,h3,h4,h5,h6) > a.heading-anchor::after {
+  content: "#";
+  margin-left: 0.45rem;
+  color: var(--muted-foreground);
+  opacity: 0;
+  transition: opacity 150ms ease-in-out;
+}
+.prose :is(h2,h3,h4,h5,h6):hover > a.heading-anchor::after {
+  opacity: 0.7;
+}
 
 .dark {
   --sidebar: hsl(240 5.9% 10%);

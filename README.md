@@ -25,9 +25,9 @@ A performant blog using Next.js 15 (App Router + Turbopack), Tailwind CSS v4, sh
 - **Velite (content layer)**
   - Why: typed content collections + fast build; ships generated types
   - How: config in `velite.config.ts`; alias `#velite` → `.velite` in `tsconfig.json`; auto build/watch wired in `next.config.ts`; content in `content/`; outputs to `.velite` and `public/static`
-- **Code highlighting**
-  - Why: readable code snippets with copy button
-  - How: `rehype-pretty-code` + `shiki` dual theme (github-light/dark) + copy‑button transformer. Config in `velite.config.ts`; base CSS in `src/app/globals.css` maps Shiki variables to colors and styles the copy button.
+- **Code highlighting + MDX polish**
+  - Why: readable code with a reliable copy button and discoverable headings/links
+  - How: `rehype-pretty-code` + Shiki dual themes (github-light/dark). Copy is handled in React via `MdxPre` mapped in `src/components/mdx-components.tsx` (`pre` → `MdxPre`), avoiding the copy‑button transformer. Headings use `rehype-autolink-headings`; external MDX links show an icon and open in a new tab.
 - **TypeScript**
   - Why: strong types across app + content
   - How: generated `Post` type imported from `#velite` in blog pages
@@ -68,7 +68,7 @@ web/
  │  │  ├─ blog/ (page.tsx, [slug]/page.tsx)
  │  │  └─ dashboard/page.tsx
  │  ├─ components/
- │  │  ├─ app-sidebar.tsx, blog-index-client.tsx, ga.tsx, tag-combobox.tsx, theme-provider.tsx, theme-toggle.tsx
+ │  │  ├─ app-sidebar.tsx, blog-index-client.tsx, ga.tsx, mdx-components.tsx, mdx-pre.tsx, tag-combobox.tsx, theme-provider.tsx, theme-toggle.tsx
  │  │  └─ ui/ (sidebar.tsx, breadcrumb.tsx, button.tsx, input.tsx, badge.tsx, popover.tsx, scroll-area.tsx, separator.tsx, sheet.tsx, table.tsx, tooltip.tsx, alert.tsx, progress.tsx, skeleton.tsx)
  │  ├─ hooks/use-mobile.ts
  │  └─ lib/utils.ts
@@ -93,6 +93,8 @@ web/
   - `app-sidebar.tsx` — Application sidebar built on shadcn/ui sidebar primitives. Renders “Site” links and a dynamic “Posts” section from `#velite`. Auto-closes on mobile navigation. Places `ThemeToggle` in the footer.
   - `blog-index-client.tsx` — Client interactivity for the blog index: text search, tag filters (badges on desktop, combobox on mobile). Displays filtered list.
   - `ga.tsx` — GA4 SPA page_view sender using `gtag` on route changes (first load + navigations).
+  - `mdx-components.tsx` — MDX mapping (headings, inline code, blockquote→Alert, tables, links with external icon). Maps `pre` to `MdxPre`.
+  - `mdx-pre.tsx` — Client component rendering `<pre>` with a React copy button (Clipboard API, success state). Not injected by rehype.
   - `tag-combobox.tsx` — Tag selection UI using `Popover` and `ScrollArea`.
   - `theme-provider.tsx` — `next-themes` provider (class attribute, system default).
   - `theme-toggle.tsx` — Button to toggle between light/dark.
@@ -115,7 +117,7 @@ web/
 
 - Configuration
   - `next.config.ts` — Starts Velite build/watch alongside `next dev/build`.
-  - `velite.config.ts` — Defines `posts` collection schema, Shiki dual themes, copy button transformer, and draft filtering in production. Outputs to `.velite` and `public/static/`.
+  - `velite.config.ts` — Defines `posts` collection schema, Shiki dual themes, and heading anchors via `rehype-slug` + `rehype-autolink-headings` (class `heading-anchor`), plus draft filtering in production. No copy‑button transformer; copying is handled in React. Outputs to `.velite` and `public/static/`.
   - `tailwind.config.ts` — Tailwind v4 config (`darkMode: "class"`, content paths, `animate` and `typography` plugins).
   - `postcss.config.mjs` — Uses `@tailwindcss/postcss`.
   - `tsconfig.json` — Path aliases: `@/*` → `src/*`, `#velite` → `.velite`; Next.js TypeScript plugin.
@@ -149,20 +151,20 @@ web/
 - **Blog index**: `src/components/blog-index-client.tsx` no longer adds its own outer container; it relies on the global container and uses a local `section.space-y-6`.
 - **Article page**: `src/app/blog/[slug]/page.tsx` uses `<article className="space-y-6">` (no outer container) and fixes Next params typing to `{ params: { slug: string } }`.
 
-## Syntax highlighting + Copy button (Shiki + rehype-pretty-code)
+## Syntax highlighting + MDX UI (Shiki + rehype-pretty-code)
 
-- **Config**: `web/velite.config.ts` uses dual themes:
+- **Config**: `web/velite.config.ts` uses dual themes and heading anchors:
   - `theme: { light: 'github-light', dark: 'github-dark' }`
-  - `transformers: [transformerCopyButton()]`
-- **Why CSS is required**: Shiki dual‑theme output is unstyled by default (tokens are emitted with CSS variables like `--shiki-light`, `--shiki-dark`).
-- **Global CSS**: in `src/app/globals.css` we map variables and style the copy button:
-  - Map colors and backgrounds (match our implementation):
-    - `code[data-theme] span { color: var(--shiki-light); }`
-    - `html.dark code[data-theme] span { color: var(--shiki-dark); }`
-    - `code[data-theme] { background: var(--shiki-light-bg); }`
-    - `html.dark code[data-theme] { background: var(--shiki-dark-bg); }`
-    - Optionally also style the wrapping `pre` with `:has(code[data-theme])` to ensure a solid block background.
+  - `mdx.rehypePlugins`: `rehypeSlug`, `rehypeAutolinkHeadings` with `{ behavior: 'wrap', properties: { className: ['heading-anchor'] } }`
+  - No copy‑button transformer; copy is handled in React (`MdxPre`).
+- **Why CSS is required**: Shiki dual‑theme output is unstyled by default (tokens use CSS variables like `--shiki-light`, `--shiki-dark`).
+- **Global CSS**: in `src/app/globals.css` we map variables and style UI elements:
+  - Shiki color mapping (light/dark) for `code[data-theme]` and `pre:has(code)` backgrounds.
   - Copy button styles for `.rehype-pretty-copy` (revealed on hover; click shows a success state). We also allow `pre:hover .rehype-pretty-copy { opacity: 1 }` for reliable reveal.
+  - Heading anchors: `.heading-anchor` shows a leading `#` on hover for h2–h6, aligned to avoid layout shift.
+- **MDX components**: `src/components/mdx-components.tsx`
+  - Maps `pre` → `MdxPre` (client copy button using the Clipboard API).
+  - External links render with an outbound icon and `target="_blank" rel="noreferrer noopener"`; internal links use `next/link`.
 - **Tailwind prose**: avoid overriding Shiki colors/background. In `src/app/blog/[slug]/page.tsx` we avoid extra `prose` overrides that affect `pre/code`.
 - **Usage**: add fenced code blocks in Markdown, e.g.
 

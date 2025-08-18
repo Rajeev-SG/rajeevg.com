@@ -1,17 +1,19 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { posts, type Post } from "#velite"
+import { MDXContent } from "@/components/mdx-content"
+import { mdxComponents } from "@/components/mdx-components"
 
-interface PostParams {
-  params: { slug: string }
+interface PostParamsAwaitable {
+  params: Promise<{ slug: string }>
 }
 
 function getPostBySlug(slug: string) {
   return posts.find((p: Post) => p.slug === slug)
 }
 
-export default async function PostPage({ params }: PostParams) {
-  const { slug } = params
+export default async function PostPage({ params }: PostParamsAwaitable) {
+  const { slug } = await params
   const post = getPostBySlug(slug)
   if (!post) return notFound()
 
@@ -26,16 +28,15 @@ export default async function PostPage({ params }: PostParams) {
           {new Date(post.date).toLocaleDateString()}
         </p>
       </header>
-      <section
-        className="prose-sm sm:prose-base prose-headings:scroll-mt-24 prose-a:text-primary prose-pre:rounded-lg dark:prose-invert"
-        dangerouslySetInnerHTML={{ __html: post.content }}
-      />
+      <section className="prose-sm sm:prose-base prose-headings:scroll-mt-24 prose-pre:rounded-lg dark:prose-invert">
+        <MDXContent code={post.code} components={mdxComponents} />
+      </section>
     </article>
   )
 }
 
-export async function generateMetadata({ params }: PostParams): Promise<Metadata> {
-  const { slug } = params
+export async function generateMetadata({ params }: PostParamsAwaitable): Promise<Metadata> {
+  const { slug } = await params
   const post = getPostBySlug(slug)
   if (!post) return {}
   return {

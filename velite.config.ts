@@ -1,10 +1,12 @@
 import rehypePrettyCode from 'rehype-pretty-code'
-import { transformerCopyButton } from '@rehype-pretty/transformers'
+import remarkGfm from 'remark-gfm'
+import rehypeSlug from 'rehype-slug'
+import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import { defineCollection, defineConfig, s } from 'velite'
 
 const posts = defineCollection({
   name: 'Post',
-  pattern: 'posts/**/*.md',
+  pattern: 'posts/**/*.{md,mdx}',
   schema: s
     .object({
       title: s.string().max(120),
@@ -14,7 +16,7 @@ const posts = defineCollection({
       draft: s.boolean().default(false),
       tags: s.array(s.string()).default([]),
       excerpt: s.excerpt(),
-      content: s.markdown()
+      code: s.mdx(),
     })
     .transform((data) => ({
       ...data,
@@ -38,7 +40,22 @@ export default defineConfig({
         rehypePrettyCode,
         {
           theme: { light: 'github-light', dark: 'github-dark' },
-          transformers: [transformerCopyButton()],
+        },
+      ],
+    ],
+  },
+  mdx: {
+    remarkPlugins: [remarkGfm],
+    rehypePlugins: [
+      rehypeSlug,
+      [
+        rehypeAutolinkHeadings as any,
+        { behavior: 'wrap', properties: { className: ['heading-anchor'] } },
+      ] as any,
+      [
+        rehypePrettyCode,
+        {
+          theme: { light: 'github-light', dark: 'github-dark' },
         },
       ],
     ],
