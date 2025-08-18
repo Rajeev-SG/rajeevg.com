@@ -56,6 +56,54 @@ Open http://localhost:3000 and visit:
 
 You can edit the home page at `src/app/page.tsx`. Blog content lives in `content/posts/*`. Velite config is at `velite.config.ts`.
 
+## Project structure
+
+All paths below are relative to `web/`.
+
+- `src/app/` — App Router (pages, layouts, global styles)
+  - `layout.tsx` — Root layout. Wraps app with `ThemeProvider`, `SidebarProvider`, renders `AppSidebar`, `SidebarInset`, header `SidebarTrigger`, and the main content container (`max-w-screen-lg` with normalized padding). Loads GA4 scripts and mounts the `GA` component. Reads `NEXT_PUBLIC_GA_ID`.
+  - `globals.css` — Tailwind v4 setup with design tokens, class-based dark variant, and Shiki dual-theme base CSS (maps `--shiki-light/dark` tokens and styles the copy button).
+  - `page.tsx` — Homepage. Lists latest posts from `#velite` and links to `/blog`.
+  - `not-found.tsx` — Global 404 boundary required when routes call `notFound()`.
+  - `blog/`
+    - `page.tsx` — Blog index server component. Gathers posts from `#velite` and renders the client UI via `BlogIndexClient`.
+    - `[slug]/page.tsx` — Article page. Looks up a post by slug, renders title/description/date and HTML content from Velite. Correct `params` typing: `{ params: { slug: string } }`. Uses Tailwind `prose` with dual-theme Shiki CSS.
+  - `dashboard/page.tsx` — Sample route demonstrating sidebar primitives (breadcrumbs, header, content grid).
+
+- `src/components/` — Reusable components
+  - `app-sidebar.tsx` — Application sidebar built on shadcn/ui sidebar primitives. Renders “Site” links and a dynamic “Posts” section from `#velite`. Auto-closes on mobile navigation. Places `ThemeToggle` in the footer.
+  - `blog-index-client.tsx` — Client interactivity for the blog index: text search, tag filters (badges on desktop, combobox on mobile). Displays filtered list.
+  - `ga.tsx` — GA4 SPA page_view sender using `gtag` on route changes (first load + navigations).
+  - `tag-combobox.tsx` — Tag selection UI using `Popover` and `ScrollArea`.
+  - `theme-provider.tsx` — `next-themes` provider (class attribute, system default).
+  - `theme-toggle.tsx` — Button to toggle between light/dark.
+  - `components/ui/` — shadcn/ui primitives used by the app:
+    - `sidebar.tsx` (shadcn sidebar primitives and context), `button.tsx`, `input.tsx`, `badge.tsx`,
+      `popover.tsx`, `scroll-area.tsx`, `separator.tsx`, `sheet.tsx`, `breadcrumb.tsx`, `table.tsx`,
+      `tooltip.tsx`, `alert.tsx`, `progress.tsx`, `skeleton.tsx`.
+
+- `src/hooks/`
+  - `use-mobile.ts` — `useIsMobile()` hook returning a boolean based on a 768px breakpoint.
+
+- `src/lib/`
+  - `utils.ts` — `cn(...classValues)` utility combining `clsx` with `tailwind-merge`.
+
+- `content/` — Source Markdown content
+  - `posts/` — Blog posts (e.g. `hello-world.md`). Processed by Velite into `.velite` (typed data) and `public/static/` (assets).
+
+- `public/` — Static assets served at the site root
+  - Icons and images (`*.svg`). Velite writes assets to `public/static/` (gitignored).
+
+- Configuration
+  - `next.config.ts` — Starts Velite build/watch alongside `next dev/build`.
+  - `velite.config.ts` — Defines `posts` collection schema, Shiki dual themes, copy button transformer, and draft filtering in production. Outputs to `.velite` and `public/static/`.
+  - `tailwind.config.ts` — Tailwind v4 config (`darkMode: "class"`, content paths, `animate` and `typography` plugins).
+  - `postcss.config.mjs` — Uses `@tailwindcss/postcss`.
+  - `tsconfig.json` — Path aliases: `@/*` → `src/*`, `#velite` → `.velite`; Next.js TypeScript plugin.
+  - `components.json` — shadcn/ui generator config and path aliases.
+  - `.gitignore` — Ignores `.velite`, `public/static/`, `.next/`, etc.
+  - `package.json` — Scripts (`dev`, `build`, `start`, `lint`, `content`) and dependencies.
+
 ## Sidebar layout (shadcn/ui sidebar‑03)
 
 - **Files**
