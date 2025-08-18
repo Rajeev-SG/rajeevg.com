@@ -60,6 +60,25 @@ You can edit the home page at `src/app/page.tsx`. Blog content lives in `content
 
 All paths below are relative to `web/`.
 
+```text
+web/
+ ├─ src/
+ │  ├─ app/
+ │  │  ├─ layout.tsx, globals.css, page.tsx, not-found.tsx
+ │  │  ├─ blog/ (page.tsx, [slug]/page.tsx)
+ │  │  └─ dashboard/page.tsx
+ │  ├─ components/
+ │  │  ├─ app-sidebar.tsx, blog-index-client.tsx, ga.tsx, tag-combobox.tsx, theme-provider.tsx, theme-toggle.tsx
+ │  │  └─ ui/ (sidebar.tsx, breadcrumb.tsx, button.tsx, input.tsx, badge.tsx, popover.tsx, scroll-area.tsx, separator.tsx, sheet.tsx, table.tsx, tooltip.tsx, alert.tsx, progress.tsx, skeleton.tsx)
+ │  ├─ hooks/use-mobile.ts
+ │  └─ lib/utils.ts
+ ├─ content/posts/ (Markdown posts, e.g. hello-world.md)
+ ├─ public/ (svg icons, images; Velite outputs assets to public/static/)
+ ├─ next.config.ts, velite.config.ts, tailwind.config.ts, postcss.config.mjs, tsconfig.json, components.json
+ ├─ package.json
+ └─ .gitignore
+```
+
 - `src/app/` — App Router (pages, layouts, global styles)
   - `layout.tsx` — Root layout. Wraps app with `ThemeProvider`, `SidebarProvider`, renders `AppSidebar`, `SidebarInset`, header `SidebarTrigger`, and the main content container (`max-w-screen-lg` with normalized padding). Loads GA4 scripts and mounts the `GA` component. Reads `NEXT_PUBLIC_GA_ID`.
   - `globals.css` — Tailwind v4 setup with design tokens, class-based dark variant, and Shiki dual-theme base CSS (maps `--shiki-light/dark` tokens and styles the copy button).
