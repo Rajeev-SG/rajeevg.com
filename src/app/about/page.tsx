@@ -18,28 +18,28 @@ export default function AboutPage() {
             </Avatar>
             <div className="grid gap-1">
               <CardTitle>Rajeev Gill</CardTitle>
-              <CardDescription>Software engineer • Building fast, accessible web apps</CardDescription>
+              <CardDescription>Data • Analytics • AdTech</CardDescription>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              I design and build modern web applications with a focus on performance, DX, and clean UI systems. This site is
+              Currently building tools to support analytics, adtech and data tasks. This site is
               powered by Next.js, Tailwind, shadcn/ui, and Velite.
             </p>
           </CardContent>
           <CardFooter className="flex flex-wrap gap-2">
             <Button asChild variant="outline">
-              <Link href="mailto:hello@example.com">
+              <Link href="mailto:rajeev.sgill@gmail.com">
                 <Mail className="mr-2" /> Email
               </Link>
             </Button>
             <Button asChild variant="outline">
-              <Link href="https://github.com/" target="_blank" rel="noreferrer noopener">
+              <Link href="https://github.com/Rajeev-SG" target="_blank" rel="noreferrer noopener">
                 <Github className="mr-2" /> GitHub
               </Link>
             </Button>
             <Button asChild variant="outline">
-              <Link href="https://www.linkedin.com/" target="_blank" rel="noreferrer noopener">
+              <Link href="https://www.linkedin.com/in/rajeev-gill/" target="_blank" rel="noreferrer noopener">
                 <Linkedin className="mr-2" /> LinkedIn
               </Link>
             </Button>

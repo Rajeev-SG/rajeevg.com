@@ -219,6 +219,44 @@ web/
   - Add a short description by editing the `CardContent` body.
   - Add tags or icons inside `CardHeader` or `CardContent` as needed.
 
+ - **Tooltips (Docs link)**
+   - Requirements: Wrap the list with `TooltipProvider` (already present in `src/app/tools/page.tsx`).
+   - To show a docs tooltip/button on a card, add `docsHref` and optionally `tooltip` to the project item:
+
+     ```ts
+     {
+       name: "GTM Site Speed",
+       href: "https://gtm-site-speed.rajeevg.com/",
+       imgSrc: "/gtm-site-speed.png",
+       docsHref: "https://github.com/Rajeev-SG/gtm-site-speed",
+       tooltip: "View docs on GitHub" // optional; defaults to "Documentation"
+     }
+     ```
+
+   - Implementation details in `src/app/tools/page.tsx`:
+     - The full-card `Link` uses an absolute overlay (`className="absolute inset-0 z-10"`).
+     - The Docs button sits above it with `z-20`, positioned at `right-2 top-2`.
+     - Tooltip usage:
+
+       ```tsx
+       <Tooltip>
+         <TooltipTrigger asChild>
+           <a
+             href={p.docsHref}
+             target="_blank"
+             rel="noreferrer noopener"
+             aria-label={p.tooltip ?? `Open ${p.name} documentation`}
+             className="inline-flex items-center justify-center rounded-md border bg-background/80 px-2 py-1 text-xs text-foreground shadow-sm backdrop-blur hover:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+           >
+             <ExternalLink className="mr-1 size-3.5" /> Docs
+           </a>
+         </TooltipTrigger>
+         <TooltipContent side="left">{p.tooltip ?? "Documentation"}</TooltipContent>
+       </Tooltip>
+       ```
+
+   - Imports come from `@/components/ui/tooltip` and `lucide-react`. Ensure `TooltipProvider` wraps the list.
+
 - **Test**
   - Run `npm run dev` and visit `/tools`.
   - Verify the grid is responsive: 1 col on mobile, 2 on small screens, 3 on large.

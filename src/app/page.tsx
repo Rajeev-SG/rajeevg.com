@@ -12,7 +12,7 @@ export default function Home() {
     <>
       <section className="space-y-3">
         <h1 className="text-3xl font-bold tracking-tight">Welcome</h1>
-        <p className="text-muted-foreground">Posts on web, dev, and notes.</p>
+        <p className="text-muted-foreground">Stuff I'm interested in (mainly technology)</p>
         <div className="flex items-center gap-2">
           <Button asChild>
             <Link href="/blog">Read the blog</Link>
