@@ -63,11 +63,12 @@ web/
  ├─ src/
  │  ├─ app/
  │  │  ├─ layout.tsx, globals.css, page.tsx, not-found.tsx
+ │  │  ├─ about/page.tsx, tools/page.tsx
  │  │  ├─ blog/ (page.tsx, [slug]/page.tsx)
  │  │  └─ dashboard/page.tsx
  │  ├─ components/
  │  │  ├─ app-sidebar.tsx, blog-index-client.tsx, ga.tsx, mdx-components.tsx, mdx-pre.tsx, tag-combobox.tsx, theme-provider.tsx, theme-toggle.tsx
- │  │  └─ ui/ (sidebar.tsx, breadcrumb.tsx, button.tsx, input.tsx, badge.tsx, popover.tsx, scroll-area.tsx, separator.tsx, sheet.tsx, table.tsx, tooltip.tsx, alert.tsx, progress.tsx, skeleton.tsx)
+ │  │  └─ ui/ (sidebar.tsx, breadcrumb.tsx, button.tsx, input.tsx, badge.tsx, popover.tsx, scroll-area.tsx, separator.tsx, sheet.tsx, table.tsx, tooltip.tsx, alert.tsx, progress.tsx, skeleton.tsx, card.tsx, avatar.tsx)
  │  ├─ hooks/use-mobile.ts
  │  └─ lib/utils.ts
  ├─ content/posts/ (Markdown posts, e.g. hello-world.md)
@@ -82,6 +83,8 @@ web/
   - `globals.css` — Tailwind v4 setup with design tokens, class-based dark variant, and Shiki dual-theme base CSS (maps `--shiki-light/dark` tokens and styles the copy button).
   - `page.tsx` — Homepage. Lists latest posts from `#velite` and links to `/blog`.
   - `not-found.tsx` — Global 404 boundary required when routes call `notFound()`.
+  - `about/page.tsx` — About page with a shadcn `Card` and `Avatar` contact card (email, GitHub, LinkedIn buttons).
+  - `tools/page.tsx` — Tools/projects grid built with `Card`. Each card is a full-link with image + title.
   - `blog/`
     - `page.tsx` — Blog index server component. Gathers posts from `#velite` and renders the client UI via `BlogIndexClient`.
     - `[slug]/page.tsx` — Article page. Looks up a post by slug, renders title/description/date and HTML content from Velite. Correct `params` typing: `{ params: { slug: string } }`. Uses Tailwind `prose` with dual-theme Shiki CSS.
@@ -99,7 +102,7 @@ web/
   - `components/ui/` — shadcn/ui primitives used by the app:
     - `sidebar.tsx` (shadcn sidebar primitives and context), `button.tsx`, `input.tsx`, `badge.tsx`,
       `popover.tsx`, `scroll-area.tsx`, `separator.tsx`, `sheet.tsx`, `breadcrumb.tsx`, `table.tsx`,
-      `tooltip.tsx`, `alert.tsx`, `progress.tsx`, `skeleton.tsx`.
+      `tooltip.tsx`, `alert.tsx`, `progress.tsx`, `skeleton.tsx`, `card.tsx`, `avatar.tsx`.
 
 - `src/hooks/`
   - `use-mobile.ts` — `useIsMobile()` hook returning a boolean based on a 768px breakpoint.
@@ -171,6 +174,48 @@ web/
     - `[Lists](#lists)`
     - `[Table](#table)`
     - `[Code blocks](#code-blocks)`
+
+## Tools page (cards)
+
+- **File**
+  - `src/app/tools/page.tsx`
+
+- **How it works**
+  - Cards are rendered from a local `projects` array:
+
+    ```ts
+    const projects = [
+      { name: "Hello World Post", href: "/blog/hello-world", imgSrc: "/next.svg" },
+      { name: "Project Two", href: "#", imgSrc: "/globe.svg" },
+    ]
+    ```
+
+  - Each list item renders a shadcn `Card` wrapped in a `Link`. The entire card is clickable.
+  - Images use Next/Image with `fill` and `object-contain` inside a fixed-height area (`h-36`).
+
+- **Add or update a card (new tool release)**
+  1. Edit `projects` in `src/app/tools/page.tsx` and append a new item:
+
+     ```ts
+     { name: "My New Tool", href: "/tools/my-new-tool" /* or external URL */, imgSrc: "/tools/my-new-tool.png" }
+     ```
+
+  2. Add the image file under `public/` (recommended: `public/tools/my-new-tool.png`).
+     - Use a transparent PNG or a logo/screenshot that looks good in a 144px-tall area.
+     - Prefer square-ish aspect ratios; `object-contain` will letterbox as needed.
+
+  3. For external links, set `href` to the full URL (e.g. `https://...`). Optionally open in a new tab by adding `target="_blank" rel="noreferrer noopener"` to the `Link` element.
+
+  4. Keep `name` concise (will be the visible card title). The `alt` is derived from `name`.
+
+- **Optional enhancements**
+  - Add a short description by editing the `CardContent` body.
+  - Add tags or icons inside `CardHeader` or `CardContent` as needed.
+
+- **Test**
+  - Run `npm run dev` and visit `/tools`.
+  - Verify the grid is responsive: 1 col on mobile, 2 on small screens, 3 on large.
+  - Check image quality (no stretching) and link targets.
 
 ## Syntax highlighting + MDX UI (Shiki + rehype-pretty-code)
 

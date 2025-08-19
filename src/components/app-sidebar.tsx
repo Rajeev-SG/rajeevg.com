@@ -31,11 +31,11 @@ const postsList = [...allPosts]
 const data = {
   navMain: [
     {
-      title: "Site",
+      title: "Home",
       url: "/",
       items: [
-        { title: "Home", url: "/" },
-        { title: "Blog", url: "/blog" },
+        { title: "About", url: "/about" },
+        { title: "Tools", url: "/tools" },
       ],
     },
     {
@@ -64,7 +64,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <GalleryVerticalEnd className="size-4" />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-medium">Blog</span>
+                  <span className="font-medium">Rajeev Gill</span>
                   <span className="">v1.0.0</span>
                 </div>
               </Link>
