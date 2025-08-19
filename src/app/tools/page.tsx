@@ -3,7 +3,7 @@ import Image from "next/image"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 const projects = [
-  { name: "Hello World Post", href: "/blog/hello-world", imgSrc: "/next.svg" },
+  { name: "GTM Site Speed", href: "https://gtm-site-speed.rajeevg.com/", imgSrc: "/gtm-site-speed.png" },
   { name: "Project Two", href: "#", imgSrc: "/globe.svg" },
   { name: "Project Three", href: "#", imgSrc: "/file.svg" },
 ]

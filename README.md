@@ -208,6 +208,13 @@ web/
 
   4. Keep `name` concise (will be the visible card title). The `alt` is derived from `name`.
 
+  - **External images note**
+    - If you use remote images (e.g. from GitHub) with `next/image`, the host must be allowed in `next.config.ts` under `images.remotePatterns` (or `images.domains`).
+    - This repo permits GitHub-hosted screenshots used on `/tools`:
+      - `github.com` with pathname `/Rajeev-SG/gtm-site-speed/raw/**`
+      - `raw.githubusercontent.com` with pathname `/Rajeev-SG/gtm-site-speed/**`
+    - Prefer adding images under `public/` when possible to avoid remote host configuration.
+
 - **Optional enhancements**
   - Add a short description by editing the `CardContent` body.
   - Add tags or icons inside `CardHeader` or `CardContent` as needed.
