@@ -11,6 +11,17 @@ Welcome to your new blog powered by Velite + Next.js.
 
 This post exercises our MDX → shadcn mapping. Try toggling dark mode and verify everything looks right.
 
+## Table of contents
+
+| Section |
+| --- |
+| [Headings](#headings) |
+| [Paragraphs, links, and inline code](#paragraphs-links-and-inline-code) |
+| [Blockquote → Alert](#blockquote-alert) |
+| [Lists](#lists) |
+| [Table](#table) |
+| [Code blocks](#code-blocks) |
+
 ## Headings
 
 # H1 Title
