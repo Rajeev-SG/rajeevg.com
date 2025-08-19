@@ -11,8 +11,8 @@ function getPostBySlug(slug: string) {
   return posts.find((p: Post) => p.slug === slug)
 }
 
-export default function PostPage({ params }: { params: { slug: string } }) {
-  const { slug } = params
+export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
   const post = getPostBySlug(slug)
   if (!post) return notFound()
 
@@ -37,8 +37,8 @@ export default function PostPage({ params }: { params: { slug: string } }) {
   )
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const { slug } = params
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
   const post = getPostBySlug(slug)
   if (!post) return {}
   return {
@@ -50,3 +50,4 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 export function generateStaticParams() {
   return posts.map((p: Post) => ({ slug: p.slug }))
 }
+

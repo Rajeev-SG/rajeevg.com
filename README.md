@@ -48,7 +48,7 @@ npm run dev
 
 Open http://localhost:3000 and visit:
 
-- `/` — homepage (theme toggle is in the sidebar footer)
+- `/` — homepage renders the most recent blog post (theme toggle is in the sidebar footer)
 - `/blog` — blog index
 - `/blog/hello-world` — sample post with highlighted code + copy button
 
@@ -81,13 +81,13 @@ web/
 - `src/app/` — App Router (pages, layouts, global styles)
   - `layout.tsx` — Root layout. Wraps app with `ThemeProvider`, `SidebarProvider`, renders `AppSidebar`, `SidebarInset`, header `SidebarTrigger`, and the main content container (`max-w-screen-lg` with normalized padding). Loads GA4 scripts and mounts the `GA` component. Reads `NEXT_PUBLIC_GA_ID`.
   - `globals.css` — Tailwind v4 setup with design tokens, class-based dark variant, and Shiki dual-theme base CSS (maps `--shiki-light/dark` tokens and styles the copy button).
-  - `page.tsx` — Homepage. Lists latest posts from `#velite` and links to `/blog`.
+  - `page.tsx` — Homepage. Renders the most recent post inline using the article layout (ReadingProgress + MDX components).
   - `not-found.tsx` — Global 404 boundary required when routes call `notFound()`.
   - `about/page.tsx` — About page with a shadcn `Card` and `Avatar` contact card (email, GitHub, LinkedIn buttons).
   - `tools/page.tsx` — Tools/projects grid built with `Card`. Each card is a full-link with image + title.
   - `blog/`
     - `page.tsx` — Blog index server component. Gathers posts from `#velite` and renders the client UI via `BlogIndexClient`.
-    - `[slug]/page.tsx` — Article page. Looks up a post by slug, renders title/description/date and HTML content from Velite. Correct `params` typing: `{ params: { slug: string } }`. Uses Tailwind `prose` with dual-theme Shiki CSS.
+    - `[slug]/page.tsx` — Article page. Looks up a post by slug, renders title/description/date and HTML content from Velite. Next 15 uses Promise-based route params, so both the page and `generateMetadata` accept `{ params: Promise<{ slug: string }> }` and `await` it. Uses Tailwind `prose` with dual-theme Shiki CSS.
   - `dashboard/page.tsx` — Sample route demonstrating sidebar primitives (breadcrumbs, header, content grid).
 
 - `src/components/` — Reusable components
@@ -125,6 +125,19 @@ web/
   - `components.json` — shadcn/ui generator config and path aliases.
   - `.gitignore` — Ignores `.velite`, `public/static/`, `.next/`, etc.
   - `package.json` — Scripts (`dev`, `build`, `start`, `lint`, `content`) and dependencies.
+
+## SEO and Canonical URLs
+
+- **Files**
+  - `src/app/layout.tsx` — Sets `metadataBase` using `NEXT_PUBLIC_SITE_URL` with a fallback to `http://localhost:3000` so all relative metadata (e.g. canonical) resolves to an absolute URL.
+  - `src/app/page.tsx` — `generateMetadata()` sets `alternates.canonical` to the latest blog post (`/blog/[slug]`). Combined with `metadataBase`, this becomes an absolute canonical URL.
+
+- **Environment**
+  - Set `NEXT_PUBLIC_SITE_URL` in `.env.local` to your production origin, e.g.:
+
+    ```bash
+    NEXT_PUBLIC_SITE_URL=https://rajeevg.com
+    ```
 
 ## Sidebar layout (shadcn/ui sidebar‑03)
 
@@ -299,7 +312,7 @@ web/
   - Keep Shiki CSS mappings in `globals.css`; avoid Tailwind prose rules that override `pre/code` colors/backgrounds.
   - Ensure `tsconfig.json` has `"#velite": ["./.velite"]` and `next.config.ts` triggers Velite during dev/build.
   - Run `npm run content` to regenerate `.velite` outputs if you change Velite config or content schema.
-  - Optional: fix types in `src/app/blog/[slug]/page.tsx` to `{ params: { slug: string } }` (not a Promise) to align with Next conventions.
+  - Note: Next 15 App Router uses Promise-based route params. Type `{ params: Promise<{ slug: string }> }` and `await params` in both the page and `generateMetadata`.
 
 ## Scripts
 

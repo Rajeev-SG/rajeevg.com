@@ -3,7 +3,7 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
-export interface MdxPreProps extends React.ComponentProps<"pre"> {}
+export type MdxPreProps = React.ComponentProps<"pre">
 
 export function MdxPre({ className, children, ...props }: MdxPreProps) {
   const preRef = React.useRef<HTMLPreElement>(null)
@@ -51,3 +51,4 @@ export function MdxPre({ className, children, ...props }: MdxPreProps) {
     </pre>
   )
 }
+

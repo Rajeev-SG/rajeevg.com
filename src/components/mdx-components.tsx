@@ -105,14 +105,14 @@ const A = ({ href = "", children, className, ...rest }: React.ComponentProps<"a"
     )
   }
   return (
-    <Link href={href} className={classes} {...(rest as any)}>
+    <Link href={href} className={classes}>
       {children}
     </Link>
   )
 }
 
 // Blockquote → Alert
-const Blockquote = ({ children, className, ..._props }: React.HTMLAttributes<HTMLDivElement>) => (
+const Blockquote = ({ children, className }: React.HTMLAttributes<HTMLDivElement>) => (
   <Alert className={cn("my-6", className)}>
     <AlertDescription>{children}</AlertDescription>
   </Alert>
@@ -134,7 +134,8 @@ const HR = (props: React.ComponentProps<"hr">) => (
   <Separator className={cn("my-8", props.className)} />
 )
 
-export const mdxComponents = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const mdxComponents: Record<string, React.ComponentType<any>> = {
   h1: H1,
   h2: H2,
   h3: H3,
@@ -159,3 +160,4 @@ export const mdxComponents = {
   tfoot: TableFooter,
   caption: TableCaption,
 }
+
