@@ -16,6 +16,7 @@ const posts = defineCollection({
       draft: s.boolean().default(false),
       tags: s.array(s.string()).default([]),
       excerpt: s.excerpt(),
+      image: s.string().optional(),
       code: s.mdx(),
     })
     .transform((data) => ({

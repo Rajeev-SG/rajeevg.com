@@ -3,6 +3,9 @@ import { posts, type Post } from "#velite";
 import { MDXContent } from "@/components/mdx-content";
 import { mdxComponents } from "@/components/mdx-components";
 import { ReadingProgress } from "@/components/reading-progress";
+import { site } from "@/lib/site";
+
+export const revalidate = 3600;
 
 export default function Home() {
   const latest = posts
@@ -44,12 +47,21 @@ export async function generateMetadata(): Promise<Metadata> {
     .filter((p: Post) => process.env.NODE_ENV !== "production" || !p.draft)
     .sort((a: Post, b: Post) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]
 
-  if (!latest) return {}
+  if (!latest) {
+    return {
+      title: site.name,
+      description: site.description,
+      alternates: { canonical: "/" },
+    }
+  }
   return {
-    title: latest.title,
-    description: latest.description,
+    title: site.name,
+    description: site.description,
     alternates: {
-      canonical: `/blog/${latest.slug}`,
+      canonical:
+        site.homeCanonicalStrategy === "latest-post"
+          ? `/blog/${latest.slug}`
+          : `/`,
     },
   }
 }

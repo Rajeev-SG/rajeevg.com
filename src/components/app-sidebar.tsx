@@ -58,7 +58,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/" onClick={handleNav}>
+              <Link href="/" prefetch={false} onClick={handleNav}>
                 {/* <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                   <GalleryVerticalEnd className="size-4" />
                 </div> */}
@@ -76,7 +76,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {data.navMain.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton asChild isActive={pathname === item.url}>
-                  <Link href={item.url} onClick={handleNav} className="font-medium">
+                  <Link href={item.url} prefetch={false} onClick={handleNav} className="font-medium">
                     {item.title}
                   </Link>
                 </SidebarMenuButton>
@@ -85,7 +85,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     {item.items.map((sub) => (
                       <SidebarMenuSubItem key={sub.title}>
                         <SidebarMenuSubButton asChild isActive={pathname === sub.url}>
-                          <Link href={sub.url} onClick={handleNav}>{sub.title}</Link>
+                          <Link href={sub.url} prefetch={false} onClick={handleNav}>{sub.title}</Link>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>
                     ))}

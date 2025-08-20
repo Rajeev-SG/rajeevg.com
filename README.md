@@ -62,15 +62,15 @@ All paths below are relative to `web/`.
 web/
  ├─ src/
  │  ├─ app/
- │  │  ├─ layout.tsx, globals.css, page.tsx, not-found.tsx
+ │  │  ├─ layout.tsx, globals.css, head.tsx, page.tsx, not-found.tsx, sitemap.ts, robots.ts
  │  │  ├─ about/page.tsx, tools/page.tsx
  │  │  ├─ blog/ (page.tsx, [slug]/page.tsx)
  │  │  └─ dashboard/page.tsx
  │  ├─ components/
- │  │  ├─ app-sidebar.tsx, blog-index-client.tsx, ga.tsx, mdx-components.tsx, mdx-pre.tsx, tag-combobox.tsx, theme-provider.tsx, theme-toggle.tsx
+ │  │  ├─ app-sidebar.tsx, blog-index-client.tsx, ga.tsx, mdx-components.tsx, mdx-pre.tsx, reading-progress.tsx, tag-combobox.tsx, theme-provider.tsx, theme-toggle.tsx
  │  │  └─ ui/ (sidebar.tsx, breadcrumb.tsx, button.tsx, input.tsx, badge.tsx, popover.tsx, scroll-area.tsx, separator.tsx, sheet.tsx, table.tsx, tooltip.tsx, alert.tsx, progress.tsx, skeleton.tsx, card.tsx, avatar.tsx)
  │  ├─ hooks/use-mobile.ts
- │  └─ lib/utils.ts
+ │  └─ lib/ (site.ts, utils.ts)
  ├─ content/posts/ (Markdown posts, e.g. hello-world.md)
  ├─ public/ (svg icons, images; Velite outputs assets to public/static/)
  ├─ next.config.ts, velite.config.ts, tailwind.config.ts, postcss.config.mjs, tsconfig.json, components.json
@@ -83,6 +83,9 @@ web/
   - `globals.css` — Tailwind v4 setup with design tokens, class-based dark variant, and Shiki dual-theme base CSS (maps `--shiki-light/dark` tokens and styles the copy button).
   - `page.tsx` — Homepage. Renders the most recent post inline using the article layout (ReadingProgress + MDX components).
   - `not-found.tsx` — Global 404 boundary required when routes call `notFound()`.
+  - `head.tsx` — Preconnect and dns-prefetch hints for GA domains to speed up analytics.
+  - `sitemap.ts` — Dynamic sitemap including home, blog index, and all posts with `lastModified`.
+  - `robots.ts` — Robots policy allowing all; sets `host` and `sitemap` URLs.
   - `about/page.tsx` — About page with a shadcn `Card` and `Avatar` contact card (email, GitHub, LinkedIn buttons).
   - `tools/page.tsx` — Tools/projects grid built with `Card`. Each card is a full-link with image + title.
   - `blog/`
@@ -96,6 +99,7 @@ web/
   - `ga.tsx` — GA4 SPA page_view sender using `gtag` on route changes (first load + navigations).
   - `mdx-components.tsx` — MDX mapping (headings, inline code, blockquote→Alert, tables, links with external icon). Maps `pre` to `MdxPre`.
   - `mdx-pre.tsx` — Client component rendering `<pre>` with a React copy button (Clipboard API, success state). Not injected by rehype.
+  - `reading-progress.tsx` — Client progress bar shown above articles; uses shadcn `Progress` and observes `#article-content`.
   - `tag-combobox.tsx` — Tag selection UI using `Popover` and `ScrollArea`.
   - `theme-provider.tsx` — `next-themes` provider (class attribute, system default).
   - `theme-toggle.tsx` — Button to toggle between light/dark.
@@ -108,6 +112,7 @@ web/
   - `use-mobile.ts` — `useIsMobile()` hook returning a boolean based on a 768px breakpoint.
 
 - `src/lib/`
+  - `site.ts` — Site-wide constants (`name`, `description`, `siteUrl`, `defaultOgImage`, `homeCanonicalStrategy`).
   - `utils.ts` — `cn(...classValues)` utility combining `clsx` with `tailwind-merge`.
 
 - `content/` — Source Markdown content
@@ -118,7 +123,7 @@ web/
 
 - Configuration
   - `next.config.ts` — Starts Velite build/watch alongside `next dev/build`.
-  - `velite.config.ts` — Defines `posts` collection schema, Shiki dual themes, and heading anchors via `rehype-slug` + `rehype-autolink-headings` (class `heading-anchor`), plus draft filtering in production. No copy‑button transformer; copying is handled in React. Outputs to `.velite` and `public/static/`.
+  - `velite.config.ts` — Defines `posts` collection schema (includes optional `image` for per‑post OG), Shiki dual themes, and heading anchors via `rehype-slug` + `rehype-autolink-headings` (class `heading-anchor`), plus draft filtering in production. No copy‑button transformer; copying is handled in React. Outputs to `.velite` and `public/static/`.
   - `tailwind.config.ts` — Tailwind v4 config (`darkMode: "class"`, content paths, `animate` and `typography` plugins).
   - `postcss.config.mjs` — Uses `@tailwindcss/postcss`.
   - `tsconfig.json` — Path aliases: `@/*` → `src/*`, `#velite` → `.velite`; Next.js TypeScript plugin.
@@ -128,16 +133,49 @@ web/
 
 ## SEO and Canonical URLs
 
-- **Files**
-  - `src/app/layout.tsx` — Sets `metadataBase` using `NEXT_PUBLIC_SITE_URL` with a fallback to `http://localhost:3000` so all relative metadata (e.g. canonical) resolves to an absolute URL.
-  - `src/app/page.tsx` — `generateMetadata()` sets `alternates.canonical` to the latest blog post (`/blog/[slug]`). Combined with `metadataBase`, this becomes an absolute canonical URL.
+- **Central config**
+  - `src/lib/site.ts` — Site-wide constants:
+    - `name`, `description`
+    - `siteUrl` (from `NEXT_PUBLIC_SITE_URL`, defaults to `https://rajeevg.com`)
+    - `defaultOgImage` (fallback OG image under `public/`)
+    - `homeCanonicalStrategy`: `"self"` (recommended) or `"latest-post"`
+
+- **Root metadata defaults**
+  - `src/app/layout.tsx` — Sets `metadataBase` to `site.siteUrl`; OpenGraph + Twitter defaults use site name/description and `defaultOgImage`.
+
+- **Home**
+  - `src/app/page.tsx` — `export const revalidate = 3600` (ISR). `generateMetadata()` sets canonical based on `site.homeCanonicalStrategy`:
+    - `self` → canonical `/`
+    - `latest-post` → canonical to `/blog/[slug]` of most recent post
+
+- **Blog index**
+  - `src/app/blog/page.tsx` — `revalidate = 3600`; title "Blog"; canonical `/blog`.
+
+- **Blog post**
+  - `src/app/blog/[slug]/page.tsx` — Adds `alternates.canonical` (`/blog/[slug]`), OpenGraph (article: publishedTime, authors, tags, images), Twitter card, and JSON‑LD Article. Uses optional `image` from the Velite post schema for OG; falls back to `site.defaultOgImage`.
+
+- **SEO routes**
+  - `src/app/sitemap.ts` — Generates sitemap for home, blog index, and all posts (with `lastModified`).
+  - `src/app/robots.ts` — Allows all; sets `host` and `sitemap`.
+  - `src/app/head.tsx` — Preconnect/dns‑prefetch GA domains for faster analytics.
 
 - **Environment**
-  - Set `NEXT_PUBLIC_SITE_URL` in `.env.local` to your production origin, e.g.:
+  - `.env.local` example:
 
     ```bash
     NEXT_PUBLIC_SITE_URL=https://rajeevg.com
+    NEXT_PUBLIC_HOME_CANONICAL=self       # or latest-post
+    NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
     ```
+
+## Performance & Caching
+
+- **Prefetch**: Disabled for large link lists to reduce network/CPU
+  - `src/components/app-sidebar.tsx` and `src/components/blog-index-client.tsx` use `prefetch={false}` on bulk `Link`s.
+- **MDX <img>**: Lightweight image mapping
+  - `src/components/mdx-components.tsx` maps `img` to add `loading="lazy"`, `decoding="async"`, and a default `alt=""`.
+- **ISR**: Stable caching
+  - Home and blog index export `revalidate = 3600` (1h) for incremental static regeneration.
 
 ## Sidebar layout (shadcn/ui sidebar‑03)
 
@@ -163,7 +201,7 @@ web/
 - **Header alignment**: the header wraps the `SidebarTrigger` in the same container, so the left edges of the toggle and page content align.
 - **Wide screens**: on `xl+` viewports, the container is left-aligned via `xl:mx-0 xl:mr-auto` to avoid excessive left margin while staying aligned with the sidebar.
 - **Blog index**: `src/components/blog-index-client.tsx` no longer adds its own outer container; it relies on the global container and uses a local `section.space-y-6`.
-- **Article page**: `src/app/blog/[slug]/page.tsx` uses `<article className="space-y-6">` (no outer container) and fixes Next params typing to `{ params: { slug: string } }`.
+- **Article page**: `src/app/blog/[slug]/page.tsx` uses `<article className="space-y-6">` (no outer container) and uses Promise‑based route params in Next 15: `{ params: Promise<{ slug: string }> }` with `await params` in both the page and `generateMetadata()`.
 
 ## Reading progress bar + Table of contents
 

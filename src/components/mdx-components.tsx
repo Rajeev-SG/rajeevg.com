@@ -87,6 +87,17 @@ const Pre = ({ className, ...props }: React.ComponentProps<"pre">) => (
   <MdxPre className={className} {...props} />
 )
 
+// Images: lazy + async decoding by default
+const Img = ({
+  loading = "lazy",
+  decoding = "async",
+  alt = "",
+  ...props
+}: React.ComponentProps<"img">) => (
+  // eslint-disable-next-line @next/next/no-img-element
+  <img loading={loading} decoding={decoding} alt={alt} {...props} />
+)
+
 // Links (internal vs external)
 const A = ({ href = "", children, className, ...rest }: React.ComponentProps<"a">) => {
   const isExternal = typeof href === "string" && /^(https?:)?\/\//.test(href)
@@ -147,6 +158,7 @@ export const mdxComponents: Record<string, React.ComponentType<any>> = {
   blockquote: Blockquote,
   code: InlineCode,
   pre: Pre,
+  img: Img,
   hr: HR,
   ul: UL,
   ol: OL,

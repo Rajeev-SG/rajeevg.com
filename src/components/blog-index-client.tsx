@@ -97,6 +97,7 @@ export function BlogIndexClient({
           <li key={post.slug} className="border-b border-border pb-4">
             <Link
               href={`/blog/${post.slug}`}
+              prefetch={false}
               className="text-lg font-semibold hover:underline"
             >
               {post.title}

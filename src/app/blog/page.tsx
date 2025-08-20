@@ -1,5 +1,9 @@
 import { posts, type Post } from "#velite"
 import { BlogIndexClient } from "@/components/blog-index-client"
+import type { Metadata } from "next"
+import { site } from "@/lib/site"
+
+export const revalidate = 3600
 
 export default function BlogIndex() {
   const docs = posts
@@ -20,5 +24,13 @@ export default function BlogIndex() {
   )
 
   return <BlogIndexClient allPosts={allPosts} allTags={allTags} />
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: "Blog",
+    description: site.description,
+    alternates: { canonical: "/blog" },
+  }
 }
 
