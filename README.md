@@ -193,6 +193,23 @@ web/
   - Edit `data.navMain` and/or the `postsList` mapping in `src/components/app-sidebar.tsx`.
   - For new routes (e.g. `/about`, `/projects`), add items under the "Site" group.
 
+### Recent fixes: sidebar overflow + hover-scroll titles
+
+- **Overflow containment**
+  - `src/components/ui/sidebar.tsx`
+    - Wrapper (`SidebarProvider` root): ensures `overflow-x-clip` on `[data-slot="sidebar-wrapper"]` so opening the sidebar never pushes content off-screen.
+    - Main area (`SidebarInset`): includes `min-w-0 flex-1` so the content region can shrink without causing horizontal scroll.
+- **Long titles: hover-scroll marquee**
+  - `src/components/hover-scroll-text.tsx` renders post titles in the sidebar with a smooth horizontal scroll on hover.
+  - `src/app/globals.css` defines the `@keyframes hover-marquee` animation used by the component.
+  - Behavior: titles remain single-line (`whitespace-nowrap`) and scroll horizontally on hover; a CSS custom property controls the scroll distance.
+- **Verification**
+  - Tested at 1024px, 768px, and 375px widths with the sidebar open: no horizontal overflow; long titles scroll as intended on hover.
+  - Checked that page `scrollWidth <= clientWidth` during sidebar interactions and that body/html do not introduce unintended horizontal scroll.
+- **Troubleshooting**
+  - If overflow appears, confirm `overflow-x-clip` on the wrapper and `min-w-0` on the main content container.
+  - If hover-scroll doesn’t trigger, ensure the title container uses `overflow-hidden` and `whitespace-nowrap`, and that the marquee keyframes exist in `globals.css`.
+
 ## Layout and spacing (containers + alignment)
 
 - **Global container**: `src/app/layout.tsx` wraps page content in a single max-width container

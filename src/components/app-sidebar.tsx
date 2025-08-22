@@ -20,6 +20,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { posts as allPosts } from "#velite"
+import { HoverScrollText } from "@/components/hover-scroll-text"
 
 // Build nav from site links and Velite posts
 const postsList = [...allPosts]
@@ -84,7 +85,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     {item.items.map((sub) => (
                       <SidebarMenuSubItem key={sub.title}>
                         <SidebarMenuSubButton asChild isActive={pathname === sub.url}>
-                          <Link href={sub.url} prefetch={false} onClick={handleNav}>{sub.title}</Link>
+                          <Link href={sub.url} prefetch={false} onClick={handleNav} className="min-w-0 w-full">
+                            <HoverScrollText text={sub.title} />
+                          </Link>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>
                     ))}
