@@ -19,7 +19,7 @@ A performant blog using Next.js 15 (App Router + Turbopack), Tailwind CSS v4, sh
   - Runtime deps: `clsx`, `class-variance-authority`, `tailwind-merge`, `lucide-react`, Radix UI primitives
 - **next-themes**
   - Why: class‑based dark mode
-  - How: `ThemeProvider` in `src/app/layout.tsx`; `ThemeToggle` in `src/components/theme-toggle.tsx` (rendered in the sidebar footer)
+  - How: `ThemeProvider` in `src/app/layout.tsx`; `ThemeToggle` in `src/components/theme-toggle.tsx` (rendered in the header)
 - **Velite (content layer)**
   - Why: typed content collections + fast build; ships generated types
   - How: config in `velite.config.ts`; alias `#velite` → `.velite` in `tsconfig.json`; auto build/watch wired in `next.config.ts`; content in `content/`; outputs to `.velite` and `public/static`
@@ -46,13 +46,14 @@ npm run content
 npm run dev
 ```
 
-Open http://localhost:3000 and visit:
+Open http://localhost:3000 (or pass a custom port with `npm run dev -- -p 3003`) and visit:
 
-- `/` — homepage renders the most recent blog post (theme toggle is in the sidebar footer)
+- `/` — homepage renders the most recent blog post (theme toggle is in the header)
 - `/blog` — blog index
 - `/blog/hello-world` — sample post with highlighted code + copy button
 
 You can edit the home page at `src/app/page.tsx`. Blog content lives in `content/posts/*`. Velite config is at `velite.config.ts`.
+Environment variables for the app should be placed under `web/.env.local`.
 
 ## Project structure
 
@@ -79,7 +80,7 @@ web/
 ```
 
 - `src/app/` — App Router (pages, layouts, global styles)
-  - `layout.tsx` — Root layout. Wraps app with `ThemeProvider`, `SidebarProvider`, renders `AppSidebar`, `SidebarInset`, header `SidebarTrigger`, and the main content container (`max-w-screen-lg` with normalized padding). Loads GA4 scripts and mounts the `GA` component. Reads `NEXT_PUBLIC_GA_ID`.
+  - `layout.tsx` — Root layout. Wraps app with `ThemeProvider`, `SidebarProvider`, renders `AppSidebar`, `SidebarInset`, header with `SidebarTrigger` and `ThemeToggle`, and the main content container (`max-w-screen-lg` with normalized padding). Loads GA4 scripts and mounts the `GA` component when `NEXT_PUBLIC_GA_ID` is present.
   - `globals.css` — Tailwind v4 setup with design tokens, class-based dark variant, and Shiki dual-theme base CSS (maps `--shiki-light/dark` tokens and styles the copy button).
   - `page.tsx` — Homepage. Renders the most recent post inline using the article layout (ReadingProgress + MDX components).
   - `not-found.tsx` — Global 404 boundary required when routes call `notFound()`.
@@ -94,7 +95,7 @@ web/
   - `dashboard/page.tsx` — Sample route demonstrating sidebar primitives (breadcrumbs, header, content grid).
 
 - `src/components/` — Reusable components
-  - `app-sidebar.tsx` — Application sidebar built on shadcn/ui sidebar primitives. Renders “Site” links and a dynamic “Posts” section from `#velite`. Auto-closes on mobile navigation. Places `ThemeToggle` in the footer.
+  - `app-sidebar.tsx` — Application sidebar built on shadcn/ui sidebar primitives. Renders “Site” links and a dynamic “Posts” section from `#velite`. Auto-closes on mobile navigation.
   - `blog-index-client.tsx` — Client interactivity for the blog index: text search, tag filters (badges on desktop, combobox on mobile). Displays filtered list.
   - `ga.tsx` — GA4 SPA page_view sender using `gtag` on route changes (first load + navigations).
   - `mdx-components.tsx` — MDX mapping (headings, inline code, blockquote→Alert, tables, links with external icon). Maps `pre` to `MdxPre`.
@@ -187,7 +188,7 @@ web/
   - Nav includes "Site" links and a "Posts" section generated from Velite (`#velite`).
   - Active states are derived from `usePathname()`.
   - On mobile, the sidebar opens as a sheet and auto‑closes after clicking a link.
-  - The theme toggle lives in the sidebar footer.
+  - The theme toggle is rendered in the header.
 - **Add links**
   - Edit `data.navMain` and/or the `postsList` mapping in `src/components/app-sidebar.tsx`.
   - For new routes (e.g. `/about`, `/projects`), add items under the "Site" group.
@@ -337,6 +338,28 @@ web/
   ```
 
 - **Customize theme**: change the theme names in `velite.config.ts` to any Shiki theme(s). The CSS above will continue to work with dual themes.
+
+## Dark mode (mobile-friendly, persistent)
+
+- **Library**: `next-themes` with `attribute="class"` via `ThemeProvider` in `src/app/layout.tsx`.
+- **Toggle**: `src/components/theme-toggle.tsx` toggles between `light` and `dark`. The `html` element receives/removes the `dark` class.
+- **Persistence**: User preference is stored in `localStorage` under `"theme"` and respected across reloads. `defaultTheme="system"` enables auto-match to OS until user toggles.
+- **Tailwind**: Dark variant uses the class strategy (`darkMode: 'class'`) with selectors in `src/app/globals.css` compatible with mobile Chrome.
+
+## Analytics (GA4 + SPA page_view)
+
+- **Env var location**: Put GA ID in `web/.env.local`:
+
+  ```bash
+  NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
+  NEXT_PUBLIC_SITE_URL=https://rajeevg.com
+  ```
+
+- **Script loading**: `src/app/layout.tsx` conditionally injects gtag:
+  - Loads `https://www.googletagmanager.com/gtag/js?id=...` after interactive.
+  - Initializes `window.dataLayer` and `gtag` with `send_page_view: false` to avoid duplicate initial hits.
+- **SPA tracking**: `src/components/ga.tsx` listens to route changes (`usePathname`, `useSearchParams`) and calls `gtag('config', id, { page_path })` so a `page_view` is sent on navigations.
+- **Verification tips**: In the browser devtools, check `typeof window.gtag === 'function'`, presence of the gtag `<script>` tag, and network requests to `https://www.google-analytics.com/g/collect` after client-side navigation.
 
 ## Build issues and prevention
 
