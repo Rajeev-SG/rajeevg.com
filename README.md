@@ -68,7 +68,7 @@ web/
  │  │  ├─ blog/ (page.tsx, [slug]/page.tsx)
  │  │  └─ dashboard/page.tsx
  │  ├─ components/
- │  │  ├─ app-sidebar.tsx, blog-index-client.tsx, ga.tsx, mdx-components.tsx, mdx-pre.tsx, reading-progress.tsx, tag-combobox.tsx, theme-provider.tsx, theme-toggle.tsx
+ │  │  ├─ app-sidebar.tsx, blog-index-client.tsx, hover-scroll-text.tsx, mdx-components.tsx, mdx-content.tsx, mdx-pre.tsx, reading-progress.tsx, tag-combobox.tsx, theme-provider.tsx, theme-toggle.tsx
  │  │  └─ ui/ (sidebar.tsx, breadcrumb.tsx, button.tsx, input.tsx, badge.tsx, popover.tsx, scroll-area.tsx, separator.tsx, sheet.tsx, table.tsx, tooltip.tsx, alert.tsx, progress.tsx, skeleton.tsx, card.tsx, avatar.tsx)
  │  ├─ hooks/use-mobile.ts
  │  └─ lib/ (site.ts, utils.ts)
@@ -80,11 +80,11 @@ web/
 ```
 
 - `src/app/` — App Router (pages, layouts, global styles)
-  - `layout.tsx` — Root layout. Wraps app with `ThemeProvider`, `SidebarProvider`, renders `AppSidebar`, `SidebarInset`, header with `SidebarTrigger` and `ThemeToggle`, and the main content container (`max-w-screen-lg` with normalized padding). Loads GA4 scripts and mounts the `GA` component when `NEXT_PUBLIC_GA_ID` is present.
+  - `layout.tsx` — Root layout. Wraps app with `ThemeProvider`, `SidebarProvider`, renders `AppSidebar`, `SidebarInset`, header with `SidebarTrigger` and `ThemeToggle`, and the main content container (`max-w-screen-lg` with normalized padding). Mounts Google Tag Manager via `<GoogleTagManager />` when `NEXT_PUBLIC_GTM_ID` is present.
   - `globals.css` — Tailwind v4 setup with design tokens, class-based dark variant, and Shiki dual-theme base CSS (maps `--shiki-light/dark` tokens and styles the copy button).
   - `page.tsx` — Homepage. Renders the most recent post inline using the article layout (ReadingProgress + MDX components).
   - `not-found.tsx` — Global 404 boundary required when routes call `notFound()`.
-  - `head.tsx` — Preconnect and dns-prefetch hints for GA domains to speed up analytics.
+  - `head.tsx` — Preconnect/dns‑prefetch GTM/GA endpoints for faster analytics.
   - `sitemap.ts` — Dynamic sitemap including home, blog index, and all posts with `lastModified`.
   - `robots.ts` — Robots policy allowing all; sets `host` and `sitemap` URLs.
   - `about/page.tsx` — About page with a shadcn `Card` and `Avatar` contact card (email, GitHub, LinkedIn buttons).
@@ -94,11 +94,11 @@ web/
     - `[slug]/page.tsx` — Article page. Looks up a post by slug, renders title/description/date and HTML content from Velite. Next 15 uses Promise-based route params, so both the page and `generateMetadata` accept `{ params: Promise<{ slug: string }> }` and `await` it. Uses Tailwind `prose` with dual-theme Shiki CSS.
   - `dashboard/page.tsx` — Sample route demonstrating sidebar primitives (breadcrumbs, header, content grid).
 
-- `src/components/` — Reusable components
+ - `src/components/` — Reusable components
   - `app-sidebar.tsx` — Application sidebar built on shadcn/ui sidebar primitives. Renders “Site” links and a dynamic “Posts” section from `#velite`. Auto-closes on mobile navigation.
   - `blog-index-client.tsx` — Client interactivity for the blog index: text search, tag filters (badges on desktop, combobox on mobile). Displays filtered list.
-  - `ga.tsx` — GA4 SPA page_view sender using `gtag` on route changes (first load + navigations).
   - `mdx-components.tsx` — MDX mapping (headings, inline code, blockquote→Alert, tables, links with external icon). Maps `pre` to `MdxPre`.
+  - `mdx-content.tsx` — Helper for rendering processed MDX HTML content with the correct components.
   - `mdx-pre.tsx` — Client component rendering `<pre>` with a React copy button (Clipboard API, success state). Not injected by rehype.
   - `reading-progress.tsx` — Client progress bar shown above articles; uses shadcn `Progress` and observes `#article-content`.
   - `tag-combobox.tsx` — Tag selection UI using `Popover` and `ScrollArea`.
@@ -158,7 +158,7 @@ web/
 - **SEO routes**
   - `src/app/sitemap.ts` — Generates sitemap for home, blog index, and all posts (with `lastModified`).
   - `src/app/robots.ts` — Allows all; sets `host` and `sitemap`.
-  - `src/app/head.tsx` — Preconnect/dns‑prefetch GA domains for faster analytics.
+  - `src/app/head.tsx` — Preconnect/dns‑prefetch GTM/GA endpoints for faster analytics.
 
 - **Environment**
   - `.env.local` example:
@@ -166,7 +166,7 @@ web/
     ```bash
     NEXT_PUBLIC_SITE_URL=https://rajeevg.com
     NEXT_PUBLIC_HOME_CANONICAL=self       # or latest-post
-    NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
+    NEXT_PUBLIC_GTM_ID=GTM-XXXXXXX
     ```
 
 ## Performance & Caching
@@ -363,20 +363,36 @@ web/
 - **Persistence**: User preference is stored in `localStorage` under `"theme"` and respected across reloads. `defaultTheme="system"` enables auto-match to OS until user toggles.
 - **Tailwind**: Dark variant uses the class strategy (`darkMode: 'class'`) with selectors in `src/app/globals.css` compatible with mobile Chrome.
 
-## Analytics (GA4 + SPA page_view)
+## Analytics (Google Tag Manager)
 
-- **Env var location**: Put GA ID in `web/.env.local`:
+- **Summary**: The app mounts GTM at the root. GA4 pageviews are handled entirely by the Google Tag (GA4 Configuration) inside your GTM container. No app-side SPA pageview wiring is used, because the Google Tag automatically sends page view events due to the history change (seems to be triggered automatically by the GTM container when the URL path updates). Click > URL updates > History Change > Page view sent by Google Tag... 
+
+- **Env var**: Put GTM container ID in `web/.env.local`:
 
   ```bash
-  NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
+  NEXT_PUBLIC_GTM_ID=GTM-XXXXXXX
   NEXT_PUBLIC_SITE_URL=https://rajeevg.com
   ```
 
-- **Script loading**: `src/app/layout.tsx` conditionally injects gtag:
-  - Loads `https://www.googletagmanager.com/gtag/js?id=...` after interactive.
-  - Initializes `window.dataLayer` and `gtag` with `send_page_view: false` to avoid duplicate initial hits.
-- **SPA tracking**: `src/components/ga.tsx` listens to route changes (`usePathname`, `useSearchParams`) and calls `gtag('config', id, { page_path })` so a `page_view` is sent on navigations.
-- **Verification tips**: In the browser devtools, check `typeof window.gtag === 'function'`, presence of the gtag `<script>` tag, and network requests to `https://www.google-analytics.com/g/collect` after client-side navigation.
+- **Root integration**: `src/app/layout.tsx` mounts GTM when `NEXT_PUBLIC_GTM_ID` is present:
+  - `<GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />` (from `@next/third-parties/google`)
+
+- **Container setup**
+  - Install a GA4 Configuration tag (Google Tag) with your Measurement ID.
+  - Leave the default “Send a page view event when this configuration loads” enabled.
+  - Result: exactly one GA4 `page_view` per navigation.
+
+- **Send custom events**: In any client component you can emit additional analytics events:
+
+  ```ts
+  import { sendGTMEvent } from "@next/third-parties/google"
+  sendGTMEvent({ event: "signup", plan: "pro" })
+  ```
+
+- **Verification tips**:
+  - In DevTools, confirm `dataLayer` exists and that GTM script `gtm.js` loads.
+  - Use GTM Preview to verify one page_view per navigation from the Google Tag.
+  - Watch requests to `https://www.google-analytics.com/g/collect` (or region endpoint) for GA4 hits.
 
 ## Build issues and prevention
 
