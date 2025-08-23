@@ -354,13 +354,90 @@ web/
   }
   ```
 
-- **Customize theme**: change the theme names in `velite.config.ts` to any Shiki theme(s). The CSS above will continue to work with dual themes.
+  - **Customize theme**: change the theme names in `velite.config.ts` to any Shiki theme(s). The CSS above will continue to work with dual themes.
+
+## Mermaid diagrams (rehype-mermaid)
+
+- **What**: Build‑time rendering of Mermaid code blocks to inline SVG using `rehype-mermaid`.
+- **Why**: Zero client‑side JS for diagrams (SEO‑friendly, fast), consistent styling with the site theme.
+
+### Install
+
+```bash
+npm i rehype-mermaid
+npm i -D playwright
+npx playwright install chromium
+```
+
+`rehype-mermaid` uses Playwright in Node to render diagrams during the content build. Chromium is required. This does not add client‑side hydration for Mermaid.
+
+### Configuration
+
+- File: `web/velite.config.ts`
+- Mermaid is wired in `mdx.rehypePlugins` before `rehype-pretty-code`:
+
+```ts
+import rehypeMermaid from 'rehype-mermaid'
+
+mdx: {
+  remarkPlugins: [remarkGfm],
+  rehypePlugins: [
+    rehypeSlug,
+    [rehypeAutolinkHeadings as any, { behavior: 'wrap', properties: { className: ['heading-anchor'] } }] as any,
+    [
+      rehypeMermaid as any,
+      {
+        strategy: 'inline-svg',
+        mermaidConfig: {
+          startOnLoad: false,
+          securityLevel: 'loose',
+          theme: 'base',
+          // Use concrete colors supported by Mermaid (avoid CSS variables here)
+          themeVariables: {
+            primaryColor: '#ffffff',
+            primaryTextColor: '#111111',
+            primaryBorderColor: '#e5e7eb',
+            lineColor: '#9ca3af',
+            tertiaryColor: '#f7f7f7',
+            background: 'transparent',
+          },
+        },
+      },
+    ] as any,
+    [rehypePrettyCode, { theme: { light: 'github-light', dark: 'github-dark' } }],
+  ],
+}
+```
+
+### Styling
+
+- File: `web/src/app/globals.css`
+- Mermaid SVGs are styled via `.prose svg[aria-roledescription]` for padding, border, background, radius, and responsive width. They inherit colors from the theme tokens for the surrounding container.
+
+### Usage in Markdown
+
+Add a fenced code block with language `mermaid`:
+
+```mermaid
+graph TD
+  A[Write/Modify Code] --> B{Run `pnpm dev`}
+  B --> C[Test in Browser]
+  C -->|Looks good?| D[Commit]
+  C -->|Needs changes?| A
+  D --> E[Deploy]
+```
+
+Diagrams render to inline SVG during `npm run content`, `npm run dev`, and `npm run build`.
+
+### Alternatives (optional)
+
+- To avoid Playwright entirely, set `strategy: 'pre-mermaid'` and include Mermaid JS on the client to hydrate diagrams. This adds client JS and defers rendering, so it’s not recommended for SEO/perf.
 
 ## Dark mode (mobile-friendly, persistent)
 
 - **Library**: `next-themes` with `attribute="class"` via `ThemeProvider` in `src/app/layout.tsx`.
 - **Toggle**: `src/components/theme-toggle.tsx` toggles between `light` and `dark`. The `html` element receives/removes the `dark` class.
-- **Persistence**: User preference is stored in `localStorage` under `"theme"` and respected across reloads. `defaultTheme="system"` enables auto-match to OS until user toggles.
+{{ ... }}
 - **Tailwind**: Dark variant uses the class strategy (`darkMode: 'class'`) with selectors in `src/app/globals.css` compatible with mobile Chrome.
 
 ## Analytics (Google Tag Manager)
