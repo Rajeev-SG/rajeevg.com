@@ -1,12 +1,11 @@
 import type { NextConfig } from "next";
 
-// Start Velite alongside Next.js in dev/build
+// Start Velite alongside Next.js in dev only (build runs via npm script)
 const isDev = process.argv.includes("dev")
-const isBuild = process.argv.includes("build")
-if (!process.env.VELITE_STARTED && (isDev || isBuild)) {
+if (!process.env.VELITE_STARTED && isDev) {
   process.env.VELITE_STARTED = "1"
   import("velite")
-    .then((m) => m.build({ watch: isDev, clean: !isDev }))
+    .then((m) => m.build({ watch: true, clean: false }))
     .catch((err) => console.error("Velite build failed:", err))
 }
 
