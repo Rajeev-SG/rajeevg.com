@@ -112,9 +112,11 @@ pnpm add remark-gfm rehype-slug rehype-autolink-headings
 
 ```mermaid
 graph TD
-  A[Write/Modify Code] --> B{Run `pnpm dev`}
+  A[Write/Modify Code] --> B{Run pnpm dev}
   B --> C[Test in Browser]
   C -->|Looks good?| D[Commit]
   C -->|Needs changes?| A
   D --> E[Deploy]
+  %% Clickable node with tooltip (docs for pnpm run)
+  click B href "https://pnpm.io/cli/run" "pnpm run (dev) documentation"
 ```

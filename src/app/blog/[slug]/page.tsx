@@ -5,6 +5,7 @@ import { MDXContent } from "@/components/mdx-content"
 import { mdxComponents } from "@/components/mdx-components"
 import { ReadingProgress } from "@/components/reading-progress"
 import { site } from "@/lib/site"
+import { MermaidTooltips } from "@/components/mermaid-tooltips"
 
  
 function getPostBySlug(slug: string) {
@@ -49,9 +50,10 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <section id="article-content" className="prose-sm sm:prose-base prose-headings:scroll-mt-24 prose-pre:rounded-lg dark:prose-invert">
+        <section id="article-content" className="relative prose-sm sm:prose-base prose-headings:scroll-mt-24 prose-pre:rounded-lg dark:prose-invert">
           <MDXContent code={post.code} components={mdxComponents} />
         </section>
+        <MermaidTooltips />
       </article>
     </>
   )

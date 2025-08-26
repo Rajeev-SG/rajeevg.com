@@ -333,6 +333,10 @@ pre:hover button.rehype-pretty-copy { opacity: 1; }
 .dark .prose svg[aria-roledescription] {
   background: var(--card);
 }
+/* Native SVG anchors: show pointer for discoverability */
+.prose svg[aria-roledescription] a { cursor: pointer; }
+/* Fallback rounding for node rectangles (JS also enforces rx/ry) */
+.prose svg[aria-roledescription] .node rect { rx: 12px; ry: 12px; }
 
 .dark {
   --sidebar: hsl(240 5.9% 10%);

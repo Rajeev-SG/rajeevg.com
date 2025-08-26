@@ -98,13 +98,37 @@ const Img = ({
   <img loading={loading} decoding={decoding} alt={alt} {...props} />
 )
 
-// Links (internal vs external)
-const A = ({ href = "", children, className, ...rest }: React.ComponentProps<"a">) => {
-  const isExternal = typeof href === "string" && /^(https?:)?\/\//.test(href)
+// Links (internal vs external) with special handling for SVG anchors (e.g., Mermaid output)
+const A = (
+  // Support possible SVG props like xlinkHref/xlink:href that rehype-mermaid may emit
+  { href = "", children, className, ...rest }: (React.ComponentProps<"a"> & { [key: string]: unknown })
+) => {
+  const getStr = (v: unknown): string | undefined => (typeof v === "string" ? v : undefined)
+  const restObj = rest as Record<string, unknown>
+  // Prefer xlinkHref/xlink:href when present (SVG anchors), otherwise fall back to href
+  const xlinkHref = getStr(restObj.xlinkHref) ?? getStr(restObj["xlink:href"]) // SVG namespace attribute
+  const rawHref: string = xlinkHref ?? href
+
+  // Heuristic: if xlinkHref is present or children are SVG-ish, treat as SVG anchor
+  const hasSvgLikeChild = React.Children.toArray(children).some(
+    (child) => React.isValidElement(child) && typeof child.type === "string" && (child.type === "g" || child.type === "svg" || child.type === "foreignObject")
+  )
+  const isSvgAnchor = Boolean(xlinkHref) || hasSvgLikeChild
+
+  if (isSvgAnchor) {
+    // Do not wrap with Next.js Link or add external icon; just preserve attributes and href
+    return (
+      <a href={rawHref} {...(rest as React.ComponentProps<"a">)}>
+        {children}
+      </a>
+    )
+  }
+
+  const isExternal = /^(https?:)?\/\//.test(rawHref)
   const classes = cn("text-primary underline-offset-4 hover:underline", className)
   if (isExternal) {
     return (
-      <a href={href} className={classes} rel="noreferrer noopener" target="_blank" {...rest}>
+      <a href={rawHref} className={classes} rel="noreferrer noopener" target="_blank" {...rest}>
         {children}
         <svg aria-hidden className="ml-1 inline-block size-3 align-[-1px] opacity-70" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M14 3h7v7" />
@@ -116,7 +140,7 @@ const A = ({ href = "", children, className, ...rest }: React.ComponentProps<"a"
     )
   }
   return (
-    <Link href={href} className={classes}>
+    <Link href={rawHref} className={classes}>
       {children}
     </Link>
   )
