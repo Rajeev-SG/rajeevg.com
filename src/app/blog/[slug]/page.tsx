@@ -6,6 +6,7 @@ import { mdxComponents } from "@/components/mdx-components"
 import { ReadingProgress } from "@/components/reading-progress"
 import { site } from "@/lib/site"
 import { MermaidTooltips } from "@/components/mermaid-tooltips"
+import MermaidInit from "@/components/mermaid-init"
 
  
 function getPostBySlug(slug: string) {
@@ -55,6 +56,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         </section>
         <MermaidTooltips />
       </article>
+      <MermaidInit />
     </>
   )
 }
