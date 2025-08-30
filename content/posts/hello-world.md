@@ -4,7 +4,7 @@ slug: hello-world
 date: 2025-08-17
 description: Sample post to verify Velite integration.
 tags: [intro, test]
-draft: true
+draft: false
 ---
 
 Welcome to your new blog powered by Velite + Next.js.
@@ -117,6 +117,6 @@ graph TD
   C -->|Looks good?| D[Commit]
   C -->|Needs changes?| A
   D --> E[Deploy]
-  %% Clickable node with tooltip (docs for pnpm run)
-  click B href "https://pnpm.io/cli/run" "pnpm run (dev) documentation"
+  %% Add clickable link on Commit node to verify anchors/tooltips
+  click D href "https://mermaid.js.org" "Mermaid docs" _blank
 ```

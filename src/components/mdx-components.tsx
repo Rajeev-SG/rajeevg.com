@@ -83,9 +83,20 @@ const InlineCode = (props: React.ComponentProps<"code">) => (
 )
 
 // Pre/code blocks with working copy button
-const Pre = ({ className, ...props }: React.ComponentProps<"pre">) => (
-  <MdxPre className={className} {...props} />
-)
+// IMPORTANT: Do NOT wrap Mermaid blocks with the copy-button wrapper to avoid
+// injecting extra nodes/text that can break Mermaid parsing. When the className
+// contains 'mermaid', render a plain <pre> instead.
+const Pre = ({ className, children, ...props }: React.ComponentProps<"pre">) => {
+  const isMermaid = typeof className === "string" && className.split(/\s+/).includes("mermaid")
+  if (isMermaid) {
+    return (
+      <pre className={cn("my-4 overflow-x-auto rounded-lg", className)} {...props}>
+        {children}
+      </pre>
+    )
+  }
+  return <MdxPre className={className} {...props}>{children}</MdxPre>
+}
 
 // Images: lazy + async decoding by default
 const Img = ({

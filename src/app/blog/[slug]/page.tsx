@@ -6,6 +6,7 @@ import { mdxComponents } from "@/components/mdx-components"
 import { ReadingProgress } from "@/components/reading-progress"
 import { site } from "@/lib/site"
 import { MermaidTooltips } from "@/components/mermaid-tooltips"
+import MermaidInit from "@/components/mermaid-init"
 
  
 function getPostBySlug(slug: string) {
@@ -53,6 +54,8 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         <section id="article-content" className="relative prose-sm sm:prose-base prose-headings:scroll-mt-24 prose-pre:rounded-lg dark:prose-invert">
           <MDXContent code={post.code} components={mdxComponents} />
         </section>
+        {/* Initialize client-side Mermaid rendering for pre.mermaid placeholders */}
+        <MermaidInit />
         <MermaidTooltips />
       </article>
     </>

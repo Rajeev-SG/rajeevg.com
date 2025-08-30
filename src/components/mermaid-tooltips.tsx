@@ -102,6 +102,38 @@ export function MermaidTooltips({ containerSelector = "#article-content" }: { co
   const containerRef = React.useRef<HTMLElement | null>(null)
   const [overlays, setOverlays] = React.useState<SvgOverlay[]>([])
 
+  const scan = React.useCallback(() => {
+    const cont = containerRef.current
+    if (!cont) return
+    const sectionRect = cont.getBoundingClientRect()
+    const svgs = Array.from(cont.querySelectorAll<SVGSVGElement>("svg[aria-roledescription]"))
+    if (isDev) console.debug("[MermaidTooltips] scan: found svgs=", svgs.length)
+
+    const newOverlays: SvgOverlay[] = []
+    svgs.forEach((svg, idx) => {
+      // Apply rounding enhancement on nodes
+      roundNodeCorners(svg)
+
+      const svgRect = svg.getBoundingClientRect()
+      const { scaleX, scaleY } = computeScale(svg)
+      const items = computeItems(svg, svgRect)
+      if (!items.length) return
+      if (isDev) console.debug("[MermaidTooltips] svg", idx, { svgRect, items })
+      newOverlays.push({
+        key: `svg-${idx}`,
+        top: svgRect.top - sectionRect.top + cont.scrollTop,
+        left: svgRect.left - sectionRect.left + cont.scrollLeft,
+        width: svgRect.width,
+        height: svgRect.height,
+        scaleX,
+        scaleY,
+        items,
+      })
+    })
+    setOverlays(newOverlays)
+    if (isDev) console.debug("[MermaidTooltips] overlays updated", newOverlays)
+  }, [])
+
   React.useEffect(() => {
     const container = document.querySelector(containerSelector) as HTMLElement | null
     containerRef.current = container
@@ -118,38 +150,6 @@ export function MermaidTooltips({ containerSelector = "#article-content" }: { co
       }
     }
 
-    function scan() {
-      const cont = containerRef.current
-      if (!cont) return
-      const sectionRect = cont.getBoundingClientRect()
-      const svgs = Array.from(cont.querySelectorAll<SVGSVGElement>("svg[aria-roledescription]"))
-      if (isDev) console.debug("[MermaidTooltips] scan: found svgs=", svgs.length)
-
-      const newOverlays: SvgOverlay[] = []
-      svgs.forEach((svg, idx) => {
-        // Apply rounding enhancement on nodes
-        roundNodeCorners(svg)
-
-        const svgRect = svg.getBoundingClientRect()
-        const { scaleX, scaleY } = computeScale(svg)
-        const items = computeItems(svg, svgRect)
-        if (!items.length) return
-        if (isDev) console.debug("[MermaidTooltips] svg", idx, { svgRect, items })
-        newOverlays.push({
-          key: `svg-${idx}`,
-          top: svgRect.top - sectionRect.top + cont.scrollTop,
-          left: svgRect.left - sectionRect.left + cont.scrollLeft,
-          width: svgRect.width,
-          height: svgRect.height,
-          scaleX,
-          scaleY,
-          items,
-        })
-      })
-      setOverlays(newOverlays)
-      if (isDev) console.debug("[MermaidTooltips] overlays updated", newOverlays)
-    }
-
     scan()
 
     const resizeObs = new ResizeObserver(() => scan())
@@ -159,15 +159,18 @@ export function MermaidTooltips({ containerSelector = "#article-content" }: { co
 
     const onResize = () => scan()
     const onScroll = () => scan()
+    const onMermaidRendered = () => scan()
     window.addEventListener("resize", onResize)
     window.addEventListener("scroll", onScroll, true)
+    window.addEventListener("mermaid:rendered", onMermaidRendered)
 
     return () => {
       window.removeEventListener("resize", onResize)
       window.removeEventListener("scroll", onScroll, true)
+      window.removeEventListener("mermaid:rendered", onMermaidRendered)
       resizeObs.disconnect()
     }
-  }, [containerSelector])
+  }, [containerSelector, scan])
 
   if (!containerRef.current || !overlays.length) return null
 
