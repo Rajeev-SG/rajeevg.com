@@ -57,21 +57,7 @@ export default defineConfig({
       [
         rehypeMermaid as any,
         {
-          strategy: 'inline-svg',
-          mermaidConfig: {
-            startOnLoad: false,
-            securityLevel: 'loose',
-            theme: 'base',
-            themeVariables: {
-              /* Use concrete colors that render well in both themes */
-              primaryColor: '#ffffff',
-              primaryTextColor: '#111111',
-              primaryBorderColor: '#e5e7eb',
-              lineColor: '#9ca3af',
-              tertiaryColor: '#f7f7f7',
-              background: 'transparent'
-            }
-          }
+          strategy: 'pre-mermaid'
         }
       ] as any,
       [
