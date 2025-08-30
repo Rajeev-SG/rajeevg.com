@@ -354,7 +354,7 @@ pre:hover button.rehype-pretty-copy { opacity: 1; }
   from { transform: translateX(0); }
   to { transform: translateX(calc(var(--scroll-distance) * -1)); }
 }
-.prose :where(pre.mermaid){
+.prose :where(pre.mermaid,div.mermaid){
   display:block;
   border:1px solid var(--border);
   border-radius:1rem;

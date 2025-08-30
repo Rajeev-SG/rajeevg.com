@@ -5,7 +5,7 @@ import mermaid from "mermaid"
 export default function MermaidInit() {
   useEffect(() => {
     mermaid.initialize({
-      startOnLoad: true,
+      startOnLoad: false,
       securityLevel: "loose",
       theme: "base",
       themeVariables: {
@@ -14,6 +14,10 @@ export default function MermaidInit() {
         lineColor: "var(--border)",
         background: "transparent",
       },
+    })
+    mermaid.run().finally(() => {
+      // Trigger observers (e.g. tooltip overlay) after diagrams render
+      window.dispatchEvent(new Event("resize"))
     })
   }, [])
   return null
