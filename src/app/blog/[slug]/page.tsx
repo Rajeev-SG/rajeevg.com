@@ -1,21 +1,16 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
-import { posts, type Post } from "#velite"
 import { MDXContent } from "@/components/mdx-content"
 import { mdxComponents } from "@/components/mdx-components"
 import { ReadingProgress } from "@/components/reading-progress"
 import { site } from "@/lib/site"
 import { MermaidTooltips } from "@/components/mermaid-tooltips"
 import MermaidInit from "@/components/mermaid-init"
-
- 
-function getPostBySlug(slug: string) {
-  return posts.find((p: Post) => p.slug === slug)
-}
+import { getSortedVisiblePosts, getVisiblePostBySlug } from "@/lib/posts"
 
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const post = getPostBySlug(slug)
+  const post = getVisiblePostBySlug(slug)
   if (!post) return notFound()
 
   const ogImage = post.image || site.defaultOgImage
@@ -64,7 +59,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
-  const post = getPostBySlug(slug)
+  const post = getVisiblePostBySlug(slug)
   if (!post) return {}
   const ogImage = post.image || site.defaultOgImage
   return {
@@ -93,5 +88,5 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export function generateStaticParams() {
-  return posts.map((p: Post) => ({ slug: p.slug }))
+  return getSortedVisiblePosts().map((post) => ({ slug: post.slug }))
 }

@@ -1,16 +1,14 @@
-import { posts, type Post } from "#velite"
 import { BlogIndexClient } from "@/components/blog-index-client"
 import type { Metadata } from "next"
 import { site } from "@/lib/site"
+import { getSortedVisiblePosts } from "@/lib/posts"
 
 export const revalidate = 3600
 
 export default function BlogIndex() {
-  const docs = posts
-    .filter((p: Post) => process.env.NODE_ENV !== "production" || !p.draft)
-    .sort((a: Post, b: Post) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  const docs = getSortedVisiblePosts()
 
-  const allPosts = docs.map((p: Post) => ({
+  const allPosts = docs.map((p) => ({
     title: p.title,
     slug: p.slug,
     date: p.date,
@@ -19,7 +17,7 @@ export default function BlogIndex() {
     excerpt: p.excerpt, // available from Velite config
   }))
 
-  const allTags = Array.from(new Set(docs.flatMap((p: Post) => p.tags ?? []))).sort(
+  const allTags = Array.from(new Set(docs.flatMap((p) => p.tags ?? []))).sort(
     (a, b) => a.localeCompare(b)
   )
 
@@ -33,4 +31,3 @@ export async function generateMetadata(): Promise<Metadata> {
     alternates: { canonical: "/blog" },
   }
 }
-

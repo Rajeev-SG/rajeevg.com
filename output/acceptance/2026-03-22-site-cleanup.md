@@ -1,0 +1,36 @@
+# Site cleanup acceptance proof
+
+- Target flow: validate the rajeevg.com cleanup in production mode, including the updated About page, public article set, and removal of the Tools surface.
+- Expected behavior:
+  - About page reflects Rajeev's current GitHub-profile positioning and shows the supplied portrait.
+  - Blog index exposes only the new public article.
+  - `/tools` is no longer a live route.
+  - `hello-world` stays local-only and is not publicly reachable in production.
+- Target URL: `http://localhost:3003`
+- Observed behavior:
+  - `/about` renders the updated copy, the portrait image, and no `/tools` navigation link.
+  - `/blog` shows one public article link: `/blog/from-ai-pilots-to-business-value`.
+  - `/tools` renders the site 404 page.
+  - `/blog/hello-world` renders the site 404 page.
+- Viewports inspected:
+  - Desktop `1224x1400`
+  - Wide desktop `1536x1400`
+  - Mobile `402x900`
+- Visible result:
+  - Desktop and wide desktop use the split layout well, with the profile image and contact card balanced against the text-heavy bio and focus sections.
+  - Mobile preserves a coherent reading order: intro, bio, focus cards, then portrait/contact block.
+  - No removed Tools surface remains in the visible navigation.
+- Console:
+  - No warnings on the validated About page run.
+  - One local-only error was observed on initial production load: `/_vercel/insights/script.js` returned 404 outside Vercel. This does not affect the cleanup itself.
+- Evidence:
+  - `output/playwright/2026-03-22-site-cleanup/prod-about-desktop-1224.png`
+  - `output/playwright/2026-03-22-site-cleanup/prod-about-wide-1536.png`
+  - `output/playwright/2026-03-22-site-cleanup/prod-about-mobile-402.png`
+  - `output/playwright/2026-03-22-site-cleanup/prod-blog-desktop-1224.png`
+  - `output/playwright/2026-03-22-site-cleanup/prod-tools-404.png`
+  - `output/playwright/2026-03-22-site-cleanup/prod-hello-world-404.png`
+- Completion proof:
+  - Final public article content is reachable on `/blog/from-ai-pilots-to-business-value`.
+  - Final removed surfaces are proven unreachable in production via the 404 page.
+- Verdict: PASS

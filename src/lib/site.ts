@@ -2,7 +2,7 @@ export const site = {
   /** Site title (used as default and in title template) */
   name: "Rajeev G.",
   /** Site tagline/description */
-  description: "Data • Analytics • AdTech",
+  description: "Practical AI, data, analytics, and adtech workflows.",
   /** Canonical site URL. Set NEXT_PUBLIC_SITE_URL in env; this is the fallback. */
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL || "https://rajeevg.com",
   /** Default Open Graph image served from /public. Recommended: add /og.png later. */

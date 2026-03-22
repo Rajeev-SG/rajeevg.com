@@ -1,13 +1,14 @@
 import type { MetadataRoute } from "next"
-import { posts, type Post } from "#velite"
 import { site } from "@/lib/site"
+import { getVisiblePosts } from "@/lib/posts"
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = site.siteUrl.replace(/\/$/, "")
   const items: MetadataRoute.Sitemap = [
     { url: `${base}/`, lastModified: new Date() },
+    { url: `${base}/about`, lastModified: new Date() },
     { url: `${base}/blog`, lastModified: new Date() },
-    ...posts.map((p: Post) => ({
+    ...getVisiblePosts().map((p) => ({
       url: `${base}/blog/${p.slug}`,
       lastModified: new Date(p.date),
     })),

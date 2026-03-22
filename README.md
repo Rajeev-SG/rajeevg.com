@@ -48,9 +48,9 @@ pnpm dev
 
 Open http://localhost:3000 and visit:
 
-- `/` — homepage renders the most recent blog post (theme toggle is in the header)
+- `/` — homepage renders the most recent published blog post (theme toggle is in the header)
 - `/blog` — blog index
-- `/blog/hello-world` — sample post with highlighted code + copy button
+- `/blog/hello-world` — sample post kept as a local draft example with highlighted code + copy button
 
 You can edit the home page at `src/app/page.tsx`. Blog content lives in `content/posts/*`. Velite config is at `velite.config.ts`.
 Environment variables for the app should be placed under `web/.env.local`.
@@ -64,7 +64,7 @@ web/
  ├─ src/
  │  ├─ app/
  │  │  ├─ layout.tsx, globals.css, head.tsx, page.tsx, not-found.tsx, sitemap.ts, robots.ts
- │  │  ├─ about/page.tsx, tools/page.tsx
+ │  │  ├─ about/page.tsx
  │  │  ├─ blog/ (page.tsx, [slug]/page.tsx)
  │  │  └─ dashboard/page.tsx
  │  ├─ components/
@@ -85,10 +85,9 @@ web/
   - `page.tsx` — Homepage. Renders the most recent post inline using the article layout (ReadingProgress + MDX components).
   - `not-found.tsx` — Global 404 boundary required when routes call `notFound()`.
   - `head.tsx` — Preconnect/dns‑prefetch GTM/GA endpoints for faster analytics.
-  - `sitemap.ts` — Dynamic sitemap including home, blog index, and all posts with `lastModified`.
+  - `sitemap.ts` — Dynamic sitemap including home, about, blog index, and all published posts with `lastModified`.
   - `robots.ts` — Robots policy allowing all; sets `host` and `sitemap` URLs.
-  - `about/page.tsx` — About page with a shadcn `Card` and `Avatar` contact card (email, GitHub, LinkedIn buttons).
-  - `tools/page.tsx` — Tools/projects grid built with `Card`. Each card is a full-link with image + title.
+  - `about/page.tsx` — About page with a profile image, focus areas, current projects, and contact links.
   - `blog/`
     - `page.tsx` — Blog index server component. Gathers posts from `#velite` and renders the client UI via `BlogIndexClient`.
     - `[slug]/page.tsx` — Article page. Looks up a post by slug, renders title/description/date and HTML content from Velite. Next 15 uses Promise-based route params, so both the page and `generateMetadata` accept `{ params: Promise<{ slug: string }> }` and `await` it. Uses Tailwind `prose` with dual-theme Shiki CSS.
@@ -117,7 +116,7 @@ web/
   - `utils.ts` — `cn(...classValues)` utility combining `clsx` with `tailwind-merge`.
 
 - `content/` — Source Markdown content
-  - `posts/` — Blog posts (e.g. `hello-world.md`). Processed by Velite into `.velite` (typed data) and `public/static/` (assets).
+  - `posts/` — Blog posts and draft examples (e.g. `hello-world.md`). Processed by Velite into `.velite` (typed data) and `public/static/` (assets).
 
 - `public/` — Static assets served at the site root
   - Icons and images (`*.svg`). Velite writes assets to `public/static/` (gitignored).
@@ -243,93 +242,6 @@ web/
     - `[Lists](#lists)`
     - `[Table](#table)`
     - `[Code blocks](#code-blocks)`
-
-## Tools page (cards)
-
-- **File**
-  - `src/app/tools/page.tsx`
-
-- **How it works**
-  - Cards are rendered from a local `projects` array:
-
-    ```ts
-    const projects = [
-      { name: "Hello World Post", href: "/blog/hello-world", imgSrc: "/next.svg" },
-      { name: "Project Two", href: "#", imgSrc: "/globe.svg" },
-    ]
-    ```
-
-  - Each list item renders a shadcn `Card` wrapped in a `Link`. The entire card is clickable.
-  - Images use Next/Image with `fill` and `object-contain` inside a fixed-height area (`h-36`).
-
-- **Add or update a card (new tool release)**
-  1. Edit `projects` in `src/app/tools/page.tsx` and append a new item:
-
-     ```ts
-     { name: "My New Tool", href: "/tools/my-new-tool" /* or external URL */, imgSrc: "/tools/my-new-tool.png" }
-     ```
-
-  2. Add the image file under `public/` (recommended: `public/tools/my-new-tool.png`).
-     - Use a transparent PNG or a logo/screenshot that looks good in a 144px-tall area.
-     - Prefer square-ish aspect ratios; `object-contain` will letterbox as needed.
-
-  3. For external links, set `href` to the full URL (e.g. `https://...`). Optionally open in a new tab by adding `target="_blank" rel="noreferrer noopener"` to the `Link` element.
-
-  4. Keep `name` concise (will be the visible card title). The `alt` is derived from `name`.
-
-  - **External images note**
-    - If you use remote images (e.g. from GitHub) with `next/image`, the host must be allowed in `next.config.ts` under `images.remotePatterns` (or `images.domains`).
-    - This repo permits GitHub-hosted screenshots used on `/tools`:
-      - `github.com` with pathname `/Rajeev-SG/gtm-site-speed/raw/**`
-      - `raw.githubusercontent.com` with pathname `/Rajeev-SG/gtm-site-speed/**`
-    - Prefer adding images under `public/` when possible to avoid remote host configuration.
-
-- **Optional enhancements**
-  - Add a short description by editing the `CardContent` body.
-  - Add tags or icons inside `CardHeader` or `CardContent` as needed.
-
- - **Tooltips (Docs link)**
-   - Requirements: Wrap the list with `TooltipProvider` (already present in `src/app/tools/page.tsx`).
-   - To show a docs tooltip/button on a card, add `docsHref` and optionally `tooltip` to the project item:
-
-     ```ts
-     {
-       name: "GTM Site Speed",
-       href: "https://gtm-site-speed.rajeevg.com/",
-       imgSrc: "/gtm-site-speed.png",
-       docsHref: "https://github.com/Rajeev-SG/gtm-site-speed",
-       tooltip: "View docs on GitHub" // optional; defaults to "Documentation"
-     }
-     ```
-
-   - Implementation details in `src/app/tools/page.tsx`:
-     - The full-card `Link` uses an absolute overlay (`className="absolute inset-0 z-10"`).
-     - The Docs button sits above it with `z-20`, positioned at `right-2 top-2`.
-     - Tooltip usage:
-
-       ```tsx
-       <Tooltip>
-         <TooltipTrigger asChild>
-           <a
-             href={p.docsHref}
-             target="_blank"
-             rel="noreferrer noopener"
-             aria-label={p.tooltip ?? `Open ${p.name} documentation`}
-             className="inline-flex items-center justify-center rounded-md border bg-background/80 px-2 py-1 text-xs text-foreground shadow-sm backdrop-blur hover:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-           >
-             <ExternalLink className="mr-1 size-3.5" /> Docs
-           </a>
-         </TooltipTrigger>
-         <TooltipContent side="left">{p.tooltip ?? "Documentation"}</TooltipContent>
-       </Tooltip>
-       ```
-
-   - Imports come from `@/components/ui/tooltip` and `lucide-react`. Ensure `TooltipProvider` wraps the list.
-
-- **Test**
-  - Run `pnpm dev` and visit `/tools`.
-  - Verify the grid is responsive: 1 col on mobile, 2 on small screens, 3 on large.
-  - Check image quality (no stretching) and link targets.
 
 ## Syntax highlighting + MDX UI (Shiki + rehype-pretty-code)
 

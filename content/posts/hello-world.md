@@ -4,7 +4,7 @@ slug: hello-world
 date: 2025-08-17
 description: Sample post to verify Velite integration.
 tags: [intro, test]
-draft: false
+draft: true
 ---
 
 Welcome to your new blog powered by Velite + Next.js.

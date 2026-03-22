@@ -1,16 +1,14 @@
 import type { Metadata } from "next";
-import { posts, type Post } from "#velite";
 import { MDXContent } from "@/components/mdx-content";
 import { mdxComponents } from "@/components/mdx-components";
 import { ReadingProgress } from "@/components/reading-progress";
 import { site } from "@/lib/site";
+import { getSortedVisiblePosts } from "@/lib/posts";
 
 export const revalidate = 3600;
 
 export default function Home() {
-  const latest = posts
-    .filter((p: Post) => process.env.NODE_ENV !== "production" || !p.draft)
-    .sort((a: Post, b: Post) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]
+  const latest = getSortedVisiblePosts()[0]
 
   if (!latest) {
     return (
@@ -43,9 +41,7 @@ export default function Home() {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const latest = posts
-    .filter((p: Post) => process.env.NODE_ENV !== "production" || !p.draft)
-    .sort((a: Post, b: Post) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]
+  const latest = getSortedVisiblePosts()[0]
 
   if (!latest) {
     return {

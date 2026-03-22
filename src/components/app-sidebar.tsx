@@ -19,13 +19,14 @@ import {
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { posts as allPosts } from "#velite"
 import { HoverScrollText } from "@/components/hover-scroll-text"
+import { getSortedVisiblePosts } from "@/lib/posts"
 
 // Build nav from site links and Velite posts
-const postsList = [...allPosts]
-  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-  .map((p) => ({ title: p.title, url: `/blog/${p.slug}` }))
+const postsList = getSortedVisiblePosts().map((post) => ({
+  title: post.title,
+  url: `/blog/${post.slug}`,
+}))
 
 const data = {
   navMain: [
@@ -34,7 +35,6 @@ const data = {
       url: "/",
       items: [
         { title: "About", url: "/about" },
-        { title: "Tools", url: "/tools" },
       ],
     },
     {
