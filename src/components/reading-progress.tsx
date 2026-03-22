@@ -13,12 +13,17 @@ function pageY(el: HTMLElement) {
 
 export function ReadingProgress({ targetId = "article-content" }: { targetId?: string }) {
   const [value, setValue] = React.useState(0)
+  const [isVisible, setIsVisible] = React.useState(false)
   const targetRef = React.useRef<HTMLElement | null>(null)
   const frame = React.useRef<number | null>(null)
 
   const recalcAndUpdate = React.useCallback(() => {
     const el = targetRef.current
-    if (!el) return setValue(0)
+    if (!el) {
+      setValue(0)
+      setIsVisible(false)
+      return
+    }
 
     const start = pageY(el)
     const height = el.offsetHeight
@@ -28,12 +33,14 @@ export function ReadingProgress({ targetId = "article-content" }: { targetId?: s
     // If content shorter than viewport, mark complete.
     if (height <= viewport) {
       setValue(100)
+      setIsVisible(window.scrollY > 8)
       return
     }
 
     const y = window.scrollY
     const pct = clamp((y - start) / (end - start)) * 100
     setValue(pct)
+    setIsVisible(y > 8)
   }, [])
 
   const schedule = React.useCallback(() => {
@@ -74,9 +81,14 @@ export function ReadingProgress({ targetId = "article-content" }: { targetId?: s
   return (
     <div
       aria-hidden
-      className="pointer-events-none sticky top-12 z-20 -mt-5 mb-2 md:-mt-6 md:mb-3"
+      className={[
+        "pointer-events-none fixed inset-x-0 top-[47px] z-40 transition-opacity duration-200 md:left-64",
+        isVisible ? "opacity-100" : "opacity-0",
+      ].join(" ")}
     >
-      <Progress value={value} className="h-1" />
+      <div className="mx-auto xl:mx-0 xl:mr-auto w-full max-w-screen-lg px-4 sm:px-6 md:px-8">
+        <Progress value={value} className="h-1" />
+      </div>
     </div>
   )
 }
