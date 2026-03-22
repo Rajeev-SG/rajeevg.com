@@ -24,7 +24,7 @@ export default function Home() {
   return (
     <>
       <ReadingProgress />
-      <article className="space-y-6">
+      <article className="-mt-4 space-y-6 md:-mt-5">
         <header className="mb-6 space-y-2">
           <h1 className="text-3xl font-bold tracking-tight">{latest.title}</h1>
           {latest.description ? (

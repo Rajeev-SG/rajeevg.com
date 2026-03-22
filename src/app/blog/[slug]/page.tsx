@@ -37,7 +37,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   return (
     <>
       <ReadingProgress />
-      <article className="space-y-6">
+      <article className="-mt-4 space-y-6 md:-mt-5">
         <header className="mb-6 space-y-2">
           <h1 className="text-3xl font-bold tracking-tight">{post.title}</h1>
           {post.description ? (
@@ -95,4 +95,3 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export function generateStaticParams() {
   return posts.map((p: Post) => ({ slug: p.slug }))
 }
-
