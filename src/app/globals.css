@@ -331,6 +331,13 @@ pre:hover button.rehype-pretty-copy { opacity: 1; }
   background: var(--card);
 }
 .dark .prose pre.mermaid { background: var(--card); }
+.prose pre.mermaid > svg[aria-roledescription] {
+  display: block;
+  width: max-content !important;
+  min-width: 100%;
+  max-width: none !important;
+  height: auto;
+}
 
 /* Mermaid diagrams (rendered to inline SVG after hydration) */
 .prose svg[aria-roledescription] {
@@ -342,9 +349,7 @@ pre:hover button.rehype-pretty-copy { opacity: 1; }
   padding: .75rem;
   background: var(--card);
 }
-.dark .prose svg[aria-roledescription] {
-  background: var(--card);
-}
+.dark .prose svg[aria-roledescription] { background: var(--card); }
 /* Native SVG anchors: show pointer for discoverability */
 .prose svg[aria-roledescription] a { cursor: pointer; }
 /* Fallback rounding for node rectangles (JS also enforces rx/ry) */

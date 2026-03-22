@@ -6,6 +6,21 @@ export default function MermaidInit() {
   useEffect(() => {
     let cancelled = false
 
+    function normalizeRenderedDiagrams() {
+      const diagrams = Array.from(
+        document.querySelectorAll<SVGSVGElement>(".prose pre.mermaid > svg[aria-roledescription], pre.mermaid > svg[aria-roledescription]")
+      )
+
+      for (const svg of diagrams) {
+        const naturalWidth = svg.style.maxWidth
+        if (svg.getAttribute("width") === "100%" && naturalWidth) {
+          svg.style.width = naturalWidth
+          svg.style.maxWidth = "none"
+        }
+        svg.style.height = "auto"
+      }
+    }
+
     async function init() {
       const mod = await import("mermaid")
       const mermaid = mod.default
@@ -28,6 +43,7 @@ export default function MermaidInit() {
       try {
         // Ensure diagrams render immediately on hydration
         await mermaid.run({ querySelector: ".prose pre.mermaid, pre.mermaid" })
+        normalizeRenderedDiagrams()
         // Notify listeners that Mermaid diagrams were rendered
         window.dispatchEvent(new Event("mermaid:rendered"))
       } catch (e) {
