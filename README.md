@@ -40,13 +40,13 @@ A performant blog using Next.js 15 (App Router + Turbopack), Tailwind CSS v4, sh
 
 ```bash
 # Generate content outputs once (optional; dev/build also runs Velite automatically)
-npm run content
+pnpm content
 
 # Start dev server (Turbopack) with Velite watching content
-npm run dev
+pnpm dev
 ```
 
-Open http://localhost:3000 (or pass a custom port with `npm run dev -- -p 3003`) and visit:
+Open http://localhost:3000 and visit:
 
 - `/` — homepage renders the most recent blog post (theme toggle is in the header)
 - `/blog` — blog index
@@ -327,7 +327,7 @@ web/
    - Imports come from `@/components/ui/tooltip` and `lucide-react`. Ensure `TooltipProvider` wraps the list.
 
 - **Test**
-  - Run `npm run dev` and visit `/tools`.
+  - Run `pnpm dev` and visit `/tools`.
   - Verify the grid is responsive: 1 col on mobile, 2 on small screens, 3 on large.
   - Check image quality (no stretching) and link targets.
 
@@ -386,8 +386,8 @@ web/
   - __Tooltips not visible__: Confirm anchors exist in the SVG; ensure `MermaidTooltips` is mounted and listens to `mermaid:rendered`. Check that `#article-content` is `position: relative` and overlay z-index is sufficient.
 
 - **Verify**
-  - `npm run content && npm run build`
-  - `npm run start -- -p 3006`
+  - `pnpm content && pnpm build`
+  - `PORT=3006 pnpm start`
   - Open `/blog/hello-world` and confirm: no Mermaid syntax error text, SVG is present, at least one `<a>` inside the SVG, tooltip overlay appears on hover/focus.
 
 ## Dark mode (mobile-friendly, persistent)
@@ -434,22 +434,22 @@ web/
   - `Cannot find module for page: /_not-found`
   - sometimes also `Cannot find module for page: /dashboard`
 - **Root cause**: `src/app/blog/[slug]/page.tsx` calls `notFound()` for missing posts, but there was no root `src/app/not-found.tsx` page. When Next tried to render the global not‑found boundary during prerender, the module was missing.
-- **Fix**: add `src/app/not-found.tsx` (simple 404 page). After adding it, `npm run build` completes successfully.
+- **Fix**: add `src/app/not-found.tsx` (simple 404 page). After adding it, `pnpm build` completes successfully.
 - **How to avoid in future**:
   - If any route calls `notFound()`, ensure a matching `src/app/not-found.tsx` exists.
   - Keep Shiki CSS mappings in `globals.css`; avoid Tailwind prose rules that override `pre/code` colors/backgrounds.
   - Ensure `tsconfig.json` has `"#velite": ["./.velite"]` and `next.config.ts` triggers Velite during dev/build.
-  - Run `npm run content` to regenerate `.velite` outputs if you change Velite config or content schema.
+  - Run `pnpm content` to regenerate `.velite` outputs if you change Velite config or content schema.
   - Note: Next 15 App Router uses Promise-based route params. Type `{ params: Promise<{ slug: string }> }` and `await params` in both the page and `generateMetadata`.
 
 ## Scripts
 
 ```bash
-npm run dev       # Start dev server (Turbopack) + Velite watch
-npm run build     # Production build (Velite runs automatically)
-npm run start     # Start production server
-npm run content   # Manual Velite build (cleans and rebuilds content)
-npm run lint      # Lint
+pnpm dev          # Start dev server (Turbopack) + Velite watch
+pnpm build        # Production build (Velite runs automatically)
+pnpm start        # Start production server
+pnpm content      # Manual Velite build (cleans and rebuilds content)
+pnpm lint         # Lint
 ```
 
 ## Learn More

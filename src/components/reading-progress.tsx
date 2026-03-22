@@ -72,7 +72,10 @@ export function ReadingProgress({ targetId = "article-content" }: { targetId?: s
   }, [targetId, recalcAndUpdate, schedule])
 
   return (
-    <div aria-hidden className="pointer-events-none sticky top-12 z-0 -mt-8 md:-mt-10 mb-3 md:mb-4">
+    <div
+      aria-hidden
+      className="pointer-events-none sticky top-[3.25rem] z-20 mb-3 md:mb-4"
+    >
       <Progress value={value} className="h-1" />
     </div>
   )
