@@ -281,7 +281,7 @@ web/
 - **Files**
   - `velite.config.ts` — `rehype-mermaid` configured with `strategy: 'pre-mermaid'` and placed before `rehype-pretty-code` in both `markdown` and `mdx`.
   - `src/components/mdx-components.tsx` — `Pre` mapping skips `MdxPre` when the element has class `mermaid` to prevent injecting the React copy button into Mermaid blocks.
-  - `src/components/mermaid-init.tsx` — Client initializer that dynamically imports Mermaid, sets `{ startOnLoad: false, securityLevel: 'loose' }`, applies theme variables, runs `mermaid.run()` on `.prose pre.mermaid, pre.mermaid`, and dispatches a `mermaid:rendered` event.
+  - `src/components/mermaid-init.tsx` — Client initializer that dynamically imports Mermaid, sets `{ startOnLoad: false, securityLevel: 'loose' }`, applies theme variables, renders only unprocessed `.prose pre.mermaid, pre.mermaid` blocks, watches `#article-content` for late-arriving Mermaid placeholders, toggles horizontal-scroll affordances for overflowing diagrams, and dispatches a `mermaid:rendered` event after each successful pass.
   - `src/components/mermaid-tooltips.tsx` — Scans rendered Mermaid SVGs for anchors and overlays accessible tooltips using shadcn/ui. Targets the article container.
   - `src/app/blog/[slug]/page.tsx` — Wraps content in `<section id="article-content">` and mounts `MermaidInit` + `MermaidTooltips`.
 

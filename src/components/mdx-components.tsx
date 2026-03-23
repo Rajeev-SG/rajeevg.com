@@ -4,6 +4,12 @@ import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { MdxPre } from "@/components/mdx-pre"
 import { ProjectSpotlight } from "@/components/project-card"
+import {
+  ReviewPill,
+  TerminalLine,
+  TerminalNote,
+  WorkflowFrame,
+} from "@/components/git-workflow-guide"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Separator } from "@/components/ui/separator"
 import {
@@ -208,4 +214,8 @@ export const mdxComponents: Record<string, React.ComponentType<any>> = {
   tfoot: TableFooter,
   caption: TableCaption,
   ProjectSpotlight,
+  WorkflowFrame,
+  TerminalLine,
+  TerminalNote,
+  ReviewPill,
 }

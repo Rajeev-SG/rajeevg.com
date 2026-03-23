@@ -1,0 +1,379 @@
+---
+title: Git Workflow for Beginners
+slug: git-workflow-for-beginners
+date: 2026-03-23
+description: A visual, beginner-friendly guide to cloning a repo, working on a branch, opening a pull request, merging safely, and dealing with simple conflicts.
+tags: [git, github, workflow, beginner]
+draft: false
+---
+
+<div className="flex flex-wrap gap-2">
+  <span className="inline-flex items-center rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-200">Beginner friendly</span>
+  <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">Visual walkthrough</span>
+  <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-200">Safer shipping</span>
+</div>
+
+<div className="not-prose my-8 overflow-hidden rounded-[32px] border border-slate-200 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.22),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(14,165,233,0.18),transparent_30%),linear-gradient(160deg,rgba(255,255,255,0.96),rgba(248,250,252,0.98))] p-6 shadow-[0_24px_60px_-32px_rgba(15,23,42,0.35)] dark:border-slate-800 dark:bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.16),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(14,165,233,0.16),transparent_28%),linear-gradient(160deg,rgba(15,23,42,0.98),rgba(30,41,59,0.98))]">
+  <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+    <div className="space-y-4">
+      <div className="m-0 text-xs font-semibold uppercase tracking-[0.28em] text-slate-500 dark:text-slate-400">The simple version</div>
+      <h2 className="m-0 text-3xl font-semibold tracking-tight text-slate-950 dark:text-white sm:text-4xl">Clone the repo, make your change on a branch, open a PR, get it checked, then merge safely.</h2>
+      <div className="m-0 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-300">
+        That really is the whole thing. Git gives you some breathing room. You can make a change, check it, and only bring it back into the shared codebase once it has had a proper look from people and from the usual automation.
+      </div>
+      <div className="grid gap-3 sm:grid-cols-3">
+        <div className="rounded-2xl border border-white/70 bg-white/80 p-4 dark:border-white/10 dark:bg-white/5">
+          <div className="m-0 text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">Why Git</div>
+          <div className="m-0 mt-2 text-sm leading-6 text-slate-700 dark:text-slate-200">You can experiment without breaking everyone else's work.</div>
+        </div>
+        <div className="rounded-2xl border border-white/70 bg-white/80 p-4 dark:border-white/10 dark:bg-white/5">
+          <div className="m-0 text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">Why branches</div>
+          <div className="m-0 mt-2 text-sm leading-6 text-slate-700 dark:text-slate-200">Each change stays isolated until the team is happy with it.</div>
+        </div>
+        <div className="rounded-2xl border border-white/70 bg-white/80 p-4 dark:border-white/10 dark:bg-white/5">
+          <div className="m-0 text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">Why PRs</div>
+          <div className="m-0 mt-2 text-sm leading-6 text-slate-700 dark:text-slate-200">Reviews, tests, scans, and AI comments can all happen before merge.</div>
+        </div>
+      </div>
+    </div>
+    <div className="rounded-[28px] border border-slate-900/10 bg-slate-950 p-5 text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+      <div className="m-0 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">Workflow snapshot</div>
+      <div className="mt-4 space-y-3">
+        {[
+          "1. Clone the repo",
+          "2. Create or switch to your branch",
+          "3. Make the change",
+          "4. Commit and push",
+          "5. Open a pull request",
+          "6. Review, fix, merge",
+        ].map((item) => (
+          <div key={item} className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/5 px-4 py-3">
+            <span className="inline-flex size-7 items-center justify-center rounded-full bg-emerald-400/15 text-xs font-semibold text-emerald-300">+</span>
+            <span className="text-sm text-slate-200">{item}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</div>
+
+If you are new to Git, this is the mindset shift that helps most:
+
+> You are not editing the shared codebase directly.
+>
+> You are making a safe copy of the current state, doing your work on your own branch, and only asking to merge it back once it has been checked.
+
+## Why teams work this way
+
+<div className="not-prose my-8 grid gap-4 md:grid-cols-2">
+  <div className="rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950/60">
+    <div className="m-0 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">Without a process</div>
+    <ul className="m-0 mt-4 space-y-3 pl-5 text-sm leading-6 text-slate-700 dark:text-slate-300">
+      <li>People can overwrite each other.</li>
+      <li>It is harder to understand what changed and why.</li>
+      <li>Risky code can land without review.</li>
+      <li>There is no obvious pause for tests, scans, or discussion.</li>
+    </ul>
+  </div>
+  <div className="rounded-[26px] border border-emerald-200 bg-emerald-50/70 p-5 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/10">
+    <div className="m-0 text-xs font-semibold uppercase tracking-[0.24em] text-emerald-700 dark:text-emerald-300">With branches and PRs</div>
+    <ul className="m-0 mt-4 space-y-3 pl-5 text-sm leading-6 text-emerald-900 dark:text-emerald-100">
+      <li>Changes are isolated until they are ready.</li>
+      <li>Teammates can review the diff and suggest fixes.</li>
+      <li>Automated checks can run before merge.</li>
+      <li>Extra review layers such as CodeRabbit or Devin-style PR review can join the process too.</li>
+    </ul>
+  </div>
+</div>
+
+That is why PRs matter. They are not just some GitHub ceremony people go through because "that is the process." They are the handoff point between "I changed something" and "this now belongs in the main codebase."
+
+## The workflow at a glance
+
+```mermaid
+flowchart LR
+  A["Clone repo"] --> B["Create branch"]
+  B --> C["Make changes"]
+  C --> D["Commit + push"]
+  D --> E["Open PR"]
+  E --> F["Review + checks"]
+  F --> G["Merge"]
+  F --> H["Fix feedback"]
+  H --> D
+```
+
+## Step 1: Clone the repo
+
+This gives you a local copy of the project on your machine.
+
+<WorkflowFrame eyebrow="Step 1" title="Clone the repository" tone="ink" footer="You only need to clone a repo once per machine. After that, you just pull the latest changes.">
+  <div className="space-y-2 rounded-[22px] border border-white/8 bg-black/20 p-4">
+    <TerminalLine>git clone https://github.com/your-team/project-name.git</TerminalLine>
+    <TerminalLine>cd project-name</TerminalLine>
+    <TerminalNote>Cloning into 'project-name'...</TerminalNote>
+    <TerminalNote>remote: Enumerating objects: 428, done.</TerminalNote>
+    <TerminalNote>Receiving objects: 100% (428/428), done.</TerminalNote>
+  </div>
+</WorkflowFrame>
+
+At this point, nothing fancy has happened. You just have the project on your machine.
+
+## Step 2: Switch to a branch for your work
+
+Branches let you work on your own copy of the code history without disturbing `main`.
+
+<WorkflowFrame eyebrow="Step 2" title="Create a branch for your change" tone="ocean" footer="Branch names are usually short descriptions of the work, for example `fix-login-copy` or `add-pricing-faq`.">
+  <div className="grid gap-4 lg:grid-cols-[1fr_0.9fr]">
+    <div className="rounded-[22px] border border-slate-900/10 bg-slate-950 p-4">
+      <TerminalLine>git switch -c fix-homepage-cta</TerminalLine>
+      <TerminalNote>Switched to a new branch 'fix-homepage-cta'</TerminalNote>
+      <div className="mt-4 h-px bg-white/10" />
+      <TerminalLine>git status</TerminalLine>
+      <TerminalNote>On branch fix-homepage-cta</TerminalNote>
+      <TerminalNote>nothing to commit, working tree clean</TerminalNote>
+    </div>
+    <div className="space-y-3 rounded-[22px] border border-sky-200/70 bg-white/80 p-4 dark:border-sky-500/20 dark:bg-slate-900/40">
+      <div className="m-0 text-sm font-semibold text-slate-900 dark:text-white">Why branch first?</div>
+      <ul className="m-0 space-y-2 pl-5 text-sm leading-6 text-slate-600 dark:text-slate-300">
+        <li>Your work stays separate from the shared branch.</li>
+        <li>If you make a mess, the mess stays on your branch.</li>
+        <li>When you open a PR, GitHub can compare your branch against `main` clearly.</li>
+      </ul>
+    </div>
+  </div>
+</WorkflowFrame>
+
+If your team already made changes since you last synced, pull the latest `main` before you begin.
+
+## Step 3: Make your change and save it
+
+Now you do the actual work: edit files, test locally, and check what changed.
+
+<WorkflowFrame eyebrow="Step 3" title="Work locally and inspect the change" tone="forest" footer="Run your app or tests here if the project has them. The goal is to catch obvious mistakes before you involve the rest of the team.">
+  <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+    <div className="rounded-[22px] border border-emerald-200/70 bg-white/80 p-4 dark:border-emerald-500/20 dark:bg-slate-900/40">
+      <div className="m-0 text-xs font-semibold uppercase tracking-[0.24em] text-emerald-700 dark:text-emerald-300">Your loop</div>
+      <ol className="m-0 mt-3 space-y-2 pl-5 text-sm leading-6 text-slate-700 dark:text-slate-200">
+        <li>Edit the file.</li>
+        <li>Refresh the app or run the relevant command.</li>
+        <li>Check that the change behaves the way you expected.</li>
+        <li>Run <code>git status</code> to see what Git noticed.</li>
+      </ol>
+    </div>
+    <div className="rounded-[22px] border border-slate-900/10 bg-slate-950 p-4">
+      <TerminalLine>git status</TerminalLine>
+      <TerminalNote>On branch fix-homepage-cta</TerminalNote>
+      <TerminalNote>Changes not staged for commit:</TerminalNote>
+      <TerminalNote>modified:   src/components/hero.tsx</TerminalNote>
+      <TerminalNote>modified:   src/app/globals.css</TerminalNote>
+    </div>
+  </div>
+</WorkflowFrame>
+
+This part is a bit boring, and honestly that is good. Most healthy Git workflows are made up of small, understandable changes.
+
+## Step 4: Commit and push your branch
+
+A commit is a saved checkpoint with a message explaining what changed.
+
+<WorkflowFrame eyebrow="Step 4" title="Save a checkpoint, then push it to GitHub" tone="ink" footer="Think of commits as named save points. The PR is the conversation around those save points.">
+  <div className="space-y-2 rounded-[22px] border border-white/8 bg-black/20 p-4">
+    <TerminalLine>git add src/components/hero.tsx src/app/globals.css</TerminalLine>
+    <TerminalLine>git commit -m "Improve homepage CTA clarity"</TerminalLine>
+    <TerminalNote>[fix-homepage-cta 8d21f7a] Improve homepage CTA clarity</TerminalNote>
+    <TerminalLine>git push -u origin fix-homepage-cta</TerminalLine>
+    <TerminalNote>Branch 'fix-homepage-cta' set up to track 'origin/fix-homepage-cta'.</TerminalNote>
+  </div>
+</WorkflowFrame>
+
+Once the branch is pushed, GitHub has something to compare against `main`.
+
+## Step 5: Raise a pull request
+
+This is the review stage. You are basically saying, "Here is my branch. Can someone compare it with `main` and tell me if this is ready to merge?"
+
+<WorkflowFrame eyebrow="Step 5" title="What a healthy pull request is doing for you" tone="sunset" footer="The PR is where process protects the codebase: reviews, tests, scans, and discussion all happen before merge.">
+  <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+    <div className="space-y-4 rounded-[22px] border border-slate-200/80 bg-white/85 p-4 dark:border-white/10 dark:bg-white/5">
+      <div className="flex flex-wrap gap-2">
+        <ReviewPill tone="success">2 approvals</ReviewPill>
+        <ReviewPill tone="success">CI checks passing</ReviewPill>
+        <ReviewPill tone="neutral">Security scan complete</ReviewPill>
+        <ReviewPill tone="neutral">Code review notes addressed</ReviewPill>
+      </div>
+      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900/70">
+        <div className="m-0 text-sm font-semibold text-slate-900 dark:text-white">PR title</div>
+        <div className="m-0 mt-2 text-base text-slate-700 dark:text-slate-200">Improve homepage CTA clarity</div>
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
+          <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-950/60">
+            <div className="m-0 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Reviewers</div>
+            <div className="m-0 mt-2 text-sm text-slate-700 dark:text-slate-200">Teammates check the code, the screenshots, and the reasoning.</div>
+          </div>
+          <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-950/60">
+            <div className="m-0 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Automation</div>
+            <div className="m-0 mt-2 text-sm text-slate-700 dark:text-slate-200">Tests, linting, scans, and AI review tools can all comment here.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div className="rounded-[22px] border border-amber-200/70 bg-amber-50/80 p-4 dark:border-amber-500/20 dark:bg-amber-500/10">
+      <div className="m-0 text-sm font-semibold text-amber-900 dark:text-amber-100">Why PRs help</div>
+      <ul className="m-0 mt-3 space-y-2 pl-5 text-sm leading-6 text-amber-900 dark:text-amber-50">
+        <li>Someone else can spot bugs or edge cases you missed.</li>
+        <li>Automated checks can block obvious breakage.</li>
+        <li>Security and code scanning tools get a defined place to run.</li>
+        <li>AI review tools can highlight risky diff patterns early.</li>
+        <li>The team gets a clear record of why the change happened.</li>
+      </ul>
+    </div>
+  </div>
+</WorkflowFrame>
+
+Examples of checks around a PR:
+
+- a teammate reading the diff
+- automated tests and linting
+- security scanning
+- code quality tools
+- AI review systems such as CodeRabbit or Devin-style PR review interfaces
+
+The exact tools vary from team to team, but the point stays the same. The PR is the safety checkpoint.
+
+## GitHub Desktop is genuinely useful
+
+If you do not enjoy the command line, that is fine. A lot of people find [GitHub Desktop](https://desktop.github.com/) much easier when they are getting started.
+
+It is especially helpful for:
+
+- seeing changed files without memorising commands
+- reviewing diffs in a calmer way
+- creating branches without worrying about syntax
+- committing and pushing without hopping between tabs
+- resolving simple conflicts with a more guided interface
+
+The CLI is still worth learning over time because it gives you the most flexibility. But you do not need to prove terminal toughness to work well with Git. If GitHub Desktop helps you stay consistent and less stressed, use it.
+
+## You can automate a lot of this with agents
+
+This is the part that has changed a lot recently.
+
+If you give an agent access to `git` and the `gh` CLI, a big chunk of the mechanics can be handled for you:
+
+- creating or switching branches
+- checking `git status`
+- staging and committing changes
+- pushing the branch
+- opening a PR with `gh pr create`
+- checking comments, reviews, and CI status with `gh pr view`
+
+That does not mean "let the agent merge anything it wants." The useful pattern is usually:
+
+1. let the agent handle the repetitive Git and GitHub steps
+2. let humans review the actual change
+3. keep merge permission and final judgment in the loop unless you really trust the automation
+
+In practice this means the annoying parts can be mostly automated while the important decision-making still gets a proper review.
+
+If you work this way, Git starts to feel less like a chore and more like a shared log of what changed, why, and what still needs a second pair of eyes.
+
+## Step 6: Merge the PR
+
+Once the reviews are complete and the checks are green, the PR can be merged into `main`.
+
+<WorkflowFrame eyebrow="Step 6" title="Merge when the branch is ready" tone="ocean" footer="After merge, many teams delete the branch because the work is now part of the shared history.">
+  <div className="grid gap-4 md:grid-cols-3">
+    <div className="rounded-2xl border border-white/70 bg-white/80 p-4 dark:border-white/10 dark:bg-white/5">
+      <div className="m-0 text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">Before merge</div>
+      <div className="m-0 mt-3 text-sm leading-6 text-slate-700 dark:text-slate-200">Make sure the PR is targeting the correct base branch and all required checks passed.</div>
+    </div>
+    <div className="rounded-2xl border border-white/70 bg-white/80 p-4 dark:border-white/10 dark:bg-white/5">
+      <div className="m-0 text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">At merge</div>
+      <div className="m-0 mt-3 text-sm leading-6 text-slate-700 dark:text-slate-200">GitHub combines your branch into `main`, preserving the review history and discussion.</div>
+    </div>
+    <div className="rounded-2xl border border-white/70 bg-white/80 p-4 dark:border-white/10 dark:bg-white/5">
+      <div className="m-0 text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">After merge</div>
+      <div className="m-0 mt-3 text-sm leading-6 text-slate-700 dark:text-slate-200">Pull the latest `main` locally before starting your next piece of work.</div>
+    </div>
+  </div>
+</WorkflowFrame>
+
+## What about merge conflicts?
+
+Conflicts happen when Git cannot safely combine two sets of edits by itself.
+
+It sounds worse than it usually is. The basic version is normally this:
+
+- you changed a line
+- someone else changed the same line
+- Git needs a human to decide which version should win
+
+<WorkflowFrame eyebrow="Conflicts" title="How a simple conflict looks" tone="sunset" footer="The only real job here is to decide what the final content should be, then mark the conflict as resolved.">
+  <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+    <div className="rounded-[22px] border border-rose-200/70 bg-white/85 p-4 dark:border-rose-500/20 dark:bg-slate-900/40">
+      <pre className="m-0 overflow-x-auto rounded-2xl bg-slate-950 p-4 text-[13px] leading-6 text-slate-100">
+{`<<<<<<< HEAD
+<button>Start free trial</button>
+=======
+<button>Book a demo</button>
+>>>>>>> origin/main`}
+      </pre>
+    </div>
+    <div className="rounded-[22px] border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900/70">
+      <div className="m-0 text-sm font-semibold text-slate-900 dark:text-white">What this means</div>
+      <ul className="m-0 mt-3 space-y-2 pl-5 text-sm leading-6 text-slate-700 dark:text-slate-200">
+        <li><code>HEAD</code> is your version.</li>
+        <li><code>origin/main</code> is the incoming version.</li>
+        <li>You pick the right final text, then delete the conflict markers.</li>
+      </ul>
+    </div>
+  </div>
+</WorkflowFrame>
+
+### A simple conflict-fix flow
+
+<WorkflowFrame eyebrow="Conflict fix" title="Resolve, test, continue" tone="ink" footer="If you are unsure which version is correct, stop and ask. Guessing is worse than pausing.">
+  <div className="space-y-2 rounded-[22px] border border-white/8 bg-black/20 p-4">
+    <TerminalLine>git fetch origin</TerminalLine>
+    <TerminalLine>git merge origin/main</TerminalLine>
+    <TerminalNote>Auto-merging src/components/hero.tsx</TerminalNote>
+    <TerminalNote>CONFLICT (content): Merge conflict in src/components/hero.tsx</TerminalNote>
+    <div className="my-3 h-px bg-white/10" />
+    <TerminalNote>1. Open the file and remove the conflict markers.</TerminalNote>
+    <TerminalNote>2. Keep the final version you actually want.</TerminalNote>
+    <TerminalNote>3. Test the result.</TerminalNote>
+    <TerminalLine>git add src/components/hero.tsx</TerminalLine>
+    <TerminalLine>git commit</TerminalLine>
+  </div>
+</WorkflowFrame>
+
+If your team prefers rebasing instead of merging, the commands will look a bit different. The beginner-friendly idea stays the same: bring in the latest shared work, fix the conflicting file, then keep going.
+
+## The cheat sheet
+
+| Goal | Command or action |
+| --- | --- |
+| Clone the repo | `git clone <repo-url>` |
+| Enter the project | `cd <repo-folder>` |
+| Create and switch branch | `git switch -c <branch-name>` |
+| See what changed | `git status` |
+| Stage files | `git add <files>` |
+| Save a checkpoint | `git commit -m "message"` |
+| Push branch to GitHub | `git push -u origin <branch-name>` |
+| Open PR | Usually done in GitHub after pushing |
+| Bring in latest `main` | `git fetch origin` then `git merge origin/main` |
+
+## Final takeaway
+
+Git is not there to make life harder. It is there to stop a shared codebase from turning into guesswork.
+
+The shape is simple:
+
+1. Clone the repo.
+2. Create a branch.
+3. Make your change.
+4. Commit and push.
+5. Open a PR.
+6. Let people and tools check it.
+7. Merge when it is ready.
+
+That little bit of process is what lets teams move quickly without turning the codebase into chaos.

@@ -323,14 +323,61 @@ pre:hover button.rehype-pretty-copy { opacity: 1; }
 /* Mermaid placeholders prior to client hydration */
 .prose pre.mermaid {
   display: block;
+  position: relative;
   max-width: 100%;
   overflow-x: auto;
+  overflow-y: hidden;
   border: 1px solid var(--border);
   border-radius: 1rem; /* 2xl */
-  padding: .75rem;
+  padding: 2.6rem .75rem .9rem;
   background: var(--card);
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklab, var(--foreground) 35%, transparent) transparent;
 }
 .dark .prose pre.mermaid { background: var(--card); }
+.prose pre.mermaid .mermaid-scroll-hint {
+  display: none;
+}
+.prose pre.mermaid[data-scrollable="true"] .mermaid-scroll-hint {
+  position: sticky;
+  left: .75rem;
+  top: 0;
+  display: inline-flex;
+  margin-bottom: .45rem;
+  padding: .28rem .6rem;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--card) 78%, var(--background));
+  border: 1px solid color-mix(in oklab, var(--border) 82%, transparent);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
+  color: color-mix(in oklab, var(--foreground) 74%, transparent);
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .02em;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 2;
+}
+.prose pre.mermaid[data-scrollable="true"][data-scroll-right-edge="true"] {
+  background-image:
+    linear-gradient(to left, color-mix(in oklab, var(--card) 96%, transparent) 0%, transparent 2.5rem),
+    linear-gradient(var(--card), var(--card));
+}
+.prose pre.mermaid[data-scrollable="true"][data-scroll-left-edge="true"] {
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--card) 96%, transparent) 0%, transparent 2.5rem),
+    linear-gradient(var(--card), var(--card));
+}
+.prose pre.mermaid[data-scrollable="true"][data-scroll-left-edge="true"][data-scroll-right-edge="true"] {
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--card) 96%, transparent) 0%, transparent 2.5rem),
+    linear-gradient(to left, color-mix(in oklab, var(--card) 96%, transparent) 0%, transparent 2.5rem),
+    linear-gradient(var(--card), var(--card));
+}
+.prose pre.mermaid[data-scrollable="true"] {
+  background-repeat: no-repeat;
+  background-size: 2.75rem 100%, 2.75rem 100%, 100% 100%;
+  background-position: left top, right top, center;
+}
 .prose pre.mermaid > svg[aria-roledescription] {
   display: block;
   width: max-content !important;

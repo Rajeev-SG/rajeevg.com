@@ -21,8 +21,9 @@ export default function ProjectsPage() {
             Public projects with real repos and real live URLs
           </h1>
           <p className="max-w-3xl text-base text-muted-foreground sm:text-lg">
-            This page is a working portfolio rather than a decorative gallery. Every
-            project here maps to a public GitHub repository and a live public URL.
+            I wanted this to read more like a working index than a polished gallery. Everything
+            here links to a public GitHub repo and a live public URL, so you can inspect the code
+            and the product instead of taking my word for it.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
