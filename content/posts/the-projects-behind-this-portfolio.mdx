@@ -1,0 +1,181 @@
+---
+title: The Projects Behind This Portfolio
+slug: the-projects-behind-this-portfolio
+date: 2026-03-22
+description: A closer look at the public projects on rajeevg.com, what each one does, how each one works, and the stack choices behind them.
+tags: [projects, portfolio, engineering, products, workflows]
+draft: false
+---
+
+<div className="flex flex-wrap gap-2">
+  <span className="inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium">Portfolio</span>
+  <span className="inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium">Product engineering</span>
+  <span className="inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium">MDX</span>
+  <span className="inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium">Shipped work</span>
+</div>
+
+I wanted the new [projects page](/projects) to feel less like a gallery and more like a map of the systems I have actually put into the world.
+
+That sounds obvious, but a lot of portfolio pages are still doing the old thing. A nice screenshot. A vague sentence. Maybe a tech stack badge cloud. Not much sense of what the product is for, how it behaves, or what kind of engineering decisions sit underneath it.
+
+The product and engineering blogs I keep coming back to tend to do a few things well:
+
+- they open with a clear point rather than a generic intro
+- they explain what the product is for before they disappear into implementation details
+- they show how the system works, not just what tools were used
+- they are honest about constraints, trade-offs, and why certain choices were made
+
+So that is what I wanted this page and this post to do.
+
+If you just want the working index, it is here: [Portfolio projects on rajeevg.com](/projects).
+
+## Quick scan
+
+Here is the short version of what is now on the portfolio page.
+
+| Project | What it is | Main stack | Links |
+| --- | --- | --- | --- |
+| [Workflow Garden](/projects#workflow-garden) | Educational site for issue-driven AI development workflows | Next.js, Velite, React, Pagefind | [Live](https://workflow-garden.vercel.app) · [GitHub](https://github.com/Rajeev-SG/workflow-garden) |
+| [Proof Pack](/projects#proof-pack) | Launch-review app for public webpages | Next.js, React, Tailwind | [Live](https://proof-pack.vercel.app) · [GitHub](https://github.com/Rajeev-SG/proof-pack) |
+| [Choice Compass](/projects#choice-compass) | Weighted decision helper | React, TypeScript, Vite | [Live](https://choice-compass-pi.vercel.app) · [GitHub](https://github.com/Rajeev-SG/choice-compass) |
+| [Model Intelligence Maintainer](/projects#model-intelligence-maintainer) | Workbook plus static guide for model comparison | Python, uv, OpenRouter, Vercel | [Live](https://openrouter-model-workbook-maintaine.vercel.app) · [GitHub](https://github.com/Rajeev-SG/openrouter-model-workbook-maintainer-v2) |
+| [rajeevg.com](/projects#rajeevg-com) | Personal publishing system and portfolio site | Next.js, Velite, MDX, shadcn/ui | [Live](https://rajeevg.com) · [GitHub](https://github.com/Rajeev-SG/rajeevg.com) |
+| [Markdown Blog](/projects#blog) | Earlier markdown blog app | Express, EJS, Markdown | [Live](https://blog-vr7a.vercel.app/) · [GitHub](https://github.com/Rajeev-SG/blog) |
+
+## Why I wanted this page in the first place
+
+I have a few different kinds of projects in `Code/`, and they are not all trying to prove the same thing.
+
+Some are product experiments. Some are publishing systems. Some are data-heavy tools. Some are really about workflow design more than UI. If I present them all the same way, they flatten out.
+
+That is usually where portfolio pages stop being useful.
+
+A better portfolio page should answer practical questions quickly:
+
+- what problem does this project solve?
+- who is it for?
+- is there a live public version?
+- is the code public?
+- what is the actual implementation shape?
+
+That is why the new `/projects` route is driven by one checked-in data source. Each card only appears if there is a public repo and a public live URL. In other words, this is not a wish list and it is not a hidden private backlog dressed up as shipped work.
+
+## Workflow Garden
+
+<ProjectSpotlight slug="workflow-garden" />
+
+Workflow Garden is probably the clearest example of the kind of software I like building right now. It is part educational product, part publishing system, and part documentation experiment.
+
+The basic idea is simple: take an issue-driven AI development workflow and explain it in a way that does not assume the reader already lives inside GitHub, Linear, or terminal tooling all day.
+
+What makes it interesting is the shape of the content system behind it. The site is not just a pile of static pages. It has evergreen articles, concept pages, project pages, search, and a generated diary that reflects meaningful activity from the local `Code/` workspace. That means there is a content pipeline problem hiding inside what looks like a regular content site.
+
+The stack choice there was pretty deliberate:
+
+- `Next.js` for routing and deployment ergonomics
+- `Velite` for typed content and static build-time transforms
+- `Pagefind` for on-site search without needing a server-side search product
+- generated JSON for diary content so Vercel can serve the site statically
+
+I like this project because it forces product thinking and systems thinking into the same place. You have to care about editorial clarity, information architecture, content generation, and proof of correctness at the same time.
+
+## Proof Pack
+
+<ProjectSpotlight slug="proof-pack" />
+
+Proof Pack came from a very familiar feeling: a page is technically done, but nobody has really said whether it is understandable.
+
+That gap matters more than people admit. A launch can fail in much more boring ways than "the server crashed." The layout can bury the main action. The mobile version can make the sequencing feel wrong. The messaging can sound clear to the maker and fuzzy to everyone else.
+
+So Proof Pack is intentionally scoped around review, not production content management. A user gives it a public URL and gets back a concise pack that looks at:
+
+- what the page appears to do
+- where the visual hierarchy drifts
+- what mobile or accessibility risks are likely
+- what concrete changes would make the page easier to ship
+
+The tech choices are modest on purpose. `Next.js`, `React`, `Tailwind`, and `Vitest` are more than enough here. The interesting part is not framework novelty. It is the product boundary: keeping the tool focused on a specific review moment instead of letting it turn into a generic website auditor with a thousand weak heuristics.
+
+## Choice Compass
+
+<ProjectSpotlight slug="choice-compass" />
+
+Choice Compass is small, but I have a soft spot for small products that do one useful thing cleanly.
+
+The job here is to help someone compare a few options without ending up in spreadsheet chaos. That might be software tools, purchases, plans, or even internal workflow choices. The pattern is the same: define the options, define the criteria, decide how much those criteria matter, score the options, and get a recommendation you can actually act on.
+
+This one is intentionally browser-local. That matters because the app does not need accounts, backend storage, or a database just to help someone think. `React`, `TypeScript`, and `Vite` keep it quick, and `localStorage` is enough persistence for the problem shape.
+
+I like that constraint because it keeps the product honest. A lot of tools add infrastructure before they have earned the right to. Choice Compass does not. It stays close to the user job and resists turning a simple comparison workflow into a platform.
+
+## Model Intelligence Maintainer
+
+<ProjectSpotlight slug="model-intelligence-maintainer" />
+
+This is the most data-heavy project in the current portfolio, and probably the most operational one.
+
+The problem it is solving is not "show me benchmark charts." There are already plenty of dashboards for that. The harder problem is keeping a maintainable, explainable comparison system when model metadata is coming from multiple sources with different identifiers, different coverage, and different failure modes.
+
+That is why the repo is built around a refreshable pipeline rather than a single front-end app. It pulls together data from:
+
+- `OpenRouter` for routed model and pricing metadata
+- `Artificial Analysis` for performance and provider coverage
+- `Vals` for application-style quality signals
+- `LiveBench` for public benchmark enrichment
+
+The output is not just one website. It is a dataset layer, a workbook, and a static guide. That split is important. Some people want a browsable site. Some want a spreadsheet they can sort, annotate, and pass around. The system needs to support both.
+
+This is also the sort of project where the unglamorous engineering work matters most: cohort rules, provenance, mapping diagnostics, and deterministic refreshes. If those parts are sloppy, the polished guide on top is not worth much.
+
+## rajeevg.com
+
+<ProjectSpotlight slug="rajeevg-com" />
+
+This site is now part portfolio, part blog, and part publishing system for the rest of the work.
+
+I rebuilt it around `Next.js`, `Velite`, `MDX`, and `shadcn/ui` because I wanted a setup that could handle both straightforward writing and more structured technical storytelling. A plain markdown blog is still great for a lot of things, but once you want richer article layouts, reusable callouts, or project cards embedded directly into posts, the component model starts to matter.
+
+That is exactly what this article is using.
+
+The `Velite` layer turns the content into typed build output. `MDX` lets me mix prose with React components. `shadcn/ui` gives me a stable set of primitives for cards, buttons, tables, alerts, and layout pieces. That combination is what made it straightforward to add a portfolio page and then write a post that reuses the same project metadata rather than copying everything by hand.
+
+That reuse is the part I care about. Good publishing systems should reduce duplicated thinking, not just duplicated markup.
+
+## Markdown Blog
+
+<ProjectSpotlight slug="blog" />
+
+This is the older publishing project in the workspace, and I wanted it on the portfolio page because it shows the progression rather than pretending the latest system appeared out of nowhere.
+
+It is a more classic Node setup:
+
+- `Express` for the server
+- `EJS` for templating
+- `Markdown` files for content
+- `Highlight.js` for code blocks
+
+There is nothing wrong with that stack. In fact, it is still a very understandable way to build a personal blog. What it does not give me quite as naturally is the typed content layer, component reuse, and richer long-form presentation that I now want for project writing.
+
+So I do not think of this repo as obsolete. I think of it as a useful baseline. It shows the simpler system I started with, and that makes the newer choices on `rajeevg.com` easier to justify.
+
+## What ties these projects together
+
+If I step back, the common thread is not one language or one framework.
+
+It is a bias toward systems that make work clearer.
+
+Sometimes that means a public educational site. Sometimes it means a review tool. Sometimes it means a data pipeline that turns scattered model signals into something a person can actually use. Sometimes it just means refusing to add more infrastructure than the problem needs.
+
+The portfolio page is meant to make that pattern legible.
+
+Not every repo in `Code/` belongs there. Some are still scaffolds. Some are still internal. Some do not have a public live URL yet. That is fine. I would rather have a smaller portfolio of projects that are real, inspectable, and live than a bigger page full of half-claimed work.
+
+## Where to browse next
+
+- Start with the [projects page](/projects) if you want the concise version.
+- Open [Workflow Garden](https://workflow-garden.vercel.app) if you want the best example of a content-rich product system.
+- Open [Proof Pack](https://proof-pack.vercel.app) if you want the clearest review-oriented tool.
+- Browse [Choice Compass](https://choice-compass-pi.vercel.app) if you want the smallest product with the cleanest scope.
+- Check the [GitHub repositories](https://github.com/Rajeev-SG?tab=repositories) if you want the implementation side.
+
+This is the version of a portfolio I find most convincing now: less "here are some screenshots," more "here is the product, here is the code, and here is how the thing actually works."

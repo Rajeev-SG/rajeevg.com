@@ -7,6 +7,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const items: MetadataRoute.Sitemap = [
     { url: `${base}/`, lastModified: new Date() },
     { url: `${base}/about`, lastModified: new Date() },
+    { url: `${base}/projects`, lastModified: new Date() },
     { url: `${base}/blog`, lastModified: new Date() },
     ...getVisiblePosts().map((p) => ({
       url: `${base}/blog/${p.slug}`,

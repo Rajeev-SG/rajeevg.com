@@ -50,6 +50,7 @@ Open http://localhost:3000 and visit:
 
 - `/` — homepage renders the most recent published blog post (theme toggle is in the header)
 - `/blog` — blog index
+- `/projects` — portfolio page driven by checked-in public project metadata
 - `/blog/hello-world` — sample post kept as a local draft example with highlighted code + copy button
 
 You can edit the home page at `src/app/page.tsx`. Blog content lives in `content/posts/*`. Velite config is at `velite.config.ts`.
@@ -66,7 +67,8 @@ web/
  │  │  ├─ layout.tsx, globals.css, head.tsx, page.tsx, not-found.tsx, sitemap.ts, robots.ts
  │  │  ├─ about/page.tsx
  │  │  ├─ blog/ (page.tsx, [slug]/page.tsx)
- │  │  └─ dashboard/page.tsx
+ │  │  ├─ dashboard/page.tsx
+ │  │  └─ projects/page.tsx
  │  ├─ components/
  │  │  ├─ app-sidebar.tsx, blog-index-client.tsx, hover-scroll-text.tsx, mdx-components.tsx, mdx-content.tsx, mdx-pre.tsx, reading-progress.tsx, tag-combobox.tsx, theme-provider.tsx, theme-toggle.tsx
  │  │  └─ ui/ (sidebar.tsx, breadcrumb.tsx, button.tsx, input.tsx, badge.tsx, popover.tsx, scroll-area.tsx, separator.tsx, sheet.tsx, table.tsx, tooltip.tsx, alert.tsx, progress.tsx, skeleton.tsx, card.tsx, avatar.tsx)
@@ -88,6 +90,7 @@ web/
   - `sitemap.ts` — Dynamic sitemap including home, about, blog index, and all published posts with `lastModified`.
   - `robots.ts` — Robots policy allowing all; sets `host` and `sitemap` URLs.
   - `about/page.tsx` — About page with a profile image, focus areas, current projects, and contact links.
+  - `projects/page.tsx` — Portfolio route for public projects with verified GitHub repos and live URLs.
   - `blog/`
     - `page.tsx` — Blog index server component. Gathers posts from `#velite` and renders the client UI via `BlogIndexClient`.
     - `[slug]/page.tsx` — Article page. Looks up a post by slug, renders title/description/date and HTML content from Velite. Next 15 uses Promise-based route params, so both the page and `generateMetadata` accept `{ params: Promise<{ slug: string }> }` and `await` it. Uses Tailwind `prose` with dual-theme Shiki CSS.
@@ -95,6 +98,7 @@ web/
 
  - `src/components/` — Reusable components
   - `app-sidebar.tsx` — Application sidebar built on shadcn/ui sidebar primitives. Renders “Site” links and a dynamic “Posts” section from `#velite`. Auto-closes on mobile navigation.
+  - `project-card.tsx` — Reusable project card used by the portfolio route and MDX posts.
   - `blog-index-client.tsx` — Client interactivity for the blog index: text search, tag filters (badges on desktop, combobox on mobile). Displays filtered list.
   - `mdx-components.tsx` — MDX mapping (headings, inline code, blockquote→Alert, tables, links with external icon). Maps `pre` to `MdxPre`.
   - `mdx-content.tsx` — Helper for rendering processed MDX HTML content with the correct components.
@@ -113,6 +117,7 @@ web/
 
 - `src/lib/`
   - `site.ts` — Site-wide constants (`name`, `description`, `siteUrl`, `defaultOgImage`, `homeCanonicalStrategy`).
+  - `portfolio-projects.ts` — Checked-in public project metadata used by the portfolio route and related MDX content.
   - `utils.ts` — `cn(...classValues)` utility combining `clsx` with `tailwind-merge`.
 
 - `content/` — Source Markdown content

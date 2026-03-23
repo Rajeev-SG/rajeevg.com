@@ -88,6 +88,9 @@ export default function AboutPage() {
               </div>
 
               <div className="flex flex-wrap gap-2">
+                <Button asChild>
+                  <Link href="/projects">Projects</Link>
+                </Button>
                 <Button asChild variant="outline">
                   <Link href="mailto:rajeev.sgill@gmail.com">
                     <Mail className="mr-2 size-4" /> Email

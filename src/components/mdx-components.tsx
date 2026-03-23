@@ -3,6 +3,7 @@ import Link from "next/link"
 
 import { cn } from "@/lib/utils"
 import { MdxPre } from "@/components/mdx-pre"
+import { ProjectSpotlight } from "@/components/project-card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Separator } from "@/components/ui/separator"
 import {
@@ -206,5 +207,5 @@ export const mdxComponents: Record<string, React.ComponentType<any>> = {
   td: TableCell,
   tfoot: TableFooter,
   caption: TableCaption,
+  ProjectSpotlight,
 }
-

@@ -20,12 +20,18 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { HoverScrollText } from "@/components/hover-scroll-text"
+import { getPortfolioProjects } from "@/lib/portfolio-projects"
 import { getSortedVisiblePosts } from "@/lib/posts"
 
 // Build nav from site links and Velite posts
 const postsList = getSortedVisiblePosts().map((post) => ({
   title: post.title,
   url: `/blog/${post.slug}`,
+}))
+
+const projectsList = getPortfolioProjects().map((project) => ({
+  title: project.title,
+  url: `/projects#${project.slug}`,
 }))
 
 const data = {
@@ -35,7 +41,13 @@ const data = {
       url: "/",
       items: [
         { title: "About", url: "/about" },
+        { title: "Projects", url: "/projects" },
       ],
+    },
+    {
+      title: "Projects",
+      url: "/projects",
+      items: projectsList,
     },
     {
       title: "Posts",
@@ -84,7 +96,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <SidebarMenuSub>
                     {item.items.map((sub) => (
                       <SidebarMenuSubItem key={sub.title}>
-                        <SidebarMenuSubButton asChild isActive={pathname === sub.url}>
+                        <SidebarMenuSubButton asChild isActive={pathname === sub.url || (pathname === "/projects" && sub.url.startsWith("/projects#"))}>
                           <Link href={sub.url} prefetch={false} onClick={handleNav} className="min-w-0 w-full">
                             <HoverScrollText text={sub.title} />
                           </Link>
