@@ -5,6 +5,8 @@ import { sanitizeAnalyticsText } from "@/lib/analytics"
 import { cn } from "@/lib/utils"
 import { MdxPre } from "@/components/mdx-pre"
 import { ProjectSpotlight } from "@/components/project-card"
+import { ArticleExplain } from "@/components/article-explain"
+import { ArticleFigure } from "@/components/article-figure"
 import {
   ReviewPill,
   TerminalLine,
@@ -244,4 +246,6 @@ export const mdxComponents: Record<string, React.ComponentType<any>> = {
   TerminalLine,
   TerminalNote,
   ReviewPill,
+  ArticleExplain,
+  ArticleFigure,
 }
