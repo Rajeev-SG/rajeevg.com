@@ -1,10 +1,11 @@
 "use client"
 
 import Link from "next/link"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { TagCombobox } from "@/components/tag-combobox"
+import { pushDataLayerEvent } from "@/lib/analytics"
 
 export type BlogListItem = {
   title: string
@@ -24,6 +25,8 @@ export function BlogIndexClient({
 }) {
   const [q, setQ] = useState("")
   const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const previousQuery = useRef("")
+  const hasFocusedSearch = useRef(false)
 
   const filtered = useMemo(() => {
     const query = q.trim().toLowerCase()
@@ -36,14 +39,55 @@ export function BlogIndexClient({
     })
   }, [q, selectedTags, allPosts])
 
-  const toggleTag = (t: string) => {
-    setSelectedTags((prev) =>
-      prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]
-    )
+  const trackTagToggle = (tag: string, nextTags: string[]) => {
+    setSelectedTags(nextTags)
+    pushDataLayerEvent("tag_click", {
+      analytics_section: "blog_filters",
+      filter_tag: tag,
+      selected_tag_count: nextTags.length,
+      selected_tags: nextTags.join("|") || undefined,
+      filter_state: nextTags.includes(tag) ? "selected" : "cleared",
+    })
   }
 
+  const toggleTag = (tag: string) => {
+    const nextTags = selectedTags.includes(tag)
+      ? selectedTags.filter((x) => x !== tag)
+      : [...selectedTags, tag]
+
+    trackTagToggle(tag, nextTags)
+  }
+
+  useEffect(() => {
+    const query = q.trim()
+    if (query === previousQuery.current) return
+
+    const timeout = window.setTimeout(() => {
+      pushDataLayerEvent("blog_search", {
+        analytics_section: "blog_filters",
+        search_term: query || undefined,
+        search_term_length: query.length,
+        selected_tag_count: selectedTags.length,
+        selected_tags: selectedTags.join("|") || undefined,
+        result_count: filtered.length,
+      })
+      previousQuery.current = query
+    }, 350)
+
+    return () => window.clearTimeout(timeout)
+  }, [filtered.length, q, selectedTags])
+
   return (
-    <section className="space-y-6">
+    <section
+      className="space-y-6"
+      data-analytics-section="blog_index"
+      data-analytics-item-type="listing"
+      data-analytics-page-context="primary"
+      data-analytics-page-content-group="blog"
+      data-analytics-page-content-type="blog_index"
+      data-analytics-page-total-post-count={allPosts.length}
+      data-analytics-page-total-tag-count={allTags.length}
+    >
       <h1 className="text-3xl font-bold tracking-tight">Blog</h1>
 
       <div className="flex flex-col gap-3">
@@ -51,13 +95,24 @@ export function BlogIndexClient({
           placeholder="Search articles…"
           value={q}
           onChange={(e) => setQ(e.target.value)}
+          onFocus={() => {
+            if (hasFocusedSearch.current) return
+            hasFocusedSearch.current = true
+            pushDataLayerEvent("blog_search_focus", {
+              analytics_section: "blog_filters",
+              selected_tag_count: selectedTags.length,
+            })
+          }}
+          data-analytics-section="blog_filters"
+          data-analytics-item-type="search_input"
         />
         {/* Mobile: combobox for tag selection */}
         <div className="md:hidden">
           <TagCombobox
             allTags={allTags}
             selected={selectedTags}
-            onChange={setSelectedTags}
+            onChange={() => undefined}
+            onToggleTag={trackTagToggle}
             buttonLabel="Filter tags"
           />
         </div>
@@ -70,6 +125,9 @@ export function BlogIndexClient({
               onClick={() => toggleTag(t)}
               className="cursor-pointer select-none"
               title={selectedTags.includes(t) ? "Remove tag" : "Add tag"}
+              data-analytics-section="blog_filters"
+              data-analytics-item-type="tag_filter"
+              data-analytics-item-name={t}
             >
               {t}
             </Badge>
@@ -84,6 +142,9 @@ export function BlogIndexClient({
                 variant="secondary"
                 onClick={() => toggleTag(t)}
                 className="cursor-pointer select-none"
+                data-analytics-section="blog_filters_active"
+                data-analytics-item-type="tag_filter"
+                data-analytics-item-name={t}
               >
                 {t}
               </Badge>
@@ -99,6 +160,11 @@ export function BlogIndexClient({
               href={`/blog/${post.slug}`}
               prefetch={false}
               className="text-lg font-semibold hover:underline"
+              data-analytics-event="post_click"
+              data-analytics-section="blog_index_results"
+              data-analytics-item-type="post_link"
+              data-analytics-item-id={post.slug}
+              data-analytics-item-name={post.title}
             >
               {post.title}
             </Link>

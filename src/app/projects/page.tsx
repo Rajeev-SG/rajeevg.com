@@ -9,10 +9,20 @@ export const revalidate = 3600
 
 export default function ProjectsPage() {
   const projects = getPortfolioProjects()
+  const categories = Array.from(new Set(projects.map((project) => project.category))).sort()
 
   return (
-    <section className="space-y-10">
-      <div className="space-y-4">
+    <section
+      className="space-y-10"
+      data-analytics-section="projects_page"
+      data-analytics-item-type="page_section"
+      data-analytics-page-context="primary"
+      data-analytics-page-content-group="projects"
+      data-analytics-page-content-type="project_index"
+      data-analytics-page-project-count={projects.length}
+      data-analytics-page-project-categories={categories.join("|")}
+    >
+      <div className="space-y-4" data-analytics-section="projects_intro" data-analytics-item-type="page_intro">
         <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground">
           Portfolio
         </p>

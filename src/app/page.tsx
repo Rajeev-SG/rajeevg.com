@@ -22,7 +22,21 @@ export default function Home() {
   return (
     <>
       <ReadingProgress />
-      <article className="-mt-4 space-y-6 md:-mt-5">
+      <article
+        className="-mt-4 space-y-6 md:-mt-5"
+        data-analytics-section="home_featured_post"
+        data-analytics-item-type="post"
+        data-analytics-item-id={latest.slug}
+        data-analytics-item-name={latest.title}
+        data-analytics-page-context="primary"
+        data-analytics-page-content-group="blog"
+        data-analytics-page-content-type="featured_article"
+        data-analytics-page-content-id={latest.slug}
+        data-analytics-page-content-name={latest.title}
+        data-analytics-page-published-at={latest.date}
+        data-analytics-page-tag-count={latest.tags.length}
+        data-analytics-page-content-tags={latest.tags.join("|")}
+      >
         <header className="mb-6 space-y-2">
           <h1 className="text-3xl font-bold tracking-tight">{latest.title}</h1>
           {latest.description ? (
@@ -32,7 +46,14 @@ export default function Home() {
             {new Date(latest.date).toLocaleDateString()}
           </p>
         </header>
-        <section id="article-content" className="prose-sm sm:prose-base prose-headings:scroll-mt-24 prose-pre:rounded-lg dark:prose-invert">
+        <section
+          id="article-content"
+          className="prose-sm sm:prose-base prose-headings:scroll-mt-24 prose-pre:rounded-lg dark:prose-invert"
+          data-analytics-section="home_article_content"
+          data-analytics-item-type="post_body"
+          data-analytics-item-id={latest.slug}
+          data-analytics-item-name={latest.title}
+        >
           <MDXContent code={latest.code} components={mdxComponents} />
         </section>
       </article>

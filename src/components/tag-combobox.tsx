@@ -13,12 +13,14 @@ export function TagCombobox({
   allTags,
   selected,
   onChange,
+  onToggleTag,
   className,
   buttonLabel = "Filter tags",
 }: {
   allTags: string[]
   selected: string[]
   onChange(tags: string[]): void
+  onToggleTag?: (tag: string, nextTags: string[]) => void
   className?: string
   buttonLabel?: string
 }) {
@@ -38,12 +40,19 @@ export function TagCombobox({
       ? selected.filter((t) => t !== tag)
       : [...selected, tag]
     onChange(next)
+    onToggleTag?.(tag, next)
   }
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" className={cn("justify-between", className)}>
+        <Button
+          variant="outline"
+          className={cn("justify-between", className)}
+          data-analytics-section="blog_filters_mobile"
+          data-analytics-item-type="filter_menu_button"
+          data-analytics-item-name={buttonLabel}
+        >
           <span>{buttonLabel}</span>
           <ChevronDown className="size-4 opacity-70" />
         </Button>
@@ -54,6 +63,8 @@ export function TagCombobox({
             placeholder="Type to filter tags…"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
+            data-analytics-section="blog_filters_mobile"
+            data-analytics-item-type="filter_search_input"
           />
           <ScrollArea className="h-56 rounded-md border">
             <ul className="p-1">
@@ -73,6 +84,9 @@ export function TagCombobox({
                           "flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm hover:bg-accent hover:text-accent-foreground",
                           active && "bg-accent text-accent-foreground"
                         )}
+                        data-analytics-section="blog_filters_mobile"
+                        data-analytics-item-type="tag_filter"
+                        data-analytics-item-name={t}
                       >
                         <Check className={cn("size-4", active ? "opacity-100" : "opacity-0")} />
                         <span className="truncate">{t}</span>

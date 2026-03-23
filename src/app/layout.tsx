@@ -6,8 +6,10 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { site } from "@/lib/site";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { GoogleTagManager } from "@next/third-parties/google";
-import { Analytics } from "@vercel/analytics/next"
+import { AnalyticsDataLayer } from "@/components/analytics-data-layer";
+import { ConsentManager } from "@/components/consent-manager";
+import { TagManagerScript } from "@/components/tag-manager-script";
+import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -46,6 +48,8 @@ export const metadata: Metadata = {
 };
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
+const GTM_SCRIPT_ORIGIN =
+  process.env.NEXT_PUBLIC_GTM_SCRIPT_ORIGIN || "https://www.googletagmanager.com";
 
 export default function RootLayout({
   children,
@@ -54,10 +58,26 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      {GTM_ID ? <GoogleTagManager gtmId={GTM_ID} /> : null}
+      <Script id="google-consent-default" strategy="beforeInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          window.gtag = function gtag(){window.dataLayer.push(arguments);}
+          document.documentElement.dataset.analyticsConsent = 'denied';
+          window.gtag('consent', 'default', {
+            ad_storage: 'denied',
+            analytics_storage: 'denied',
+            ad_user_data: 'denied',
+            ad_personalization: 'denied',
+            functionality_storage: 'granted',
+            security_storage: 'granted',
+            wait_for_update: 500
+          });
+        `}
+      </Script>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {GTM_ID ? <TagManagerScript gtmId={GTM_ID} scriptOrigin={GTM_SCRIPT_ORIGIN} /> : null}
         <ThemeProvider>
           <SidebarProvider>
             <AppSidebar />
@@ -80,7 +100,8 @@ export default function RootLayout({
             </SidebarInset>
           </SidebarProvider>
         </ThemeProvider>
-        <Analytics />
+        <AnalyticsDataLayer />
+        <ConsentManager />
       </body>
     </html>
   );

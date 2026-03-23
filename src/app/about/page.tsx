@@ -6,7 +6,16 @@ import { Card, CardContent } from "@/components/ui/card"
 
 export default function AboutPage() {
   return (
-    <section className="space-y-8">
+    <section
+      className="space-y-8"
+      data-analytics-section="about_page"
+      data-analytics-item-type="page_section"
+      data-analytics-page-context="primary"
+      data-analytics-page-content-group="about"
+      data-analytics-page-content-type="profile_page"
+      data-analytics-page-profile-name="Rajeev Gill"
+      data-analytics-page-primary-topic="practical_ai_data_workflows"
+    >
       <div className="space-y-3">
         <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground">About</p>
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Rajeev Gill</h1>
@@ -66,7 +75,7 @@ export default function AboutPage() {
           </div>
         </div>
 
-        <aside className="space-y-4">
+        <aside className="space-y-4" data-analytics-section="about_profile_card" data-analytics-item-type="profile">
           <Card className="overflow-hidden border-border/70 bg-card/60">
             <div className="relative aspect-square">
               <Image
@@ -89,10 +98,12 @@ export default function AboutPage() {
 
               <div className="flex flex-wrap gap-2">
                 <Button asChild>
-                  <Link href="/projects">Projects</Link>
+                  <Link href="/projects" data-analytics-event="navigation_click" data-analytics-section="about_cta" data-analytics-item-type="projects_cta" data-analytics-item-name="Projects">
+                    Projects
+                  </Link>
                 </Button>
                 <Button asChild variant="outline">
-                  <Link href="mailto:rajeev.sgill@gmail.com">
+                  <Link href="mailto:rajeev.sgill@gmail.com" data-analytics-event="contact_click" data-analytics-section="about_cta" data-analytics-item-type="email_link" data-analytics-item-name="Email">
                     <Mail className="mr-2 size-4" /> Email
                   </Link>
                 </Button>
@@ -101,6 +112,10 @@ export default function AboutPage() {
                     href="https://github.com/Rajeev-SG"
                     target="_blank"
                     rel="noreferrer noopener"
+                    data-analytics-event="profile_click"
+                    data-analytics-section="about_cta"
+                    data-analytics-item-type="social_link"
+                    data-analytics-item-name="GitHub"
                   >
                     <Github className="mr-2 size-4" /> GitHub
                   </Link>
@@ -110,6 +125,10 @@ export default function AboutPage() {
                     href="https://www.linkedin.com/in/rajeev-gill/"
                     target="_blank"
                     rel="noreferrer noopener"
+                    data-analytics-event="profile_click"
+                    data-analytics-section="about_cta"
+                    data-analytics-item-type="social_link"
+                    data-analytics-item-name="LinkedIn"
                   >
                     <Linkedin className="mr-2 size-4" /> LinkedIn
                   </Link>

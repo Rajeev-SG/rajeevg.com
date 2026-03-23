@@ -10,7 +10,24 @@ if (!process.env.VELITE_STARTED && isDev) {
 }
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  async rewrites() {
+    const sgtmUpstreamOrigin = process.env.SGTM_UPSTREAM_ORIGIN
+
+    if (!sgtmUpstreamOrigin) {
+      return []
+    }
+
+    const upstreamOrigin = sgtmUpstreamOrigin.endsWith("/")
+      ? sgtmUpstreamOrigin.slice(0, -1)
+      : sgtmUpstreamOrigin
+
+    return [
+      {
+        source: "/metrics/:path*",
+        destination: `${upstreamOrigin}/:path*`,
+      },
+    ]
+  },
 };
 
 export default nextConfig;

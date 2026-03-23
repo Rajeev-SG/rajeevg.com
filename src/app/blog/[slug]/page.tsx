@@ -32,7 +32,21 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   return (
     <>
       <ReadingProgress />
-      <article className="-mt-4 space-y-6 md:-mt-5">
+      <article
+        className="-mt-4 space-y-6 md:-mt-5"
+        data-analytics-section="article_page"
+        data-analytics-item-type="post"
+        data-analytics-item-id={post.slug}
+        data-analytics-item-name={post.title}
+        data-analytics-page-context="primary"
+        data-analytics-page-content-group="blog"
+        data-analytics-page-content-type="article"
+        data-analytics-page-content-id={post.slug}
+        data-analytics-page-content-name={post.title}
+        data-analytics-page-published-at={post.date}
+        data-analytics-page-tag-count={post.tags.length}
+        data-analytics-page-content-tags={post.tags.join("|")}
+      >
         <header className="mb-6 space-y-2">
           <h1 className="text-3xl font-bold tracking-tight">{post.title}</h1>
           {post.description ? (
@@ -46,7 +60,14 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <section id="article-content" className="relative prose-sm sm:prose-base prose-headings:scroll-mt-24 prose-pre:rounded-lg dark:prose-invert">
+        <section
+          id="article-content"
+          className="relative prose-sm sm:prose-base prose-headings:scroll-mt-24 prose-pre:rounded-lg dark:prose-invert"
+          data-analytics-section="article_content"
+          data-analytics-item-type="post_body"
+          data-analytics-item-id={post.slug}
+          data-analytics-item-name={post.title}
+        >
           <MDXContent code={post.code} components={mdxComponents} />
         </section>
         {/* Initialize client-side Mermaid rendering for pre.mermaid placeholders */}

@@ -1,6 +1,7 @@
 import * as React from "react"
 import Link from "next/link"
 
+import { sanitizeAnalyticsText } from "@/lib/analytics"
 import { cn } from "@/lib/utils"
 import { MdxPre } from "@/components/mdx-pre"
 import { ProjectSpotlight } from "@/components/project-card"
@@ -116,6 +117,14 @@ const Img = ({
   <img loading={loading} decoding={decoding} alt={alt} {...props} />
 )
 
+function getAnalyticsLabel(children: React.ReactNode) {
+  return sanitizeAnalyticsText(
+    React.Children.toArray(children)
+      .filter((child): child is string | number => typeof child === "string" || typeof child === "number")
+      .join(" ")
+  )
+}
+
 // Links (internal vs external) with special handling for SVG anchors (e.g., Mermaid output)
 const A = (
   // Support possible SVG props like xlinkHref/xlink:href that rehype-mermaid may emit
@@ -146,7 +155,17 @@ const A = (
   const classes = cn("text-primary underline-offset-4 hover:underline", className)
   if (isExternal) {
     return (
-      <a href={rawHref} className={classes} rel="noreferrer noopener" target="_blank" {...rest}>
+      <a
+        href={rawHref}
+        className={classes}
+        rel="noreferrer noopener"
+        target="_blank"
+        data-analytics-event="outbound_click"
+        data-analytics-section="article_content"
+        data-analytics-item-type="article_link"
+        data-analytics-item-name={getAnalyticsLabel(children)}
+        {...rest}
+      >
         {children}
         <svg aria-hidden className="ml-1 inline-block size-3 align-[-1px] opacity-70" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M14 3h7v7" />
@@ -158,7 +177,14 @@ const A = (
     )
   }
   return (
-    <Link href={rawHref} className={classes}>
+    <Link
+      href={rawHref}
+      className={classes}
+      data-analytics-event="article_link_click"
+      data-analytics-section="article_content"
+      data-analytics-item-type="article_link"
+      data-analytics-item-name={getAnalyticsLabel(children)}
+    >
       {children}
     </Link>
   )

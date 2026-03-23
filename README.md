@@ -316,34 +316,62 @@ web/
 
 ## Analytics (Google Tag Manager)
 
-- **Summary**: The app mounts GTM at the root. GA4 pageviews are handled entirely by the Google Tag (GA4 Configuration) inside your GTM container. No app-side SPA pageview wiring is used, because the Google Tag automatically sends page view events due to the history change (seems to be triggered automatically by the GTM container when the URL path updates). Click > URL updates > History Change > Page view sent by Google Tag... 
+- **Summary**: The app mounts GTM at the root and now maintains a first-class app-side `dataLayer` contract in [`src/lib/analytics.ts`](/Users/rajeev/Code/rajeevg.com/src/lib/analytics.ts) and [`src/components/analytics-data-layer.tsx`](/Users/rajeev/Code/rajeevg.com/src/components/analytics-data-layer.tsx). GTM still owns delivery to GA4, but the site now pushes structured page, content, navigation, filter, scroll, article, code-copy, consent, and engagement summary events instead of relying on thin generic clicks. In production, GTM is served first-party from `/metrics` and forwarded to a live server-side GTM container.
 
-- **Env var**: Put GTM container ID in `web/.env.local`:
+- **Env vars**:
 
   ```bash
-  NEXT_PUBLIC_GTM_ID=GTM-XXXXXXX
+  NEXT_PUBLIC_GTM_ID=GTM-K2VRQS47
+  NEXT_PUBLIC_GTM_SCRIPT_ORIGIN=/metrics
+  SGTM_UPSTREAM_ORIGIN=https://sgtm-live-6tmqixdp3a-nw.a.run.app
   NEXT_PUBLIC_SITE_URL=https://rajeevg.com
   ```
 
-- **Root integration**: `src/app/layout.tsx` mounts GTM when `NEXT_PUBLIC_GTM_ID` is present:
-  - `<GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />` (from `@next/third-parties/google`)
+- **Root integration**:
+  - [`src/app/layout.tsx`](/Users/rajeev/Code/rajeevg.com/src/app/layout.tsx) mounts GTM when `NEXT_PUBLIC_GTM_ID` is present and seeds Google Consent Mode before GTM loads.
+  - [`src/components/tag-manager-script.tsx`](/Users/rajeev/Code/rajeevg.com/src/components/tag-manager-script.tsx) injects `gtm.js` and `ns.html` from the configured script origin.
+  - [`next.config.ts`](/Users/rajeev/Code/rajeevg.com/next.config.ts) rewrites `/metrics/:path*` to the live server-side GTM service when `SGTM_UPSTREAM_ORIGIN` is present.
+  - The layout pushes a Google consent-mode default before GTM loads so analytics/ad storage stay denied until the site consent manager updates consent.
+  - [`src/components/analytics-data-layer.tsx`](/Users/rajeev/Code/rajeevg.com/src/components/analytics-data-layer.tsx) adds page context, scroll depth, article progress, engaged-time milestones, section views, click metadata, and page engagement summary pushes.
+  - [`src/components/consent-manager.tsx`](/Users/rajeev/Code/rajeevg.com/src/components/consent-manager.tsx) persists the visitor choice, updates Google Consent Mode, gates Vercel Analytics, and emits consent events into the shared `dataLayer`.
+  - The current live stack uses web container `GTM-K2VRQS47`, server container `GTM-W4GKTR3H`, measurement ID `G-675W3V0C78`, and BigQuery dataset `personal-gws-1:ga4_498363924`.
 
-- **Container setup**
-  - Install a GA4 Configuration tag (Google Tag) with your Measurement ID.
-  - Leave the default “Send a page view event when this configuration loads” enabled.
-  - Result: exactly one GA4 `page_view` per navigation.
+- **Automatically attached dimensions**:
+  - Every event now includes shared runtime context such as `browser_session_id`, `page_view_id`, `page_view_sequence`, viewport and screen size, device pixel ratio, language, timezone, theme, color scheme, and reduced-motion preference.
+  - Every event also includes page context such as `page_type`, `site_section`, `content_slug`, `content_title`, route depth, referrer context, and any page-level metadata declared with `data-analytics-page-*`.
 
-- **Send custom events**: In any client component you can emit additional analytics events:
+- **Page metadata convention**:
+  - Mark the primary content root with `data-analytics-page-context="primary"`.
+  - Add `data-analytics-page-*` attributes for stable dimensions like `content_type`, `content_id`, `content_tags`, counts, categories, or publish dates.
+  - The analytics helper automatically folds those dimensions into every event on that page.
+
+- **Main custom events**:
+  - `page_context`
+  - `navigation_click`, `post_click`, `project_click`, `profile_click`, `contact_click`
+  - `tag_click`, `blog_search`, `blog_search_focus`
+  - `theme_toggle`, `copy_code`
+  - `scroll_depth`, `article_progress`, `article_complete`, `section_view`, `engaged_time`
+  - `page_engagement_summary`
+
+- **Send custom events manually**:
 
   ```ts
-  import { sendGTMEvent } from "@next/third-parties/google"
-  sendGTMEvent({ event: "signup", plan: "pro" })
+  import { pushDataLayerEvent } from "@/lib/analytics"
+
+  pushDataLayerEvent("cta_click", {
+    analytics_section: "hero",
+    item_type: "primary_cta",
+    item_name: "Start here",
+  })
   ```
 
 - **Verification tips**:
-  - In DevTools, confirm `dataLayer` exists and that GTM script `gtm.js` loads.
-  - Use GTM Preview to verify one page_view per navigation from the Google Tag.
-  - Watch requests to `https://www.google-analytics.com/g/collect` (or region endpoint) for GA4 hits.
+  - In DevTools, confirm `dataLayer` exists and that first-party `https://rajeevg.com/metrics/gtm.js?id=GTM-K2VRQS47` loads.
+  - Inspect `window.dataLayer` after navigation and interactions to confirm shared dimensions are present on each event object.
+  - Use GTM Preview to map the richer custom events to GA4 event tags and parameters.
+  - Watch requests to `https://rajeevg.com/metrics/g/collect` for the primary GA4 transport path. A Google-hosted `gtm.js?...&gtg_health=1` probe may still appear as a health/fallback request.
+  - See [`docs/analytics.md`](/Users/rajeev/Code/rajeevg.com/docs/analytics.md) for the current event contract.
+  - See [`docs/google-tagging-stack.md`](/Users/rajeev/Code/rajeevg.com/docs/google-tagging-stack.md) for the full GA4, GTM, sGTM, BigQuery, and Looker stack audit.
 
 ## Build issues and prevention
 

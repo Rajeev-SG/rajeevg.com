@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { pushDataLayerEvent } from "@/lib/analytics"
 import { cn } from "@/lib/utils"
 
 export type MdxPreProps = React.ComponentProps<"pre">
@@ -31,6 +32,10 @@ export function MdxPre({ className, children, ...props }: MdxPreProps) {
         document.body.removeChild(ta)
       }
       setCopied(true)
+      pushDataLayerEvent("copy_code", {
+        analytics_section: "article_content",
+        copied_characters: text.length,
+      })
       window.setTimeout(() => setCopied(false), 1500)
     } catch {}
   }
@@ -43,6 +48,8 @@ export function MdxPre({ className, children, ...props }: MdxPreProps) {
         aria-label={copied ? "Copied" : "Copy code"}
         className={cn("rehype-pretty-copy", copied && "rehype-pretty-copied")}
         onClick={copy}
+        data-analytics-section="article_content"
+        data-analytics-item-type="code_block"
       >
         <span className="ready" aria-hidden />
         <span className="success" aria-hidden />
@@ -51,4 +58,3 @@ export function MdxPre({ className, children, ...props }: MdxPreProps) {
     </pre>
   )
 }
-

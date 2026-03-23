@@ -26,6 +26,12 @@ export function ProjectCard({ project, compact = false }: ProjectCardProps) {
     <Card
       id={compact ? undefined : project.slug}
       className="scroll-mt-24 border-border/70 bg-card/60 backdrop-blur-sm"
+      data-analytics-section={compact ? "project_spotlight" : "project_card"}
+      data-analytics-item-type="project"
+      data-analytics-item-id={project.slug}
+      data-analytics-item-name={project.title}
+      data-analytics-item-category={project.category}
+      data-analytics-tech-count={project.tech.length}
     >
       <CardHeader className="space-y-4">
         <div className="flex flex-wrap items-center gap-2">
@@ -55,7 +61,7 @@ export function ProjectCard({ project, compact = false }: ProjectCardProps) {
         ) : null}
         <div className="flex flex-wrap gap-2">
           {project.tech.map((item) => (
-            <Badge key={item} variant="outline">
+            <Badge key={item} variant="outline" data-analytics-event="project_tech_click" data-analytics-section="project_card" data-analytics-item-type="project_tech" data-analytics-item-name={item}>
               {item}
             </Badge>
           ))}
@@ -65,13 +71,35 @@ export function ProjectCard({ project, compact = false }: ProjectCardProps) {
         <p className="text-xs text-muted-foreground">{project.inclusionReason}</p>
         <div className="flex flex-wrap gap-2">
           <Button asChild variant="outline" size="sm">
-            <Link href={project.githubUrl} target="_blank" rel="noreferrer noopener">
+            <Link
+              href={project.githubUrl}
+              target="_blank"
+              rel="noreferrer noopener"
+              data-analytics-event="project_click"
+              data-analytics-section="project_card"
+              data-analytics-item-type="project_repo"
+              data-analytics-item-id={project.slug}
+              data-analytics-item-name={project.title}
+              data-analytics-item-category={project.category}
+              data-analytics-destination="github"
+            >
               <Github className="size-4" />
               GitHub
             </Link>
           </Button>
           <Button asChild size="sm">
-            <Link href={project.liveUrl} target="_blank" rel="noreferrer noopener">
+            <Link
+              href={project.liveUrl}
+              target="_blank"
+              rel="noreferrer noopener"
+              data-analytics-event="project_click"
+              data-analytics-section="project_card"
+              data-analytics-item-type="project_live_site"
+              data-analytics-item-id={project.slug}
+              data-analytics-item-name={project.title}
+              data-analytics-item-category={project.category}
+              data-analytics-destination="live_site"
+            >
               <ArrowUpRight className="size-4" />
               Live site
             </Link>
