@@ -279,7 +279,6 @@ web/
 
 - **What**: Render Mermaid at build time as inline SVG using `rehype-mermaid` with `strategy: 'inline-svg'`.
 - **Why**: Avoid client-side hydration races and stale-browser-state problems that can leave Mermaid blocks stuck as raw source text. Inline SVG still keeps the diagram in the HTML and preserves SVG anchors for tooltip overlays.
-- **Build requirement**: Because `rehype-mermaid` renders SVG during the content build, CI and deploy environments need a Playwright Chromium binary available before `velite --clean && next build` runs.
 
 - **Files**
   - `velite.config.ts` — `rehype-mermaid` configured with `strategy: 'inline-svg'` and placed before `rehype-pretty-code` in both `markdown` and `mdx`.
