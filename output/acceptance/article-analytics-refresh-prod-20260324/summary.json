@@ -1,0 +1,43 @@
+{
+  "url": "https://rajeevg.com/blog/how-we-built-a-consented-first-party-analytics-stack",
+  "runs": [
+    {
+      "name": "desktop-1440",
+      "width": 1440,
+      "height": 1500,
+      "articleLoaded": true,
+      "popoverVisible": true,
+      "inlinePrivacyVisible": true,
+      "result": {
+        "brokenImages": [],
+        "collisions": []
+      }
+    },
+    {
+      "name": "mobile-390",
+      "width": 390,
+      "height": 844,
+      "articleLoaded": true,
+      "popoverVisible": true,
+      "inlinePrivacyVisible": true,
+      "result": {
+        "brokenImages": [],
+        "collisions": []
+      }
+    }
+  ],
+  "checks": {
+    "articleLoaded": true,
+    "noBrokenImages": true,
+    "popoverWorks": true,
+    "inlinePrivacyVisible": true,
+    "noVisibleTextOverlap": true,
+    "noUnexpectedConsoleErrors": true,
+    "noFailedRequests": true,
+    "noBadResponses": true
+  },
+  "consoleErrors": [],
+  "failedRequests": [],
+  "badResponses": [],
+  "pass": true
+}
