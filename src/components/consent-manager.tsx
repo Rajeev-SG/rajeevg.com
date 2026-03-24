@@ -33,6 +33,7 @@ export function ConsentManager() {
   const pathname = usePathname()
   const [consentState, setConsentState] = useState<ConsentState | null>(null)
   const [isBannerOpen, setIsBannerOpen] = useState(false)
+  const [isArticleFooterVisible, setIsArticleFooterVisible] = useState(false)
   const isArticlePage = pathname?.startsWith("/blog/") ?? false
 
   useEffect(() => {
@@ -107,6 +108,36 @@ export function ConsentManager() {
     }
   }, [openPreferences])
 
+  useEffect(() => {
+    if (!isArticlePage || !consentState || consentState.source === "default") {
+      setIsArticleFooterVisible(false)
+      return
+    }
+
+    const footer = document.querySelector("footer")
+
+    if (!footer) {
+      setIsArticleFooterVisible(false)
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsArticleFooterVisible(entry.isIntersecting)
+      },
+      {
+        rootMargin: "0px 0px 120px 0px",
+        threshold: 0.01,
+      }
+    )
+
+    observer.observe(footer)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [consentState, isArticlePage])
+
   const shouldLoadAnalytics = hasAnalyticsConsent(consentState)
 
   return (
@@ -155,7 +186,12 @@ export function ConsentManager() {
 
       {consentState && consentState.source !== "default" && isArticlePage ? (
         <div
-          className="fixed right-4 bottom-4 z-40 md:right-6 md:bottom-6"
+          className={[
+            "fixed right-4 bottom-4 z-40 transition-all duration-200 ease-out md:right-6 md:bottom-6",
+            isArticleFooterVisible
+              ? "pointer-events-none translate-y-2 opacity-0"
+              : "pointer-events-auto opacity-100",
+          ].join(" ")}
         >
           <Button
             type="button"

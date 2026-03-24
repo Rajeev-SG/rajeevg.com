@@ -1,0 +1,93 @@
+{
+  "flow": "Article floating privacy control fades out before footer overlap",
+  "expectedBehavior": "With stored consent on article pages, the fixed Privacy settings button is visible before the footer and fades out with pointer events disabled when the footer area is reached on desktop and mobile.",
+  "targetUrl": "http://127.0.0.1:3021/blog/git-workflow-for-beginners",
+  "results": [
+    {
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 1100
+      },
+      "beforeState": {
+        "opacity": 1,
+        "pointerEvents": "auto",
+        "rect": {
+          "x": 1286.46875,
+          "y": 1044,
+          "width": 129.53125,
+          "height": 32,
+          "bottom": 1076
+        }
+      },
+      "afterState": {
+        "opacity": 0,
+        "pointerEvents": "none",
+        "rect": {
+          "x": 1286.46875,
+          "y": 1052,
+          "width": 129.53125,
+          "height": 32,
+          "bottom": 1084
+        }
+      },
+      "consoleCount": 2,
+      "pageErrors": [],
+      "failedRequests": [
+        {
+          "url": "http://127.0.0.1:3021/_vercel/insights/script.js",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "nonIgnorableFailedRequests": [],
+      "pass": true
+    },
+    {
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "beforeState": {
+        "opacity": 1,
+        "pointerEvents": "auto",
+        "rect": {
+          "x": 244.46875,
+          "y": 796,
+          "width": 129.53125,
+          "height": 32,
+          "bottom": 828
+        }
+      },
+      "afterState": {
+        "opacity": 0,
+        "pointerEvents": "none",
+        "rect": {
+          "x": 244.46875,
+          "y": 804,
+          "width": 129.53125,
+          "height": 32,
+          "bottom": 836
+        }
+      },
+      "consoleCount": 2,
+      "pageErrors": [],
+      "failedRequests": [
+        {
+          "url": "http://127.0.0.1:3021/_vercel/insights/script.js",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "nonIgnorableFailedRequests": [],
+      "pass": true
+    }
+  ],
+  "evidence": [
+    "desktop-before-footer.png",
+    "desktop-at-footer.png",
+    "mobile-before-footer.png",
+    "mobile-at-footer.png"
+  ],
+  "pass": true,
+  "checkedAt": "2026-03-24T02:11:39.755Z"
+}
