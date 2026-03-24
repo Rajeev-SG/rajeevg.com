@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { MDXContent } from "@/components/mdx-content";
 import { mdxComponents } from "@/components/mdx-components";
 import { ReadingProgress } from "@/components/reading-progress";
+import MermaidInit from "@/components/mermaid-init";
+import { MermaidTooltips } from "@/components/mermaid-tooltips";
 import { site } from "@/lib/site";
 import { getPostEffectiveDate, getSortedVisiblePosts } from "@/lib/posts";
 
@@ -50,7 +52,7 @@ export default function Home() {
         </header>
         <section
           id="article-content"
-          className="prose-sm sm:prose-base prose-headings:scroll-mt-24 prose-pre:rounded-lg dark:prose-invert"
+          className="relative prose-sm sm:prose-base prose-headings:scroll-mt-24 prose-pre:rounded-lg dark:prose-invert"
           data-analytics-section="home_article_content"
           data-analytics-item-type="post_body"
           data-analytics-item-id={latest.slug}
@@ -58,6 +60,8 @@ export default function Home() {
         >
           <MDXContent code={latest.code} components={mdxComponents} />
         </section>
+        <MermaidInit />
+        <MermaidTooltips />
       </article>
     </>
   );

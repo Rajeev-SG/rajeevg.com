@@ -285,7 +285,7 @@ web/
   - `src/components/mdx-components.tsx` — `Pre` mapping skips `MdxPre` when the element has class `mermaid` to prevent injecting the React copy button into Mermaid blocks.
   - `src/components/mermaid-init.tsx` — Client initializer that dynamically imports Mermaid, sets `{ startOnLoad: false, securityLevel: 'loose' }`, applies theme variables, serializes render passes so hydration and mutation-observer churn do not race Mermaid, retries placeholders that were marked processed without producing an SVG, adds scroll hints only after a real Mermaid SVG exists so the raw source text is not polluted before parsing, and dispatches a `mermaid:rendered` event after each successful pass.
   - `src/components/mermaid-tooltips.tsx` — Scans rendered Mermaid SVGs for anchors and overlays accessible tooltips using shadcn/ui. Targets the article container.
-  - `src/app/blog/[slug]/page.tsx` — Wraps content in `<section id="article-content">` and mounts `MermaidInit` + `MermaidTooltips`.
+  - `src/app/blog/[slug]/page.tsx` and `src/app/page.tsx` — Any route that renders MDX with Mermaid wraps content in `<section id="article-content">` and mounts `MermaidInit` + `MermaidTooltips`.
 
 - **Usage in Markdown**
 
@@ -301,7 +301,7 @@ web/
 
 - **Troubleshooting**
   - __Syntax errors in Mermaid__: Ensure `Pre` mapping bypasses `MdxPre` for `.mermaid` and that `startOnLoad` is disabled with manual `mermaid.run()`.
-  - __Mermaid sometimes stays as raw text__: Verify the client initializer is mounted on the article page and that failed `.mermaid` placeholders are being retried instead of staying stuck with `data-processed="true"` and no SVG.
+  - __Mermaid sometimes stays as raw text__: Verify the client initializer is mounted on every route that renders Mermaid-bearing MDX, not just the dedicated blog page, and that failed `.mermaid` placeholders are being retried instead of staying stuck with `data-processed="true"` and no SVG.
   - __No anchors generated__: Use `securityLevel: 'loose'` and correct `click ... href` argument order. Verify the client script is loading and selectors match.
   - __Tooltips not visible__: Confirm anchors exist in the SVG; ensure `MermaidTooltips` is mounted and listens to `mermaid:rendered`. Check that `#article-content` is `position: relative` and overlay z-index is sufficient.
 
