@@ -222,8 +222,8 @@ function buildOverviewMetrics(
     sessions: metricValue(overviewRow, 1),
     activeUsers: metricValue(overviewRow, 2),
     userEngagementDuration: metricValue(overviewRow, 3),
-    blogScreenPageViews: blogRows.reduce((sum, row) => sum + metricValue(row, 2), 0),
-    projectScreenPageViews: projectRows.reduce((sum, row) => sum + metricValue(row, 2), 0),
+    blogScreenPageViews: blogRows.reduce((sum, row) => sum + metricValue(row, 0), 0),
+    projectScreenPageViews: projectRows.reduce((sum, row) => sum + metricValue(row, 0), 0),
   }
 }
 
@@ -233,9 +233,9 @@ function mapPagePerformanceRows(response: RunReportResponse): SitePagePerformanc
       .map((row) => ({
         pagePath: dimensionValue(row, 0),
         pageTitle: dimensionValue(row, 1),
-        screenPageViews: metricValue(row, 2),
-        activeUsers: metricValue(row, 3),
-        userEngagementDuration: metricValue(row, 4),
+        screenPageViews: metricValue(row, 0),
+        activeUsers: metricValue(row, 1),
+        userEngagementDuration: metricValue(row, 2),
       }))
       .filter((row) => row.pagePath)
   )
@@ -245,9 +245,9 @@ function mapDeviceRows(response: RunReportResponse): SiteDeviceMixRow[] {
   return (response.rows ?? [])
     .map((row) => ({
       deviceCategory: dimensionValue(row, 0) || "unknown",
-      activeUsers: metricValue(row, 1),
-      screenPageViews: metricValue(row, 2),
-      userEngagementDuration: metricValue(row, 3),
+      activeUsers: metricValue(row, 0),
+      screenPageViews: metricValue(row, 1),
+      userEngagementDuration: metricValue(row, 2),
     }))
     .filter((row) => row.activeUsers || row.screenPageViews)
 }
@@ -256,19 +256,25 @@ function mapKeyEventRows(response: RunReportResponse): SiteKeyEventRow[] {
   return (response.rows ?? [])
     .map((row) => ({
       eventName: dimensionValue(row, 0),
-      eventCount: metricValue(row, 1),
-      keyEvents: metricValue(row, 2),
+      eventCount: metricValue(row, 0),
+      keyEvents: metricValue(row, 1),
     }))
     .filter((row) => row.eventName)
 }
 
 function mapRealtimeRows(response: RunRealtimeReportResponse): SiteRealtimeEventRow[] {
-  return (response.rows ?? [])
-    .map((row) => ({
-      eventName: dimensionValue(row, 0),
-      eventCount: metricValue(row, 0),
-    }))
-    .filter((row) => row.eventName)
+  const totals = new Map<string, number>()
+
+  for (const row of response.rows ?? []) {
+    const eventName = dimensionValue(row, 0)
+    if (!eventName) continue
+
+    totals.set(eventName, (totals.get(eventName) ?? 0) + metricValue(row, 0))
+  }
+
+  return Array.from(totals.entries())
+    .map(([eventName, eventCount]) => ({ eventName, eventCount }))
+    .sort((left, right) => right.eventCount - left.eventCount)
 }
 
 export async function getGa4SiteAnalyticsDashboard(): Promise<SiteAnalyticsDashboard> {
@@ -407,6 +413,7 @@ export async function getGa4SiteAnalyticsDashboard(): Promise<SiteAnalyticsDashb
     const topBlogPosts = mapPagePerformanceRows(topBlogPostsResponse)
 
     return {
+      dataSource: "live",
       generatedAt: new Date().toISOString(),
       propertyId,
       streamId,
@@ -435,6 +442,7 @@ export async function getGa4SiteAnalyticsDashboard(): Promise<SiteAnalyticsDashb
     const message = error instanceof Error ? error.message : "Unknown Google Analytics Data API error"
 
     return {
+      dataSource: "fallback",
       generatedAt: new Date().toISOString(),
       propertyId,
       streamId,

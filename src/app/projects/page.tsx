@@ -46,7 +46,39 @@ export default function ProjectsPage() {
         </div>
       </div>
 
-      <div className="grid gap-6">
+      <div className="grid gap-6 xl:grid-cols-2">
+        <Card className="overflow-hidden border-border/70 bg-linear-to-br from-background via-background to-sky-500/5">
+          <CardHeader className="gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div className="space-y-2">
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+                Reporting route
+              </p>
+              <CardTitle className="text-2xl sm:text-3xl">Main site analytics dashboard</CardTitle>
+              <CardDescription className="max-w-3xl text-sm leading-6 sm:text-base">
+                The live GA4 dashboard for <code>rajeevg.com</code>, filtered to the main hostname
+                and stream so blog pages, project routes, and custom site events stay readable.
+              </CardDescription>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button asChild>
+                <Link href="/projects/site-analytics">Open main site dashboard</Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link href="/blog/how-we-finished-the-ga4-property-setup-on-rajeevg-com">
+                  Read GA4 buildout
+                </Link>
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-2">
+            <Badge variant="outline">ECharts and Observable Plot</Badge>
+            <Badge variant="outline">Live GA4 Data API</Badge>
+            <Badge variant="outline">Main-site stream filter</Badge>
+            <Badge variant="outline">Custom event schema front and center</Badge>
+            <Badge variant="outline">Blog and project content reporting</Badge>
+          </CardContent>
+        </Card>
+
         <Card className="overflow-hidden border-border/70 bg-linear-to-br from-background via-background to-muted/40">
           <CardHeader className="gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div className="space-y-2">

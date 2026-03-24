@@ -12,6 +12,8 @@ These routes are the in-site reporting surfaces for the hackathon voting app:
 
 They exist because the Looker Studio artifact was not trustworthy enough for the event-memory use case. The BigQuery dashboard lives inside `rajeevg.com`, reads only from the dedicated hackathon reporting dataset, and keeps a full dummy-data mode so the visual shell can still be reviewed before export rows land. The GA4 route uses the official Google Analytics Data API client against the shared property, pinned to the hackathon hostname.
 
+Both routes now share the same reporting shell: the same hero, route tabs, source toggle, summary cards, and source card all stay in the same position so switching between BigQuery and GA4 does not cause a visible re-layout at the top of the page.
+
 ## What the routes do
 
 - BigQuery dashboard:
@@ -92,6 +94,7 @@ Production proof:
 - `curl -I https://rajeevg.com/projects/hackathon-voting-analytics/google-analytics` returned `200`
 - Desktop Playwright proof passed on production
 - Mobile Playwright proof passed on production
+- Desktop and mobile shared-shell consistency proof passed on production
 - `analytics_mcp.run_report` accepted the exact hackathon GA query shapes used by the GA4 route:
   - `eventName + customEvent:viewer_role + customEvent:competition_status`
   - `customEvent:competition_status + averageCustomEvent:entry_count/open_entry_count/participating_judge_count/total_remaining_votes`
@@ -145,4 +148,5 @@ curl -I https://rajeevg.com/projects/hackathon-voting-analytics
 E2E_BASE_URL=https://rajeevg.com pnpm exec playwright test tests/e2e/hackathon-analytics.spec.ts --reporter=list --workers=1
 curl -I https://rajeevg.com/projects/hackathon-voting-analytics/google-analytics
 E2E_BASE_URL=https://rajeevg.com pnpm exec playwright test tests/e2e/hackathon-ga4.spec.ts --reporter=list --workers=1
+E2E_BASE_URL=https://rajeevg.com pnpm exec playwright test tests/e2e/hackathon-reporting-consistency.spec.ts --reporter=list --workers=1
 ```
