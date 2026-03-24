@@ -42,7 +42,7 @@ export default defineConfig({
       [
         rehypeMermaid as any,
         {
-          strategy: 'inline-svg',
+          strategy: 'pre-mermaid',
         },
       ] as any,
       [
@@ -64,7 +64,7 @@ export default defineConfig({
       [
         rehypeMermaid as any,
         {
-          strategy: 'inline-svg'
+          strategy: 'pre-mermaid'
         }
       ] as any,
       [

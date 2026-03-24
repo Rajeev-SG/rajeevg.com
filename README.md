@@ -275,16 +275,17 @@ web/
 
   - **Customize theme**: change the theme names in `velite.config.ts` to any Shiki theme(s). The CSS above will continue to work with dual themes.
 
-## Mermaid diagrams — Build-time inline SVG rendering (current)
+## Mermaid diagrams — Client-side rendering (current)
 
-- **What**: Render Mermaid at build time as inline SVG using `rehype-mermaid` with `strategy: 'inline-svg'`.
-- **Why**: Avoid client-side hydration races and stale-browser-state problems that can leave Mermaid blocks stuck as raw source text. Inline SVG still keeps the diagram in the HTML and preserves SVG anchors for tooltip overlays.
+- **What**: Render Mermaid on the client using placeholders (`<pre class="mermaid">`) produced at build time via `rehype-mermaid` with `strategy: 'pre-mermaid'`. Mermaid JS hydrates these on the client to SVG.
+- **Why**: Avoid SSR parsing issues (e.g., copy button wrappers inside Mermaid), enable interactive links and tooltips reliably, and keep build fast.
 
 - **Files**
-  - `velite.config.ts` — `rehype-mermaid` configured with `strategy: 'inline-svg'` and placed before `rehype-pretty-code` in both `markdown` and `mdx`.
-  - `src/components/mdx-components.tsx` — `Pre` mapping still avoids the copy-button wrapper for any Mermaid placeholder markup that might appear in old cached content, but current diagrams render as inline SVG before they reach the component map.
+  - `velite.config.ts` — `rehype-mermaid` configured with `strategy: 'pre-mermaid'` and placed before `rehype-pretty-code` in both `markdown` and `mdx`.
+  - `src/components/mdx-components.tsx` — `Pre` mapping skips `MdxPre` when the element has class `mermaid` to prevent injecting the React copy button into Mermaid blocks.
+  - `src/components/mermaid-init.tsx` — Client initializer that dynamically imports Mermaid, sets `{ startOnLoad: false, securityLevel: 'loose' }`, applies theme variables, serializes render passes so hydration and mutation-observer churn do not race Mermaid, retries placeholders that were marked processed without producing an SVG, adds scroll hints only after a real Mermaid SVG exists so the raw source text is not polluted before parsing, and dispatches a `mermaid:rendered` event after each successful pass.
   - `src/components/mermaid-tooltips.tsx` — Scans rendered Mermaid SVGs for anchors and overlays accessible tooltips using shadcn/ui. Targets the article container.
-  - `src/app/blog/[slug]/page.tsx` — Wraps content in `<section id="article-content">` and mounts `MermaidTooltips`.
+  - `src/app/blog/[slug]/page.tsx` — Wraps content in `<section id="article-content">` and mounts `MermaidInit` + `MermaidTooltips`.
 
 - **Usage in Markdown**
 
@@ -299,9 +300,9 @@ web/
     `click D href "https://mermaid.js.org" "Mermaid docs" _blank`
 
 - **Troubleshooting**
-  - __Syntax errors in Mermaid__: Validate the raw Mermaid source in the article itself. Build-time rendering will surface invalid diagrams consistently instead of hiding parser errors behind client timing.
-  - __Mermaid stays as raw text__: With inline SVG this should only happen if stale, already-generated content is being served. Refresh the content build and redeploy.
-  - __No anchors generated__: Use `securityLevel: 'loose'` and correct `click ... href` argument order. Verify the rendered inline SVG still contains anchor nodes.
+  - __Syntax errors in Mermaid__: Ensure `Pre` mapping bypasses `MdxPre` for `.mermaid` and that `startOnLoad` is disabled with manual `mermaid.run()`.
+  - __Mermaid sometimes stays as raw text__: Verify the client initializer is mounted on the article page and that failed `.mermaid` placeholders are being retried instead of staying stuck with `data-processed="true"` and no SVG.
+  - __No anchors generated__: Use `securityLevel: 'loose'` and correct `click ... href` argument order. Verify the client script is loading and selectors match.
   - __Tooltips not visible__: Confirm anchors exist in the SVG; ensure `MermaidTooltips` is mounted and listens to `mermaid:rendered`. Check that `#article-content` is `position: relative` and overlay z-index is sufficient.
 
 - **Verify**
