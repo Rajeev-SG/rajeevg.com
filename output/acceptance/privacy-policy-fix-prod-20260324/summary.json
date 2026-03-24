@@ -1,0 +1,49 @@
+{
+  "baseUrl": "https://rajeevg.com",
+  "checks": {
+    "articleHeaderShowsPrivacySettings": true,
+    "footerWiresPrivacyLinks": true,
+    "privacyPageLoads": true,
+    "projectsOnlyHighlightSelectedProjectItem": true,
+    "noConsoleErrors": true,
+    "noFailedRequests": true
+  },
+  "article": {
+    "headerButtons": [
+      "Toggle Sidebar",
+      "Privacy settings",
+      "Toggle theme"
+    ],
+    "footerLinks": [
+      "Privacy policy"
+    ],
+    "footerButtons": [
+      "Privacy settings"
+    ]
+  },
+  "privacy": {
+    "title": "Privacy policy",
+    "hasContact": true,
+    "hasSettingsButton": true
+  },
+  "projects": {
+    "beforeHash": {
+      "activeMain": [
+        "Projects"
+      ],
+      "activeSub": []
+    },
+    "afterHash": {
+      "hash": "#workflow-garden",
+      "activeMain": [
+        "Projects"
+      ],
+      "activeSub": [
+        "Workflow Garden"
+      ]
+    }
+  },
+  "consoleErrors": [],
+  "failedRequests": [],
+  "pass": true
+}
