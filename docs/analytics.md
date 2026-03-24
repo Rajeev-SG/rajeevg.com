@@ -135,9 +135,24 @@ For `rajeevg.com` specifically, the live property now includes 24 site-relevant 
 The shared GA4 property also serves the hackathon voting app on `vote.rajeevg.com`, but the advanced reporting route on `rajeevg.com` now keeps that slice isolated.
 
 - Primary route: `/projects/hackathon-voting-analytics`
+- GA property route: `/projects/hackathon-voting-analytics/google-analytics`
 - Runtime source: `personal-gws-1.hackathon_reporting`
 - Renderers: `ECharts` and `Observable Plot`
 - Review mode: `Dummy preview`
+
+The GA property route complements the BigQuery dashboard rather than replacing it:
+
+- it uses the official `@google-analytics/data` client at request time
+- it filters the shared property to `hostName = vote.rajeevg.com`
+- it surfaces the promoted hackathon dimensions and metrics directly from GA
+- it gives a property-side check when the BigQuery reporting tables are still empty or lagging
+
+Production runtime envs for that GA route:
+
+- `GA4_PROPERTY_ID`
+- `GA4_SERVICE_ACCOUNT_JSON`
+- `GA4_HACKATHON_HOSTNAME`
+- `GA4_HACKATHON_STREAM_ID`
 
 This route exists specifically to avoid mixing hackathon reporting with the main `rajeevg.com` content analytics. It reads only the dedicated hackathon reporting dataset, not the generic site-reporting tables.
 

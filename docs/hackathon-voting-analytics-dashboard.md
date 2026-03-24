@@ -4,23 +4,30 @@ Last updated: 2026-03-24
 
 ## Purpose
 
-This route is the primary reporting surface for the hackathon voting app:
+These routes are the in-site reporting surfaces for the hackathon voting app:
 
 - Production route: `https://rajeevg.com/projects/hackathon-voting-analytics`
+- GA4 API route: `https://rajeevg.com/projects/hackathon-voting-analytics/google-analytics`
 - Source repo for the voting product: `https://github.com/Rajeev-SG/hackathon-voting-prototype`
 
-It exists because the Looker Studio artifact was not trustworthy enough for the event-memory use case. The fallback dashboard lives inside `rajeevg.com`, reads only from the dedicated hackathon BigQuery reporting dataset, and keeps a full dummy-data mode so the visual shell can still be reviewed before export rows land.
+They exist because the Looker Studio artifact was not trustworthy enough for the event-memory use case. The BigQuery dashboard lives inside `rajeevg.com`, reads only from the dedicated hackathon reporting dataset, and keeps a full dummy-data mode so the visual shell can still be reviewed before export rows land. The GA4 route uses the official Google Analytics Data API client against the shared property, pinned to the hackathon hostname.
 
-## What the route does
+## What the routes do
 
-- Reads live reporting rows from `personal-gws-1.hackathon_reporting`
-- Never reads the main `rajeevg.com` page-reporting tables
-- Lets the viewer switch between:
+- BigQuery dashboard:
+  - reads live reporting rows from `personal-gws-1.hackathon_reporting`
+  - never reads the main `rajeevg.com` page-reporting tables
+  - lets the viewer switch between:
   - `ECharts`
   - `Observable Plot`
-- Lets the viewer switch between:
+  - lets the viewer switch between:
   - `Live reporting`
   - `Dummy preview`
+- GA4 API surface:
+  - reads the shared GA4 property `498363924` through `@google-analytics/data`
+  - filters all report queries to `hostName = vote.rajeevg.com`
+  - uses the promoted hackathon dimensions and metrics directly from the property
+  - keeps its own `Dummy preview` so the shell stays reviewable while property rows are still sparse
 
 The dummy mode is intentional. It lets the reporting shell stay reviewable even while Google is still populating raw export rows.
 
@@ -61,10 +68,15 @@ The `rajeevg.com` Vercel project needs these env vars:
 - `BIGQUERY_PROJECT_ID=personal-gws-1`
 - `BIGQUERY_DATASET_ID=hackathon_reporting`
 - `BIGQUERY_SERVICE_ACCOUNT_JSON=<service account json>`
+- `GA4_PROPERTY_ID=498363924`
+- `GA4_SERVICE_ACCOUNT_JSON=<service account json>`
+- `GA4_HACKATHON_HOSTNAME=vote.rajeevg.com`
+- `GA4_HACKATHON_STREAM_ID=14214480224`
 
 The live adapter is implemented in:
 
 - [/Users/rajeev/Code/rajeevg.com/src/lib/hackathon-reporting.ts](/Users/rajeev/Code/rajeevg.com/src/lib/hackathon-reporting.ts)
+- [/Users/rajeev/Code/rajeevg.com/src/lib/hackathon-ga4-reporting.ts](/Users/rajeev/Code/rajeevg.com/src/lib/hackathon-ga4-reporting.ts)
 
 The dummy dataset is implemented in:
 
@@ -72,13 +84,17 @@ The dummy dataset is implemented in:
 
 ## Verified status on 2026-03-24
 
-The route is live and production-verified.
+Both routes are live and verified, with an honest data caveat.
 
 Production proof:
 
 - `curl -I https://rajeevg.com/projects/hackathon-voting-analytics` returned `200`
+- `curl -I https://rajeevg.com/projects/hackathon-voting-analytics/google-analytics` returned `200`
 - Desktop Playwright proof passed on production
 - Mobile Playwright proof passed on production
+- `analytics_mcp.run_report` accepted the exact hackathon GA query shapes used by the GA4 route:
+  - `eventName + customEvent:viewer_role + customEvent:competition_status`
+  - `customEvent:competition_status + averageCustomEvent:entry_count/open_entry_count/participating_judge_count/total_remaining_votes`
 
 Current table-row counts in `personal-gws-1.hackathon_reporting`:
 
@@ -93,6 +109,8 @@ Current table-row counts in `personal-gws-1.hackathon_reporting`:
 
 That means the live route is wired correctly, but the dashboard is still shell-first until the raw export starts landing rows.
 
+For the GA4 API surface, the shared property is reachable and the promoted custom definitions are accepted by the GA Data API, but the host-filtered reporting window still returns `0` hackathon rows right now.
+
 ## Evidence
 
 - Production desktop top screenshot:
@@ -105,6 +123,10 @@ That means the live route is wired correctly, but the dashboard is still shell-f
   - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260324/mobile-dark-top.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260324/mobile-dark-top.png)
 - Production mobile Observable screenshot:
   - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260324/mobile-dark-entry-analysis-observable.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260324/mobile-dark-entry-analysis-observable.png)
+- GA4 desktop screenshot:
+  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-ga4-dashboard-20260324/desktop-light-top.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-ga4-dashboard-20260324/desktop-light-top.png)
+- GA4 mobile screenshot:
+  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-ga4-dashboard-20260324/mobile-dark-top.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-ga4-dashboard-20260324/mobile-dark-top.png)
 
 ## Commands to reuse
 
@@ -121,4 +143,6 @@ Production validation:
 ```bash
 curl -I https://rajeevg.com/projects/hackathon-voting-analytics
 E2E_BASE_URL=https://rajeevg.com pnpm exec playwright test tests/e2e/hackathon-analytics.spec.ts --reporter=list --workers=1
+curl -I https://rajeevg.com/projects/hackathon-voting-analytics/google-analytics
+E2E_BASE_URL=https://rajeevg.com pnpm exec playwright test tests/e2e/hackathon-ga4.spec.ts --reporter=list --workers=1
 ```

@@ -62,15 +62,21 @@ export default function ProjectsPage() {
                 preview mode.
               </CardDescription>
             </div>
-            <Button asChild>
-              <Link href="/projects/hackathon-voting-analytics">Open analytics dashboard</Link>
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button asChild>
+                <Link href="/projects/hackathon-voting-analytics">Open BigQuery dashboard</Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link href="/projects/hackathon-voting-analytics/google-analytics">Open GA4 surface</Link>
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2">
             <Badge variant="outline">ECharts and Observable Plot</Badge>
             <Badge variant="outline">Live BigQuery mode</Badge>
             <Badge variant="outline">Dummy preview mode</Badge>
             <Badge variant="outline">Hackathon-only reporting dataset</Badge>
+            <Badge variant="outline">GA Data API surface</Badge>
           </CardContent>
         </Card>
       </div>

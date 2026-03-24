@@ -1085,6 +1085,12 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
                 </p>
               ))}
               <div className="flex flex-wrap gap-2 pt-2">
+                <Button asChild size="sm">
+                  <Link href="/projects/hackathon-voting-analytics/google-analytics">
+                    GA4 API surface
+                    <ArrowRight className="size-4" />
+                  </Link>
+                </Button>
                 <Button asChild variant="outline" size="sm">
                   <Link href="https://vote.rajeevg.com" target="_blank" rel="noreferrer">
                     Live voting app

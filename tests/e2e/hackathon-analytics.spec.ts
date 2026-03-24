@@ -83,7 +83,10 @@ test.describe("hackathon analytics dashboard", () => {
     if (testInfo.project.name === "desktop-light") {
       await page.goto("/projects")
       await expect(
-        page.getByRole("link", { name: "Open analytics dashboard" }),
+        page.getByRole("link", { name: "Open BigQuery dashboard" }),
+      ).toBeVisible()
+      await expect(
+        page.getByRole("link", { name: "Open GA4 surface" }),
       ).toBeVisible()
     }
   })
