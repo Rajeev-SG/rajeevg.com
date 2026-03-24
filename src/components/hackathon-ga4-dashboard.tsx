@@ -1,12 +1,14 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import Link from "next/link"
-import { ArrowRight, BarChart3, Database, Gauge, ListTree, RadioTower, ShieldCheck } from "lucide-react"
+import { ListTree } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  HackathonReportingShell,
+  buildHackathonSummaryMetrics,
+} from "@/components/hackathon-reporting-shell"
 import type { HackathonGaReport } from "@/lib/hackathon-ga4-reporting-types"
 
 function formatInteger(value: number) {
@@ -15,67 +17,6 @@ function formatInteger(value: number) {
 
 function formatScore(value: number) {
   return Number.isFinite(value) ? value.toFixed(1) : "0.0"
-}
-
-function Toggle({
-  value,
-  onChange,
-}: {
-  value: "live" | "dummy"
-  onChange: (value: "live" | "dummy") => void
-}) {
-  return (
-    <div className="inline-flex rounded-full border border-border/70 bg-muted/30 p-1">
-      {[
-        { key: "live", label: "Live reporting" },
-        { key: "dummy", label: "Dummy preview" },
-      ].map((option) => (
-        <button
-          key={option.key}
-          type="button"
-          onClick={() => onChange(option.key as "live" | "dummy")}
-          className={
-            value === option.key
-              ? "rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"
-              : "rounded-full px-4 py-2 text-sm font-medium text-muted-foreground"
-          }
-        >
-          {option.label}
-        </button>
-      ))}
-    </div>
-  )
-}
-
-function MetricCard({
-  label,
-  value,
-  detail,
-  icon,
-}: {
-  label: string
-  value: string
-  detail: string
-  icon: React.ReactNode
-}) {
-  return (
-    <Card className="border-border/70 bg-background/80">
-      <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-3">
-        <div className="space-y-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-            {label}
-          </p>
-          <CardTitle className="text-3xl">{value}</CardTitle>
-        </div>
-        <div className="rounded-full border border-border/60 bg-muted/30 p-2 text-muted-foreground">
-          {icon}
-        </div>
-      </CardHeader>
-      <CardContent>
-        <p className="text-sm leading-6 text-muted-foreground">{detail}</p>
-      </CardContent>
-    </Card>
-  )
 }
 
 function RowBar({ value, max }: { value: number; max: number }) {
@@ -101,6 +42,12 @@ export function HackathonGa4Dashboard({
     () => Math.max(...report.eventSurface.map((row) => row.eventCount), 1),
     [report.eventSurface]
   )
+  const summaryMetrics = buildHackathonSummaryMetrics({
+    eventCount: formatInteger(report.overview.eventCount),
+    totalUsers: formatInteger(report.overview.totalUsers),
+    voteSubmissions: formatInteger(report.overview.voteSubmissions),
+    managerActions: formatInteger(report.overview.managerActions),
+  })
 
   return (
     <section
@@ -111,60 +58,18 @@ export function HackathonGa4Dashboard({
       data-analytics-page-content-group="projects"
       data-analytics-page-content-type="hackathon_ga4_reporting"
     >
-      <div className="space-y-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="outline">GA4 Data API</Badge>
-          <Badge variant="outline">Shared property {report.propertyId}</Badge>
-          <Badge variant="outline">Host filter {report.hostname}</Badge>
-          <Badge variant="outline">Stream {report.streamId}</Badge>
-        </div>
-        <div className="space-y-3">
-          <p className="text-sm uppercase tracking-[0.22em] text-muted-foreground">Google Analytics surface</p>
-          <h1 className="max-w-4xl text-3xl font-bold tracking-tight sm:text-4xl">
-            Hackathon GA4 reporting surface
-          </h1>
-          <p className="max-w-4xl text-base leading-7 text-muted-foreground sm:text-lg">
-            This route reads the shared GA4 property through the official Google Analytics library,
-            filters to <code>vote.rajeevg.com</code>, and turns the promoted hackathon schema into a
-            dedicated reporting view that can be checked independently of the BigQuery fallback.
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <Toggle value={source} onChange={setSource} />
-          <Button asChild variant="outline">
-            <Link href="/projects/hackathon-voting-analytics">
-              Back to BigQuery dashboard
-              <ArrowRight className="size-4" />
-            </Link>
-          </Button>
-        </div>
-      </div>
-
-      <Card className="border-border/70 bg-linear-to-br from-background via-background to-muted/30">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-xl">
-            <Database className="size-4" />
-            Reporting source
-          </CardTitle>
-          <CardDescription>
-            Generated {new Date(report.generatedAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {report.notes.map((note) => (
-            <p key={note} className="text-sm leading-6 text-muted-foreground">
-              {note}
-            </p>
-          ))}
-        </CardContent>
-      </Card>
-
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <MetricCard label="Event count" value={formatInteger(report.overview.eventCount)} detail="Total hackathon-app events returned in the current GA reporting window." icon={<BarChart3 className="size-4" />} />
-        <MetricCard label="Users" value={formatInteger(report.overview.totalUsers)} detail="Distinct users observed on the hackathon hostname in the same historical window." icon={<RadioTower className="size-4" />} />
-        <MetricCard label="Vote submits" value={formatInteger(report.overview.voteSubmissions)} detail="Submitted voting events seen by GA, separate from the BigQuery-derived fallback model." icon={<Gauge className="size-4" />} />
-        <MetricCard label="Manager actions" value={formatInteger(report.overview.managerActions)} detail="Manager-only uploads, round controls, and per-entry voting-state operations." icon={<ShieldCheck className="size-4" />} />
-      </div>
+      <HackathonReportingShell
+        activeSurface="ga4"
+        generatedAt={report.generatedAt}
+        summary={
+          report.notes[0] ??
+          "Direct GA4 reporting for the same hackathon story, using the promoted event schema on the shared property."
+        }
+        onSourceChange={setSource}
+        source={source}
+        summaryMetrics={summaryMetrics}
+        topBadges={["Hackathon", report.hostname, "GA4"]}
+      >
 
       <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <Card className="border-border/70 bg-background/80">
@@ -336,6 +241,7 @@ export function HackathonGa4Dashboard({
           ))}
         </CardContent>
       </Card>
+      </HackathonReportingShell>
     </section>
   )
 }

@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import { useTheme } from "next-themes"
-import Link from "next/link"
 import * as Plot from "@observablehq/plot"
 import * as echarts from "echarts/core"
 import { BarChart, FunnelChart, HeatmapChart, LineChart, PieChart, ScatterChart, SunburstChart } from "echarts/charts"
@@ -10,9 +9,7 @@ import { DatasetComponent, GridComponent, LegendComponent, TitleComponent, Toolt
 import { CanvasRenderer } from "echarts/renderers"
 import {
   Activity,
-  ArrowRight,
   BarChart3,
-  Database,
   Eye,
   Gauge,
   GitBranch,
@@ -34,8 +31,8 @@ import type {
   VotingFunnelRow,
 } from "@/lib/hackathon-reporting-types"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { HackathonReportingShell, buildHackathonSummaryMetrics } from "@/components/hackathon-reporting-shell"
 import { cn } from "@/lib/utils"
 
 echarts.use([
@@ -62,13 +59,6 @@ type DashboardProps = {
 
 type RendererMode = "echarts" | "observable"
 type SourceMode = "live" | "dummy"
-
-type SummaryCard = {
-  label: string
-  value: string
-  tone?: "default" | "accent"
-  detail: string
-}
 
 function formatPercent(value: number) {
   return `${Math.round(value * 100)}%`
@@ -337,21 +327,26 @@ function SectionShell({
   eyebrow,
   title,
   description,
+  actions,
   children,
 }: {
   eyebrow: string
   title: string
   description: string
+  actions?: React.ReactNode
   children: React.ReactNode
 }) {
   return (
     <section className="space-y-4" id={title.toLowerCase().replace(/\s+/g, "-")}>
-      <div className="space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">{eyebrow}</p>
-        <div className="space-y-1">
-          <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>
-          <p className="max-w-3xl text-sm text-muted-foreground sm:text-base">{description}</p>
+      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+        <div className="space-y-2">
+          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">{eyebrow}</p>
+          <div className="space-y-1">
+            <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>
+            <p className="max-w-3xl text-sm text-muted-foreground sm:text-base">{description}</p>
+          </div>
         </div>
+        {actions ? <div className="shrink-0">{actions}</div> : null}
       </div>
       {children}
     </section>
@@ -380,37 +375,6 @@ function RendererToggle({
           )}
         >
           {value === "echarts" ? "ECharts" : "Observable Plot"}
-        </button>
-      ))}
-    </div>
-  )
-}
-
-function SourceToggle({
-  source,
-  onChange,
-}: {
-  source: SourceMode
-  onChange: (value: SourceMode) => void
-}) {
-  return (
-    <div className="inline-flex rounded-full border border-border bg-muted/50 p-1">
-      {([
-        { value: "live", label: "Live reporting" },
-        { value: "dummy", label: "Dummy preview" },
-      ] as const).map((item) => (
-        <button
-          key={item.value}
-          type="button"
-          onClick={() => onChange(item.value)}
-          className={cn(
-            "rounded-full px-3 py-1.5 text-xs font-semibold transition sm:px-4 sm:text-sm",
-            source === item.value
-              ? "bg-background text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground",
-          )}
-        >
-          {item.label}
         </button>
       ))}
     </div>
@@ -461,29 +425,12 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
   const experience = aggregateExperience(dataset.experienceOverview)
   const taxonomy = aggregateEventTaxonomy(dataset.eventBreakdown)
 
-  const summaryCards: SummaryCard[] = [
-    {
-      label: "Votes submitted",
-      value: formatCount(overviewTotals.voteSubmissions),
-      tone: "accent",
-      detail: "Total successful scoring events recorded in the reporting layer.",
-    },
-    {
-      label: "Judges authenticated",
-      value: formatCount(overviewTotals.judgeAuthCompletions),
-      detail: "Passwordless and Google sign-ins that completed successfully.",
-    },
-    {
-      label: "Remaining votes",
-      value: formatCount(latestSnapshot?.totalRemainingVotes ?? 0),
-      detail: "Live denominator for the manager’s judging-completion decision.",
-    },
-    {
-      label: "Aggregate score points",
-      value: formatCount(overviewTotals.totalScore),
-      detail: "Total score mass distributed across the field.",
-    },
-  ]
+  const summaryCards = buildHackathonSummaryMetrics({
+    eventCount: formatCount(overviewTotals.totalEvents),
+    totalUsers: formatCount(overviewTotals.uniqueUsers),
+    voteSubmissions: formatCount(overviewTotals.voteSubmissions),
+    managerActions: formatCount(overviewTotals.managerActions),
+  })
 
   const topEntry = entries[0]
   const entryLabels = entries.map((entry) => entry.entryName)
@@ -1033,97 +980,24 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
       data-analytics-page-content-group="projects"
       data-analytics-page-content-type="hackathon_reporting_dashboard"
     >
-      <section className="overflow-hidden rounded-[2rem] border border-border/70 bg-gradient-to-br from-background via-background to-muted/30">
-        <div className="grid gap-6 px-6 py-8 sm:px-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
-          <div className="space-y-5">
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline" className="rounded-full px-3 py-1">
-                Hackathon analytics lab
-              </Badge>
-              <Badge variant="outline" className="rounded-full px-3 py-1">
-                {source === "live" ? "Live reporting dataset" : "Dummy data preview"}
-              </Badge>
-              <Badge variant="outline" className="rounded-full px-3 py-1">
-                {renderer === "echarts" ? "ECharts renderer" : "Observable Plot renderer"}
-              </Badge>
-            </div>
-            <div className="space-y-3">
-              <h1 className="max-w-4xl text-4xl font-semibold tracking-tight sm:text-5xl">
-                Hackathon voting analytics, without the muddy Looker Studio layer.
-              </h1>
-              <p className="max-w-3xl text-base text-muted-foreground sm:text-lg">
-                This route is a dedicated reporting surface for the voting app. It stays pinned to
-                the `hackathon_reporting` dataset, supports a dummy preview mode for design review,
-                and lets you flip the whole visual system between ECharts and Observable Plot.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <RendererToggle renderer={renderer} onChange={setRenderer} />
-              <SourceToggle
-                source={source}
-                onChange={setSource}
-              />
-            </div>
-          </div>
-          <Card className="border-border/70 bg-background/80">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Database className="size-4" />
-                Reporting source
-              </CardTitle>
-              <CardDescription>
-                Generated {new Date(dataset.generatedAt).toLocaleString("en-GB", {
-                  dateStyle: "medium",
-                  timeStyle: "short",
-                })}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {dataset.notes.map((note) => (
-                <p key={note} className="text-sm leading-6 text-muted-foreground">
-                  {note}
-                </p>
-              ))}
-              <div className="flex flex-wrap gap-2 pt-2">
-                <Button asChild size="sm">
-                  <Link href="/projects/hackathon-voting-analytics/google-analytics">
-                    GA4 API surface
-                    <ArrowRight className="size-4" />
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" size="sm">
-                  <Link href="https://vote.rajeevg.com" target="_blank" rel="noreferrer">
-                    Live voting app
-                    <ArrowRight className="size-4" />
-                  </Link>
-                </Button>
-                <Button asChild variant="ghost" size="sm">
-                  <Link href="/projects">Back to projects</Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {summaryCards.map((card) => (
-          <Card key={card.label} className={cn("border-border/70 bg-background/80", card.tone === "accent" && "bg-linear-to-br from-background to-cyan-500/5")}>
-            <CardHeader className="pb-3">
-              <CardDescription>{card.label}</CardDescription>
-              <CardTitle className="text-3xl">{card.value}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm leading-6 text-muted-foreground">{card.detail}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <HackathonReportingShell
+        activeSurface="bigquery"
+        generatedAt={dataset.generatedAt}
+        summary={
+          dataset.notes[0] ??
+          "Modeled reporting from the dedicated BigQuery dataset for richer slices, funnels, and cross-event analysis."
+        }
+        onSourceChange={setSource}
+        source={source}
+        summaryMetrics={summaryCards}
+        topBadges={["Hackathon", "vote.rajeevg.com", "BQ"]}
+      >
 
       <SectionShell
         eyebrow="Pulse"
         title="Round pulse and volume"
         description="This combines the scoreboard-sized story with the traffic-shaped story, so you can tell whether usage, votes, and manager interventions rose together."
+        actions={<RendererToggle renderer={renderer} onChange={setRenderer} />}
       >
         <div className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
           <Card className="border-border/70 bg-background/80">
@@ -1371,6 +1245,7 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
           <DefinitionTable definitions={dataset.definitions} />
         </div>
       </SectionShell>
+      </HackathonReportingShell>
     </div>
   )
 }

@@ -29,11 +29,12 @@ test.describe("hackathon ga4 reporting surface", () => {
     await dismissConsentIfPresent(page)
 
     await expect(
-      page.getByRole("heading", { name: "Hackathon GA4 reporting surface" }),
+      page.getByRole("heading", { name: "Hackathon reporting dashboard" }),
     ).toBeVisible()
 
-    await expect(page.getByText("GA4 Data API")).toBeVisible()
-    await expect(page.getByText("Host filter vote.rajeevg.com")).toBeVisible()
+    await expect(page.getByRole("link", { name: "BigQuery analysis", exact: true })).toBeVisible()
+    await expect(page.getByRole("link", { name: "GA4 property", exact: true })).toHaveAttribute("aria-current", "page")
+    await expect(page.getByText("Host vote.rajeevg.com")).toBeVisible()
 
     const liveNote = page.getByText(
       /Live mode is reading directly from the shared GA4 property|The GA4 property is reachable, but no hackathon-host rows were returned|Live GA mode could not complete the report request/i,

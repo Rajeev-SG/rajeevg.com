@@ -78,6 +78,8 @@ For the hackathon slice, the in-site reporting artifact is now split into:
 - the BigQuery dashboard for richer modeled analysis
 - the GA4 API surface for direct property-side validation
 
+Those two routes now use the same reporting shell and control geometry, so switching between them does not cause a top-of-page layout jump.
+
 The earlier Looker Studio path is not the source of truth.
 
 ## Project structure

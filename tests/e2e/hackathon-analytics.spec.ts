@@ -30,9 +30,14 @@ test.describe("hackathon analytics dashboard", () => {
 
     await expect(
       page.getByRole("heading", {
-        name: "Hackathon voting analytics, without the muddy Looker Studio layer.",
+        name: "Hackathon reporting dashboard",
       }),
     ).toBeVisible()
+    await expect(page.getByRole("link", { name: "BigQuery analysis", exact: true })).toHaveAttribute(
+      "aria-current",
+      "page",
+    )
+    await expect(page.getByRole("link", { name: "GA4 property", exact: true })).toBeVisible()
 
     const sourceToggle = page.getByRole("button", { name: "Dummy preview" })
     await sourceToggle.click()
