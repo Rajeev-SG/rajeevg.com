@@ -1,6 +1,6 @@
 # Google Tagging Stack Audit
 
-Last updated: 2026-03-23
+Last updated: 2026-03-24
 
 ## Current stack
 
@@ -28,11 +28,16 @@ Last updated: 2026-03-23
 - GTM is now delivered from a first-party path by [`src/components/tag-manager-script.tsx`](/Users/rajeev/Code/rajeevg.com/src/components/tag-manager-script.tsx) instead of directly loading `googletagmanager.com` as the primary script origin.
 - Vercel rewrites `/metrics/:path*` to the live server container via [`next.config.ts`](/Users/rajeev/Code/rajeevg.com/next.config.ts).
 - The live web container publishes the base Google tag and points it at the server container with `server_container_url=https://rajeevg.com/metrics`.
+- The live web container now forwards the app-owned event families into GA4 with dedicated event tags for page context, click interactions, search and preferences, engagement milestones, and page engagement summaries.
 - The live server container both relays GA4 hits and serves GTM dependencies for the web container.
 - The dedicated GA service account was upgraded from `Viewer` to `Editor` at the property level so the property can be managed by API.
 - GA4 custom definitions are now promoted on the property:
-  - 17 custom dimensions
-  - 14 custom metrics
+  - 36 custom dimensions total on the shared property
+  - 28 custom metrics total on the shared property
+  - 24 of those dimensions and 18 of those metrics are site-relevant to `rajeevg.com`
+- The property timezone is now `Europe/London` instead of `Etc/GMT`.
+- The live property now treats `contact_click`, `project_click`, and `profile_click` as portfolio key events.
+- Enhanced measurement was tightened so Google keeps default page views and SPA page changes, but does not add duplicate generic `scroll` and outbound `click` events on top of the site's custom instrumentation.
 - A Looker Studio report was created and connected to the real GA4 property.
 - The Looker Studio report navigation was cleaned up to site-relevant pages:
   - `Overview`
@@ -49,6 +54,10 @@ Last updated: 2026-03-23
 ### GA4 and BigQuery
 
 - The Analytics Admin API confirms the GA4 property is accessible via the dedicated service account key at `/Users/rajeev/.codex/auth/google/ga4-mcp-personal-gws-1.json`.
+- The GA4 property now reports in `Europe/London` with `GBP` currency.
+- Reporting identity is `BLENDED`.
+- Google Signals is enabled.
+- Event and user retention are both set to `FOURTEEN_MONTHS` with reset-on-new-activity enabled.
 - The Analytics Admin API confirms an active BigQuery link:
   - `properties/498363924/bigQueryLinks/QW0m3ZzhTl2jFYPJO2MIzA`
   - project number: `401448512581` (`personal-gws-1`)
@@ -70,6 +79,21 @@ Last updated: 2026-03-23
   - `https://rajeevg.com/metrics/gtm.js?id=GTM-K2VRQS47` returns `200`
   - `https://rajeevg.com/metrics/g/collect` returns `200`
   - `https://sgtm-live-6tmqixdp3a-nw.a.run.app/healthy` returns `ok`
+- Fresh network proof on 2026-03-24 showed `g/collect` requests carrying custom events such as:
+  - `consent_state_updated`
+  - `page_context`
+  - `page_engagement_summary`
+- Those live requests also carried custom event parameters such as:
+  - `page_type`
+  - `site_section`
+  - `content_group`
+  - `content_id`
+  - `query_param_count`
+  - `page_view_sequence`
+  - `viewport_category`
+  - `analytics_consent_state`
+  - `browser_session_id`
+  - `page_view_id`
 - Important nuance:
   - Google still sent cookieless GA4 consent-mode pings before storage consent was granted.
   - Evidence: `g/collect` requests contained consent markers such as `gcs=G100` / `G101` and `pscdl=denied`.
@@ -78,8 +102,13 @@ Last updated: 2026-03-23
 
 ### GTM rebuild state
 
-- The web GTM rebuild is live as version `2` on `GTM-K2VRQS47`.
+- The web GTM rebuild is live as version `3` on `GTM-K2VRQS47`.
 - The server GTM rebuild is live as version `3` on `GTM-W4GKTR3H`.
+- The live web container now includes:
+  - the base Google tag
+  - 5 GA4 event tags for the app-owned event families
+  - 5 matching custom event triggers
+  - a full set of Data Layer Variables for the promoted event parameters
 - The server container now has:
   - GA4 client set to JavaScript-managed
   - GA4 relay tag
@@ -109,6 +138,13 @@ Last updated: 2026-03-23
   - `search_term`
   - `consent_preference`
   - `theme_to`
+  - `content_slug`
+  - `analytics_section`
+  - `theme`
+  - `color_scheme`
+  - `screen_orientation`
+  - `consent_rehydrated`
+  - `filter_state`
 - Custom metrics created:
   - `route_depth`
   - `query_param_count`
@@ -124,6 +160,33 @@ Last updated: 2026-03-23
   - `section_views_count`
   - `max_scroll_depth_percent`
   - `max_article_progress_percent`
+  - `result_count`
+  - `scroll_depth_percent`
+  - `article_progress_percent`
+  - `page_view_sequence`
+
+### Realtime validation
+
+- Realtime reporting now shows the app-owned event vocabulary landing in GA4, including:
+  - `page_context`
+  - `navigation_click`
+  - `project_click`
+  - `post_click`
+  - `blog_search`
+  - `blog_search_focus`
+  - `copy_code`
+  - `engaged_time`
+  - `section_view`
+  - `page_engagement_summary`
+- This resolved the earlier mismatch where the browser `dataLayer` was rich but GA4 reporting only showed default Google events.
+
+### Key events
+
+- Portfolio-relevant key events now live on the property:
+  - `contact_click`
+  - `project_click`
+  - `profile_click`
+- A legacy `purchase` key event is still present on the property. The Admin API currently returns it as non-deletable, so it was left in place and documented instead of silently ignored.
 
 ## Open gaps
 
@@ -147,7 +210,9 @@ Last updated: 2026-03-23
 - Consent persistence and state propagation: working.
 - First-party GTM and server-side GTM delivery: working in production.
 - GTM dependency serving through the first-party `/metrics` path: working in production.
-- GA4 custom-definition promotion: completed.
+- GA4 custom-event forwarding from GTM into GA4: repaired and validated.
+- GA4 custom-definition promotion: completed and expanded.
+- Duplicate default `scroll` and outbound `click` measurement noise: removed at the enhanced-measurement layer.
 - GA4 to BigQuery linkage: completed and verified at the Admin API level.
 - Looker Studio report creation and GA4 connection: completed.
 - “State of the art” Google stack: implemented, with one expected post-setup lag still outstanding: BigQuery tables had not landed yet during the same audit window.
@@ -156,6 +221,8 @@ Last updated: 2026-03-23
 
 - Live production proof:
   - [`output/acceptance/analytics-stack-20260323/live-proof.json`](/Users/rajeev/Code/rajeevg.com/output/acceptance/analytics-stack-20260323/live-proof.json)
+  - [`output/acceptance/ga4-forwarding-20260324/network-after-cleanup.txt`](/Users/rajeev/Code/rajeevg.com/output/acceptance/ga4-forwarding-20260324/network-after-cleanup.txt)
+  - [`output/acceptance/ga4-forwarding-20260324/projects-after-cleanup.png`](/Users/rajeev/Code/rajeevg.com/output/acceptance/ga4-forwarding-20260324/projects-after-cleanup.png)
   - [`output/playwright/analytics-stack-20260323/desktop-before-consent.png`](/Users/rajeev/Code/rajeevg.com/output/playwright/analytics-stack-20260323/desktop-before-consent.png)
   - [`output/playwright/analytics-stack-20260323/desktop-projects-after-consent.png`](/Users/rajeev/Code/rajeevg.com/output/playwright/analytics-stack-20260323/desktop-projects-after-consent.png)
   - [`output/playwright/analytics-stack-20260323/mobile-before-consent.png`](/Users/rajeev/Code/rajeevg.com/output/playwright/analytics-stack-20260323/mobile-before-consent.png)

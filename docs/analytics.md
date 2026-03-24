@@ -88,22 +88,47 @@ Those fields are automatically added to every event on that page.
 - [`src/components/tag-manager-script.tsx`](/Users/rajeev/Code/rajeevg.com/src/components/tag-manager-script.tsx) injects `gtm.js` from `NEXT_PUBLIC_GTM_SCRIPT_ORIGIN`.
 - [`next.config.ts`](/Users/rajeev/Code/rajeevg.com/next.config.ts) rewrites `/metrics/:path*` to the live server-side GTM service when `SGTM_UPSTREAM_ORIGIN` is set.
 - GA4 collection is therefore expected on `https://rajeevg.com/metrics/g/collect`.
+- The web GTM container now forwards the app-owned event families directly into GA4:
+  - page context
+  - click interactions
+  - search and preference changes
+  - engagement milestones
+  - page engagement summaries
+- GA4 enhanced measurement was intentionally trimmed so the property keeps its default page views and SPA page changes, but does not double-count the site's richer custom `scroll_depth` and `outbound_click` style events with generic Google `scroll` and `click` events.
 - A Google-hosted `gtm.js?...&gtg_health=1` request may still appear as a health or fallback probe even when the primary delivery path is first-party.
 
 ## GA4 Reporting Promotion
 
-The following event parameters are now promoted as GA4 custom definitions on property `498363924` so the app-owned dataLayer is usable in GA4 reporting and Explorations:
+The following event parameters are now promoted as GA4 custom definitions on property `498363924` so the app-owned dataLayer is usable in GA4 reporting and Explorations.
+
+For `rajeevg.com` specifically, the live property now includes 24 site-relevant custom dimensions and 18 site-relevant custom metrics. The shared property also contains additional hackathon-specific definitions for `vote.rajeevg.com`.
 
 - Custom dimensions:
   - `page_type`, `site_section`, `content_group`, `content_type`, `content_id`, `content_tags`
   - `viewport_category`, `analytics_consent_state`, `referrer_type`
   - `section_name`, `item_type`, `link_type`, `destination`
   - `selected_tags`, `search_term`, `consent_preference`, `theme_to`
+  - `content_slug`, `analytics_section`, `theme`, `color_scheme`
+  - `screen_orientation`, `consent_rehydrated`, `filter_state`
 - Custom metrics:
   - `route_depth`, `query_param_count`, `tag_count`, `project_count`
   - `selected_tag_count`, `search_term_length`, `interaction_sequence`
   - `copied_characters`, `engaged_seconds`, `engaged_seconds_total`
   - `interaction_count`, `section_views_count`, `max_scroll_depth_percent`, `max_article_progress_percent`
+  - `result_count`, `scroll_depth_percent`, `article_progress_percent`, `page_view_sequence`
+
+## GA4 Property State
+
+- Property timezone: `Europe/London`
+- Currency: `GBP`
+- Reporting identity: `BLENDED`
+- Google Signals: enabled
+- Data retention: `FOURTEEN_MONTHS`
+- Key events now aligned to the portfolio use case:
+  - `contact_click`
+  - `project_click`
+  - `profile_click`
+- A legacy `purchase` key event still exists on the property, but the Admin API currently returns it as non-deletable.
 
 ## Naming Guidance
 
