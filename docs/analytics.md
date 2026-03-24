@@ -130,6 +130,22 @@ For `rajeevg.com` specifically, the live property now includes 24 site-relevant 
   - `profile_click`
 - A legacy `purchase` key event still exists on the property, but the Admin API currently returns it as non-deletable.
 
+## Hackathon reporting boundary
+
+The shared GA4 property also serves the hackathon voting app on `vote.rajeevg.com`, but the advanced reporting route on `rajeevg.com` now keeps that slice isolated.
+
+- Primary route: `/projects/hackathon-voting-analytics`
+- Runtime source: `personal-gws-1.hackathon_reporting`
+- Renderers: `ECharts` and `Observable Plot`
+- Review mode: `Dummy preview`
+
+This route exists specifically to avoid mixing hackathon reporting with the main `rajeevg.com` content analytics. It reads only the dedicated hackathon reporting dataset, not the generic site-reporting tables.
+
+See:
+
+- [docs/hackathon-voting-analytics-dashboard.md](/Users/rajeev/Code/rajeevg.com/docs/hackathon-voting-analytics-dashboard.md)
+- [docs/google-tagging-stack.md](/Users/rajeev/Code/rajeevg.com/docs/google-tagging-stack.md)
+
 ## Naming Guidance
 
 - Prefer noun-verb style event names that describe intent, for example `project_click` instead of a generic `click`.
