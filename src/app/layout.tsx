@@ -10,8 +10,6 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { AnalyticsDataLayer } from "@/components/analytics-data-layer";
 import { ConsentManager } from "@/components/consent-manager";
 import { TagManagerScript } from "@/components/tag-manager-script";
-import { ConsentPreferencesButton } from "@/components/consent-preferences-button";
-import { HeaderPrivacyActions } from "@/components/header-privacy-actions";
 import Script from "next/script";
 
 const geistSans = Geist({
@@ -89,8 +87,7 @@ export default function RootLayout({
                 <div className="mx-auto xl:mx-0 xl:mr-auto w-full max-w-screen-lg px-4 sm:px-6 md:px-8">
                   <div className="flex h-12 items-center gap-2">
                     <SidebarTrigger />
-                    <HeaderPrivacyActions />
-                    <div>
+                    <div className="ml-auto">
                       <ThemeToggle />
                     </div>
                   </div>
@@ -115,12 +112,6 @@ export default function RootLayout({
                     >
                       Privacy policy
                     </Link>
-                    <ConsentPreferencesButton
-                      className="h-auto px-0 text-sm text-muted-foreground hover:text-foreground"
-                      label="Privacy settings"
-                      variant="link"
-                      size="sm"
-                    />
                   </div>
                 </div>
               </footer>

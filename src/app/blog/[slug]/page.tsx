@@ -2,7 +2,6 @@ import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { MDXContent } from "@/components/mdx-content"
 import { mdxComponents } from "@/components/mdx-components"
-import { ConsentPreferencesButton } from "@/components/consent-preferences-button"
 import { ReadingProgress } from "@/components/reading-progress"
 import { site } from "@/lib/site"
 import { MermaidTooltips } from "@/components/mermaid-tooltips"
@@ -59,7 +58,6 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
               {post.updated ? "Updated " : ""}
               {new Date(postDisplayDate).toLocaleDateString()}
             </p>
-            <ConsentPreferencesButton className="h-7 px-2 text-xs text-muted-foreground" />
           </div>
         </header>
         <script
