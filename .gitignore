@@ -25,6 +25,8 @@
 # production
 /build
 /output/playwright
+/output/acceptance/analytics-consent-*/
+/output/acceptance/article-analytics-stack-prod-*/
 
 # misc
 .DS_Store
