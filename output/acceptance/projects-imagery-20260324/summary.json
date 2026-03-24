@@ -1,0 +1,47 @@
+{
+  "baseUrl": "http://127.0.0.1:3021",
+  "desktop": {
+    "imageCount": 5,
+    "sidebarProjectsSubitems": [],
+    "footerPrivacyButtons": [
+      "Privacy settings"
+    ]
+  },
+  "mobile": {
+    "sidebarProjectsSubitems": [],
+    "mainItems": [
+      "Rajeev G.",
+      "Home",
+      "Projects",
+      "Posts"
+    ],
+    "imageCount": 5,
+    "firstImageRect": {
+      "x": 16.941513061523438,
+      "y": 429.96343994140625,
+      "width": 356.116943359375,
+      "height": 222.5731201171875,
+      "top": 429.96343994140625,
+      "right": 373.05845642089844,
+      "bottom": 652.5365600585938,
+      "left": 16.941513061523438
+    },
+    "visibleFloatingPrivacyButtons": 0,
+    "footerPrivacyButtons": [
+      "Privacy settings"
+    ]
+  },
+  "checks": {
+    "desktopLoadsProjectImages": true,
+    "desktopSidebarDropsProjectSubmenu": true,
+    "mobileSidebarDropsProjectSubmenu": true,
+    "mobileShowsProjectImage": true,
+    "mobileHasNoFloatingPrivacyOverlay": true,
+    "footerStillOffersPrivacySettings": true,
+    "noConsoleErrors": true,
+    "noFailedRequests": true
+  },
+  "consoleErrors": [],
+  "failedRequests": [],
+  "pass": true
+}

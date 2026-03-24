@@ -1,3 +1,4 @@
+import Image from "next/image"
 import Link from "next/link"
 import { ArrowUpRight, Github } from "lucide-react"
 
@@ -25,7 +26,7 @@ export function ProjectCard({ project, compact = false }: ProjectCardProps) {
   return (
     <Card
       id={compact ? undefined : project.slug}
-      className="scroll-mt-24 border-border/70 bg-card/60 backdrop-blur-sm"
+      className="group scroll-mt-24 overflow-hidden border-border/70 bg-card/60 backdrop-blur-sm"
       data-analytics-section={compact ? "project_spotlight" : "project_card"}
       data-analytics-item-type="project"
       data-analytics-item-id={project.slug}
@@ -33,6 +34,22 @@ export function ProjectCard({ project, compact = false }: ProjectCardProps) {
       data-analytics-item-category={project.category}
       data-analytics-tech-count={project.tech.length}
     >
+      <div className="border-b border-border/60 bg-muted/20">
+        <div className="relative aspect-[16/10] overflow-hidden">
+          <Image
+            src={project.imagePath}
+            alt={project.imageAlt}
+            fill
+            sizes="(max-width: 768px) 100vw, 960px"
+            className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.015]"
+            priority={false}
+          />
+          <div className="absolute inset-0 bg-linear-to-t from-background/22 via-background/4 to-transparent" />
+          <div className="absolute right-3 bottom-3 rounded-full border border-white/35 bg-background/82 px-3 py-1 text-[11px] font-medium tracking-[0.16em] text-foreground/80 backdrop-blur-sm">
+            Live product
+          </div>
+        </div>
+      </div>
       <CardHeader className="space-y-4">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="outline">{project.category}</Badge>

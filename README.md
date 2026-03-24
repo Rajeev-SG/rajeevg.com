@@ -82,7 +82,7 @@ web/
 ```
 
 - `src/app/` — App Router (pages, layouts, global styles)
-  - `layout.tsx` — Root layout. Wraps app with `ThemeProvider`, `SidebarProvider`, renders `AppSidebar`, `SidebarInset`, a compact header with `SidebarTrigger` and `ThemeToggle`, plus a low-profile footer with privacy links. Mounts Google Tag Manager via `<GoogleTagManager />` when `NEXT_PUBLIC_GTM_ID` is present.
+  - `layout.tsx` — Root layout. Wraps app with `ThemeProvider`, `SidebarProvider`, renders `AppSidebar`, `SidebarInset`, a compact header with `SidebarTrigger` and `ThemeToggle`, plus a low-profile footer with privacy links and a reopen settings action. Mounts Google Tag Manager via `<GoogleTagManager />` when `NEXT_PUBLIC_GTM_ID` is present.
   - `globals.css` — Tailwind v4 setup with design tokens, class-based dark variant, and Shiki dual-theme base CSS (maps `--shiki-light/dark` tokens and styles the copy button).
   - `page.tsx` — Homepage. Renders the most recent post inline using the article layout (ReadingProgress + MDX components).
   - `not-found.tsx` — Global 404 boundary required when routes call `notFound()`.
@@ -98,8 +98,8 @@ web/
   - `dashboard/page.tsx` — Sample route demonstrating sidebar primitives (breadcrumbs, header, content grid).
 
  - `src/components/` — Reusable components
-  - `app-sidebar.tsx` — Application sidebar built on shadcn/ui sidebar primitives. Renders “Site” links and a dynamic “Posts” section from `#velite`. Auto-closes on mobile navigation and keeps project-link active state aligned with the selected hash.
-  - `project-card.tsx` — Reusable project card used by the portfolio route and MDX posts.
+  - `app-sidebar.tsx` — Application sidebar built on shadcn/ui sidebar primitives. Renders core site links and a dynamic “Posts” section from `#velite`, while keeping “Projects” as a single page-level destination instead of a nested project list.
+  - `project-card.tsx` — Reusable project card used by the portfolio route and MDX posts, now with screenshot-driven project imagery via `next/image`.
   - `blog-index-client.tsx` — Client interactivity for the blog index: text search, tag filters (badges on desktop, combobox on mobile). Displays filtered list.
   - `mdx-components.tsx` — MDX mapping (headings, inline code, blockquote→Alert, tables, links with external icon). Maps `pre` to `MdxPre`.
   - `mdx-content.tsx` — Helper for rendering processed MDX HTML content with the correct components.
@@ -119,7 +119,7 @@ web/
 - `src/lib/`
   - `site.ts` — Site-wide constants (`name`, `description`, `siteUrl`, `defaultOgImage`, `homeCanonicalStrategy`).
   - `posts.ts` — Shared helpers for visible post filtering, effective updated-or-published dates, and post ordering.
-  - `portfolio-projects.ts` — Checked-in public project metadata used by the portfolio route and related MDX content.
+  - `portfolio-projects.ts` — Checked-in public project metadata, including audited screenshot paths and alt text, used by the portfolio route and related MDX content.
   - `utils.ts` — `cn(...classValues)` utility combining `clsx` with `tailwind-merge`.
 
 - `content/` — Source Markdown content

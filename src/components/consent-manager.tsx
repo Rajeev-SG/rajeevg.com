@@ -153,19 +153,15 @@ export function ConsentManager() {
         </div>
       ) : null}
 
-      {consentState && consentState.source !== "default" ? (
+      {consentState && consentState.source !== "default" && isArticlePage ? (
         <div
-          className={
-            isArticlePage
-              ? "fixed right-4 bottom-4 z-40 md:right-6 md:bottom-6"
-              : "fixed bottom-4 left-4 z-40"
-          }
+          className="fixed right-4 bottom-4 z-40 md:right-6 md:bottom-6"
         >
           <Button
             type="button"
             variant="secondary"
             size="sm"
-            className={isArticlePage ? "shadow-sm" : undefined}
+            className="shadow-sm"
             onClick={openPreferences}
             aria-label="Privacy settings"
             title="Privacy settings"

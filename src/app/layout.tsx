@@ -10,6 +10,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { AnalyticsDataLayer } from "@/components/analytics-data-layer";
 import { ConsentManager } from "@/components/consent-manager";
 import { TagManagerScript } from "@/components/tag-manager-script";
+import { ConsentPreferencesButton } from "@/components/consent-preferences-button";
 import Script from "next/script";
 
 const geistSans = Geist({
@@ -112,6 +113,12 @@ export default function RootLayout({
                     >
                       Privacy policy
                     </Link>
+                    <ConsentPreferencesButton
+                      className="h-auto px-0 text-sm text-muted-foreground hover:text-foreground"
+                      label="Privacy settings"
+                      variant="link"
+                      size="sm"
+                    />
                   </div>
                 </div>
               </footer>

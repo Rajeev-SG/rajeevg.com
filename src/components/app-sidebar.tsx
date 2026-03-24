@@ -20,18 +20,12 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { HoverScrollText } from "@/components/hover-scroll-text"
-import { getPortfolioProjects } from "@/lib/portfolio-projects"
 import { getSortedVisiblePosts } from "@/lib/posts"
 
 // Build nav from site links and Velite posts
 const postsList = getSortedVisiblePosts().map((post) => ({
   title: post.title,
   url: `/blog/${post.slug}`,
-}))
-
-const projectsList = getPortfolioProjects().map((project) => ({
-  title: project.title,
-  url: `/projects#${project.slug}`,
 }))
 
 const data = {
@@ -46,7 +40,6 @@ const data = {
     {
       title: "Projects",
       url: "/projects",
-      items: projectsList,
     },
     {
       title: "Posts",
@@ -58,43 +51,10 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname()
-  const [hash, setHash] = React.useState("")
   const { isMobile, setOpenMobile } = useSidebar()
-  const handleNav = React.useCallback((url?: string) => {
-    if (typeof window !== "undefined" && url === "/projects") {
-      if (window.location.pathname === "/projects" && window.location.hash) {
-        window.history.replaceState(null, "", "/projects")
-      }
-
-      setHash("")
-    }
-
+  const handleNav = React.useCallback(() => {
     if (isMobile) setOpenMobile(false)
   }, [isMobile, setOpenMobile])
-
-  const handleSubNav = React.useCallback(
-    (url: string) => {
-      if (url.startsWith("/projects#")) {
-        setHash(url.slice("/projects".length))
-      }
-
-      handleNav()
-    },
-    [handleNav]
-  )
-
-  React.useEffect(() => {
-    const syncHash = () => {
-      setHash(window.location.hash)
-    }
-
-    syncHash()
-    window.addEventListener("hashchange", syncHash)
-
-    return () => {
-      window.removeEventListener("hashchange", syncHash)
-    }
-  }, [pathname])
 
   const isMainItemActive = React.useCallback(
     (url: string) => {
@@ -108,15 +68,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const isSubItemActive = React.useCallback(
     (url: string) => {
-      if (url.startsWith("/projects#")) {
-        const anchor = url.slice("/projects".length)
-        const currentHash = typeof window === "undefined" ? hash : window.location.hash || hash
-        return pathname === "/projects" && currentHash === anchor
-      }
-
       return pathname === url
     },
-    [hash, pathname]
+    [pathname]
   )
 
   return (
@@ -128,7 +82,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <Link
                 href="/"
                 prefetch={false}
-                onClick={() => handleNav("/")}
+                onClick={handleNav}
                 data-analytics-event="navigation_click"
                 data-analytics-section="sidebar_header"
                 data-analytics-item-type="home_link"
@@ -154,7 +108,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <Link
                     href={item.url}
                     prefetch={false}
-                    onClick={() => handleNav(item.url)}
+                    onClick={handleNav}
                     className="font-medium"
                     data-analytics-event="navigation_click"
                     data-analytics-section="sidebar_primary"
@@ -172,7 +126,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                           <Link
                             href={sub.url}
                             prefetch={false}
-                            onClick={() => handleSubNav(sub.url)}
+                            onClick={handleNav}
                             className="min-w-0 w-full"
                             data-analytics-event={sub.url.startsWith("/blog/") ? "post_click" : "navigation_click"}
                             data-analytics-section="sidebar_subnav"
