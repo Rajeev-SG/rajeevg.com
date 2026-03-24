@@ -34,6 +34,7 @@ export type SiteRealtimeEventRow = {
 }
 
 export type SiteAnalyticsDashboard = {
+  dataSource: "live" | "fallback"
   generatedAt: string
   propertyId: string
   streamId: string

@@ -62,6 +62,19 @@ async function capturePage(page: Page, filename: string) {
 }
 
 test.describe("hackathon editorial proof", () => {
+  test("exposes both analytics dashboards from the projects index", async ({ page }, testInfo) => {
+    await page.goto("/projects")
+    await dismissConsentIfPresent(page)
+
+    await expect(page.getByRole("heading", { name: "Main site analytics dashboard" })).toBeVisible()
+    await expect(page.getByRole("link", { name: "Open main site dashboard" })).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Hackathon voting analytics dashboard" })).toBeVisible()
+    await expect(page.getByRole("link", { name: "Open BigQuery dashboard" })).toBeVisible()
+
+    await assertNoHorizontalOverflow(page)
+    await capturePage(page, `projects-index-${testInfo.project.name}.png`)
+  })
+
   test("renders the hackathon article with loaded visuals and truthful figure structure", async ({
     page,
   }, testInfo) => {
@@ -91,7 +104,14 @@ test.describe("hackathon editorial proof", () => {
       page.getByRole("heading", { name: "GA4 content and instrumentation dashboard" }),
     ).toBeVisible()
     await expect(page.getByText(/Live reporting boundaries/i)).toBeVisible()
-    await expect(page.getByText(/Realtime custom events/i)).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Realtime custom events" }).first()).toBeVisible()
+    await expect(page.getByRole("button", { name: "ECharts" })).toBeVisible()
+    await expect(page.getByRole("button", { name: "Observable Plot" })).toBeVisible()
+
+    await page.getByRole("button", { name: "Observable Plot" }).click()
+    await expect(page.getByText(/Observable Plot renderer/i)).toBeVisible()
+    await page.getByRole("button", { name: "ECharts" }).click()
+    await expect(page.getByText(/ECharts renderer/i)).toBeVisible()
 
     await assertNoHorizontalOverflow(page)
     await capturePage(page, `site-analytics-${testInfo.project.name}.png`)
