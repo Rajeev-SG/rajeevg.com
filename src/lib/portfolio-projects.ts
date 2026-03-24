@@ -16,6 +16,23 @@ export type PortfolioProject = {
 
 export const portfolioProjects: PortfolioProject[] = [
   {
+    slug: "hackathon-voting-app",
+    title: "Hackathon Voting App",
+    category: "Operations product",
+    tagline: "A production-ready single-screen judging app built for a live hackathon room.",
+    summary:
+      "This app was built around a very specific constraint: the judging workflow had to stay operationally simple on the day. That meant one public scoreboard, one manager setup surface, one voting modal for judges, and enough proof and resilience work that the room could trust it when the event actually started.",
+    howItWorks:
+      "The product runs on Next.js, Clerk, Prisma, and Postgres, with XLSX-driven setup, self-vote blocking from uploaded team emails, one locked score per judge, a manager-only remaining-votes tracker, and a shared GA4 plus BigQuery reporting layer for event-day analysis.",
+    imagePath: "/images/projects/hackathon-voting-app.png",
+    imageAlt: "Hackathon Voting App showing the live public scoreboard and consent-aware footer controls.",
+    liveUrl: "https://vote.rajeevg.com",
+    githubUrl: "https://github.com/Rajeev-SG/hackathon-voting-prototype",
+    tech: ["Next.js 14", "TypeScript", "Clerk", "Prisma", "Postgres", "Playwright", "GA4"],
+    repoVisibility: "PUBLIC",
+    inclusionReason: "Public GitHub repo with a live production judging surface.",
+  },
+  {
     slug: "workflow-garden",
     title: "Workflow Garden",
     category: "Education product",
