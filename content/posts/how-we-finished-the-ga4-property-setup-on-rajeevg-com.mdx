@@ -123,10 +123,10 @@ And the third screen was Realtime overview, because it is where the property pro
 
 <ArticleFigure
   src="/images/blog/ga4-property-setup/ga4-realtime-overview.png"
-  alt="GA4 realtime overview showing active users and project_click as a key event"
+  alt="GA4 realtime overview showing event counts and project_click in the key events card"
   eyebrow="GA4 Realtime"
   title="Fresh live activity after agent-triggered production interactions"
-  caption="This screenshot was taken after the agent opened the production projects page, clicked a live project GitHub link, opened the production analytics post, and clicked a code-copy button. The realtime view shows the property active and the `project_click` key event visible."
+  caption="This screenshot was taken after the agent opened the production projects page, clicked a live project GitHub link, and revisited the live analytics article. In this capture the lower cards visibly show custom event activity like `scroll_depth`, `article_progress`, `page_context`, and `post_click`, and the key-events card shows `project_click` with a count of `2`."
 />
 
 I also checked DebugView because it is the obvious developer instinct, and the result was instructive:
@@ -157,9 +157,18 @@ The property itself was checked and corrected first:
 - currency was confirmed as `GBP`
 - reporting identity was left on `Blended`
 - Google Signals stayed enabled
-- data retention was set to the longer standard-property window used in this setup pass
+- event and user data retention were both set to `14 months`
+- `Reset on new user activity` stayed enabled
 
 This sounds small, but it has real downstream effects. A wrong timezone quietly distorts daily reporting, dashboards, and stakeholder conversations. Fixing the timezone was one of the highest-signal property cleanups in the whole pass.
+
+<ArticleFigure
+  src="/images/blog/ga4-property-setup/ga4-data-retention.png"
+  alt="GA4 data retention screen showing 14-month event and user data retention"
+  eyebrow="GA4 Admin"
+  title="Data retention explicitly set to the 14-month window"
+  caption="The live property now shows `14 months` for both event data and user data retention, with `Reset on new user activity` enabled. That matters for longer-horizon exploration work and keeps the property aligned with the reporting window I wanted for this site."
+/>
 
 ### 2. Auto-collected noise needed to be trimmed
 
@@ -316,13 +325,13 @@ The fix was not to force the wrong tool harder. The fix was to switch proof surf
 - use the Analytics realtime API to confirm event names and counts
 - use DebugView only when debug-mode traffic is actually part of the flow
 
-### 3. One admin screen was less trustworthy than the API
+### 3. One admin screen briefly lagged behind the underlying property state
 
-During the pass, the Custom definitions admin page rendered an empty-looking table at the moment I checked it, even though the property definitely had promoted definitions.
+During the first capture pass, the Custom definitions admin page briefly rendered like an empty table even though the property definitely had promoted definitions.
 
 That is the kind of moment where it is tempting to keep reloading the same screen and lose time.
 
-Instead, I cross-checked with the Admin/Data API and treated that as the authority. The property’s promoted dimensions and metrics were confirmed there, which made the UI oddity a secondary issue rather than a blocker.
+Instead, I cross-checked with the Admin/Data API and treated that as the authority first. Once the property state was confirmed there, I came back and recaptured the UI only after the definitions table had fully populated. That made the API the source of truth and the UI screenshot a verified illustration instead of a guess.
 
 ### 4. Legacy configuration still leaks into “clean” setups
 

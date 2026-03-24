@@ -30,7 +30,7 @@ The final result is not just "GA4 installed." It is a complete measurement syste
 - a rebuilt server-side GTM container on Cloud Run
 - a live GA4 property with promoted custom definitions
 - a BigQuery export link
-- a cleaned Looker Studio reporting surface
+- a usable Looker Studio reporting surface
 - a documented audit trail with production proof
 
 This post is the long version of how that was done.
@@ -333,29 +333,28 @@ So the decision was not to keep patching the old container. The decision was to 
 ### Live web GTM
 
 <ArticleFigure
-  src="/images/blog/analytics-stack/gtm-web-version.png"
-  alt="Published web GTM container version"
+  src="/images/blog/analytics-stack/gtm-web-workspace-tags.png"
+  alt="Web GTM workspace showing the live Google tag base tag"
   eyebrow="Web GTM"
-  title="Published clean web container"
-  caption="The rebuilt web container was published as a clean version rather than layered onto the legacy container. Its job is to bootstrap the Google tag and point transport at the first-party server endpoint."
+  title="A deliberately lean web GTM workspace"
+  caption="The current live web container is intentionally sparse. This screenshot shows the active `Google tag - GA4 base` tag firing on `Initialization - All Pages`, which is the cleanest possible evidence for the browser-side bootstrap layer."
 />
 
 ### Live server-side GTM
 
 <ArticleFigure
-  src="/images/blog/analytics-stack/gtm-server-version.png"
-  alt="Published server-side GTM container version"
+  src="/images/blog/analytics-stack/gtm-server-workspace-tags.png"
+  alt="Server-side GTM versions page showing Version 3 live"
   eyebrow="Server GTM"
-  title="Published clean server container"
-  caption="The server container handles the relay side of the stack. It serves dependencies for the web container and forwards GA4 traffic after it reaches the first-party `/metrics` path."
+  title="Published server-side GTM versions are a better proof surface than the empty workspace"
+  caption="For the server container, the versions page turned out to be the honest screenshot worth keeping. It shows `Version 3 is Live`, with the dependency-serving client setup and the earlier GA4 relay setup both visible in version history."
 />
 
-The server container was configured with:
+The server container proof that mattered most in practice came from three places together:
 
-- a GA4 client managed in JavaScript mode
-- a GA4 relay tag
-- dependency serving for the web container
-- a server URL aligned with `https://rajeevg.com/metrics`
+- the live GTM versions history
+- the Cloud Run runtime
+- the first-party `/metrics` requests captured from the browser
 
 This is one of the quiet but high-leverage moves in the implementation. It makes the browser transport cleaner, gives more control over collection, and lays groundwork for later transformations, filtering, or enrichment.
 
@@ -431,10 +430,9 @@ The most important takeaways from the proof run were:
 
 Getting events into GA4 is only half the story. If the event parameters stay unpromoted, the nicest `dataLayer` in the world still feels second-class inside GA reporting.
 
-So the site event vocabulary was promoted into GA4 custom definitions:
+So the site event vocabulary was promoted into GA4 custom definitions.
 
-- 17 custom dimensions
-- 14 custom metrics
+At the time of the original site rollout, that meant 17 custom dimensions and 14 custom metrics for the main site event model. The live property has since grown beyond that baseline as newer app-specific fields were added.
 
 That includes dimensions like:
 
@@ -465,7 +463,7 @@ And metrics like:
   alt="GA4 custom definitions page"
   eyebrow="GA4"
   title="Custom dimensions and metrics promoted into the property"
-  caption="This is what turns the raw event contract into something actually explorable in GA4, rather than leaving the best metadata stranded in unregistered parameters."
+  caption="This refreshed screenshot comes from the live property after the definitions table fully loaded. The visible rows include `Analytics Consent State`, `Content Group`, `Content ID`, `Content Tags`, and `Page Type`, which is the kind of reporting surface the raw event contract needed."
 />
 
 ## Phase 6: connect warehousing and reporting
@@ -517,20 +515,15 @@ That is not a misconfiguration. It is normal GA4 export timing behavior.
 ### Looker Studio
 
 <ArticleFigure
-  src="/images/blog/analytics-stack/looker-dashboard-focused.png"
-  alt="Looker Studio report connected to GA4"
+  src="/images/blog/analytics-stack/looker-dashboard-audience-devices.png"
+  alt="Looker Studio audience and devices page with country, device, operating system, and browser charts"
   eyebrow="Looker Studio"
-  title="The cleaned reporting surface"
-  caption="This crop keeps the useful part of the screenshot: the report page structure, the live GA4 connection, and the promoted `Analytics Consent State` field. The charts are still sparse because the implementation was newly activated, but the report surface and mapped dimensions are real."
+  title="A live audience-and-devices page from the Looker reporting layer"
+  caption="This replacement screenshot is narrower but far more honest: it shows a populated Looker Studio page with visible device, country, operating-system, and browser breakdowns instead of a sparse or half-empty canvas."
   imgClassName="max-h-[34rem]"
 />
 
-The report was trimmed and organized into pages that match the site:
-
-- `Overview`
-- `Audience & Devices`
-- `Acquisition & Content`
-- `Engagement & Key Pages`
+The useful reporting pattern here was to break the dashboard into separate pulse, audience, acquisition, and engagement views rather than forcing every question into one generic canvas.
 
 That is a subtle but important step. Generic dashboards create noise very quickly. The goal here was not to have a dashboard, but to have one that matches how this site is actually used.
 
