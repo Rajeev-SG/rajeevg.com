@@ -5,7 +5,6 @@ import { mdxComponents } from "@/components/mdx-components"
 import { ReadingProgress } from "@/components/reading-progress"
 import { site } from "@/lib/site"
 import { MermaidTooltips } from "@/components/mermaid-tooltips"
-import MermaidInit from "@/components/mermaid-init"
 import { getPostEffectiveDate, getSortedVisiblePosts, getVisiblePostBySlug } from "@/lib/posts"
 
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -74,8 +73,6 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         >
           <MDXContent code={post.code} components={mdxComponents} />
         </section>
-        {/* Initialize client-side Mermaid rendering for pre.mermaid placeholders */}
-        <MermaidInit />
         <MermaidTooltips />
       </article>
     </>
