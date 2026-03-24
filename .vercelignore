@@ -1,0 +1,9 @@
+.git
+.github
+.next
+.next.preclean-*
+node_modules
+output
+test-results
+playwright-report
+tmp

@@ -52,6 +52,7 @@ Open http://localhost:3000 and visit:
 - `/blog` — blog index
 - `/projects` — portfolio page driven by checked-in public project metadata
 - `/projects/hackathon-voting-analytics` — hackathon voting analytics dashboard with ECharts, Observable Plot, live BigQuery mode, and dummy preview mode
+- `/projects/hackathon-voting-analytics/google-analytics` — hackathon-specific GA4 Data API surface, filtered to `vote.rajeevg.com`
 - `/blog/hello-world` — sample post kept as a local draft example with highlighted code + copy button
 
 You can edit the home page at `src/app/page.tsx`. Blog content lives in `content/posts/*`. Velite config is at `velite.config.ts`.
@@ -65,8 +66,19 @@ Environment variables for the app should be placed under `web/.env.local`.
   - source: dedicated `personal-gws-1.hackathon_reporting` dataset only
   - renderers: `ECharts` and `Observable Plot`
   - review mode: `Dummy preview`
+- Hackathon GA4 API surface:
+  - route: `/projects/hackathon-voting-analytics/google-analytics`
+  - doc: [docs/hackathon-voting-analytics-dashboard.md](/Users/rajeev/Code/rajeevg.com/docs/hackathon-voting-analytics-dashboard.md)
+  - source: shared GA4 property `498363924`, filtered to `vote.rajeevg.com`
+  - runtime: official `@google-analytics/data` client
+  - review mode: `Dummy preview`
 
-For the hackathon slice, this route is now the primary reporting artifact. The earlier Looker Studio path is not the source of truth.
+For the hackathon slice, the in-site reporting artifact is now split into:
+
+- the BigQuery dashboard for richer modeled analysis
+- the GA4 API surface for direct property-side validation
+
+The earlier Looker Studio path is not the source of truth.
 
 ## Project structure
 

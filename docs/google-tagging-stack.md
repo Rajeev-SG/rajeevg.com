@@ -19,6 +19,7 @@ Last updated: 2026-03-24
 - BigQuery dataset: `personal-gws-1:ga4_498363924`
 - Dedicated MCP service account: `ga4-mcp@personal-gws-1.iam.gserviceaccount.com`
 - Hackathon fallback reporting route: `https://rajeevg.com/projects/hackathon-voting-analytics`
+- Hackathon GA4 API surface: `https://rajeevg.com/projects/hackathon-voting-analytics/google-analytics`
 - Legacy Looker Studio artifact retained only as a non-authoritative draft: `https://lookerstudio.google.com/reporting/b599834d-939c-4f4d-8b93-b5e3ccab699f`
 
 ## What is now implemented
@@ -40,11 +41,18 @@ Last updated: 2026-03-24
 - The live property now treats `contact_click`, `project_click`, and `profile_click` as portfolio key events.
 - Enhanced measurement was tightened so Google keeps default page views and SPA page changes, but does not add duplicate generic `scroll` and outbound `click` events on top of the site's custom instrumentation.
 - The primary hackathon reporting artifact is now the in-site fallback dashboard at `/projects/hackathon-voting-analytics`.
+- The shared GA4 property now also has a dedicated in-site GA API validation surface at `/projects/hackathon-voting-analytics/google-analytics`.
 - That route uses:
   - a dedicated BigQuery adapter
   - the isolated `hackathon_reporting` dataset
   - `ECharts` and `Observable Plot` renderers
   - a `Dummy preview` mode so the shell stays reviewable before rows land
+- The GA API route uses:
+  - the official `@google-analytics/data` client
+  - property `498363924`
+  - host filter `vote.rajeevg.com`
+  - stream marker `14214480224`
+  - promoted hackathon custom dimensions and metrics verified through `analytics_mcp`
 - The Codex MCP config at [`~/.codex/config.toml`](/Users/rajeev/.codex/config.toml) now includes:
   - `analytics_mcp`
   - `gcloud`
@@ -210,6 +218,7 @@ Last updated: 2026-03-24
 ### Hackathon reporting route
 
 - The route lives at `https://rajeevg.com/projects/hackathon-voting-analytics`.
+- The companion GA route lives at `https://rajeevg.com/projects/hackathon-voting-analytics/google-analytics`.
 - It is the primary reporting fallback for the hackathon voting app.
 - It was explicitly built because the Looker Studio artifact was not strong enough to trust as the historic reporting surface.
 - It is isolated from main-site page analytics and does not read the generic `rajeevg.com` content-reporting tables.
@@ -217,14 +226,22 @@ Last updated: 2026-03-24
   - `BIGQUERY_PROJECT_ID`
   - `BIGQUERY_DATASET_ID`
   - `BIGQUERY_SERVICE_ACCOUNT_JSON`
+  - `GA4_PROPERTY_ID`
+  - `GA4_SERVICE_ACCOUNT_JSON`
+  - `GA4_HACKATHON_HOSTNAME`
+  - `GA4_HACKATHON_STREAM_ID`
 - Fresh proof on 2026-03-24:
   - `curl -I https://rajeevg.com/projects/hackathon-voting-analytics` returned `200`
+  - `curl -I https://rajeevg.com/projects/hackathon-voting-analytics/google-analytics` returned `200`
   - production desktop Playwright proof passed
   - production mobile Playwright proof passed
+  - `analytics_mcp.run_report` accepted the hackathon property query shapes used by the GA API route without metric or dimension errors
   - screenshots:
     - [`desktop-light-top.png`](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260324/desktop-light-top.png)
     - [`desktop-light-voting-funnel.png`](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260324/desktop-light-voting-funnel.png)
     - [`mobile-dark-top.png`](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260324/mobile-dark-top.png)
+    - [`output/playwright/hackathon-ga4-dashboard-20260324/desktop-light-top.png`](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-ga4-dashboard-20260324/desktop-light-top.png)
+    - [`output/playwright/hackathon-ga4-dashboard-20260324/mobile-dark-top.png`](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-ga4-dashboard-20260324/mobile-dark-top.png)
 
 ## Audit verdict
 
