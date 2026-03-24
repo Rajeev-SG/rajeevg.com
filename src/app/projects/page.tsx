@@ -1,7 +1,10 @@
 import type { Metadata } from "next"
+import Link from "next/link"
 
 import { ProjectCard } from "@/components/project-card"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { site } from "@/lib/site"
 import { getPortfolioProjects } from "@/lib/portfolio-projects"
 
@@ -41,6 +44,35 @@ export default function ProjectsPage() {
           <Badge variant="outline">GitHub visibility checked</Badge>
           <Badge variant="outline">Homepage URLs verified from repo metadata</Badge>
         </div>
+      </div>
+
+      <div className="grid gap-6">
+        <Card className="overflow-hidden border-border/70 bg-linear-to-br from-background via-background to-muted/40">
+          <CardHeader className="gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div className="space-y-2">
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+                Reporting route
+              </p>
+              <CardTitle className="text-2xl sm:text-3xl">
+                Hackathon voting analytics dashboard
+              </CardTitle>
+              <CardDescription className="max-w-3xl text-sm leading-6 sm:text-base">
+                A dedicated reporting surface for the voting app, built to replace the muddy Looker
+                Studio artifact with a cleaner BigQuery-backed dashboard and a fully reviewable dummy
+                preview mode.
+              </CardDescription>
+            </div>
+            <Button asChild>
+              <Link href="/projects/hackathon-voting-analytics">Open analytics dashboard</Link>
+            </Button>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-2">
+            <Badge variant="outline">ECharts and Observable Plot</Badge>
+            <Badge variant="outline">Live BigQuery mode</Badge>
+            <Badge variant="outline">Dummy preview mode</Badge>
+            <Badge variant="outline">Hackathon-only reporting dataset</Badge>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid gap-6">

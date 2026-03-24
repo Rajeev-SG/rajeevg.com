@@ -51,10 +51,22 @@ Open http://localhost:3000 and visit:
 - `/` — homepage renders the most recent published blog post (theme toggle is in the header)
 - `/blog` — blog index
 - `/projects` — portfolio page driven by checked-in public project metadata
+- `/projects/hackathon-voting-analytics` — hackathon voting analytics dashboard with ECharts, Observable Plot, live BigQuery mode, and dummy preview mode
 - `/blog/hello-world` — sample post kept as a local draft example with highlighted code + copy button
 
 You can edit the home page at `src/app/page.tsx`. Blog content lives in `content/posts/*`. Velite config is at `velite.config.ts`.
 Environment variables for the app should be placed under `web/.env.local`.
+
+## Reporting routes
+
+- Hackathon analytics fallback dashboard:
+  - route: `/projects/hackathon-voting-analytics`
+  - doc: [docs/hackathon-voting-analytics-dashboard.md](/Users/rajeev/Code/rajeevg.com/docs/hackathon-voting-analytics-dashboard.md)
+  - source: dedicated `personal-gws-1.hackathon_reporting` dataset only
+  - renderers: `ECharts` and `Observable Plot`
+  - review mode: `Dummy preview`
+
+For the hackathon slice, this route is now the primary reporting artifact. The earlier Looker Studio path is not the source of truth.
 
 ## Project structure
 
