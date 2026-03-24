@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Analytics } from "@vercel/analytics/next"
 import { usePathname } from "next/navigation"
 
@@ -32,6 +32,7 @@ export function ConsentManager() {
   const pathname = usePathname()
   const [consentState, setConsentState] = useState<ConsentState | null>(null)
   const [isBannerOpen, setIsBannerOpen] = useState(false)
+  const isArticlePage = pathname?.startsWith("/blog/") ?? false
 
   useEffect(() => {
     const storedConsentState = readStoredConsentState()
@@ -86,12 +87,24 @@ export function ConsentManager() {
     }
   }
 
-  const openPreferences = () => {
+  const openPreferences = useCallback(() => {
     setIsBannerOpen(true)
     pushDataLayerEvent("consent_preferences_open", {
       consent_preference: consentState?.analytics_storage ?? "denied",
     })
-  }
+  }, [consentState?.analytics_storage])
+
+  useEffect(() => {
+    const handleOpenPreferences = () => {
+      openPreferences()
+    }
+
+    window.addEventListener("analytics-consent:open", handleOpenPreferences)
+
+    return () => {
+      window.removeEventListener("analytics-consent:open", handleOpenPreferences)
+    }
+  }, [openPreferences])
 
   const shouldLoadAnalytics = hasAnalyticsConsent(consentState)
 
@@ -129,9 +142,18 @@ export function ConsentManager() {
         </div>
       ) : null}
 
-      {consentState && consentState.source !== "default" ? (
-        <div className="fixed bottom-4 left-4 z-40">
-          <Button type="button" variant="secondary" size="sm" onClick={openPreferences}>
+      {consentState && consentState.source !== "default" && !isArticlePage ? (
+        <div
+          className="fixed bottom-4 left-4 z-40"
+        >
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={openPreferences}
+            aria-label="Privacy settings"
+            title="Privacy settings"
+          >
             Privacy settings
           </Button>
         </div>

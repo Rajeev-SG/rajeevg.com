@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { MDXContent } from "@/components/mdx-content"
 import { mdxComponents } from "@/components/mdx-components"
+import { ConsentPreferencesButton } from "@/components/consent-preferences-button"
 import { ReadingProgress } from "@/components/reading-progress"
 import { site } from "@/lib/site"
 import { MermaidTooltips } from "@/components/mermaid-tooltips"
@@ -33,7 +34,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
     <>
       <ReadingProgress />
       <article
-        className="-mt-4 space-y-6 md:-mt-5"
+        className="-mt-4 space-y-6 pb-32 md:-mt-5 md:pb-12"
         data-analytics-section="article_page"
         data-analytics-item-type="post"
         data-analytics-item-id={post.slug}
@@ -52,9 +53,10 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           {post.description ? (
             <p className="text-muted-foreground">{post.description}</p>
           ) : null}
-          <p className="text-xs text-muted-foreground">
-            {new Date(post.date).toLocaleDateString()}
-          </p>
+          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+            <p>{new Date(post.date).toLocaleDateString()}</p>
+            <ConsentPreferencesButton className="h-7 px-2 text-xs text-muted-foreground" />
+          </div>
         </header>
         <script
           type="application/ld+json"

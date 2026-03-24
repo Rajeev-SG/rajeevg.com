@@ -1,0 +1,146 @@
+{
+  "url": "http://127.0.0.1:3014/blog/how-we-built-a-consented-first-party-analytics-stack",
+  "runs": [
+    {
+      "name": "desktop-1440",
+      "width": 1440,
+      "height": 1500,
+      "popoverVisible": true,
+      "result": {
+        "headings": [
+          "How We Built A Consented First-Party Analytics Stack On rajeevg.com",
+          "The short version",
+          "What the site now measures",
+          "The architecture",
+          "The sequence of the work",
+          "Phase 1: rebuild the dataLayer first",
+          "Phase 2: make consent a real state machine",
+          "Phase 3: first-party GTM delivery through /metrics",
+          "Phase 4: rebuild GTM instead of extending the old mess",
+          "Proof that it actually behaved correctly",
+          "Phase 5: promote the schema into GA4 reporting",
+          "Phase 6: connect warehousing and reporting",
+          "The AI-assisted workflow layer",
+          "The audit findings that mattered most",
+          "The exact stack as shipped",
+          "The repo surfaces that matter most",
+          "What I would extend next",
+          "Why I think this was worth doing properly"
+        ],
+        "brokenImages": [],
+        "collisions": [],
+        "privacyRect": {
+          "x": 355.296875,
+          "y": -17641,
+          "width": 108.515625,
+          "height": 28,
+          "top": -17641,
+          "right": 463.8125,
+          "bottom": -17613,
+          "left": 355.296875
+        }
+      },
+      "consoleErrors": [],
+      "failedRequests": [],
+      "badResponses": [],
+      "ignoredConsole": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "ignoredFailedRequests": [
+        {
+          "url": "http://127.0.0.1:3014/_vercel/insights/script.js",
+          "error": "net::ERR_ABORTED"
+        }
+      ]
+    },
+    {
+      "name": "mobile-390",
+      "width": 390,
+      "height": 844,
+      "popoverVisible": true,
+      "result": {
+        "headings": [
+          "How We Built A Consented First-Party Analytics Stack On rajeevg.com",
+          "The short version",
+          "What the site now measures",
+          "The architecture",
+          "The sequence of the work",
+          "Phase 1: rebuild the dataLayer first",
+          "Phase 2: make consent a real state machine",
+          "Phase 3: first-party GTM delivery through /metrics",
+          "Phase 4: rebuild GTM instead of extending the old mess",
+          "Proof that it actually behaved correctly",
+          "Phase 5: promote the schema into GA4 reporting",
+          "Phase 6: connect warehousing and reporting",
+          "The AI-assisted workflow layer",
+          "The audit findings that mattered most",
+          "The exact stack as shipped",
+          "The repo surfaces that matter most",
+          "What I would extend next",
+          "Why I think this was worth doing properly"
+        ],
+        "brokenImages": [],
+        "collisions": [],
+        "privacyRect": {
+          "x": 83.296875,
+          "y": -20312,
+          "width": 108.515625,
+          "height": 28,
+          "top": -20312,
+          "right": 191.8125,
+          "bottom": -20284,
+          "left": 83.296875
+        }
+      },
+      "consoleErrors": [],
+      "failedRequests": [],
+      "badResponses": [],
+      "ignoredConsole": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "ignoredFailedRequests": [
+        {
+          "url": "http://127.0.0.1:3014/_vercel/insights/script.js",
+          "error": "net::ERR_ABORTED"
+        }
+      ]
+    }
+  ],
+  "checks": {
+    "articleLoaded": true,
+    "noBrokenImages": true,
+    "popoverWorks": true,
+    "noUnexpectedConsoleErrors": true,
+    "noFailedRequests": true,
+    "noBadResponses": true,
+    "noVisibleTextOverlap": true
+  },
+  "consoleErrors": [],
+  "failedRequests": [],
+  "badResponses": [],
+  "ignored": [
+    {
+      "viewport": "desktop-1440",
+      "kind": "console",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "viewport": "desktop-1440",
+      "kind": "request",
+      "url": "http://127.0.0.1:3014/_vercel/insights/script.js",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "viewport": "mobile-390",
+      "kind": "console",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "viewport": "mobile-390",
+      "kind": "request",
+      "url": "http://127.0.0.1:3014/_vercel/insights/script.js",
+      "error": "net::ERR_ABORTED"
+    }
+  ],
+  "pass": true
+}

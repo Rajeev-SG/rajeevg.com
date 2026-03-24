@@ -7,6 +7,7 @@ type ArticleFigureProps = {
   title?: string
   eyebrow?: string
   className?: string
+  imgClassName?: string
 }
 
 export function ArticleFigure({
@@ -16,6 +17,7 @@ export function ArticleFigure({
   title,
   eyebrow,
   className,
+  imgClassName,
 }: ArticleFigureProps) {
   return (
     <figure className={cn("my-10 overflow-hidden rounded-2xl border bg-card shadow-sm", className)}>
@@ -33,7 +35,7 @@ export function ArticleFigure({
         alt={alt}
         loading="lazy"
         decoding="async"
-        className="w-full bg-background object-cover"
+        className={cn("w-full bg-background object-contain", imgClassName)}
       />
       <figcaption className="border-t bg-card px-4 py-3 text-sm leading-6 text-muted-foreground">
         {caption}

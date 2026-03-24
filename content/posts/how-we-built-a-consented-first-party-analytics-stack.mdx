@@ -5,7 +5,7 @@ date: 2026-03-23
 description: An exhaustive walkthrough of how rajeevg.com moved from basic tagging to a consent-aware, first-party, server-side Google analytics stack with GTM, sGTM, BigQuery, and Looker Studio.
 tags: [analytics, ga4, gtm, bigquery, looker, consent, infrastructure, ai-workflows]
 draft: false
-image: /images/blog/analytics-stack/site-after-consent.png
+image: /images/blog/analytics-stack/consent-banner-card.png
 ---
 
 <div className="flex flex-wrap gap-2">
@@ -81,6 +81,12 @@ That means every event carries stable context such as:
 
 This was the opposite of a thin "just fire page_view and click" implementation. The site now emits a stream that is useful in GA4 reports, clean to relay via server-side GTM, and structured enough to make sense in BigQuery later.
 
+<div className="not-prose my-6 flex flex-wrap gap-2">
+  <ArticleExplain term="dataLayer">The browser-side event queue that GTM listens to. In this setup the app owns the schema and pushes structured events into `window.dataLayer`, instead of asking GTM to infer context from the DOM.</ArticleExplain>
+  <ArticleExplain term="First-party path">A same-site endpoint such as `https://rajeevg.com/metrics`. It makes GTM delivery and GA collection look like they come from the site itself before the request is relayed upstream.</ArticleExplain>
+  <ArticleExplain term="sGTM">Server-side Google Tag Manager. The browser sends to a first-party endpoint, then the Cloud Run-hosted server container relays or transforms measurement traffic.</ArticleExplain>
+</div>
+
 ## The architecture
 
 ```mermaid
@@ -110,6 +116,15 @@ This was not a one-shot setup. It unfolded in phases.
 | 5 | Promote event parameters into reporting surfaces | GA4 custom dimensions and metrics created |
 | 6 | Link warehousing and reporting | BigQuery link and Looker Studio report |
 | 7 | Prove the result in production | Browser evidence, network proof, and docs |
+
+The agent path changed by phase rather than using one tool for everything:
+
+| Phase | Agent tools used | Why they mattered |
+| --- | --- | --- |
+| App instrumentation | repo-local shell, `rg`, `apply_patch`, `pnpm` | Best for reading the existing Next.js codebase, editing the event contract, and validating the app directly |
+| Google admin work | Chrome DevTools MCP, logged-in Chrome, GTM MCP | Needed because the work depended on the already authenticated Google sessions and live GTM/GA interfaces |
+| Cloud and warehouse checks | `gcloud`, `bq`, analytics MCP | Best for proving the server container, project, and dataset state from system-of-record outputs |
+| Final proof | Playwright, `curl`, Vercel CLI | Needed repeatable production checks for consent behavior, network transport, and deployment state |
 
 ## Phase 1: rebuild the dataLayer first
 
@@ -234,19 +249,19 @@ That matters enough to say plainly:
 > This setup respects storage consent, but it still allows Consent Mode v2 style modeled measurement traffic before analytics storage is granted.
 
 <ArticleFigure
-  src="/images/blog/analytics-stack/site-before-consent.png"
-  alt="rajeevg.com before analytics consent is accepted"
+  src="/images/blog/analytics-stack/consent-banner-card.png"
+  alt="Consent banner on rajeevg.com"
   eyebrow="Consent"
   title="The live consent gate on the site"
-  caption="The site now opens with an explicit analytics choice. Storage is denied by default, advertising-related consent stays denied, and the app only enables analytics storage after an explicit user action."
+  caption="This is the actual banner the visitor sees. It defaults analytics storage to denied, keeps advertising-related consent denied, and makes the consent choice explicit before storage is granted."
 />
 
 <ArticleFigure
-  src="/images/blog/analytics-stack/site-after-consent.png"
-  alt="rajeevg.com after analytics consent is accepted"
-  eyebrow="Consent"
-  title="The post-consent state"
-  caption="Once analytics are allowed, the site replays the page context with consent-aware metadata and keeps a persistent privacy-settings entry point available."
+  src="/images/blog/analytics-stack/evidence-consent-granted.png"
+  alt="Consent state and cookies after analytics are accepted"
+  eyebrow="Proof"
+  title="What changed after explicit consent"
+  caption="In a fresh production browser session, granting consent persisted a consent object to localStorage and created the expected GA cookies. That is the difference between pre-consent and post-consent state in concrete terms."
 />
 
 ## Phase 3: first-party GTM delivery through `/metrics`
@@ -343,6 +358,74 @@ The server container was configured with:
 
 This is one of the quiet but high-leverage moves in the implementation. It makes the browser transport cleaner, gives more control over collection, and lays groundwork for later transformations, filtering, or enrichment.
 
+## Proof that it actually behaved correctly
+
+This part matters. It is easy to write a nice narrative about analytics infrastructure. It is harder, and much more useful, to prove what the browser actually did in a fresh session.
+
+For this pass the evidence was captured against the live production article URL in a clean Playwright context, then cross-checked against the app-owned `dataLayer` and the first-party `/metrics` requests.
+
+<div className="not-prose my-6 flex flex-wrap gap-2">
+  <ArticleExplain term="Playwright">Used here as the repeatable proof tool. It opened the live site in a clean browser context, captured requests, inspected storage and cookies, clicked the consent UI, and saved the resulting evidence to JSON.</ArticleExplain>
+  <ArticleExplain term="Chrome DevTools MCP">Used separately for the logged-in Google admin screenshots, because those depended on the already authenticated Chrome session rather than a fresh automated browser.</ArticleExplain>
+  <ArticleExplain term="Consent Mode">Google’s consent signaling layer. In this implementation it starts denied, can still send cookieless modeled-measurement pings, and switches to granted storage only after an explicit action.</ArticleExplain>
+</div>
+
+<div className="not-prose grid gap-5 lg:grid-cols-2">
+  <ArticleFigure
+    src="/images/blog/analytics-stack/evidence-consent-default.png"
+    alt="Pre-consent proof showing denied consent and no cookies"
+    eyebrow="Evidence"
+    title="Before consent"
+    caption="Fresh browser context, zero analytics cookies, no stored consent object, and `htmlConsent: denied`."
+    imgClassName="max-h-[28rem]"
+  />
+  <ArticleFigure
+    src="/images/blog/analytics-stack/evidence-consent-granted.png"
+    alt="Post-consent proof showing granted consent and GA cookies"
+    eyebrow="Evidence"
+    title="After consent"
+    caption="After clicking `Allow analytics`, the site persisted consent in localStorage and wrote the expected GA cookies."
+    imgClassName="max-h-[28rem]"
+  />
+  <ArticleFigure
+    src="/images/blog/analytics-stack/evidence-datalayer-before.png"
+    alt="Pre-consent dataLayer evidence"
+    eyebrow="Evidence"
+    title="The dataLayer before consent"
+    caption="The first events are the default denied consent call, GTM bootstrap, and a `page_context` event whose shared dimensions already show `analytics_consent_state: denied`."
+    imgClassName="max-h-[34rem]"
+  />
+  <ArticleFigure
+    src="/images/blog/analytics-stack/evidence-datalayer-after.png"
+    alt="Post-consent dataLayer evidence"
+    eyebrow="Evidence"
+    title="The dataLayer after consent"
+    caption="Once consent is granted, the site emits `consent_state_updated` and then replays `page_context` with `analytics_consent_state: granted` plus `consent_rehydrated: true`."
+    imgClassName="max-h-[34rem]"
+  />
+</div>
+
+<ArticleFigure
+  src="/images/blog/analytics-stack/evidence-network-requests.png"
+  alt="Network evidence showing first-party GTM and collection requests"
+  eyebrow="Evidence"
+  title="First-party transport proof"
+  caption="The live browser session hit `https://rajeevg.com/metrics/gtm.js` successfully and sent GA4 collection requests through the same first-party path. The captured request parameters show the denied-state collect request and the later granted-state request."
+  imgClassName="max-h-[30rem]"
+/>
+
+That evidence came from a saved proof artifact:
+
+- [analytics-article-evidence-20260324/proof.json](https://github.com/Rajeev-SG/rajeevg.com/blob/main/output/acceptance/analytics-article-evidence-20260324/proof.json)
+
+The most important takeaways from the proof run were:
+
+- before consent, there were no GA cookies and no stored consent object
+- before consent, the app still emitted a denied-state `page_context` event
+- after consent, the app persisted a granted consent object and wrote the expected `_ga` cookies
+- the first-party `/metrics` transport worked for both GTM delivery and GA collection
+- the browser-side event stream visibly recorded the consent transition instead of hiding it inside GTM
+
 ## Phase 5: promote the schema into GA4 reporting
 
 Getting events into GA4 is only half the story. If the event parameters stay unpromoted, the nicest `dataLayer` in the world still feels second-class inside GA reporting.
@@ -433,11 +516,12 @@ That is not a misconfiguration. It is normal GA4 export timing behavior.
 ### Looker Studio
 
 <ArticleFigure
-  src="/images/blog/analytics-stack/looker-dashboard-cleaned.png"
+  src="/images/blog/analytics-stack/looker-dashboard-focused.png"
   alt="Looker Studio report connected to GA4"
   eyebrow="Looker Studio"
   title="The cleaned reporting surface"
-  caption="The report was connected to the live GA4 property and then cleaned up so the navigation reflects the real site use case rather than irrelevant generic templates."
+  caption="This crop keeps the useful part of the screenshot: the report page structure, the live GA4 connection, and the promoted `Analytics Consent State` field. The charts are still sparse because the implementation was newly activated, but the report surface and mapped dimensions are real."
+  imgClassName="max-h-[34rem]"
 />
 
 The report was trimmed and organized into pages that match the site:
@@ -468,6 +552,13 @@ What mattered about the workflow was not the novelty of "AI did it." What matter
 - repo-local docs were updated as part of the implementation rather than left for later
 
 That mix turned out to be the right one. The code changes alone would not have been enough, and the admin clicking alone would not have produced a durable system.
+
+The important thing is that the agent did not use one tool for all of this. It switched between:
+
+- repo-local coding tools when the job was changing the site
+- live browser tools when the job depended on authenticated Google state
+- CLIs when the job was proving Cloud Run, BigQuery, or deployment status
+- repeatable browser automation when the job was acceptance proof rather than exploration
 
 ## The audit findings that mattered most
 
