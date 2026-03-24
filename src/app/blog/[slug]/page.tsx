@@ -35,7 +35,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
     <>
       <ReadingProgress />
       <article
-        className="-mt-4 space-y-6 pb-32 md:-mt-5 md:pb-12"
+        className="-mt-4 space-y-6 pb-40 md:-mt-5 md:pb-20"
         data-analytics-section="article_page"
         data-analytics-item-type="post"
         data-analytics-item-id={post.slug}

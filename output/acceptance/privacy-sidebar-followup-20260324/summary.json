@@ -1,0 +1,81 @@
+{
+  "baseUrl": "http://127.0.0.1:3020",
+  "article": {
+    "texts": [
+      "Privacy settings",
+      "Privacy settings",
+      "Privacy settings",
+      "Privacy settings"
+    ],
+    "hasFixedAncestor": true
+  },
+  "projects": {
+    "hash": "",
+    "activeMain": [
+      "Projects"
+    ],
+    "activeSub": [],
+    "items": [
+      {
+        "text": "About",
+        "active": "false",
+        "background": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "text": "Workflow Garden",
+        "active": "false",
+        "background": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "text": "Proof Pack",
+        "active": "false",
+        "background": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "text": "Choice Compass",
+        "active": "false",
+        "background": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "text": "Model Intelligence Maintainer",
+        "active": "false",
+        "background": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "text": "rajeevg.com",
+        "active": "false",
+        "background": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "text": "How We Built A Consented First-Party Analytics Stack On rajeevg.com",
+        "active": "false",
+        "background": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "text": "Git Workflow for Beginners",
+        "active": "false",
+        "background": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "text": "From AI Pilots to Clear Business Value",
+        "active": "false",
+        "background": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "text": "The Projects Behind This Portfolio",
+        "active": "false",
+        "background": "rgba(0, 0, 0, 0)"
+      }
+    ]
+  },
+  "checks": {
+    "articleHasFixedPrivacyAccess": true,
+    "projectsClearHashWhenMainSelected": true,
+    "projectsNoFalseHighlightedSubitems": true,
+    "noConsoleErrors": true,
+    "noFailedRequests": true
+  },
+  "consoleErrors": [],
+  "failedRequests": [],
+  "pass": true
+}

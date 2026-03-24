@@ -60,7 +60,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname()
   const [hash, setHash] = React.useState("")
   const { isMobile, setOpenMobile } = useSidebar()
-  const handleNav = React.useCallback(() => {
+  const handleNav = React.useCallback((url?: string) => {
+    if (typeof window !== "undefined" && url === "/projects") {
+      if (window.location.pathname === "/projects" && window.location.hash) {
+        window.history.replaceState(null, "", "/projects")
+      }
+
+      setHash("")
+    }
+
     if (isMobile) setOpenMobile(false)
   }, [isMobile, setOpenMobile])
 
@@ -116,11 +124,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton size="lg" asChild>
+                <SidebarMenuButton size="lg" asChild>
               <Link
                 href="/"
                 prefetch={false}
-                onClick={handleNav}
+                onClick={() => handleNav("/")}
                 data-analytics-event="navigation_click"
                 data-analytics-section="sidebar_header"
                 data-analytics-item-type="home_link"
@@ -146,7 +154,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <Link
                     href={item.url}
                     prefetch={false}
-                    onClick={handleNav}
+                    onClick={() => handleNav(item.url)}
                     className="font-medium"
                     data-analytics-event="navigation_click"
                     data-analytics-section="sidebar_primary"
