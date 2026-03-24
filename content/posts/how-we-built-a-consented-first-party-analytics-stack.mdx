@@ -91,13 +91,13 @@ This was the opposite of a thin "just fire page_view and click" implementation. 
 ## The architecture
 
 ```mermaid
-flowchart LR
-  Browser["Visitor Browser"] --> Consent["In-app Consent Manager"]
-  Consent --> DataLayer["Structured App-owned dataLayer"]
+flowchart TB
+  Browser["Visitor browser"] --> Consent["In-app consent manager"]
+  Consent --> DataLayer["App-owned dataLayer"]
   DataLayer --> WebGTM["Web GTM<br/>GTM-K2VRQS47"]
-  WebGTM --> Metrics["First-party transport<br/>https://rajeevg.com/metrics"]
-  Metrics --> SGTM["Server-side GTM on Cloud Run<br/>GTM-W4GKTR3H"]
-  SGTM --> GA4["GA4 Property<br/>498363924"]
+  WebGTM --> Metrics["First-party transport<br/>/metrics"]
+  Metrics --> SGTM["Server-side GTM<br/>GTM-W4GKTR3H"]
+  SGTM --> GA4["GA4 property<br/>498363924"]
   GA4 --> BQ["BigQuery export<br/>ga4_498363924"]
   GA4 --> Looker["Looker Studio report"]
 ```

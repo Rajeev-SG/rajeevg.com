@@ -64,7 +64,7 @@ All paths below are relative to `web/`.
 web/
  ├─ src/
  │  ├─ app/
- │  │  ├─ layout.tsx, globals.css, head.tsx, page.tsx, not-found.tsx, sitemap.ts, robots.ts
+ │  │  ├─ layout.tsx, globals.css, head.tsx, page.tsx, not-found.tsx, sitemap.ts
  │  │  ├─ about/page.tsx
  │  │  ├─ blog/ (page.tsx, [slug]/page.tsx)
  │  │  ├─ dashboard/page.tsx
@@ -88,7 +88,7 @@ web/
   - `not-found.tsx` — Global 404 boundary required when routes call `notFound()`.
   - `head.tsx` — Preconnect/dns‑prefetch GTM/GA endpoints for faster analytics.
   - `sitemap.ts` — Dynamic sitemap including home, about, blog index, and all published posts with `lastModified`.
-  - `robots.ts` — Robots policy allowing all; sets `host` and `sitemap` URLs.
+  - `public/robots.txt` — Static robots policy allowing all; sets canonical `Host` and `Sitemap` URLs.
   - `about/page.tsx` — About page with a profile image, focus areas, current projects, and contact links.
   - `projects/page.tsx` — Portfolio route for public projects with verified GitHub repos and live URLs.
   - `privacy/page.tsx` — Privacy policy route for consent, analytics, cookies, processors, and contact details.
@@ -163,7 +163,7 @@ web/
 
 - **SEO routes**
   - `src/app/sitemap.ts` — Generates sitemap for home, blog index, and all posts (with `lastModified`).
-  - `src/app/robots.ts` — Allows all; sets `host` and `sitemap`.
+  - `public/robots.txt` — Allows all; sets canonical `Host` and `Sitemap`.
   - `src/app/head.tsx` — Preconnect/dns‑prefetch GTM/GA endpoints for faster analytics.
 
 - **Environment**
@@ -283,7 +283,7 @@ web/
 - **Files**
   - `velite.config.ts` — `rehype-mermaid` configured with `strategy: 'pre-mermaid'` and placed before `rehype-pretty-code` in both `markdown` and `mdx`.
   - `src/components/mdx-components.tsx` — `Pre` mapping skips `MdxPre` when the element has class `mermaid` to prevent injecting the React copy button into Mermaid blocks.
-  - `src/components/mermaid-init.tsx` — Client initializer that dynamically imports Mermaid, sets `{ startOnLoad: false, securityLevel: 'loose' }`, applies theme variables, renders only unprocessed `.prose pre.mermaid, pre.mermaid` blocks, watches `#article-content` for late-arriving Mermaid placeholders, toggles horizontal-scroll affordances for overflowing diagrams, and dispatches a `mermaid:rendered` event after each successful pass.
+  - `src/components/mermaid-init.tsx` — Client initializer that dynamically imports Mermaid, sets `{ startOnLoad: false, securityLevel: 'loose' }`, applies theme variables, serializes render passes so hydration and mutation-observer churn do not race Mermaid, retries placeholders that were marked processed without producing an SVG, adds scroll hints only after a real Mermaid SVG exists so the raw source text is not polluted before parsing, and dispatches a `mermaid:rendered` event after each successful pass.
   - `src/components/mermaid-tooltips.tsx` — Scans rendered Mermaid SVGs for anchors and overlays accessible tooltips using shadcn/ui. Targets the article container.
   - `src/app/blog/[slug]/page.tsx` — Wraps content in `<section id="article-content">` and mounts `MermaidInit` + `MermaidTooltips`.
 
@@ -301,6 +301,7 @@ web/
 
 - **Troubleshooting**
   - __Syntax errors in Mermaid__: Ensure `Pre` mapping bypasses `MdxPre` for `.mermaid` and that `startOnLoad` is disabled with manual `mermaid.run()`.
+  - __Mermaid sometimes stays as raw text__: Verify the client initializer is mounted on the article page and that failed `.mermaid` placeholders are being retried instead of staying stuck with `data-processed="true"` and no SVG.
   - __No anchors generated__: Use `securityLevel: 'loose'` and correct `click ... href` argument order. Verify the client script is loading and selectors match.
   - __Tooltips not visible__: Confirm anchors exist in the SVG; ensure `MermaidTooltips` is mounted and listens to `mermaid:rendered`. Check that `#article-content` is `position: relative` and overlay z-index is sufficient.
 
