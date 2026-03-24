@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next"
 import { site } from "@/lib/site"
-import { getVisiblePosts } from "@/lib/posts"
+import { getPostEffectiveDate, getVisiblePosts } from "@/lib/posts"
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = site.siteUrl.replace(/\/$/, "")
@@ -11,7 +11,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/blog`, lastModified: new Date() },
     ...getVisiblePosts().map((p) => ({
       url: `${base}/blog/${p.slug}`,
-      lastModified: new Date(p.date),
+      lastModified: new Date(getPostEffectiveDate(p)),
     })),
   ]
   return items

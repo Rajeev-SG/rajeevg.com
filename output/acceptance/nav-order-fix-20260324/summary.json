@@ -1,0 +1,81 @@
+{
+  "baseUrl": "http://127.0.0.1:3017",
+  "checks": {
+    "homeShowsLatestUpdatedPost": true,
+    "blogListStartsWithLatestUpdatedPost": true,
+    "mobileSidebarOnlyHighlightsProjectsMain": true,
+    "mobileSidebarHighlightsOnlySelectedProjectAnchor": true,
+    "mobilePostsMenuStartsWithLatestUpdatedPost": true,
+    "noConsoleErrors": true,
+    "noFailedRequests": true
+  },
+  "home": {
+    "title": "How We Built A Consented First-Party Analytics Stack On rajeevg.com"
+  },
+  "blog": {
+    "firstPost": "How We Built A Consented First-Party Analytics Stack On rajeevg.com"
+  },
+  "mobile": {
+    "beforeHash": {
+      "activeMain": [
+        "Projects"
+      ],
+      "activeSub": [],
+      "projectLinks": [
+        "Workflow Garden",
+        "Proof Pack",
+        "Choice Compass",
+        "Model Intelligence Maintainer",
+        "rajeevg.com"
+      ],
+      "postLinks": [
+        "How We Built A Consented First-Party Analytics Stack On rajeevg.com",
+        "Git Workflow for Beginners",
+        "From AI Pilots to Clear Business Value",
+        "The Projects Behind This Portfolio"
+      ]
+    },
+    "afterHash": {
+      "pathname": "/projects",
+      "hash": "#workflow-garden",
+      "activeMain": [
+        "Projects"
+      ],
+      "activeSub": [
+        "Workflow Garden"
+      ]
+    }
+  },
+  "consoleErrors": [],
+  "failedRequests": [],
+  "ignored": [
+    {
+      "page": "home",
+      "url": "http://127.0.0.1:3017/_vercel/insights/script.js",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "page": "blog",
+      "url": "http://127.0.0.1:3017/_vercel/insights/script.js",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "page": "mobile",
+      "url": "http://127.0.0.1:3017/_vercel/insights/script.js",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "page": "home",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "page": "blog",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "page": "mobile",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    }
+  ],
+  "pass": true
+}

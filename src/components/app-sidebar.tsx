@@ -41,7 +41,6 @@ const data = {
       url: "/",
       items: [
         { title: "About", url: "/about" },
-        { title: "Projects", url: "/projects" },
       ],
     },
     {
@@ -59,10 +58,58 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname()
+  const [hash, setHash] = React.useState("")
   const { isMobile, setOpenMobile } = useSidebar()
   const handleNav = React.useCallback(() => {
     if (isMobile) setOpenMobile(false)
   }, [isMobile, setOpenMobile])
+
+  const handleSubNav = React.useCallback(
+    (url: string) => {
+      if (url.startsWith("/projects#")) {
+        setHash(url.slice("/projects".length))
+      }
+
+      handleNav()
+    },
+    [handleNav]
+  )
+
+  React.useEffect(() => {
+    const syncHash = () => {
+      setHash(window.location.hash)
+    }
+
+    syncHash()
+    window.addEventListener("hashchange", syncHash)
+
+    return () => {
+      window.removeEventListener("hashchange", syncHash)
+    }
+  }, [pathname])
+
+  const isMainItemActive = React.useCallback(
+    (url: string) => {
+      if (url === "/") return pathname === "/"
+      if (url === "/projects") return pathname.startsWith("/projects")
+      if (url === "/blog") return pathname.startsWith("/blog")
+      return pathname === url
+    },
+    [pathname]
+  )
+
+  const isSubItemActive = React.useCallback(
+    (url: string) => {
+      if (url.startsWith("/projects#")) {
+        const anchor = url.slice("/projects".length)
+        const currentHash = typeof window === "undefined" ? hash : window.location.hash || hash
+        return pathname === "/projects" && currentHash === anchor
+      }
+
+      return pathname === url
+    },
+    [hash, pathname]
+  )
 
   return (
     <Sidebar {...props}>
@@ -95,7 +142,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenu>
             {data.navMain.map((item) => (
               <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild isActive={pathname === item.url}>
+                <SidebarMenuButton asChild isActive={isMainItemActive(item.url)}>
                   <Link
                     href={item.url}
                     prefetch={false}
@@ -113,11 +160,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <SidebarMenuSub>
                     {item.items.map((sub) => (
                       <SidebarMenuSubItem key={sub.title}>
-                        <SidebarMenuSubButton asChild isActive={pathname === sub.url || (pathname === "/projects" && sub.url.startsWith("/projects#"))}>
+                        <SidebarMenuSubButton asChild isActive={isSubItemActive(sub.url)}>
                           <Link
                             href={sub.url}
                             prefetch={false}
-                            onClick={handleNav}
+                            onClick={() => handleSubNav(sub.url)}
                             className="min-w-0 w-full"
                             data-analytics-event={sub.url.startsWith("/blog/") ? "post_click" : "navigation_click"}
                             data-analytics-section="sidebar_subnav"

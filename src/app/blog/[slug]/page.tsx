@@ -7,7 +7,7 @@ import { ReadingProgress } from "@/components/reading-progress"
 import { site } from "@/lib/site"
 import { MermaidTooltips } from "@/components/mermaid-tooltips"
 import MermaidInit from "@/components/mermaid-init"
-import { getSortedVisiblePosts, getVisiblePostBySlug } from "@/lib/posts"
+import { getPostEffectiveDate, getSortedVisiblePosts, getVisiblePostBySlug } from "@/lib/posts"
 
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
@@ -15,13 +15,14 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   if (!post) return notFound()
 
   const ogImage = post.image || site.defaultOgImage
+  const postDisplayDate = getPostEffectiveDate(post)
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: post.title,
     description: post.description || undefined,
     datePublished: new Date(post.date).toISOString(),
-    dateModified: new Date(post.date).toISOString(),
+    dateModified: new Date(postDisplayDate).toISOString(),
     mainEntityOfPage: {
       "@type": "WebPage",
       "@id": `${site.siteUrl}/blog/${post.slug}`,
@@ -54,7 +55,10 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
             <p className="text-muted-foreground">{post.description}</p>
           ) : null}
           <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-            <p>{new Date(post.date).toLocaleDateString()}</p>
+            <p>
+              {post.updated ? "Updated " : ""}
+              {new Date(postDisplayDate).toLocaleDateString()}
+            </p>
             <ConsentPreferencesButton className="h-7 px-2 text-xs text-muted-foreground" />
           </div>
         </header>
@@ -85,6 +89,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const post = getVisiblePostBySlug(slug)
   if (!post) return {}
   const ogImage = post.image || site.defaultOgImage
+  const postDisplayDate = getPostEffectiveDate(post)
   return {
     title: post.title,
     description: post.description,
@@ -97,6 +102,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       title: post.title,
       description: post.description || site.description,
       publishedTime: new Date(post.date).toISOString(),
+      modifiedTime: new Date(postDisplayDate).toISOString(),
       authors: [site.name],
       tags: post.tags,
       images: [{ url: ogImage }],

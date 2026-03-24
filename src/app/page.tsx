@@ -3,12 +3,13 @@ import { MDXContent } from "@/components/mdx-content";
 import { mdxComponents } from "@/components/mdx-components";
 import { ReadingProgress } from "@/components/reading-progress";
 import { site } from "@/lib/site";
-import { getSortedVisiblePosts } from "@/lib/posts";
+import { getPostEffectiveDate, getSortedVisiblePosts } from "@/lib/posts";
 
 export const revalidate = 3600;
 
 export default function Home() {
   const latest = getSortedVisiblePosts()[0]
+  const latestDisplayDate = latest ? getPostEffectiveDate(latest) : null
 
   if (!latest) {
     return (
@@ -43,7 +44,8 @@ export default function Home() {
             <p className="text-muted-foreground">{latest.description}</p>
           ) : null}
           <p className="text-xs text-muted-foreground">
-            {new Date(latest.date).toLocaleDateString()}
+            {latest.updated ? "Updated " : ""}
+            {latestDisplayDate ? new Date(latestDisplayDate).toLocaleDateString() : null}
           </p>
         </header>
         <section

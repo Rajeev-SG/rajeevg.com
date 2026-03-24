@@ -1,7 +1,7 @@
 import { BlogIndexClient } from "@/components/blog-index-client"
 import type { Metadata } from "next"
 import { site } from "@/lib/site"
-import { getSortedVisiblePosts } from "@/lib/posts"
+import { getPostEffectiveDate, getSortedVisiblePosts } from "@/lib/posts"
 
 export const revalidate = 3600
 
@@ -12,6 +12,8 @@ export default function BlogIndex() {
     title: p.title,
     slug: p.slug,
     date: p.date,
+    displayDate: getPostEffectiveDate(p),
+    updated: p.updated,
     tags: p.tags ?? [],
     description: p.description,
     excerpt: p.excerpt, // available from Velite config

@@ -11,6 +11,8 @@ export type BlogListItem = {
   title: string
   slug: string
   date: string
+  displayDate: string
+  updated?: string
   tags: string[]
   description?: string
   excerpt?: string
@@ -174,7 +176,8 @@ export function BlogIndexClient({
               </p>
             )}
             <p className="text-xs text-muted-foreground mt-2">
-              {new Date(post.date).toLocaleDateString()}
+              {post.updated ? "Updated " : ""}
+              {new Date(post.displayDate).toLocaleDateString()}
             </p>
           </li>
         ))}
