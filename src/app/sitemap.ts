@@ -9,6 +9,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/about`, lastModified: new Date() },
     { url: `${base}/projects`, lastModified: new Date() },
     { url: `${base}/blog`, lastModified: new Date() },
+    { url: `${base}/privacy`, lastModified: new Date() },
     ...getVisiblePosts().map((p) => ({
       url: `${base}/blog/${p.slug}`,
       lastModified: new Date(getPostEffectiveDate(p)),

@@ -82,7 +82,7 @@ web/
 ```
 
 - `src/app/` — App Router (pages, layouts, global styles)
-  - `layout.tsx` — Root layout. Wraps app with `ThemeProvider`, `SidebarProvider`, renders `AppSidebar`, `SidebarInset`, header with `SidebarTrigger` and `ThemeToggle`, and the main content container (`max-w-screen-lg` with normalized padding). Mounts Google Tag Manager via `<GoogleTagManager />` when `NEXT_PUBLIC_GTM_ID` is present.
+  - `layout.tsx` — Root layout. Wraps app with `ThemeProvider`, `SidebarProvider`, renders `AppSidebar`, `SidebarInset`, header with `SidebarTrigger`, article-aware privacy actions, and `ThemeToggle`, plus a low-profile footer with privacy links. Mounts Google Tag Manager via `<GoogleTagManager />` when `NEXT_PUBLIC_GTM_ID` is present.
   - `globals.css` — Tailwind v4 setup with design tokens, class-based dark variant, and Shiki dual-theme base CSS (maps `--shiki-light/dark` tokens and styles the copy button).
   - `page.tsx` — Homepage. Renders the most recent post inline using the article layout (ReadingProgress + MDX components).
   - `not-found.tsx` — Global 404 boundary required when routes call `notFound()`.
@@ -91,13 +91,14 @@ web/
   - `robots.ts` — Robots policy allowing all; sets `host` and `sitemap` URLs.
   - `about/page.tsx` — About page with a profile image, focus areas, current projects, and contact links.
   - `projects/page.tsx` — Portfolio route for public projects with verified GitHub repos and live URLs.
+  - `privacy/page.tsx` — Privacy policy route for consent, analytics, cookies, processors, and contact details.
   - `blog/`
     - `page.tsx` — Blog index server component. Gathers posts from `#velite` and renders the client UI via `BlogIndexClient`.
     - `[slug]/page.tsx` — Article page. Looks up a post by slug, renders title/description/date and HTML content from Velite. Next 15 uses Promise-based route params, so both the page and `generateMetadata` accept `{ params: Promise<{ slug: string }> }` and `await` it. Uses Tailwind `prose` with dual-theme Shiki CSS.
   - `dashboard/page.tsx` — Sample route demonstrating sidebar primitives (breadcrumbs, header, content grid).
 
  - `src/components/` — Reusable components
-  - `app-sidebar.tsx` — Application sidebar built on shadcn/ui sidebar primitives. Renders “Site” links and a dynamic “Posts” section from `#velite`. Auto-closes on mobile navigation.
+  - `app-sidebar.tsx` — Application sidebar built on shadcn/ui sidebar primitives. Renders “Site” links and a dynamic “Posts” section from `#velite`. Auto-closes on mobile navigation and keeps project-link active state aligned with the selected hash.
   - `project-card.tsx` — Reusable project card used by the portfolio route and MDX posts.
   - `blog-index-client.tsx` — Client interactivity for the blog index: text search, tag filters (badges on desktop, combobox on mobile). Displays filtered list.
   - `mdx-components.tsx` — MDX mapping (headings, inline code, blockquote→Alert, tables, links with external icon). Maps `pre` to `MdxPre`.
@@ -117,6 +118,7 @@ web/
 
 - `src/lib/`
   - `site.ts` — Site-wide constants (`name`, `description`, `siteUrl`, `defaultOgImage`, `homeCanonicalStrategy`).
+  - `posts.ts` — Shared helpers for visible post filtering, effective updated-or-published dates, and post ordering.
   - `portfolio-projects.ts` — Checked-in public project metadata used by the portfolio route and related MDX content.
   - `utils.ts` — `cn(...classValues)` utility combining `clsx` with `tailwind-merge`.
 
@@ -128,7 +130,7 @@ web/
 
 - Configuration
   - `next.config.ts` — Starts Velite build/watch alongside `next dev/build`.
-  - `velite.config.ts` — Defines `posts` collection schema (includes optional `image` for per‑post OG), Shiki dual themes, and heading anchors via `rehype-slug` + `rehype-autolink-headings` (class `heading-anchor`), plus draft filtering in production. No copy‑button transformer; copying is handled in React. Outputs to `.velite` and `public/static/`.
+  - `velite.config.ts` — Defines `posts` collection schema (includes optional `image` and optional `updated` for per‑post OG and ordering), Shiki dual themes, and heading anchors via `rehype-slug` + `rehype-autolink-headings` (class `heading-anchor`), plus draft filtering in production. No copy‑button transformer; copying is handled in React. Outputs to `.velite` and `public/static/`.
   - `tailwind.config.ts` — Tailwind v4 config (`darkMode: "class"`, content paths, `animate` and `typography` plugins).
   - `postcss.config.mjs` — Uses `@tailwindcss/postcss`.
   - `tsconfig.json` — Path aliases: `@/*` → `src/*`, `#velite` → `.velite`; Next.js TypeScript plugin.
@@ -333,7 +335,8 @@ web/
   - [`next.config.ts`](/Users/rajeev/Code/rajeevg.com/next.config.ts) rewrites `/metrics/:path*` to the live server-side GTM service when `SGTM_UPSTREAM_ORIGIN` is present.
   - The layout pushes a Google consent-mode default before GTM loads so analytics/ad storage stay denied until the site consent manager updates consent.
   - [`src/components/analytics-data-layer.tsx`](/Users/rajeev/Code/rajeevg.com/src/components/analytics-data-layer.tsx) adds page context, scroll depth, article progress, engaged-time milestones, section views, click metadata, and page engagement summary pushes.
-  - [`src/components/consent-manager.tsx`](/Users/rajeev/Code/rajeevg.com/src/components/consent-manager.tsx) persists the visitor choice, updates Google Consent Mode, gates Vercel Analytics, and emits consent events into the shared `dataLayer`.
+  - [`src/components/consent-manager.tsx`](/Users/rajeev/Code/rajeevg.com/src/components/consent-manager.tsx) persists the visitor choice, updates Google Consent Mode, exposes reopenable privacy controls, gates Vercel Analytics, and emits consent events into the shared `dataLayer`.
+  - [`src/app/privacy/page.tsx`](/Users/rajeev/Code/rajeevg.com/src/app/privacy/page.tsx) provides the public privacy policy linked from the consent banner, footer, and article header.
   - The current live stack uses web container `GTM-K2VRQS47`, server container `GTM-W4GKTR3H`, measurement ID `G-675W3V0C78`, and BigQuery dataset `personal-gws-1:ga4_498363924`.
 
 - **Automatically attached dimensions**:

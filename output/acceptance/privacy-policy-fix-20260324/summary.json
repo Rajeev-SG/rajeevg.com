@@ -1,0 +1,84 @@
+{
+  "baseUrl": "http://127.0.0.1:3018",
+  "checks": {
+    "articleHeaderShowsPrivacySettings": true,
+    "footerWiresPrivacyLinks": true,
+    "bannerLinksPrivacyPolicy": true,
+    "privacyPageLoads": true,
+    "projectsOnlyHighlightSelectedProjectItem": true,
+    "noConsoleErrors": true,
+    "noFailedRequests": true
+  },
+  "article": {
+    "headerButtons": [
+      "Toggle Sidebar",
+      "Privacy settings",
+      "Toggle theme"
+    ],
+    "footerLinks": [
+      "Privacy policy"
+    ],
+    "footerButtons": [
+      "Privacy settings"
+    ]
+  },
+  "privacy": {
+    "title": "Privacy policy",
+    "hasContact": true,
+    "hasSettingsButton": true
+  },
+  "projects": {
+    "beforeHash": {
+      "activeMain": [
+        "Projects"
+      ],
+      "activeSub": []
+    },
+    "afterHash": {
+      "hash": "#workflow-garden",
+      "activeMain": [
+        "Projects"
+      ],
+      "activeSub": [
+        "Workflow Garden"
+      ]
+    }
+  },
+  "banner": {
+    "bannerLinks": [
+      "Read the privacy policy"
+    ]
+  },
+  "consoleErrors": [],
+  "failedRequests": [],
+  "ignored": [
+    {
+      "page": "article",
+      "url": "http://127.0.0.1:3018/_vercel/insights/script.js",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "page": "privacy",
+      "url": "http://127.0.0.1:3018/_vercel/insights/script.js",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "page": "projects",
+      "url": "http://127.0.0.1:3018/_vercel/insights/script.js",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "page": "article",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "page": "privacy",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "page": "projects",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    }
+  ],
+  "pass": true
+}

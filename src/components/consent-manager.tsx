@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react"
 import { Analytics } from "@vercel/analytics/next"
+import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 import { pushDataLayerEvent, beginAnalyticsPageView, getPageAnalyticsContext } from "@/lib/analytics"
@@ -121,6 +122,16 @@ export function ConsentManager() {
                   click, search, and engage with. We always keep advertising-related consent
                   denied, and only enable analytics storage if you explicitly allow it.
                 </CardDescription>
+                <Link
+                  href="/privacy"
+                  className="inline-flex text-sm text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground"
+                  data-analytics-event="navigation_click"
+                  data-analytics-section="consent_banner"
+                  data-analytics-item-type="privacy_policy_link"
+                  data-analytics-item-name="Privacy policy"
+                >
+                  Read the privacy policy
+                </Link>
               </div>
               <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
                 <Button
