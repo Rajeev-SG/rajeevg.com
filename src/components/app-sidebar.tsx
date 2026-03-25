@@ -40,6 +40,11 @@ const data = {
     {
       title: "Projects",
       url: "/projects",
+      items: [
+        { title: "Site analytics", url: "/projects/site-analytics" },
+        { title: "Hackathon analytics", url: "/projects/hackathon-voting-analytics" },
+        { title: "Hackathon GA4", url: "/projects/hackathon-voting-analytics/google-analytics" },
+      ],
     },
     {
       title: "Posts",
