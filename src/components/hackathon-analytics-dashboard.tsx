@@ -72,6 +72,39 @@ function formatCount(value: number) {
   return new Intl.NumberFormat("en-GB").format(value)
 }
 
+function chartHeightForWidth(width: number) {
+  if (width < 480) return 380
+  if (width < 900) return 344
+  return 320
+}
+
+function formatCompactDateLabel(value: string) {
+  const parsedDate = new Date(`${value}T00:00:00Z`)
+  if (Number.isNaN(parsedDate.getTime())) return value
+
+  return new Intl.DateTimeFormat("en-GB", {
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  }).format(parsedDate)
+}
+
+function getNumericDomain(values: number[], padding: number, clampMin?: number, clampMax?: number) {
+  if (!values.length) {
+    return { min: clampMin ?? 0, max: clampMax ?? 1 }
+  }
+
+  const min = Math.min(...values)
+  const max = Math.max(...values)
+  const paddedMin = min - padding
+  const paddedMax = max + padding
+
+  return {
+    min: clampMin === undefined ? paddedMin : Math.max(clampMin, paddedMin),
+    max: clampMax === undefined ? paddedMax : Math.min(clampMax, paddedMax),
+  }
+}
+
 function aggregateOverview(rows: DailyOverviewRow[]) {
   return rows.reduce(
     (acc, row) => ({
@@ -284,7 +317,7 @@ function EChartSurface({
     }
   }, [option])
 
-  return <div ref={ref} className={cn("h-[320px] w-full", className)} />
+  return <div ref={ref} className={cn("h-[360px] w-full md:h-[320px]", className)} />
 }
 
 function ObservableSurface({
@@ -388,7 +421,7 @@ function DefinitionTable({ definitions }: { definitions: AnalyticsDefinition[] }
         <Card key={definition.key} className="border-border/70 bg-background/80">
           <CardHeader className="space-y-3 pb-3">
             <div className="flex flex-wrap items-center gap-2">
-              <CardTitle className="text-base">{definition.label}</CardTitle>
+              <CardTitle className="break-words text-base">{definition.label}</CardTitle>
               <Badge variant="outline">{definition.type}</Badge>
             </div>
             <CardDescription className="text-sm leading-6">{definition.meaning}</CardDescription>
@@ -396,7 +429,7 @@ function DefinitionTable({ definitions }: { definitions: AnalyticsDefinition[] }
           <CardContent className="space-y-3 text-sm">
             <div>
               <p className="font-medium text-foreground">Typical values or units</p>
-              <p className="text-muted-foreground">{definition.typicalValues}</p>
+              <p className="break-words text-muted-foreground">{definition.typicalValues}</p>
             </div>
             <div>
               <p className="font-medium text-foreground">How to read it</p>
@@ -435,6 +468,26 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
   const topEntry = entries[0]
   const entryLabels = entries.map((entry) => entry.entryName)
   const eventDates = dataset.overview.map((row) => row.eventDate)
+  const overviewPlotRows = dataset.overview.map((row) => ({
+    ...row,
+    eventDateLabel: formatCompactDateLabel(row.eventDate),
+  }))
+  const managerOperationsPlotRows = dataset.managerOperations.map((row) => ({
+    ...row,
+    eventDateLabel: formatCompactDateLabel(row.eventDate),
+  }))
+  const scoreDomain = getNumericDomain(
+    entries.map((entry) => entry.averageScore),
+    0.45,
+    0,
+    10,
+  )
+  const voteRateDomain = getNumericDomain(
+    entries.map((entry) => entry.viewToVoteRate),
+    0.05,
+    0,
+    1,
+  )
 
   const overviewChart =
     renderer === "echarts" ? (
@@ -483,29 +536,29 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
         builder={(width) =>
           Plot.plot({
             width,
-            height: 320,
+            height: chartHeightForWidth(width),
             marginLeft: 52,
-            marginBottom: 48,
+            marginBottom: width < 640 ? 68 : 48,
             style: { background: palette.panel, color: palette.text },
-            x: { label: null, tickRotate: -20 },
+            x: { label: null, tickRotate: width < 640 ? -34 : -20 },
             y: { grid: true, label: "Daily count" },
             color: { legend: true },
             marks: [
               Plot.ruleY([0], { stroke: palette.grid }),
-              Plot.barY(dataset.overview, {
-                x: "eventDate",
+              Plot.barY(overviewPlotRows, {
+                x: width < 640 ? "eventDateLabel" : "eventDate",
                 y: "voteSubmissions",
                 fill: palette.accent[1],
                 inset: 0.18,
               }),
-              Plot.lineY(dataset.overview, {
-                x: "eventDate",
+              Plot.lineY(overviewPlotRows, {
+                x: width < 640 ? "eventDateLabel" : "eventDate",
                 y: "uniqueUsers",
                 stroke: palette.accent[0],
                 marker: true,
               }),
-              Plot.lineY(dataset.overview, {
-                x: "eventDate",
+              Plot.lineY(overviewPlotRows, {
+                x: width < 640 ? "eventDateLabel" : "eventDate",
                 y: "managerActions",
                 stroke: palette.accent[4],
                 marker: true,
@@ -552,10 +605,11 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
         builder={(width) =>
           Plot.plot({
             width,
-            height: 320,
-            marginLeft: 120,
+            height: chartHeightForWidth(width),
+            marginLeft: width < 640 ? 140 : 120,
+            marginRight: 28,
             style: { background: palette.panel, color: palette.text },
-            x: { grid: true, label: "People or events" },
+            x: { grid: true, label: null, domain: [0, funnelMax * 1.14] },
             y: { label: null },
             marks: [
               Plot.ruleX([0], { stroke: palette.grid }),
@@ -564,13 +618,6 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
                 x: "value",
                 fill: palette.accent[1],
                 sort: { y: "-x" },
-              }),
-              Plot.text(funnelStages, {
-                y: "stage",
-                x: "value",
-                text: (d) => formatCount(d.value),
-                dx: 18,
-                fill: palette.text,
               }),
             ],
           })
@@ -587,6 +634,8 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
     method,
     completions,
   }))
+  const funnelMax = Math.max(...funnelStages.map((item) => item.value), 1)
+  const authMax = Math.max(...authMethodChartData.map((item) => item.completions), 1)
 
   const authChart =
     renderer === "echarts" ? (
@@ -611,8 +660,11 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
         builder={(width) =>
           Plot.plot({
             width,
-            height: 320,
+            height: chartHeightForWidth(width),
+            marginLeft: width < 640 ? 152 : 136,
+            marginRight: 28,
             style: { background: palette.panel, color: palette.text },
+            x: { label: null, grid: true, domain: [0, authMax * 1.16] },
             color: { legend: true, range: palette.accent },
             marks: [
               Plot.barX(authMethodChartData, {
@@ -620,13 +672,6 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
                 y: "method",
                 fill: "method",
                 sort: { y: "-x" },
-              }),
-              Plot.text(authMethodChartData, {
-                x: "completions",
-                y: "method",
-                text: (d) => formatCount(d.completions),
-                dx: 18,
-                fill: palette.text,
               }),
             ],
           })
@@ -641,10 +686,12 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
           backgroundColor: "transparent",
           color: palette.accent,
           tooltip: { trigger: "item" },
-          grid: { left: 44, right: 24, top: 24, bottom: 34 },
+          grid: { left: 56, right: 76, top: 36, bottom: 44, containLabel: true },
           xAxis: {
             type: "value",
             name: "Average score",
+            min: Number(scoreDomain.min.toFixed(1)),
+            max: Number(scoreDomain.max.toFixed(1)),
             nameTextStyle: { color: palette.muted },
             axisLabel: { color: palette.muted },
             splitLine: { lineStyle: { color: palette.grid } },
@@ -652,6 +699,8 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
           yAxis: {
             type: "value",
             name: "View-to-vote rate",
+            min: Number(voteRateDomain.min.toFixed(2)),
+            max: Number(voteRateDomain.max.toFixed(2)),
             nameTextStyle: { color: palette.muted },
             axisLabel: { color: palette.muted, formatter: (value: number) => `${Math.round(value * 100)}%` },
             splitLine: { lineStyle: { color: palette.grid } },
@@ -666,12 +715,7 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
                 entry.votesSubmitted,
                 entry.entryName,
               ]),
-              label: {
-                show: true,
-                formatter: (params: { data: [number, number, number, string] }) => params.data[3],
-                position: "top",
-                color: palette.text,
-              },
+              label: { show: false },
             },
           ],
         }}
@@ -681,12 +725,17 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
         builder={(width) =>
           Plot.plot({
             width,
-            height: 320,
+            height: chartHeightForWidth(width),
             marginLeft: 56,
-            marginBottom: 48,
+            marginBottom: width < 640 ? 64 : 48,
             style: { background: palette.panel, color: palette.text },
-            x: { label: "Average score", grid: true },
-            y: { label: "View to vote rate", percent: true, grid: true },
+            x: { label: "Average score", grid: true, domain: [scoreDomain.min, scoreDomain.max] },
+            y: {
+              label: "View to vote rate",
+              percent: true,
+              grid: true,
+              domain: [voteRateDomain.min, voteRateDomain.max],
+            },
             marks: [
               Plot.dot(entries, {
                 x: "averageScore",
@@ -694,13 +743,6 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
                 r: (d) => 6 + d.votesSubmitted * 0.9,
                 fill: palette.accent[2],
                 stroke: palette.panel,
-              }),
-              Plot.text(entries, {
-                x: "averageScore",
-                y: "viewToVoteRate",
-                text: "entryName",
-                dy: -16,
-                fill: palette.text,
               }),
             ],
           })
@@ -714,7 +756,7 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
         option={{
           backgroundColor: "transparent",
           color: palette.accent,
-          grid: { left: 96, right: 20, top: 20, bottom: 20 },
+          grid: { left: 124, right: 28, top: 20, bottom: 20, containLabel: true },
           xAxis: {
             type: "value",
             axisLabel: { color: palette.muted },
@@ -723,7 +765,7 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
           yAxis: {
             type: "category",
             data: entryLabels,
-            axisLabel: { color: palette.muted },
+            axisLabel: { color: palette.muted, width: 112, overflow: "break" },
           },
           tooltip: { trigger: "axis" },
           series: [
@@ -740,10 +782,10 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
         builder={(width) =>
           Plot.plot({
             width,
-            height: 320,
-            marginLeft: 118,
+            height: chartHeightForWidth(width),
+            marginLeft: width < 640 ? 132 : 118,
             style: { background: palette.panel, color: palette.text },
-            x: { label: "Aggregate score", grid: true },
+            x: { label: null, grid: true },
             y: { label: null },
             marks: [
               Plot.ruleX([0], { stroke: palette.grid }),
@@ -792,33 +834,33 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
         builder={(width) =>
           Plot.plot({
             width,
-            height: 320,
-            marginBottom: 48,
+            height: chartHeightForWidth(width),
+            marginBottom: width < 640 ? 68 : 48,
             style: { background: palette.panel, color: palette.text },
-            x: { label: null, tickRotate: -20 },
+            x: { label: null, tickRotate: width < 640 ? -34 : -20 },
             y: { label: "Daily manager operations", grid: true },
             color: { legend: true },
             marks: [
-              Plot.barY(dataset.managerOperations, {
-                x: "eventDate",
+              Plot.barY(managerOperationsPlotRows, {
+                x: width < 640 ? "eventDateLabel" : "eventDate",
                 y: "workbookUploadSuccesses",
                 fill: palette.accent[0],
                 inset: 0.2,
               }),
-              Plot.barY(dataset.managerOperations, {
-                x: "eventDate",
+              Plot.barY(managerOperationsPlotRows, {
+                x: width < 640 ? "eventDateLabel" : "eventDate",
                 y: "entryVotingOpened",
                 fill: palette.accent[2],
                 inset: 0.45,
               }),
-              Plot.barY(dataset.managerOperations, {
-                x: "eventDate",
+              Plot.barY(managerOperationsPlotRows, {
+                x: width < 640 ? "eventDateLabel" : "eventDate",
                 y: "entryVotingClosed",
                 fill: palette.accent[4],
                 inset: 0.7,
               }),
-              Plot.lineY(dataset.managerOperations, {
-                x: "eventDate",
+              Plot.lineY(managerOperationsPlotRows, {
+                x: width < 640 ? "eventDateLabel" : "eventDate",
                 y: "finalizations",
                 stroke: palette.accent[5],
                 marker: true,
@@ -886,7 +928,7 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
         builder={(width) =>
           Plot.plot({
             width,
-            height: 320,
+            height: chartHeightForWidth(width),
             marginLeft: 64,
             style: { background: palette.panel, color: palette.text },
             x: { label: null },
@@ -899,12 +941,16 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
                 fill: "avgEngagedSeconds",
                 inset: 2,
               }),
-              Plot.text(experienceCells, {
-                x: "boardView",
-                y: "viewportCategory",
-                text: (d) => formatScore(d.avgEngagedSeconds),
-                fill: palette.text,
-              }),
+              ...(width >= 720
+                ? [
+                    Plot.text(experienceCells, {
+                      x: "boardView",
+                      y: "viewportCategory",
+                      text: (d) => formatScore(d.avgEngagedSeconds),
+                      fill: palette.text,
+                    }),
+                  ]
+                : []),
             ],
           })
         }
@@ -931,7 +977,8 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
               radius: [24, "88%"],
               sort: undefined,
               data: taxonomyChartData,
-              label: { color: palette.text },
+              label: { color: palette.text, width: 92, overflow: "truncate" },
+              minAngle: 6,
               levels: [{}, {}, { itemStyle: { borderWidth: 2 } }],
             },
           ],
@@ -942,10 +989,10 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
         builder={(width) =>
           Plot.plot({
             width,
-            height: 320,
-            marginLeft: 140,
+            height: chartHeightForWidth(width),
+            marginLeft: width < 640 ? 156 : 140,
             style: { background: palette.panel, color: palette.text },
-            x: { label: "Event count", grid: true },
+            x: { label: null, grid: true },
             y: { label: null },
             color: { legend: true },
             marks: [
@@ -961,7 +1008,6 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
                   x: "eventCount",
                   y: "group",
                   fill: "eventName",
-                  fx: "eventName",
                   inset: 0.22,
                 },
               ),
@@ -990,7 +1036,7 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
         onSourceChange={setSource}
         source={source}
         summaryMetrics={summaryCards}
-        topBadges={["Hackathon", "vote.rajeevg.com", "BQ"]}
+        topBadges={["Hackathon", "Host vote.rajeevg.com", "BigQuery"]}
       >
 
       <SectionShell
@@ -1124,7 +1170,7 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
                   The leading project right now, with the exact metrics most likely to come up in a retrospective.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="grid gap-3 sm:grid-cols-4">
+              <CardContent className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 <MetricTile label="Entry" value={topEntry.entryName} />
                 <MetricTile label="Aggregate score" value={formatCount(topEntry.totalScore)} />
                 <MetricTile label="Average score" value={formatScore(topEntry.averageScore)} />
@@ -1254,7 +1300,7 @@ function MetricTile({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl border border-border/70 bg-muted/30 p-4">
       <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">{label}</p>
-      <p className="mt-2 text-lg font-semibold tracking-tight">{value}</p>
+      <p className="mt-2 break-words text-lg font-semibold tracking-tight">{value}</p>
     </div>
   )
 }

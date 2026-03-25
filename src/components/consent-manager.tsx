@@ -34,6 +34,7 @@ export function ConsentManager() {
   const [consentState, setConsentState] = useState<ConsentState | null>(null)
   const [isBannerOpen, setIsBannerOpen] = useState(false)
   const [isArticleFooterVisible, setIsArticleFooterVisible] = useState(false)
+  const [canLoadVercelAnalytics, setCanLoadVercelAnalytics] = useState(false)
   const isArticlePage = pathname?.startsWith("/blog/") ?? false
 
   useEffect(() => {
@@ -107,6 +108,10 @@ export function ConsentManager() {
       window.removeEventListener("analytics-consent:open", handleOpenPreferences)
     }
   }, [openPreferences])
+
+  useEffect(() => {
+    setCanLoadVercelAnalytics(!["127.0.0.1", "localhost"].includes(window.location.hostname))
+  }, [])
 
   useEffect(() => {
     if (!isArticlePage || !consentState || consentState.source === "default") {
@@ -207,7 +212,7 @@ export function ConsentManager() {
         </div>
       ) : null}
 
-      {shouldLoadAnalytics ? <Analytics /> : null}
+      {shouldLoadAnalytics && canLoadVercelAnalytics ? <Analytics /> : null}
     </>
   )
 }

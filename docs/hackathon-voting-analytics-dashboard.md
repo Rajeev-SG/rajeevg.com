@@ -130,6 +130,18 @@ For the GA4 API surface, the shared property is reachable and the promoted custo
   - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-ga4-dashboard-20260324/desktop-light-top.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-ga4-dashboard-20260324/desktop-light-top.png)
 - GA4 mobile screenshot:
   - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-ga4-dashboard-20260324/mobile-dark-top.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-ga4-dashboard-20260324/mobile-dark-top.png)
+- Exhaustive local dashboard audit artifacts:
+  - [/Users/rajeev/Code/rajeevg.com/output/acceptance/projects-dashboard-audit-20260325/local](/Users/rajeev/Code/rajeevg.com/output/acceptance/projects-dashboard-audit-20260325/local)
+- Exhaustive production dashboard audit artifacts:
+  - [/Users/rajeev/Code/rajeevg.com/output/acceptance/projects-dashboard-audit-20260325/prod](/Users/rajeev/Code/rajeevg.com/output/acceptance/projects-dashboard-audit-20260325/prod)
+
+The exhaustive audit covers every chart, chart label region, summary block, and long-form list surface on:
+
+- `/projects/hackathon-voting-analytics`
+- `/projects/hackathon-voting-analytics/google-analytics`
+- `/projects/site-analytics`
+
+It captures desktop, wide-desktop, tablet, and mobile-dark viewports, and it checks for horizontal overflow, clipped text, Observable SVG text collisions, and console errors before preserving the screenshots.
 
 ## Commands to reuse
 
@@ -138,13 +150,15 @@ Local validation:
 ```bash
 pnpm lint
 pnpm build
-E2E_BASE_URL=http://127.0.0.1:3018 pnpm exec playwright test tests/e2e/hackathon-analytics.spec.ts --reporter=list --workers=1
+E2E_BASE_URL=http://127.0.0.1:3020 pnpm exec playwright test tests/e2e/projects-dashboard-audit.spec.ts --reporter=list --workers=1
+E2E_BASE_URL=http://127.0.0.1:3020 pnpm exec playwright test tests/e2e/hackathon-analytics.spec.ts --reporter=list --workers=1
 ```
 
 Production validation:
 
 ```bash
 curl -I https://rajeevg.com/projects/hackathon-voting-analytics
+E2E_BASE_URL=https://rajeevg.com pnpm exec playwright test tests/e2e/projects-dashboard-audit.spec.ts --reporter=list --workers=1
 E2E_BASE_URL=https://rajeevg.com pnpm exec playwright test tests/e2e/hackathon-analytics.spec.ts --reporter=list --workers=1
 curl -I https://rajeevg.com/projects/hackathon-voting-analytics/google-analytics
 E2E_BASE_URL=https://rajeevg.com pnpm exec playwright test tests/e2e/hackathon-ga4.spec.ts --reporter=list --workers=1

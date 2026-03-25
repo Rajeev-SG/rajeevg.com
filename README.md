@@ -53,6 +53,7 @@ Open http://localhost:3000 and visit:
 - `/projects` — portfolio page driven by checked-in public project metadata
 - `/projects/hackathon-voting-analytics` — hackathon voting analytics dashboard with ECharts, Observable Plot, live BigQuery mode, and dummy preview mode
 - `/projects/hackathon-voting-analytics/google-analytics` — hackathon-specific GA4 Data API surface, filtered to `vote.rajeevg.com`
+- `/projects/site-analytics` — GA4 content and instrumentation dashboard for the main site, with ECharts and Observable Plot renderers
 - `/blog/hello-world` — sample post kept as a local draft example with highlighted code + copy button
 
 You can edit the home page at `src/app/page.tsx`. Blog content lives in `content/posts/*`. Velite config is at `velite.config.ts`.
@@ -72,6 +73,11 @@ Environment variables for the app should be placed under `web/.env.local`.
   - source: shared GA4 property `498363924`, filtered to `vote.rajeevg.com`
   - runtime: official `@google-analytics/data` client
   - review mode: `Dummy preview`
+- Site analytics QA dashboard:
+  - route: `/projects/site-analytics`
+  - source: shared GA4 property, focused on content performance and instrumentation QA
+  - renderers: `ECharts` and `Observable Plot`
+  - audit path: `tests/e2e/projects-dashboard-audit.spec.ts`
 
 For the hackathon slice, the in-site reporting artifact is now split into:
 
@@ -79,6 +85,8 @@ For the hackathon slice, the in-site reporting artifact is now split into:
 - the GA4 API surface for direct property-side validation
 
 Those two routes now use the same reporting shell and control geometry, so switching between them does not cause a top-of-page layout jump.
+
+For exhaustive dashboard proof across all three `/projects` analytics routes, use `tests/e2e/projects-dashboard-audit.spec.ts`. Fresh screenshots land under `output/acceptance/projects-dashboard-audit-20260325/local` and `output/acceptance/projects-dashboard-audit-20260325/prod`.
 
 The earlier Looker Studio path is not the source of truth.
 

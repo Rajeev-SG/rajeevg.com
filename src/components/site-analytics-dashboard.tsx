@@ -59,6 +59,31 @@ function formatPath(path: string) {
   return path === "/" ? "Home" : path
 }
 
+function formatChartPathLabel(path: string) {
+  if (path === "/") return "Home"
+
+  const parts = path.split("/").filter(Boolean)
+  if (!parts.length) return "Home"
+
+  const lastSegment = parts[parts.length - 1] ?? ""
+  return formatAxisLabel(lastSegment, 3)
+}
+
+function formatAxisLabel(value: string, maxWords = 2) {
+  return value
+    .replaceAll(/[_-]+/g, " ")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, maxWords)
+    .join(" ")
+}
+
+function chartHeightForWidth(width: number) {
+  if (width < 480) return 380
+  if (width < 900) return 344
+  return 320
+}
+
 function paletteForTheme(resolvedTheme?: string) {
   return resolvedTheme === "dark"
     ? {
@@ -103,7 +128,7 @@ function EChartSurface({
     }
   }, [option])
 
-  return <div ref={ref} className={cn("h-[320px] w-full", className)} />
+  return <div ref={ref} className={cn("h-[360px] w-full md:h-[320px]", className)} />
 }
 
 function ObservableSurface({
@@ -256,8 +281,8 @@ function buildTopBlogChart(
         yAxis: {
           type: "category",
           inverse: true,
-          data: topRows.map((row) => formatPath(row.pagePath)),
-          axisLabel: { color: palette.muted, width: 180, overflow: "truncate" },
+          data: topRows.map((row) => formatChartPathLabel(row.pagePath)),
+          axisLabel: { color: palette.muted, width: 156, overflow: "truncate" },
           axisLine: { lineStyle: { color: palette.grid } },
         },
         series: [
@@ -281,24 +306,24 @@ function buildTopBlogChart(
       builder={(width) =>
         Plot.plot({
           width,
-          height: 320,
-          marginLeft: 140,
+          height: chartHeightForWidth(width),
+          marginLeft: width < 640 ? 156 : 140,
           marginRight: 32,
           style: { background: palette.plotBackground, color: palette.text },
-          x: { label: "Views and users", grid: true },
+          x: { label: null, grid: true },
           y: { label: null },
           color: { legend: true, range: [palette.accent[0], palette.accent[1]] },
           marks: [
             Plot.ruleX([0], { stroke: palette.grid }),
             Plot.barX(topRows, {
               x: "screenPageViews",
-              y: (row) => formatPath(row.pagePath),
+              y: (row) => formatChartPathLabel(row.pagePath),
               fill: "screenPageViews",
               insetRight: 0.2,
             }),
             Plot.dot(topRows, {
               x: "activeUsers",
-              y: (row) => formatPath(row.pagePath),
+              y: (row) => formatChartPathLabel(row.pagePath),
               r: 7,
               fill: palette.accent[1],
               stroke: palette.plotBackground,
@@ -342,11 +367,11 @@ function buildDeviceChart(
       builder={(width) =>
         Plot.plot({
           width,
-          height: 320,
+          height: chartHeightForWidth(width),
           marginLeft: 96,
           marginRight: 32,
           style: { background: palette.plotBackground, color: palette.text },
-          x: { label: "Page views", grid: true },
+          x: { label: null, grid: true },
           y: { label: null },
           color: { legend: true, range: palette.accent },
           marks: [
@@ -356,13 +381,6 @@ function buildDeviceChart(
               y: "deviceCategory",
               fill: "deviceCategory",
               sort: { y: "-x" },
-            }),
-            Plot.text(rows, {
-              x: "screenPageViews",
-              y: "deviceCategory",
-              text: (row) => formatInteger(row.activeUsers),
-              dx: 18,
-              fill: palette.text,
             }),
           ],
         })
@@ -386,17 +404,18 @@ function buildRealtimeChart(
         backgroundColor: "transparent",
         color: [palette.accent[2]],
         tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
-        grid: { left: 28, right: 24, top: 24, bottom: 72, containLabel: true },
+        grid: { left: 156, right: 24, top: 24, bottom: 28, containLabel: true },
         xAxis: {
-          type: "category",
-          data: topRows.map((row) => row.eventName),
-          axisLabel: { color: palette.muted, rotate: 24, interval: 0 },
-          axisLine: { lineStyle: { color: palette.grid } },
-        },
-        yAxis: {
           type: "value",
           axisLabel: { color: palette.muted },
           splitLine: { lineStyle: { color: palette.grid } },
+        },
+        yAxis: {
+          type: "category",
+          inverse: true,
+          data: topRows.map((row) => formatAxisLabel(row.eventName, 2)),
+          axisLabel: { color: palette.muted, width: 136, overflow: "truncate" },
+          axisLine: { lineStyle: { color: palette.grid } },
         },
         series: [
           {
@@ -412,17 +431,17 @@ function buildRealtimeChart(
       builder={(width) =>
         Plot.plot({
           width,
-          height: 320,
-          marginLeft: 56,
-          marginBottom: 96,
+          height: chartHeightForWidth(width),
+          marginLeft: width < 640 ? 164 : 148,
+          marginRight: 32,
           style: { background: palette.plotBackground, color: palette.text },
-          x: { label: null, tickRotate: -26 },
-          y: { label: "Last 30 minutes", grid: true },
+          x: { label: null, grid: true },
+          y: { label: null },
           marks: [
-            Plot.ruleY([0], { stroke: palette.grid }),
-            Plot.barY(topRows, {
-              x: "eventName",
-              y: "eventCount",
+            Plot.ruleX([0], { stroke: palette.grid }),
+            Plot.barX(topRows, {
+              x: "eventCount",
+              y: (row) => formatAxisLabel(row.eventName, 2),
               fill: palette.accent[2],
               inset: 0.16,
             }),
@@ -481,11 +500,11 @@ function buildKeyEventChart(
       builder={(width) =>
         Plot.plot({
           width,
-          height: 320,
+          height: chartHeightForWidth(width),
           marginLeft: 126,
           marginRight: 32,
           style: { background: palette.plotBackground, color: palette.text },
-          x: { label: "Key events and event hits", grid: true },
+          x: { label: null, grid: true },
           y: { label: null },
           color: { legend: true, range: [palette.accent[4], palette.accent[5]] },
           marks: [
@@ -669,11 +688,11 @@ export function SiteAnalyticsDashboard({ report }: { report: SiteAnalyticsDashbo
               report.topBlogPosts.map((row) => (
                 <div
                   key={`${row.pagePath}-${row.pageTitle}`}
-                  className="grid gap-2 rounded-2xl border border-border/60 bg-background/50 p-4 md:grid-cols-[1.5fr_auto_auto_auto]"
+                  className="grid gap-3 rounded-2xl border border-border/60 bg-background/50 p-4 sm:grid-cols-2 xl:grid-cols-[minmax(0,1.5fr)_repeat(3,minmax(0,auto))]"
                 >
-                  <div className="space-y-1">
-                    <p className="font-medium text-foreground">{formatPath(row.pagePath)}</p>
-                    <p className="text-sm leading-6 text-muted-foreground">{row.pageTitle}</p>
+                  <div className="min-w-0 space-y-1 sm:col-span-2 xl:col-span-1">
+                    <p className="break-all font-medium text-foreground">{formatPath(row.pagePath)}</p>
+                    <p className="break-words text-sm leading-6 text-muted-foreground">{row.pageTitle}</p>
                   </div>
                   <div>
                     <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Views</p>
@@ -714,15 +733,15 @@ export function SiteAnalyticsDashboard({ report }: { report: SiteAnalyticsDashbo
                 report.realtimeCustomEvents.map((row) => (
                   <div
                     key={`${row.eventName}-${row.eventCount}`}
-                    className="flex items-center justify-between rounded-xl border border-border/60 bg-background/50 px-4 py-3"
+                    className="flex flex-col gap-2 rounded-xl border border-border/60 bg-background/50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
                   >
-                    <div className="space-y-1">
-                      <p className="font-medium text-foreground">{row.eventName}</p>
+                    <div className="min-w-0 space-y-1">
+                      <p className="break-words font-medium text-foreground">{row.eventName}</p>
                       <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
                         stream {report.streamId}
                       </p>
                     </div>
-                    <p className="text-2xl font-semibold">{formatInteger(row.eventCount)}</p>
+                    <p className="shrink-0 text-2xl font-semibold">{formatInteger(row.eventCount)}</p>
                   </div>
                 ))
               ) : (
@@ -746,15 +765,15 @@ export function SiteAnalyticsDashboard({ report }: { report: SiteAnalyticsDashbo
                 report.keyEvents.map((row) => (
                   <div
                     key={row.eventName}
-                    className="flex items-center justify-between rounded-xl border border-border/60 bg-background/50 px-4 py-3"
+                    className="flex flex-col gap-2 rounded-xl border border-border/60 bg-background/50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
                   >
-                    <div>
-                      <p className="font-medium text-foreground">{row.eventName}</p>
-                      <p className="text-sm text-muted-foreground">
+                    <div className="min-w-0">
+                      <p className="break-words font-medium text-foreground">{row.eventName}</p>
+                      <p className="break-words text-sm text-muted-foreground">
                         {formatInteger(row.eventCount)} total event hits in the retained window
                       </p>
                     </div>
-                    <p className="text-2xl font-semibold">{formatInteger(row.keyEvents)}</p>
+                    <p className="shrink-0 text-2xl font-semibold">{formatInteger(row.keyEvents)}</p>
                   </div>
                 ))
               ) : (
@@ -822,11 +841,11 @@ export function SiteAnalyticsDashboard({ report }: { report: SiteAnalyticsDashbo
               report.topContent.map((row) => (
                 <div
                   key={`${row.pagePath}-${row.pageTitle}`}
-                  className="grid gap-2 rounded-2xl border border-border/60 bg-background/50 p-4 md:grid-cols-[1.5fr_auto_auto]"
+                  className="grid gap-3 rounded-2xl border border-border/60 bg-background/50 p-4 sm:grid-cols-2 xl:grid-cols-[minmax(0,1.5fr)_repeat(2,minmax(0,auto))]"
                 >
-                  <div className="space-y-1">
-                    <p className="font-medium text-foreground">{formatPath(row.pagePath)}</p>
-                    <p className="text-sm leading-6 text-muted-foreground">{row.pageTitle}</p>
+                  <div className="min-w-0 space-y-1 sm:col-span-2 xl:col-span-1">
+                    <p className="break-all font-medium text-foreground">{formatPath(row.pagePath)}</p>
+                    <p className="break-words text-sm leading-6 text-muted-foreground">{row.pageTitle}</p>
                   </div>
                   <div>
                     <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Views</p>

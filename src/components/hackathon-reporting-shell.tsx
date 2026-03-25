@@ -38,6 +38,14 @@ const SURFACE_TABS: SurfaceTab[] = [
   },
 ]
 
+function formatGeneratedAt(value: string) {
+  return new Intl.DateTimeFormat("en-GB", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "UTC",
+  }).format(new Date(value))
+}
+
 function SourceToggle({
   source,
   onChange,
@@ -46,7 +54,7 @@ function SourceToggle({
   onChange: (value: HackathonReportingSourceMode) => void
 }) {
   return (
-    <div className="inline-flex rounded-full border border-border bg-muted/50 p-1">
+    <div className="inline-flex flex-wrap rounded-full border border-border bg-muted/50 p-1">
       {([
         { value: "live", label: "Live reporting" },
         { value: "dummy", label: "Dummy preview" },
@@ -71,7 +79,7 @@ function SourceToggle({
 
 function SurfaceTabs({ activeSurface }: { activeSurface: HackathonReportingSurface }) {
   return (
-    <div className="inline-flex rounded-full border border-border bg-muted/40 p-1">
+    <div className="inline-flex flex-wrap rounded-full border border-border bg-muted/40 p-1">
       {SURFACE_TABS.map((tab) => {
         const active = tab.key === activeSurface
         return (
@@ -103,7 +111,7 @@ function MetricCard({
   icon,
 }: MetricDefinition) {
   return (
-    <Card className="border-border/70 bg-background/80">
+    <Card className="min-h-full border-border/70 bg-background/80">
       <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-3">
         <div className="space-y-1">
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
@@ -222,15 +230,11 @@ export function HackathonReportingShell({
                 Reporting source
               </CardTitle>
               <CardDescription>
-                Generated{" "}
-                {new Date(generatedAt).toLocaleString("en-GB", {
-                  dateStyle: "medium",
-                  timeStyle: "short",
-                })}
+                Generated {formatGeneratedAt(generatedAt)} UTC
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <p className="min-h-[4.5rem] text-sm leading-6 text-muted-foreground">{summary}</p>
+              <p className="text-sm leading-6 text-muted-foreground">{summary}</p>
               <div className="flex flex-wrap gap-2 pt-2">
                 <Button asChild variant="outline" size="sm">
                   <Link href="https://vote.rajeevg.com" rel="noreferrer" target="_blank">

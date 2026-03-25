@@ -68,7 +68,7 @@ export function HackathonGa4Dashboard({
         onSourceChange={setSource}
         source={source}
         summaryMetrics={summaryMetrics}
-        topBadges={["Hackathon", report.hostname, "GA4"]}
+        topBadges={["Hackathon", `Host ${report.hostname}`, "GA4"]}
       >
 
       <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
@@ -82,15 +82,18 @@ export function HackathonGa4Dashboard({
           <CardContent className="space-y-3">
             {report.eventSurface.length ? (
               report.eventSurface.slice(0, 12).map((row) => (
-                <div key={`${row.eventName}-${row.viewerRole}-${row.competitionStatus}`} className="rounded-2xl border border-border/60 bg-background/50 p-4">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                      <p className="font-medium text-foreground">{row.eventName}</p>
-                      <p className="text-sm text-muted-foreground">
+                <div
+                  key={`${row.eventName}-${row.viewerRole}-${row.competitionStatus}`}
+                  className="rounded-2xl border border-border/60 bg-background/50 p-4"
+                >
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <p className="break-words font-medium text-foreground">{row.eventName}</p>
+                      <p className="break-words text-sm text-muted-foreground">
                         {row.viewerRole} · {row.competitionStatus}
                       </p>
                     </div>
-                    <div className="text-right">
+                    <div className="shrink-0 text-right">
                       <p className="text-2xl font-semibold">{formatInteger(row.eventCount)}</p>
                       <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
                         {formatInteger(row.totalUsers)} users
@@ -118,8 +121,11 @@ export function HackathonGa4Dashboard({
           <CardContent className="space-y-3">
             {report.roundSurface.length ? (
               report.roundSurface.map((row) => (
-                <div key={row.competitionStatus} className="rounded-2xl border border-border/60 bg-background/50 p-4">
-                  <div className="flex items-center justify-between gap-3">
+                <div
+                  key={row.competitionStatus}
+                  className="rounded-2xl border border-border/60 bg-background/50 p-4"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-3">
                     <p className="text-lg font-semibold capitalize">{row.competitionStatus}</p>
                     <Badge variant="outline">{formatInteger(row.eventCount)} snapshots</Badge>
                   </div>
@@ -163,10 +169,13 @@ export function HackathonGa4Dashboard({
           <CardContent className="space-y-3">
             {report.entrySurface.length ? (
               report.entrySurface.map((row) => (
-                <div key={row.entrySlug} className="grid gap-3 rounded-2xl border border-border/60 bg-background/50 p-4 md:grid-cols-[1.6fr_repeat(4,auto)]">
-                  <div className="space-y-1">
-                    <p className="font-medium text-foreground">{row.entryName || row.entrySlug}</p>
-                    <p className="text-sm text-muted-foreground">{row.entrySlug}</p>
+                <div
+                  key={row.entrySlug}
+                  className="grid gap-3 rounded-2xl border border-border/60 bg-background/50 p-4 sm:grid-cols-2 xl:grid-cols-[minmax(0,1.6fr)_repeat(4,minmax(0,auto))]"
+                >
+                  <div className="min-w-0 space-y-1 sm:col-span-2 xl:col-span-1">
+                    <p className="break-words font-medium text-foreground">{row.entryName || row.entrySlug}</p>
+                    <p className="break-all text-sm text-muted-foreground">{row.entrySlug}</p>
                   </div>
                   <div>
                     <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Dialogs</p>
@@ -204,9 +213,12 @@ export function HackathonGa4Dashboard({
           <CardContent className="space-y-3">
             {report.managerSurface.length ? (
               report.managerSurface.map((row) => (
-                <div key={row.eventName} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/50 px-4 py-3">
-                  <p className="font-medium text-foreground">{row.eventName}</p>
-                  <p className="text-2xl font-semibold">{formatInteger(row.eventCount)}</p>
+                <div
+                  key={row.eventName}
+                  className="flex flex-col gap-2 rounded-xl border border-border/60 bg-background/50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <p className="break-words font-medium text-foreground">{row.eventName}</p>
+                  <p className="shrink-0 text-2xl font-semibold">{formatInteger(row.eventCount)}</p>
                 </div>
               ))
             ) : (
@@ -231,11 +243,11 @@ export function HackathonGa4Dashboard({
         <CardContent className="grid gap-3 md:grid-cols-2">
           {report.definitions.map((definition) => (
             <div key={definition.key} className="rounded-2xl border border-border/60 bg-background/50 p-4">
-              <div className="flex items-center justify-between gap-3">
-                <p className="font-medium text-foreground">{definition.label}</p>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <p className="break-words font-medium text-foreground">{definition.label}</p>
                 <Badge variant="outline">{definition.type}</Badge>
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">{definition.key}</p>
+              <p className="mt-2 break-all text-sm text-muted-foreground">{definition.key}</p>
               <p className="mt-3 text-sm leading-6 text-muted-foreground">{definition.meaning}</p>
             </div>
           ))}
