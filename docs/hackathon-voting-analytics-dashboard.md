@@ -14,6 +14,8 @@ They exist because the Looker Studio artifact was not trustworthy enough for the
 
 Both routes now share the same reporting shell: the same hero, route tabs, source toggle, summary cards, and source card all stay in the same position so switching between BigQuery and GA4 does not cause a visible re-layout at the top of the page.
 
+Both routes now also reconcile against the voting app's public source-of-truth summary endpoint at `https://vote.rajeevg.com/api/reporting/public-summary`. That endpoint is backed by the same competition snapshot that powers the public scoreboard, so the `Persisted votes` card reflects real stored votes instead of GA4 event coverage.
+
 As of 2026-03-25, the BigQuery route is also warehouse-aware:
 
 - if modeled BigQuery rows are available, it reads `personal-gws-1.hackathon_reporting`
@@ -28,6 +30,8 @@ The production GA4 path also now trims env-derived hostname and stream values be
   - reads live reporting rows from `personal-gws-1.hackathon_reporting` when modeled rows exist
   - never reads the main `rajeevg.com` page-reporting tables
   - falls back to a GA4-derived modeled dataset when the warehouse is empty or unreachable
+  - keeps `Persisted votes` pinned to the live voting-app summary even while the warehouse is empty
+  - labels GA4-derived submit counts as tracked telemetry instead of actual votes
   - surfaces warehouse reconciliation notes so the viewer can see whether the page is using modeled BigQuery rows or fallback GA4 rows
   - lets the viewer switch between:
   - `ECharts`
@@ -39,6 +43,7 @@ The production GA4 path also now trims env-derived hostname and stream values be
   - reads the shared GA4 property `498363924` through `@google-analytics/data`
   - filters all report queries to `hostName = vote.rajeevg.com`
   - uses the promoted hackathon dimensions and metrics directly from the property
+  - keeps persisted vote totals separate from GA4 `vote_submitted`, which is shown as tracked analytics coverage only
   - keeps its own `Dummy preview` so the shell stays reviewable while property rows are still sparse
 
 The dummy mode is intentional. It lets the reporting shell stay reviewable even while Google is still populating raw export rows.
@@ -84,6 +89,7 @@ The `rajeevg.com` Vercel project needs these env vars:
 - `GA4_SERVICE_ACCOUNT_JSON=<service account json>`
 - `GA4_HACKATHON_HOSTNAME=vote.rajeevg.com`
 - `GA4_HACKATHON_STREAM_ID=14214480224`
+- `HACKATHON_VOTING_APP_URL=https://vote.rajeevg.com`
 
 The live adapter is implemented in:
 
@@ -113,15 +119,18 @@ Production proof:
   - `eventName + customEvent:viewer_role + customEvent:competition_status`
   - `customEvent:competition_status + averageCustomEvent:entry_count/open_entry_count/participating_judge_count/total_remaining_votes`
 
-Direct GA4 proof for `hostName = vote.rajeevg.com` in the last 30 days including today returned live rows, including:
+Reconciliation proof on 2026-03-25 now records the current live snapshot explicitly instead of treating GA4 `vote_submitted` as the real vote total:
 
-- `competition_state_snapshot`: `159` events across `16` users
-- `page_view`: `73` events across `16` users
-- `vote_score_selected`: `67` events across `3` users
-- `judge_auth_dialog_opened`: `32` events across `13` users
-- `vote_submitted`: `8` events across `3` users
-- `judge_auth_completed`: `3` events across `3` users
-- `workbook_upload_completed`: `3` events across `1` user
+- live voting-app public summary:
+  - persisted votes: `297`
+  - unique judges: `37`
+  - total entries: `9`
+- direct GA4 proof for `hostName = vote.rajeevg.com`:
+  - `vote_submitted`: `20`
+- public dashboard reconciliation:
+  - `/projects/hackathon-voting-analytics` persisted votes: `297`
+  - `/projects/hackathon-voting-analytics/google-analytics` persisted votes: `297`
+  - both routes show `Tracked submits: 20` and `GA4 coverage: 6.7%`
 
 Current warehouse state:
 
@@ -177,6 +186,7 @@ Because of that, the public BigQuery route currently renders a GA4-derived model
   - [/Users/rajeev/Code/rajeevg.com/output/acceptance/projects-dashboard-audit-20260325/prod](/Users/rajeev/Code/rajeevg.com/output/acceptance/projects-dashboard-audit-20260325/prod)
 - Reconciliation proof:
   - [/Users/rajeev/Code/rajeevg.com/output/acceptance/reporting-reconciliation-20260325/proof.md](/Users/rajeev/Code/rajeevg.com/output/acceptance/reporting-reconciliation-20260325/proof.md)
+  - [/Users/rajeev/Code/rajeevg.com/output/acceptance/reporting-vote-reconciliation-20260325/proof.md](/Users/rajeev/Code/rajeevg.com/output/acceptance/reporting-vote-reconciliation-20260325/proof.md)
 
 The exhaustive audit covers every chart, chart label region, summary block, and long-form list surface on:
 

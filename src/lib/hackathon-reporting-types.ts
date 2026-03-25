@@ -1,3 +1,5 @@
+import type { HackathonVoteTruthSummary } from "@/lib/hackathon-vote-truth"
+
 export type ReportSource = "live" | "dummy"
 
 export type DailyOverviewRow = {
@@ -136,6 +138,7 @@ export type HackathonAnalyticsDataset = {
   generatedAt: string
   hasLiveRows: boolean
   notes: string[]
+  voteTruth: HackathonVoteTruthSummary | null
   overview: DailyOverviewRow[]
   eventBreakdown: EventBreakdownRow[]
   entryPerformance: EntryPerformanceRow[]

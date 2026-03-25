@@ -244,14 +244,11 @@ Last updated: 2026-03-25
   - production shared-shell consistency proof passed
   - exhaustive production dashboard audit passed for the hackathon BigQuery route, the hackathon GA4 route, and `/projects/site-analytics`
   - `analytics_mcp.run_report` accepted the hackathon property query shapes used by the GA API route without metric or dimension errors
-  - direct GA4 proof for `hostName = vote.rajeevg.com` returned live rows including:
-    - `competition_state_snapshot`: `159`
-    - `page_view`: `73`
-    - `vote_score_selected`: `67`
-    - `judge_auth_dialog_opened`: `32`
-    - `vote_submitted`: `8`
-    - `judge_auth_completed`: `3`
-    - `workbook_upload_completed`: `3`
+  - direct GA4 proof for `hostName = vote.rajeevg.com` now stays explicitly separate from the authoritative vote total:
+    - live persisted votes from `https://vote.rajeevg.com/api/reporting/public-summary`: `297`
+    - GA4 `vote_submitted`: `20`
+    - dashboard persisted-vote cards on both hackathon routes: `297`
+    - GA4 coverage shown on-page: `6.7%`
   - screenshots:
     - [`desktop-light-top.png`](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260324/desktop-light-top.png)
     - [`desktop-light-voting-funnel.png`](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260324/desktop-light-voting-funnel.png)
@@ -262,6 +259,7 @@ Last updated: 2026-03-25
     - [`output/playwright/hackathon-reporting-consistency-20260324/desktop-light-ga4-shell.png`](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260324/desktop-light-ga4-shell.png)
   - reconciliation proof:
     - [`output/acceptance/reporting-reconciliation-20260325/proof.md`](/Users/rajeev/Code/rajeevg.com/output/acceptance/reporting-reconciliation-20260325/proof.md)
+    - [`output/acceptance/reporting-vote-reconciliation-20260325/proof.md`](/Users/rajeev/Code/rajeevg.com/output/acceptance/reporting-vote-reconciliation-20260325/proof.md)
 
 ## Audit verdict
 

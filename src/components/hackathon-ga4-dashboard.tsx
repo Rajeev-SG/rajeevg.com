@@ -20,6 +20,12 @@ function formatScore(value: number) {
   return Number.isFinite(value) ? value.toFixed(1) : "0.0"
 }
 
+function formatCoverageRate(trackedVotes: number, persistedVotes: number | null) {
+  if (persistedVotes == null || persistedVotes <= 0) return "N/A"
+  const percentage = (trackedVotes / persistedVotes) * 100
+  return `${percentage >= 10 ? percentage.toFixed(0) : percentage.toFixed(1)}%`
+}
+
 function RowBar({ value, max }: { value: number; max: number }) {
   const width = max > 0 ? Math.max(8, Math.round((value / max) * 100)) : 0
   return (
@@ -38,6 +44,10 @@ export function HackathonGa4Dashboard({
 }) {
   const [source, setSource] = useState<"live" | "dummy">("live")
   const report = source === "live" ? live : dummy
+  const truthEntryMap = useMemo(
+    () => new Map(report.voteTruth?.entries.map((entry) => [entry.slug, entry]) ?? []),
+    [report.voteTruth]
+  )
 
   const eventMax = useMemo(
     () => Math.max(...report.eventSurface.map((row) => row.eventCount), 1),
@@ -46,7 +56,13 @@ export function HackathonGa4Dashboard({
   const summaryMetrics = buildHackathonSummaryMetrics({
     eventCount: formatInteger(report.overview.eventCount),
     totalUsers: formatInteger(report.overview.totalUsers),
-    voteSubmissions: formatInteger(report.overview.voteSubmissions),
+    actualVotes:
+      report.voteTruth != null ? formatInteger(report.voteTruth.totals.totalVotes) : "Unavailable",
+    trackedVoteSubmissions: formatInteger(report.overview.voteSubmissions),
+    trackingCoverage: formatCoverageRate(
+      report.overview.voteSubmissions,
+      report.voteTruth?.totals.totalVotes ?? null
+    ),
     managerActions: formatInteger(report.overview.managerActions),
   })
 
@@ -170,33 +186,49 @@ export function HackathonGa4Dashboard({
           </CardHeader>
           <CardContent className="space-y-3">
             {report.entrySurface.length ? (
-              report.entrySurface.map((row) => (
-                <div
-                  key={row.entrySlug}
-                  className="grid gap-3 rounded-2xl border border-border/60 bg-background/50 p-4 sm:grid-cols-2 xl:grid-cols-[minmax(0,1.6fr)_repeat(4,minmax(0,auto))]"
-                >
-                  <div className="min-w-0 space-y-1 sm:col-span-2 xl:col-span-1">
-                    <p className="break-words font-medium text-foreground">{row.entryName || row.entrySlug}</p>
-                    <p className="break-all text-sm text-muted-foreground">{row.entrySlug}</p>
+              report.entrySurface.map((row) => {
+                const truthEntry = truthEntryMap.get(row.entrySlug)
+
+                return (
+                  <div
+                    key={row.entrySlug}
+                    className="grid gap-3 rounded-2xl border border-border/60 bg-background/50 p-4 sm:grid-cols-2 xl:grid-cols-[minmax(0,1.6fr)_repeat(5,minmax(0,auto))]"
+                  >
+                    <div className="min-w-0 space-y-1 sm:col-span-2 xl:col-span-1">
+                      <p className="break-words font-medium text-foreground">{row.entryName || row.entrySlug}</p>
+                      <p className="break-all text-sm text-muted-foreground">{row.entrySlug}</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Dialogs</p>
+                      <p className="text-lg font-semibold">{formatInteger(row.dialogViews)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Tracked submits</p>
+                      <p className="text-lg font-semibold">{formatInteger(row.voteSubmissions)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Actual votes</p>
+                      <p className="text-lg font-semibold">
+                        {truthEntry ? formatInteger(truthEntry.voteCount) : "Unavailable"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Avg score</p>
+                      <p className="text-lg font-semibold">{formatScore(row.averageScore)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Avg aggregate</p>
+                      <p className="text-lg font-semibold">{formatScore(row.averageAggregateScore)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Gap</p>
+                      <p className="text-lg font-semibold">
+                        {truthEntry ? formatInteger(truthEntry.voteCount - row.voteSubmissions) : "N/A"}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Dialogs</p>
-                    <p className="text-lg font-semibold">{formatInteger(row.dialogViews)}</p>
-                  </div>
-                  <div>
-                    <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Votes</p>
-                    <p className="text-lg font-semibold">{formatInteger(row.voteSubmissions)}</p>
-                  </div>
-                  <div>
-                    <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Avg score</p>
-                    <p className="text-lg font-semibold">{formatScore(row.averageScore)}</p>
-                  </div>
-                  <div>
-                    <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Avg aggregate</p>
-                    <p className="text-lg font-semibold">{formatScore(row.averageAggregateScore)}</p>
-                  </div>
-                </div>
-              ))
+                )
+              })
             ) : (
               <p className="text-sm leading-6 text-muted-foreground">
                 No entry-level scoring rows are visible in the GA property yet.

@@ -12,6 +12,10 @@ import {
 import { getHackathonPropertyId } from "@/lib/hackathon-ga4-common"
 import { buildHackathonAnalyticsDatasetFromGa4 } from "@/lib/hackathon-reporting-fallback"
 import { getDummyHackathonAnalyticsDataset } from "@/lib/hackathon-reporting-dummy"
+import {
+  describeHackathonVoteTruthReconciliation,
+  getHackathonVoteTruth,
+} from "@/lib/hackathon-vote-truth"
 import type {
   AuthFunnelRow,
   DailyOverviewRow,
@@ -45,9 +49,10 @@ export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalytics
   noStore()
 
   try {
-    const [modeledTableCounts, rawExportTableCount] = await Promise.all([
+    const [modeledTableCounts, rawExportTableCount, voteTruthResult] = await Promise.all([
       getModeledTableRowCounts(),
       getRawExportTableCount(getHackathonPropertyId()),
+      getHackathonVoteTruth(),
     ])
 
     const [
@@ -202,6 +207,7 @@ export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalytics
 
     const dummy = getDummyHackathonAnalyticsDataset()
     const dataset = {
+      voteTruth: voteTruthResult.summary,
       overview,
       eventBreakdown,
       entryPerformance,
@@ -217,6 +223,8 @@ export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalytics
     const modeledRowCount = modeledTableCounts.reduce((sum, table) => sum + table.rowCount, 0)
 
     if (hasLiveRows) {
+      const trackedVotes = overview.reduce((sum, row) => sum + row.voteSubmissions, 0)
+
       return {
         source: "live",
         generatedAt: new Date().toISOString(),
@@ -225,6 +233,11 @@ export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalytics
           "Live mode is reading directly from the dedicated hackathon_reporting dataset in BigQuery.",
           `Warehouse reconciliation: ${modeledRowCount} rows are currently landed across ${MODELED_TABLES.length} modeled tables, while the raw export dataset ga4_${getHackathonPropertyId()} has ${rawExportTableCount} landed tables.`,
           "This route never reads the main rajeevg.com page analytics tables, which avoids the mixed-data problem from the old Looker shell.",
+          ...describeHackathonVoteTruthReconciliation({
+            trackedVotes,
+            voteTruth: voteTruthResult.summary,
+            fallbackNote: voteTruthResult.note,
+          }),
         ],
         ...dataset,
       }
@@ -256,6 +269,7 @@ export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalytics
           fallbackMessage,
           "Dummy preview is still available so the shell can be reviewed and exercised end to end.",
         ],
+        voteTruth: null,
         overview: [],
         eventBreakdown: [],
         entryPerformance: [],

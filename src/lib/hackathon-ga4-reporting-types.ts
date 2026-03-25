@@ -1,3 +1,5 @@
+import type { HackathonVoteTruthSummary } from "@/lib/hackathon-vote-truth"
+
 export type HackathonGaSource = "live" | "dummy"
 
 export type HackathonGaOverview = {
@@ -58,6 +60,7 @@ export type HackathonGaReport = {
   historicalWindow: string
   hasLiveRows: boolean
   notes: string[]
+  voteTruth: HackathonVoteTruthSummary | null
   overview: HackathonGaOverview
   eventSurface: HackathonGaEventRow[]
   entrySurface: HackathonGaEntryRow[]

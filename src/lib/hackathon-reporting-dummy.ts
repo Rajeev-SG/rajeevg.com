@@ -385,6 +385,7 @@ export function getDummyHackathonAnalyticsDataset(): HackathonAnalyticsDataset {
       "Dummy preview mode is turned on, so the charts show a full judging story even before the export tables land.",
       "The live mode stays isolated to the hackathon reporting dataset and never falls back to rajeevg.com page analytics.",
     ],
+    voteTruth: null,
     overview,
     eventBreakdown,
     entryPerformance,

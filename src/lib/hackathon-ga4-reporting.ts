@@ -4,6 +4,10 @@ import { unstable_noStore as noStore } from "next/cache"
 
 import { getModeledTableRowCounts, getRawExportTableCount } from "@/lib/hackathon-bigquery"
 import { getDummyHackathonAnalyticsDataset } from "@/lib/hackathon-reporting-dummy"
+import {
+  describeHackathonVoteTruthReconciliation,
+  getHackathonVoteTruth,
+} from "@/lib/hackathon-vote-truth"
 import type {
   HackathonGaDefinition,
   HackathonGaEntryRow,
@@ -134,6 +138,7 @@ function buildDummyReport(): HackathonGaReport {
       "Dummy preview is active, so this GA surface shows the intended reporting layout before the shared property returns hackathon rows.",
       "The real live mode stays pinned to vote.rajeevg.com and the promoted hackathon schema on the shared property.",
     ],
+    voteTruth: null,
     overview,
     eventSurface,
     entrySurface,
@@ -332,9 +337,10 @@ export async function getHackathonGa4Report(): Promise<HackathonGaReport> {
     const roundSurface = mapRoundSurface(roundResponse)
     const managerSurface = mapManagerSurface(managerResponse)
     const overview = mapOverview(overviewResponse, eventSurface)
-    const [modeledTableCounts, rawExportTableCount] = await Promise.all([
+    const [modeledTableCounts, rawExportTableCount, voteTruthResult] = await Promise.all([
       getModeledTableRowCounts(),
       getRawExportTableCount(getHackathonPropertyId()),
+      getHackathonVoteTruth(),
     ])
     const modeledRowCount = modeledTableCounts.reduce((sum, row) => sum + row.rowCount, 0)
 
@@ -353,15 +359,26 @@ export async function getHackathonGa4Report(): Promise<HackathonGaReport> {
       streamId: getHackathonStreamId(),
       historicalWindow: HACKATHON_HISTORICAL_WINDOW,
       hasLiveRows,
+      voteTruth: voteTruthResult.summary,
       notes: hasLiveRows
         ? [
             "Live mode is reading directly from the shared GA4 property through the official Google Analytics Data API client, using the last 30 days including today.",
             `Warehouse reconciliation: the modeled BigQuery dataset currently has ${modeledRowCount} landed rows across ${modeledTableCounts.length} tables, and ga4_${getHackathonPropertyId()} currently has ${rawExportTableCount} landed raw export tables.`,
             "The route is filtered to vote.rajeevg.com so the hackathon app stays separated from rajeevg.com content analytics even though both live on the same property.",
+            ...describeHackathonVoteTruthReconciliation({
+              trackedVotes: overview.voteSubmissions,
+              voteTruth: voteTruthResult.summary,
+              fallbackNote: voteTruthResult.note,
+            }),
           ]
         : [
             "The GA4 property is reachable, but no hackathon-host rows were returned for the current reporting window.",
             "Use Dummy preview to review the GA reporting shell while the shared property starts collecting or retaining hackathon rows.",
+            ...describeHackathonVoteTruthReconciliation({
+              trackedVotes: overview.voteSubmissions,
+              voteTruth: voteTruthResult.summary,
+              fallbackNote: voteTruthResult.note,
+            }),
           ],
       overview,
       eventSurface,
@@ -381,6 +398,7 @@ export async function getHackathonGa4Report(): Promise<HackathonGaReport> {
         message,
         "Dummy preview is still available so the GA-specific reporting layout can be reviewed end to end.",
       ],
+      voteTruth: null,
       overview: emptyOverview(),
       eventSurface: [],
       entrySurface: [],

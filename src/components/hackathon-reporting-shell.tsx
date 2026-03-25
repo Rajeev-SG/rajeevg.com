@@ -133,7 +133,9 @@ function MetricCard({
 export function buildHackathonSummaryMetrics(metrics: {
   eventCount: string
   totalUsers: string
-  voteSubmissions: string
+  actualVotes: string
+  trackedVoteSubmissions: string
+  trackingCoverage: string
   managerActions: string
 }): MetricDefinition[] {
   return [
@@ -150,10 +152,22 @@ export function buildHackathonSummaryMetrics(metrics: {
       icon: <RadioTower className="size-4" />,
     },
     {
-      label: "Vote submits",
-      value: metrics.voteSubmissions,
-      detail: "Successful vote submissions visible in the current reporting source.",
+      label: "Persisted votes",
+      value: metrics.actualVotes,
+      detail: "Authoritative vote rows from the live voting app snapshot that powers the public scoreboard.",
       icon: <Gauge className="size-4" />,
+    },
+    {
+      label: "Tracked submits",
+      value: metrics.trackedVoteSubmissions,
+      detail: "GA4 vote_submitted events captured as analytics telemetry for the same window.",
+      icon: <RadioTower className="size-4" />,
+    },
+    {
+      label: "GA4 coverage",
+      value: metrics.trackingCoverage,
+      detail: "Tracked submits divided by the authoritative persisted vote total.",
+      icon: <Database className="size-4" />,
     },
     {
       label: "Manager actions",
@@ -278,7 +292,7 @@ export function HackathonReportingShell({
         </div>
       </section>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
         {summaryMetrics.map((metric) => (
           <MetricCard key={metric.label} {...metric} />
         ))}

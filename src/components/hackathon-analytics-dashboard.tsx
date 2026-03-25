@@ -76,6 +76,12 @@ function formatCount(value: number) {
   return new Intl.NumberFormat("en-GB").format(value)
 }
 
+function formatCoverageRate(trackedVotes: number, persistedVotes: number | null) {
+  if (persistedVotes == null || persistedVotes <= 0) return "N/A"
+  const percentage = (trackedVotes / persistedVotes) * 100
+  return `${percentage >= 10 ? percentage.toFixed(0) : percentage.toFixed(1)}%`
+}
+
 function chartHeightForWidth(width: number) {
   if (width < 480) return 380
   if (width < 900) return 344
@@ -465,7 +471,13 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
   const summaryCards = buildHackathonSummaryMetrics({
     eventCount: formatCount(overviewTotals.totalEvents),
     totalUsers: formatCount(overviewTotals.uniqueUsers),
-    voteSubmissions: formatCount(overviewTotals.voteSubmissions),
+    actualVotes:
+      dataset.voteTruth != null ? formatCount(dataset.voteTruth.totals.totalVotes) : "Unavailable",
+    trackedVoteSubmissions: formatCount(overviewTotals.voteSubmissions),
+    trackingCoverage: formatCoverageRate(
+      overviewTotals.voteSubmissions,
+      dataset.voteTruth?.totals.totalVotes ?? null
+    ),
     managerActions: formatCount(overviewTotals.managerActions),
   })
 
@@ -521,7 +533,7 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
               data: dataset.overview.map((row) => row.uniqueUsers),
             },
             {
-              name: "Vote submissions",
+              name: "Tracked submits",
               type: "bar",
               barMaxWidth: 26,
               data: dataset.overview.map((row) => row.voteSubmissions),
@@ -579,7 +591,7 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
     { stage: "Dialog viewed", value: votingTotals.dialogViews },
     { stage: "Score selected", value: votingTotals.scoreSelections },
     { stage: "Submit started", value: votingTotals.submitStarts },
-    { stage: "Vote submitted", value: votingTotals.submittedVotes },
+    { stage: "Tracked submit", value: votingTotals.submittedVotes },
   ].filter((item) => item.value > 0)
 
   const funnelChart =
@@ -1130,7 +1142,7 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
                 <MetricTile label="Auth completions" value={formatCount(authTotals.authCompletions)} />
                 <MetricTile label="Auth failures" value={formatCount(authTotals.authFailures + authTotals.googleFailures)} />
                 <MetricTile label="Dialog views" value={formatCount(votingTotals.dialogViews)} />
-                <MetricTile label="Submitted votes" value={formatCount(votingTotals.submittedVotes)} />
+                <MetricTile label="Tracked submits" value={formatCount(votingTotals.submittedVotes)} />
               </div>
             </CardContent>
           </Card>

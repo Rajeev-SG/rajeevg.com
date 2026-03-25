@@ -1,6 +1,10 @@
 import "server-only"
 
 import { getDummyHackathonAnalyticsDataset } from "@/lib/hackathon-reporting-dummy"
+import {
+  describeHackathonVoteTruthReconciliation,
+  getHackathonVoteTruth,
+} from "@/lib/hackathon-vote-truth"
 import type {
   AuthFunnelRow,
   DailyOverviewRow,
@@ -55,6 +59,7 @@ export async function buildHackathonAnalyticsDatasetFromGa4(notes: string[]): Pr
   const hostname = getHackathonHostname()
   const hostFilter = exactStringFilter("hostName", hostname)
   const dummy = getDummyHackathonAnalyticsDataset()
+  const voteTruthResultPromise = getHackathonVoteTruth()
 
   const [
     overviewBaseResponse,
@@ -618,7 +623,9 @@ export async function buildHackathonAnalyticsDatasetFromGa4(notes: string[]): Pr
     }))
     .sort((left, right) => left.eventDate.localeCompare(right.eventDate) || left.viewportCategory.localeCompare(right.viewportCategory))
 
+  const voteTruthResult = await voteTruthResultPromise
   const dataset = {
+    voteTruth: voteTruthResult.summary,
     overview: Array.from(overviewMap.values()).sort((left, right) => left.eventDate.localeCompare(right.eventDate)),
     eventBreakdown,
     entryPerformance,
@@ -630,13 +637,24 @@ export async function buildHackathonAnalyticsDatasetFromGa4(notes: string[]): Pr
     definitions: dummy.definitions,
   }
 
+  const hasLiveRows = hasMaterialRows(dataset)
+
   return {
     source: "live",
     generatedAt: new Date().toISOString(),
-    hasLiveRows: hasMaterialRows(dataset),
+    hasLiveRows,
     notes: [
-      `BigQuery modeled tables are still empty, so this live route is temporarily rendered from the shared GA4 property over ${HACKATHON_HISTORICAL_WINDOW.toLowerCase()}.`,
+      ...(hasLiveRows
+        ? [
+            `BigQuery modeled tables are still empty, so this live route is temporarily rendered from the shared GA4 property over ${HACKATHON_HISTORICAL_WINDOW.toLowerCase()}.`,
+          ]
+        : ["GA4 fallback also returned no material rows for the current hackathon host and reporting window."]),
       ...notes,
+      ...describeHackathonVoteTruthReconciliation({
+        trackedVotes: dataset.overview.reduce((sum, row) => sum + row.voteSubmissions, 0),
+        voteTruth: voteTruthResult.summary,
+        fallbackNote: voteTruthResult.note,
+      }),
     ],
     ...dataset,
   }
