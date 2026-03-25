@@ -506,13 +506,12 @@ function buildKeyEventChart(
           style: { background: palette.plotBackground, color: palette.text },
           x: { label: null, grid: true },
           y: { label: null },
-          color: { legend: true, range: [palette.accent[4], palette.accent[5]] },
           marks: [
             Plot.ruleX([0], { stroke: palette.grid }),
             Plot.barX(rows, {
               x: "eventCount",
               y: "eventName",
-              fill: "eventCount",
+              fill: palette.accent[5],
               insetBottom: 0.16,
             }),
             Plot.dot(rows, {

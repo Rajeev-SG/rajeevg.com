@@ -164,6 +164,34 @@ export function buildHackathonSummaryMetrics(metrics: {
   ]
 }
 
+export function HackathonReportingNotesCard({
+  notes,
+}: {
+  notes: string[]
+}) {
+  if (!notes.length) return null
+
+  return (
+    <Card className="border-border/70 bg-background/80">
+      <CardHeader>
+        <CardTitle className="text-base">Source reconciliation</CardTitle>
+        <CardDescription>
+          Fresh reporting boundaries and discrepancies for this surface.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ul className="space-y-3 text-sm leading-6 text-muted-foreground">
+          {notes.map((note) => (
+            <li key={note} className="rounded-2xl border border-border/60 bg-background/50 px-4 py-3">
+              {note}
+            </li>
+          ))}
+        </ul>
+      </CardContent>
+    </Card>
+  )
+}
+
 export function HackathonReportingShell({
   activeSurface,
   source,

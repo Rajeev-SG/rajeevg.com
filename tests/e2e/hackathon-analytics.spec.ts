@@ -42,7 +42,7 @@ test.describe("hackathon analytics dashboard", () => {
     const sourceToggle = page.getByRole("button", { name: "Dummy preview" })
     await sourceToggle.click()
 
-    await expect(page.getByText(/Dummy preview mode is turned on/i)).toBeVisible()
+    await expect(page.getByText(/Dummy preview mode is turned on/i).first()).toBeVisible()
     await expect(page.locator("canvas").first()).toBeVisible()
 
     await capture(
@@ -78,8 +78,8 @@ test.describe("hackathon analytics dashboard", () => {
       await liveButton.click()
       await expect(
         page.getByText(
-          /Live mode is reading directly from the dedicated hackathon_reporting dataset|The reporting tables are reachable, but they do not yet contain landed rows|Live mode could not reach the reporting dataset from this runtime/i,
-        ),
+          /Live mode is reading directly from the dedicated hackathon_reporting dataset|BigQuery modeled tables are still empty, so this live route is temporarily rendered from the shared GA4 property|Live mode could not reach the reporting dataset from this runtime, so the dashboard fell back to a GA4-derived modeled view|Live mode could not reach either the reporting dataset or the GA4 fallback from this runtime/i,
+        ).first(),
       ).toBeVisible()
     } else {
       await expect(liveButton).toBeDisabled()

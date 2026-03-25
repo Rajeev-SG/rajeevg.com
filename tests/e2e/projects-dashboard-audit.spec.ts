@@ -193,7 +193,7 @@ async function openBigQueryDashboard(page: Page) {
     page.getByRole("heading", { name: "Hackathon reporting dashboard" }),
   ).toBeVisible()
   await page.getByRole("button", { name: "Dummy preview" }).click()
-  await expect(page.getByText(/Dummy preview mode is turned on/i)).toBeVisible()
+  await expect(page.getByText(/Dummy preview mode is turned on/i).first()).toBeVisible()
 }
 
 async function openGa4Dashboard(page: Page) {

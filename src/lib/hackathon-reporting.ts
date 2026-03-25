@@ -1,8 +1,16 @@
 import "server-only"
 
-import { BigQuery } from "@google-cloud/bigquery"
 import { unstable_noStore as noStore } from "next/cache"
 
+import {
+  MODELED_TABLES,
+  getModeledTableRowCounts,
+  getRawExportTableCount,
+  hackathonDatasetPath,
+  runHackathonBigQueryQuery,
+} from "@/lib/hackathon-bigquery"
+import { getHackathonPropertyId } from "@/lib/hackathon-ga4-common"
+import { buildHackathonAnalyticsDatasetFromGa4 } from "@/lib/hackathon-reporting-fallback"
 import { getDummyHackathonAnalyticsDataset } from "@/lib/hackathon-reporting-dummy"
 import type {
   AuthFunnelRow,
@@ -16,53 +24,8 @@ import type {
   VotingFunnelRow,
 } from "@/lib/hackathon-reporting-types"
 
-const DEFAULT_PROJECT_ID = "personal-gws-1"
-const DEFAULT_DATASET_ID = "hackathon_reporting"
-const DEFAULT_CREDENTIALS_PATH = "/Users/rajeev/.codex/auth/google/ga4-mcp-personal-gws-1.json"
-
-type QueryableTable =
-  | "daily_overview"
-  | "event_breakdown"
-  | "entry_performance"
-  | "round_snapshots"
-  | "auth_funnel_daily"
-  | "voting_funnel_daily"
-  | "manager_operations_daily"
-  | "experience_overview_daily"
-
-function getBigQueryClient() {
-  const projectId = process.env.BIGQUERY_PROJECT_ID || process.env.GOOGLE_PROJECT_ID || DEFAULT_PROJECT_ID
-  const inlineCredentials = process.env.BIGQUERY_SERVICE_ACCOUNT_JSON || process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON
-
-  if (inlineCredentials) {
-    return new BigQuery({
-      projectId,
-      credentials: JSON.parse(inlineCredentials),
-    })
-  }
-
-  const keyFilename =
-    process.env.GOOGLE_APPLICATION_CREDENTIALS ||
-    process.env.BIGQUERY_SERVICE_ACCOUNT_PATH ||
-    DEFAULT_CREDENTIALS_PATH
-
-  return new BigQuery({
-    projectId,
-    keyFilename,
-  })
-}
-
-function datasetPath(table: QueryableTable) {
-  const projectId = process.env.BIGQUERY_PROJECT_ID || process.env.GOOGLE_PROJECT_ID || DEFAULT_PROJECT_ID
-  const datasetId = process.env.BIGQUERY_DATASET_ID || DEFAULT_DATASET_ID
-  return `\`${projectId}.${datasetId}.${table}\``
-}
-
 async function runQuery<T>(query: string) {
-  const client = getBigQueryClient()
-  const response = await client.query({ query, location: "EU" })
-  const rows = Array.isArray(response) ? response[0] : response
-  return rows as T[]
+  return runHackathonBigQueryQuery<T>(query)
 }
 
 function isDatasetEmpty(dataset: Omit<HackathonAnalyticsDataset, "source" | "generatedAt" | "hasLiveRows" | "notes">) {
@@ -82,6 +45,11 @@ export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalytics
   noStore()
 
   try {
+    const [modeledTableCounts, rawExportTableCount] = await Promise.all([
+      getModeledTableRowCounts(),
+      getRawExportTableCount(getHackathonPropertyId()),
+    ])
+
     const [
       overview,
       eventBreakdown,
@@ -108,7 +76,7 @@ export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalytics
           consent_grants AS consentGrants,
           manager_actions AS managerActions,
           total_score AS totalScore
-        FROM ${datasetPath("daily_overview")}
+        FROM ${hackathonDatasetPath("daily_overview")}
         ORDER BY event_date
       `),
       runQuery<EventBreakdownRow>(`
@@ -119,7 +87,7 @@ export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalytics
           competition_status AS competitionStatus,
           event_count AS eventCount,
           unique_users AS uniqueUsers
-        FROM ${datasetPath("event_breakdown")}
+        FROM ${hackathonDatasetPath("event_breakdown")}
         ORDER BY event_date, event_count DESC
       `),
       runQuery<EntryPerformanceRow>(`
@@ -138,7 +106,7 @@ export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalytics
           total_score AS totalScore,
           average_score AS averageScore,
           view_to_vote_rate AS viewToVoteRate
-        FROM ${datasetPath("entry_performance")}
+        FROM ${hackathonDatasetPath("entry_performance")}
         ORDER BY event_date, total_score DESC
       `),
       runQuery<RoundSnapshotRow>(`
@@ -150,7 +118,7 @@ export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalytics
           open_entry_count AS openEntryCount,
           participating_judge_count AS participatingJudgeCount,
           total_remaining_votes AS totalRemainingVotes
-        FROM ${datasetPath("round_snapshots")}
+        FROM ${hackathonDatasetPath("round_snapshots")}
         ORDER BY event_date
       `),
       runQuery<AuthFunnelRow>(`
@@ -166,7 +134,7 @@ export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalytics
           google_starts AS googleStarts,
           google_failures AS googleFailures,
           unique_users AS uniqueUsers
-        FROM ${datasetPath("auth_funnel_daily")}
+        FROM ${hackathonDatasetPath("auth_funnel_daily")}
         ORDER BY event_date, auth_completions DESC
       `),
       runQuery<VotingFunnelRow>(`
@@ -186,7 +154,7 @@ export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalytics
           unique_viewers AS uniqueViewers,
           unique_submitters AS uniqueSubmitters,
           submission_rate AS submissionRate
-        FROM ${datasetPath("voting_funnel_daily")}
+        FROM ${hackathonDatasetPath("voting_funnel_daily")}
         ORDER BY event_date, submittedVotes DESC
       `),
       runQuery<ManagerOperationsRow>(`
@@ -206,7 +174,7 @@ export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalytics
           finalize_failures AS finalizeFailures,
           resets,
           reset_failures AS resetFailures
-        FROM ${datasetPath("manager_operations_daily")}
+        FROM ${hackathonDatasetPath("manager_operations_daily")}
         ORDER BY event_date
       `),
       runQuery<ExperienceOverviewRow>(`
@@ -227,7 +195,7 @@ export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalytics
           avg_engaged_seconds AS avgEngagedSeconds,
           avg_interaction_count AS avgInteractionCount,
           avg_scroll_depth_percent AS avgScrollDepthPercent
-        FROM ${datasetPath("experience_overview_daily")}
+        FROM ${hackathonDatasetPath("experience_overview_daily")}
         ORDER BY event_date, viewportCategory
       `),
     ])
@@ -246,43 +214,58 @@ export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalytics
     }
 
     const hasLiveRows = !isDatasetEmpty(dataset)
+    const modeledRowCount = modeledTableCounts.reduce((sum, table) => sum + table.rowCount, 0)
 
-    return {
-      source: "live",
-      generatedAt: new Date().toISOString(),
-      hasLiveRows,
-      notes: hasLiveRows
-        ? [
-            "Live mode is reading directly from the dedicated hackathon_reporting dataset in BigQuery.",
-            "This route never reads the main rajeevg.com page analytics tables, which avoids the mixed-data problem from the old Looker shell.",
-          ]
-        : [
-            "The reporting tables are reachable, but they do not yet contain landed rows for this route to chart.",
-            "Use Dummy preview to inspect the full visual shell while Google finishes populating the export-linked reporting tables.",
-          ],
-      ...dataset,
+    if (hasLiveRows) {
+      return {
+        source: "live",
+        generatedAt: new Date().toISOString(),
+        hasLiveRows,
+        notes: [
+          "Live mode is reading directly from the dedicated hackathon_reporting dataset in BigQuery.",
+          `Warehouse reconciliation: ${modeledRowCount} rows are currently landed across ${MODELED_TABLES.length} modeled tables, while the raw export dataset ga4_${getHackathonPropertyId()} has ${rawExportTableCount} landed tables.`,
+          "This route never reads the main rajeevg.com page analytics tables, which avoids the mixed-data problem from the old Looker shell.",
+        ],
+        ...dataset,
+      }
     }
+
+    return buildHackathonAnalyticsDatasetFromGa4([
+      `Warehouse reconciliation: 0 rows are landed across ${MODELED_TABLES.length} modeled tables, and the raw export dataset ga4_${getHackathonPropertyId()} currently has ${rawExportTableCount} landed tables.`,
+      "This keeps the analytics route truthful and populated while the BigQuery-side pipeline catches up.",
+    ])
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown BigQuery error"
-    const dummy = getDummyHackathonAnalyticsDataset()
-    return {
-      source: "live",
-      generatedAt: new Date().toISOString(),
-      hasLiveRows: false,
-      notes: [
-        "Live mode could not reach the reporting dataset from this runtime.",
+    try {
+      return await buildHackathonAnalyticsDatasetFromGa4([
+        "Live mode could not reach the reporting dataset from this runtime, so the dashboard fell back to a GA4-derived modeled view.",
         message,
-        "Dummy preview is still available so the shell can be reviewed and exercised end to end.",
-      ],
-      overview: [],
-      eventBreakdown: [],
-      entryPerformance: [],
-      roundSnapshots: [],
-      authFunnel: [],
-      votingFunnel: [],
-      managerOperations: [],
-      experienceOverview: [],
-      definitions: dummy.definitions,
+      ])
+    } catch (fallbackError) {
+      const dummy = getDummyHackathonAnalyticsDataset()
+      const fallbackMessage =
+        fallbackError instanceof Error ? fallbackError.message : "Unknown GA4 fallback error"
+
+      return {
+        source: "live",
+        generatedAt: new Date().toISOString(),
+        hasLiveRows: false,
+        notes: [
+          "Live mode could not reach either the reporting dataset or the GA4 fallback from this runtime.",
+          message,
+          fallbackMessage,
+          "Dummy preview is still available so the shell can be reviewed and exercised end to end.",
+        ],
+        overview: [],
+        eventBreakdown: [],
+        entryPerformance: [],
+        roundSnapshots: [],
+        authFunnel: [],
+        votingFunnel: [],
+        managerOperations: [],
+        experienceOverview: [],
+        definitions: dummy.definitions,
+      }
     }
   }
 }

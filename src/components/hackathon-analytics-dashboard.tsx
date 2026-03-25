@@ -32,7 +32,11 @@ import type {
 } from "@/lib/hackathon-reporting-types"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { HackathonReportingShell, buildHackathonSummaryMetrics } from "@/components/hackathon-reporting-shell"
+import {
+  HackathonReportingNotesCard,
+  HackathonReportingShell,
+  buildHackathonSummaryMetrics,
+} from "@/components/hackathon-reporting-shell"
 import { cn } from "@/lib/utils"
 
 echarts.use([
@@ -1038,6 +1042,7 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
         summaryMetrics={summaryCards}
         topBadges={["Hackathon", "Host vote.rajeevg.com", "BigQuery"]}
       >
+      <HackathonReportingNotesCard notes={dataset.notes} />
 
       <SectionShell
         eyebrow="Pulse"

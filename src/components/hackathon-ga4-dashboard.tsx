@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   HackathonReportingShell,
+  HackathonReportingNotesCard,
   buildHackathonSummaryMetrics,
 } from "@/components/hackathon-reporting-shell"
 import type { HackathonGaReport } from "@/lib/hackathon-ga4-reporting-types"
@@ -70,6 +71,7 @@ export function HackathonGa4Dashboard({
         summaryMetrics={summaryMetrics}
         topBadges={["Hackathon", `Host ${report.hostname}`, "GA4"]}
       >
+      <HackathonReportingNotesCard notes={report.notes} />
 
       <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <Card className="border-border/70 bg-background/80">

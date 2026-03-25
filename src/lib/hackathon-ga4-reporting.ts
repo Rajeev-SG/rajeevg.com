@@ -1,8 +1,8 @@
 import "server-only"
 
-import { BetaAnalyticsDataClient, type protos } from "@google-analytics/data"
 import { unstable_noStore as noStore } from "next/cache"
 
+import { getModeledTableRowCounts, getRawExportTableCount } from "@/lib/hackathon-bigquery"
 import { getDummyHackathonAnalyticsDataset } from "@/lib/hackathon-reporting-dummy"
 import type {
   HackathonGaDefinition,
@@ -13,58 +13,22 @@ import type {
   HackathonGaReport,
   HackathonGaRoundStateRow,
 } from "@/lib/hackathon-ga4-reporting-types"
-
-const DEFAULT_PROPERTY_ID = "498363924"
-const DEFAULT_HACKATHON_STREAM_ID = "14214480224"
-const DEFAULT_HACKATHON_HOSTNAME = "vote.rajeevg.com"
-const DEFAULT_CREDENTIALS_PATH = "/Users/rajeev/.codex/auth/google/ga4-mcp-personal-gws-1.json"
-
-const HISTORICAL_WINDOW = "Last 30 complete days"
-
-const HACKATHON_EVENT_NAMES = [
-  "judge_auth_dialog_opened",
-  "judge_auth_email_requested",
-  "judge_auth_email_request_failed",
-  "judge_auth_completed",
-  "judge_auth_verify_failed",
-  "judge_auth_google_started",
-  "judge_auth_google_failed",
-  "vote_dialog_viewed",
-  "vote_score_selected",
-  "vote_submit_started",
-  "vote_submitted",
-  "vote_submit_failed",
-  "competition_state_snapshot",
-  "competition_round_started",
-  "competition_round_start_failed",
-  "competition_round_finalized",
-  "competition_round_finalize_failed",
-  "competition_round_reset",
-  "competition_round_reset_failed",
-  "entry_voting_state_changed",
-  "entry_voting_state_change_failed",
-  "workbook_picker_opened",
-  "workbook_upload_started",
-  "workbook_upload_completed",
-  "workbook_upload_failed",
-  "scoreboard_view_changed",
-  "scoreboard_summary_toggled",
-]
-
-const MANAGER_EVENT_NAMES = [
-  "workbook_picker_opened",
-  "workbook_upload_started",
-  "workbook_upload_completed",
-  "workbook_upload_failed",
-  "entry_voting_state_changed",
-  "entry_voting_state_change_failed",
-  "competition_round_started",
-  "competition_round_start_failed",
-  "competition_round_finalized",
-  "competition_round_finalize_failed",
-  "competition_round_reset",
-  "competition_round_reset_failed",
-]
+import {
+  HACKATHON_EVENT_NAMES,
+  HACKATHON_HISTORICAL_WINDOW,
+  HACKATHON_REPORTING_DATE_RANGE,
+  MANAGER_EVENT_NAMES,
+  RunReportResponse,
+  andFilter,
+  dimensionValue,
+  exactStringFilter,
+  getHackathonHostname,
+  getHackathonPropertyId,
+  getHackathonStreamId,
+  inListFilter,
+  metricValue,
+  runHackathonGa4Report,
+} from "@/lib/hackathon-ga4-common"
 
 const DEFINITIONS: HackathonGaDefinition[] = [
   { key: "customEvent:competition_status", label: "Competition Status", type: "dimension", meaning: "The active judging-round state when the event fired." },
@@ -85,105 +49,6 @@ const DEFINITIONS: HackathonGaDefinition[] = [
   { key: "customEvent:participating_judge_count", label: "Participating Judge Count", type: "metric", meaning: "How many judges had joined the completion denominator by scoring at least one project." },
   { key: "customEvent:total_remaining_votes", label: "Total Remaining Votes", type: "metric", meaning: "Outstanding vote obligations still blocking completion or finalization." },
 ]
-
-type ReportRow = protos.google.analytics.data.v1beta.IRow
-type RunReportResponse = protos.google.analytics.data.v1beta.IRunReportResponse
-
-let analyticsClient: BetaAnalyticsDataClient | null = null
-
-function getPropertyId() {
-  return process.env.GA4_PROPERTY_ID || DEFAULT_PROPERTY_ID
-}
-
-function getHackathonStreamId() {
-  return process.env.GA4_HACKATHON_STREAM_ID || DEFAULT_HACKATHON_STREAM_ID
-}
-
-function getHackathonHostname() {
-  return process.env.GA4_HACKATHON_HOSTNAME || DEFAULT_HACKATHON_HOSTNAME
-}
-
-function parseInlineCredentials() {
-  const inlineCredentials =
-    process.env.GA4_SERVICE_ACCOUNT_JSON || process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON
-
-  if (!inlineCredentials) return null
-
-  return JSON.parse(inlineCredentials) as {
-    client_email: string
-    private_key: string
-    project_id?: string
-  }
-}
-
-function getAnalyticsClient() {
-  if (analyticsClient) return analyticsClient
-
-  const inlineCredentials = parseInlineCredentials()
-  if (inlineCredentials) {
-    analyticsClient = new BetaAnalyticsDataClient({
-      credentials: inlineCredentials,
-      projectId: inlineCredentials.project_id,
-    })
-    return analyticsClient
-  }
-
-  const keyFilename =
-    process.env.GA4_SERVICE_ACCOUNT_PATH ||
-    process.env.GOOGLE_APPLICATION_CREDENTIALS ||
-    DEFAULT_CREDENTIALS_PATH
-
-  analyticsClient = new BetaAnalyticsDataClient({ keyFilename })
-  return analyticsClient
-}
-
-function dimensionValue(row: ReportRow | undefined, index: number) {
-  return row?.dimensionValues?.[index]?.value ?? ""
-}
-
-function metricValue(row: ReportRow | undefined, index: number) {
-  return Number(row?.metricValues?.[index]?.value ?? 0)
-}
-
-function exactStringFilter(fieldName: string, value: string) {
-  return {
-    filter: {
-      fieldName,
-      stringFilter: {
-        matchType: "EXACT" as const,
-        value,
-        caseSensitive: false,
-      },
-    },
-  }
-}
-
-function inListFilter(fieldName: string, values: string[]) {
-  return {
-    filter: {
-      fieldName,
-      inListFilter: {
-        values,
-        caseSensitive: true,
-      },
-    },
-  }
-}
-
-function andFilter(expressions: object[]) {
-  return { andGroup: { expressions } }
-}
-
-async function runReport(
-  request: Omit<protos.google.analytics.data.v1beta.IRunReportRequest, "property">
-) {
-  const client = getAnalyticsClient()
-  const [response] = await client.runReport({
-    property: `properties/${getPropertyId()}`,
-    ...request,
-  })
-  return response
-}
 
 function buildDummyReport(): HackathonGaReport {
   const dataset = getDummyHackathonAnalyticsDataset()
@@ -260,10 +125,10 @@ function buildDummyReport(): HackathonGaReport {
   return {
     source: "dummy",
     generatedAt: new Date().toISOString(),
-    propertyId: getPropertyId(),
+    propertyId: getHackathonPropertyId(),
     hostname: getHackathonHostname(),
     streamId: getHackathonStreamId(),
-    historicalWindow: HISTORICAL_WINDOW,
+    historicalWindow: HACKATHON_HISTORICAL_WINDOW,
     hasLiveRows: false,
     notes: [
       "Dummy preview is active, so this GA surface shows the intended reporting layout before the shared property returns hackathon rows.",
@@ -392,8 +257,8 @@ export async function getHackathonGa4Report(): Promise<HackathonGaReport> {
 
     const [overviewResponse, eventResponse, entryResponse, roundResponse, managerResponse] =
       await Promise.all([
-        runReport({
-          dateRanges: [{ startDate: "30daysAgo", endDate: "yesterday", name: "Last30Days" }],
+        runHackathonGa4Report({
+          dateRanges: [HACKATHON_REPORTING_DATE_RANGE],
           dimensions: [],
           metrics: [
             { name: "eventCount" },
@@ -403,8 +268,8 @@ export async function getHackathonGa4Report(): Promise<HackathonGaReport> {
           dimensionFilter: hostFilter,
           limit: 1,
         }),
-        runReport({
-          dateRanges: [{ startDate: "30daysAgo", endDate: "yesterday", name: "Last30Days" }],
+        runHackathonGa4Report({
+          dateRanges: [HACKATHON_REPORTING_DATE_RANGE],
           dimensions: [
             { name: "eventName" },
             { name: "customEvent:viewer_role" },
@@ -415,8 +280,8 @@ export async function getHackathonGa4Report(): Promise<HackathonGaReport> {
           orderBys: [{ metric: { metricName: "eventCount" }, desc: true }],
           limit: 50,
         }),
-        runReport({
-          dateRanges: [{ startDate: "30daysAgo", endDate: "yesterday", name: "Last30Days" }],
+        runHackathonGa4Report({
+          dateRanges: [HACKATHON_REPORTING_DATE_RANGE],
           dimensions: [
             { name: "customEvent:entry_slug" },
             { name: "customEvent:entry_name" },
@@ -435,8 +300,8 @@ export async function getHackathonGa4Report(): Promise<HackathonGaReport> {
           orderBys: [{ metric: { metricName: "eventCount" }, desc: true }],
           limit: 100,
         }),
-        runReport({
-          dateRanges: [{ startDate: "30daysAgo", endDate: "yesterday", name: "Last30Days" }],
+        runHackathonGa4Report({
+          dateRanges: [HACKATHON_REPORTING_DATE_RANGE],
           dimensions: [{ name: "customEvent:competition_status" }],
           metrics: [
             { name: "eventCount" },
@@ -452,8 +317,8 @@ export async function getHackathonGa4Report(): Promise<HackathonGaReport> {
           orderBys: [{ metric: { metricName: "eventCount" }, desc: true }],
           limit: 10,
         }),
-        runReport({
-          dateRanges: [{ startDate: "30daysAgo", endDate: "yesterday", name: "Last30Days" }],
+        runHackathonGa4Report({
+          dateRanges: [HACKATHON_REPORTING_DATE_RANGE],
           dimensions: [{ name: "eventName" }],
           metrics: [{ name: "eventCount" }],
           dimensionFilter: andFilter([hostFilter, inListFilter("eventName", MANAGER_EVENT_NAMES)]),
@@ -467,6 +332,11 @@ export async function getHackathonGa4Report(): Promise<HackathonGaReport> {
     const roundSurface = mapRoundSurface(roundResponse)
     const managerSurface = mapManagerSurface(managerResponse)
     const overview = mapOverview(overviewResponse, eventSurface)
+    const [modeledTableCounts, rawExportTableCount] = await Promise.all([
+      getModeledTableRowCounts(),
+      getRawExportTableCount(getHackathonPropertyId()),
+    ])
+    const modeledRowCount = modeledTableCounts.reduce((sum, row) => sum + row.rowCount, 0)
 
     const hasLiveRows =
       overview.eventCount > 0 ||
@@ -478,14 +348,15 @@ export async function getHackathonGa4Report(): Promise<HackathonGaReport> {
     return {
       source: "live",
       generatedAt: new Date().toISOString(),
-      propertyId: getPropertyId(),
+      propertyId: getHackathonPropertyId(),
       hostname,
       streamId: getHackathonStreamId(),
-      historicalWindow: HISTORICAL_WINDOW,
+      historicalWindow: HACKATHON_HISTORICAL_WINDOW,
       hasLiveRows,
       notes: hasLiveRows
         ? [
-            "Live mode is reading directly from the shared GA4 property through the official Google Analytics Data API client.",
+            "Live mode is reading directly from the shared GA4 property through the official Google Analytics Data API client, using the last 30 days including today.",
+            `Warehouse reconciliation: the modeled BigQuery dataset currently has ${modeledRowCount} landed rows across ${modeledTableCounts.length} tables, and ga4_${getHackathonPropertyId()} currently has ${rawExportTableCount} landed raw export tables.`,
             "The route is filtered to vote.rajeevg.com so the hackathon app stays separated from rajeevg.com content analytics even though both live on the same property.",
           ]
         : [

@@ -1,6 +1,6 @@
 # Google Tagging Stack Audit
 
-Last updated: 2026-03-24
+Last updated: 2026-03-25
 
 ## Current stack
 
@@ -18,7 +18,7 @@ Last updated: 2026-03-24
 - GCP project: `personal-gws-1`
 - BigQuery dataset: `personal-gws-1:ga4_498363924`
 - Dedicated MCP service account: `ga4-mcp@personal-gws-1.iam.gserviceaccount.com`
-- Hackathon fallback reporting route: `https://rajeevg.com/projects/hackathon-voting-analytics`
+- Hackathon warehouse-aware reporting route: `https://rajeevg.com/projects/hackathon-voting-analytics`
 - Hackathon GA4 API surface: `https://rajeevg.com/projects/hackathon-voting-analytics/google-analytics`
 - Legacy Looker Studio artifact retained only as a non-authoritative draft: `https://lookerstudio.google.com/reporting/b599834d-939c-4f4d-8b93-b5e3ccab699f`
 
@@ -40,7 +40,7 @@ Last updated: 2026-03-24
 - The property timezone is now `Europe/London` instead of `Etc/GMT`.
 - The live property now treats `contact_click`, `project_click`, and `profile_click` as portfolio key events.
 - Enhanced measurement was tightened so Google keeps default page views and SPA page changes, but does not add duplicate generic `scroll` and outbound `click` events on top of the site's custom instrumentation.
-- The primary hackathon reporting artifact is now the in-site fallback dashboard at `/projects/hackathon-voting-analytics`.
+- The primary hackathon reporting artifact is now the in-site warehouse-aware dashboard at `/projects/hackathon-voting-analytics`.
 - The shared GA4 property now also has a dedicated in-site GA API validation surface at `/projects/hackathon-voting-analytics/google-analytics`.
 - That route uses:
   - a dedicated BigQuery adapter
@@ -74,7 +74,7 @@ Last updated: 2026-03-24
   - linked stream: `properties/498363924/dataStreams/11542983613`
 - The BigQuery dataset `ga4_498363924` exists in `personal-gws-1`.
 - Project billing is enabled on `personal-gws-1`.
-- The export link is attached to the live web stream, but no `events_*` or `events_intraday_*` tables had landed yet at the time of audit. This is consistent with normal GA4 export latency immediately after activation and validation traffic.
+- The export link is attached to the live web stream, but as of 2026-03-25 no `events_*` or `events_intraday_*` tables had landed yet. The route-level reconciliation proof now confirms that this lag is real rather than a dashboard-query bug, because direct GA4 report queries return hackathon rows while raw export still has zero landed tables.
 
 ### GTM and consent
 
@@ -201,10 +201,10 @@ Last updated: 2026-03-24
 
 ### BigQuery landing data
 
-- Setup is complete, but validation is still waiting on export latency.
+- Setup is complete, service-account access is fixed, and the dashboard can now report the discrepancy honestly.
 - The BigQuery link exists and is correctly attached to the live web stream.
-- The dedicated reporting dataset for the hackathon fallback dashboard is `personal-gws-1:hackathon_reporting`.
-- On 2026-03-24, the reporting tables existed but still had zero rows:
+- The dedicated reporting dataset for the hackathon dashboard is `personal-gws-1:hackathon_reporting`.
+- On 2026-03-25, the reporting tables still had zero rows:
   - `auth_funnel_daily`
   - `daily_overview`
   - `entry_performance`
@@ -213,7 +213,8 @@ Last updated: 2026-03-24
   - `manager_operations_daily`
   - `round_snapshots`
   - `voting_funnel_daily`
-- Because of that, the hackathon dashboard is currently validated as a live-empty shell plus dummy-preview renderer, not as a populated historical report.
+- The raw export dataset `personal-gws-1:ga4_498363924` also still had `0` landed tables.
+- Because of that, the BigQuery route now uses a GA4-derived modeled fallback instead of pretending the warehouse has landed data.
 
 ### Hackathon reporting route
 
@@ -222,6 +223,10 @@ Last updated: 2026-03-24
 - It is the primary reporting fallback for the hackathon voting app.
 - It was explicitly built because the Looker Studio artifact was not strong enough to trust as the historic reporting surface.
 - It is isolated from main-site page analytics and does not read the generic `rajeevg.com` content-reporting tables.
+- It now exposes source-reconciliation notes so the page can say whether it is rendering:
+  - modeled BigQuery rows
+  - a GA4-derived modeled fallback
+  - or an error-backed fallback
 - Runtime envs now set on the Vercel production project:
   - `BIGQUERY_PROJECT_ID`
   - `BIGQUERY_DATASET_ID`
@@ -230,18 +235,32 @@ Last updated: 2026-03-24
   - `GA4_SERVICE_ACCOUNT_JSON`
   - `GA4_HACKATHON_HOSTNAME`
   - `GA4_HACKATHON_STREAM_ID`
-- Fresh proof on 2026-03-24:
+- Fresh proof on 2026-03-25:
   - `curl -I https://rajeevg.com/projects/hackathon-voting-analytics` returned `200`
   - `curl -I https://rajeevg.com/projects/hackathon-voting-analytics/google-analytics` returned `200`
   - production desktop Playwright proof passed
   - production mobile Playwright proof passed
+  - production shared-shell consistency proof passed
+  - exhaustive production dashboard audit passed for the hackathon BigQuery route, the hackathon GA4 route, and `/projects/site-analytics`
   - `analytics_mcp.run_report` accepted the hackathon property query shapes used by the GA API route without metric or dimension errors
+  - direct GA4 proof for `hostName = vote.rajeevg.com` returned live rows including:
+    - `competition_state_snapshot`: `159`
+    - `page_view`: `73`
+    - `vote_score_selected`: `67`
+    - `judge_auth_dialog_opened`: `32`
+    - `vote_submitted`: `8`
+    - `judge_auth_completed`: `3`
+    - `workbook_upload_completed`: `3`
   - screenshots:
     - [`desktop-light-top.png`](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260324/desktop-light-top.png)
     - [`desktop-light-voting-funnel.png`](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260324/desktop-light-voting-funnel.png)
     - [`mobile-dark-top.png`](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260324/mobile-dark-top.png)
     - [`output/playwright/hackathon-ga4-dashboard-20260324/desktop-light-top.png`](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-ga4-dashboard-20260324/desktop-light-top.png)
     - [`output/playwright/hackathon-ga4-dashboard-20260324/mobile-dark-top.png`](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-ga4-dashboard-20260324/mobile-dark-top.png)
+    - [`output/playwright/hackathon-reporting-consistency-20260324/desktop-light-bigquery-shell.png`](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260324/desktop-light-bigquery-shell.png)
+    - [`output/playwright/hackathon-reporting-consistency-20260324/desktop-light-ga4-shell.png`](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260324/desktop-light-ga4-shell.png)
+  - reconciliation proof:
+    - [`output/acceptance/reporting-reconciliation-20260325/proof.md`](/Users/rajeev/Code/rajeevg.com/output/acceptance/reporting-reconciliation-20260325/proof.md)
 
 ## Audit verdict
 

@@ -1,6 +1,6 @@
 # Hackathon Voting Analytics Dashboard
 
-Last updated: 2026-03-24
+Last updated: 2026-03-25
 
 ## Purpose
 
@@ -14,11 +14,19 @@ They exist because the Looker Studio artifact was not trustworthy enough for the
 
 Both routes now share the same reporting shell: the same hero, route tabs, source toggle, summary cards, and source card all stay in the same position so switching between BigQuery and GA4 does not cause a visible re-layout at the top of the page.
 
+As of 2026-03-25, the BigQuery route is also warehouse-aware:
+
+- if modeled BigQuery rows are available, it reads `personal-gws-1.hackathon_reporting`
+- if the modeled tables are still empty, it renders a GA4-derived modeled fallback and says so in the notes card
+- if the runtime cannot reach BigQuery at all, it also falls back to GA4 and exposes the runtime failure in the notes
+
 ## What the routes do
 
 - BigQuery dashboard:
-  - reads live reporting rows from `personal-gws-1.hackathon_reporting`
+  - reads live reporting rows from `personal-gws-1.hackathon_reporting` when modeled rows exist
   - never reads the main `rajeevg.com` page-reporting tables
+  - falls back to a GA4-derived modeled dataset when the warehouse is empty or unreachable
+  - surfaces warehouse reconciliation notes so the viewer can see whether the page is using modeled BigQuery rows or fallback GA4 rows
   - lets the viewer switch between:
   - `ECharts`
   - `Observable Plot`
@@ -84,9 +92,9 @@ The dummy dataset is implemented in:
 
 - [/Users/rajeev/Code/rajeevg.com/src/lib/hackathon-reporting-dummy.ts](/Users/rajeev/Code/rajeevg.com/src/lib/hackathon-reporting-dummy.ts)
 
-## Verified status on 2026-03-24
+## Verified status on 2026-03-25
 
-Both routes are live and verified, with an honest data caveat.
+Both routes are live, verified, and now reconcile the source discrepancy honestly instead of collapsing to an empty shell.
 
 Production proof:
 
@@ -95,11 +103,33 @@ Production proof:
 - Desktop Playwright proof passed on production
 - Mobile Playwright proof passed on production
 - Desktop and mobile shared-shell consistency proof passed on production
+- Exhaustive production dashboard audit passed for:
+  - `/projects/hackathon-voting-analytics`
+  - `/projects/hackathon-voting-analytics/google-analytics`
+  - `/projects/site-analytics`
 - `analytics_mcp.run_report` accepted the exact hackathon GA query shapes used by the GA4 route:
   - `eventName + customEvent:viewer_role + customEvent:competition_status`
   - `customEvent:competition_status + averageCustomEvent:entry_count/open_entry_count/participating_judge_count/total_remaining_votes`
 
-Current table-row counts in `personal-gws-1.hackathon_reporting`:
+Direct GA4 proof for `hostName = vote.rajeevg.com` in the last 30 days including today returned live rows, including:
+
+- `competition_state_snapshot`: `159` events across `16` users
+- `page_view`: `73` events across `16` users
+- `vote_score_selected`: `67` events across `3` users
+- `judge_auth_dialog_opened`: `32` events across `13` users
+- `vote_submitted`: `8` events across `3` users
+- `judge_auth_completed`: `3` events across `3` users
+- `workbook_upload_completed`: `3` events across `1` user
+
+Current warehouse state:
+
+- Raw export dataset `personal-gws-1:ga4_498363924`
+  - landed table count: `0`
+- Modeled dataset `personal-gws-1:hackathon_reporting`
+  - landed table count: `8`
+  - total row count: `0`
+
+Current modeled table-row counts in `personal-gws-1.hackathon_reporting`:
 
 - `auth_funnel_daily`: `0`
 - `daily_overview`: `0`
@@ -110,9 +140,13 @@ Current table-row counts in `personal-gws-1.hackathon_reporting`:
 - `round_snapshots`: `0`
 - `voting_funnel_daily`: `0`
 
-That means the live route is wired correctly, but the dashboard is still shell-first until the raw export starts landing rows.
+That means the current discrepancy is real and explained:
 
-For the GA4 API surface, the shared property is reachable and the promoted custom definitions are accepted by the GA Data API, but the host-filtered reporting window still returns `0` hackathon rows right now.
+- the shared GA4 property has live hackathon rows
+- raw BigQuery export has not landed tables yet
+- the modeled warehouse therefore also has no rows
+
+Because of that, the public BigQuery route currently renders a GA4-derived modeled fallback and says so in the live notes card. The GA4 API route reads the host-filtered property directly and now includes `today`, so it shows the real hackathon traffic instead of the earlier false-empty window.
 
 ## Evidence
 
@@ -130,10 +164,17 @@ For the GA4 API surface, the shared property is reachable and the promoted custo
   - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-ga4-dashboard-20260324/desktop-light-top.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-ga4-dashboard-20260324/desktop-light-top.png)
 - GA4 mobile screenshot:
   - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-ga4-dashboard-20260324/mobile-dark-top.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-ga4-dashboard-20260324/mobile-dark-top.png)
+- Shared-shell consistency screenshots:
+  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260324/desktop-light-bigquery-shell.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260324/desktop-light-bigquery-shell.png)
+  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260324/desktop-light-ga4-shell.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260324/desktop-light-ga4-shell.png)
+  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260324/mobile-dark-bigquery-shell.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260324/mobile-dark-bigquery-shell.png)
+  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260324/mobile-dark-ga4-shell.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260324/mobile-dark-ga4-shell.png)
 - Exhaustive local dashboard audit artifacts:
   - [/Users/rajeev/Code/rajeevg.com/output/acceptance/projects-dashboard-audit-20260325/local](/Users/rajeev/Code/rajeevg.com/output/acceptance/projects-dashboard-audit-20260325/local)
 - Exhaustive production dashboard audit artifacts:
   - [/Users/rajeev/Code/rajeevg.com/output/acceptance/projects-dashboard-audit-20260325/prod](/Users/rajeev/Code/rajeevg.com/output/acceptance/projects-dashboard-audit-20260325/prod)
+- Reconciliation proof:
+  - [/Users/rajeev/Code/rajeevg.com/output/acceptance/reporting-reconciliation-20260325/proof.md](/Users/rajeev/Code/rajeevg.com/output/acceptance/reporting-reconciliation-20260325/proof.md)
 
 The exhaustive audit covers every chart, chart label region, summary block, and long-form list surface on:
 

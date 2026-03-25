@@ -38,12 +38,12 @@ test.describe("hackathon ga4 reporting surface", () => {
 
     const liveNote = page.getByText(
       /Live mode is reading directly from the shared GA4 property|The GA4 property is reachable, but no hackathon-host rows were returned|Live GA mode could not complete the report request/i,
-    )
+    ).first()
     await expect(liveNote).toBeVisible()
 
     await page.getByRole("button", { name: "Dummy preview" }).click()
     await expect(
-      page.getByText(/Dummy preview is active, so this GA surface shows the intended reporting layout/i),
+      page.getByText(/Dummy preview is active, so this GA surface shows the intended reporting layout/i).first(),
     ).toBeVisible()
 
     await capture(
