@@ -57,6 +57,7 @@ Last updated: 2026-03-25
   - `analytics_mcp`
   - `gcloud`
   - `gtm_mcp`
+- The reporting adapters now trim whitespace on `GA4_*` and `BIGQUERY_*` env values before using them in exact filters or dataset lookups, which fixed a production false-zero on the hackathon routes when Vercel env values contained trailing newlines.
 
 ## Verified platform state
 

@@ -20,6 +20,8 @@ As of 2026-03-25, the BigQuery route is also warehouse-aware:
 - if the modeled tables are still empty, it renders a GA4-derived modeled fallback and says so in the notes card
 - if the runtime cannot reach BigQuery at all, it also falls back to GA4 and exposes the runtime failure in the notes
 
+The production GA4 path also now trims env-derived hostname and stream values before using them in exact filters. That matters because the Vercel env values for the hackathon hostname and stream had trailing newlines during the post-event audit, which otherwise caused a false-zero GA4 result.
+
 ## What the routes do
 
 - BigQuery dashboard:

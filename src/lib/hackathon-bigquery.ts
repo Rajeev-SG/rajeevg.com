@@ -23,18 +23,27 @@ type RowCountRow = {
   row_count: number | string
 }
 
+function cleanEnvValue(value: string | undefined) {
+  return value?.trim()
+}
+
 export function getHackathonBigQueryProjectId() {
-  return process.env.BIGQUERY_PROJECT_ID || process.env.GOOGLE_PROJECT_ID || DEFAULT_PROJECT_ID
+  return (
+    cleanEnvValue(process.env.BIGQUERY_PROJECT_ID) ||
+    cleanEnvValue(process.env.GOOGLE_PROJECT_ID) ||
+    DEFAULT_PROJECT_ID
+  )
 }
 
 export function getHackathonBigQueryDatasetId() {
-  return process.env.BIGQUERY_DATASET_ID || DEFAULT_DATASET_ID
+  return cleanEnvValue(process.env.BIGQUERY_DATASET_ID) || DEFAULT_DATASET_ID
 }
 
 export function getHackathonBigQueryClient() {
   const projectId = getHackathonBigQueryProjectId()
   const inlineCredentials =
-    process.env.BIGQUERY_SERVICE_ACCOUNT_JSON || process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON
+    cleanEnvValue(process.env.BIGQUERY_SERVICE_ACCOUNT_JSON) ||
+    cleanEnvValue(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON)
 
   if (inlineCredentials) {
     return new BigQuery({
@@ -44,8 +53,8 @@ export function getHackathonBigQueryClient() {
   }
 
   const keyFilename =
-    process.env.GOOGLE_APPLICATION_CREDENTIALS ||
-    process.env.BIGQUERY_SERVICE_ACCOUNT_PATH ||
+    cleanEnvValue(process.env.GOOGLE_APPLICATION_CREDENTIALS) ||
+    cleanEnvValue(process.env.BIGQUERY_SERVICE_ACCOUNT_PATH) ||
     DEFAULT_CREDENTIALS_PATH
 
   return new BigQuery({

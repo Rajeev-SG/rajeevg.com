@@ -88,21 +88,26 @@ export type RunReportResponse = protos.google.analytics.data.v1beta.IRunReportRe
 
 let analyticsClient: BetaAnalyticsDataClient | null = null
 
+function cleanEnvValue(value: string | undefined) {
+  return value?.trim()
+}
+
 export function getHackathonPropertyId() {
-  return process.env.GA4_PROPERTY_ID || DEFAULT_PROPERTY_ID
+  return cleanEnvValue(process.env.GA4_PROPERTY_ID) || DEFAULT_PROPERTY_ID
 }
 
 export function getHackathonStreamId() {
-  return process.env.GA4_HACKATHON_STREAM_ID || DEFAULT_HACKATHON_STREAM_ID
+  return cleanEnvValue(process.env.GA4_HACKATHON_STREAM_ID) || DEFAULT_HACKATHON_STREAM_ID
 }
 
 export function getHackathonHostname() {
-  return process.env.GA4_HACKATHON_HOSTNAME || DEFAULT_HACKATHON_HOSTNAME
+  return cleanEnvValue(process.env.GA4_HACKATHON_HOSTNAME) || DEFAULT_HACKATHON_HOSTNAME
 }
 
 function parseInlineCredentials() {
   const inlineCredentials =
-    process.env.GA4_SERVICE_ACCOUNT_JSON || process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON
+    cleanEnvValue(process.env.GA4_SERVICE_ACCOUNT_JSON) ||
+    cleanEnvValue(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON)
 
   if (!inlineCredentials) return null
 
@@ -126,8 +131,8 @@ export function getHackathonAnalyticsClient() {
   }
 
   const keyFilename =
-    process.env.GA4_SERVICE_ACCOUNT_PATH ||
-    process.env.GOOGLE_APPLICATION_CREDENTIALS ||
+    cleanEnvValue(process.env.GA4_SERVICE_ACCOUNT_PATH) ||
+    cleanEnvValue(process.env.GOOGLE_APPLICATION_CREDENTIALS) ||
     DEFAULT_CREDENTIALS_PATH
 
   analyticsClient = new BetaAnalyticsDataClient({ keyFilename })

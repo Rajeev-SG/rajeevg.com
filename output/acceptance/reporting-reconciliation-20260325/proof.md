@@ -16,6 +16,7 @@ Finish the reporting stack for the hackathon voting analytics surfaces, reconcil
 
 - The BigQuery route now uses shared warehouse helpers in `src/lib/hackathon-bigquery.ts`.
 - The hackathon GA4 route and the BigQuery fallback path now share host, stream, property, and date-window helpers in `src/lib/hackathon-ga4-common.ts`.
+- The env readers now trim surrounding whitespace and trailing newlines before using `GA4_*` and `BIGQUERY_*` values, which fixed the production hostname filter bug.
 - The BigQuery route now falls back to a GA4-derived modeled dataset from `src/lib/hackathon-reporting-fallback.ts` when:
   - the modeled warehouse tables are empty
   - or the runtime cannot reach BigQuery
@@ -75,6 +76,17 @@ That gives the site three useful properties at once:
 - no false claim that BigQuery has landed rows when it has not
 - no mixed reading from unrelated `rajeevg.com` page-reporting tables
 
+## Root cause of the production false-zero
+
+The public GA4 route originally still showed zeroes after the first deploy because the Vercel production env values for the hackathon hostname and stream ID contained trailing newlines:
+
+- `GA4_HACKATHON_HOSTNAME="vote.rajeevg.com\n"`
+- `GA4_HACKATHON_STREAM_ID="14214480224\n"`
+
+The GA4 route uses an exact hostname filter, so the newline made the filter miss every row even though the underlying GA4 property had hackathon traffic. The same bug also made the BigQuery route default back to dummy mode, because its GA4-derived fallback could not find rows either.
+
+The production fix was to normalize those env-derived values in code before they are used.
+
 ## Validation
 
 ### Repo checks
@@ -93,6 +105,8 @@ That gives the site three useful properties at once:
 
 - Vercel production deployment:
   - `https://rajeevg-d0sokorwb-rajeevgills-projects.vercel.app`
+- Final env-normalization deployment:
+  - `https://rajeevg-pkc58n3hk-rajeevgills-projects.vercel.app`
 - `E2E_BASE_URL=https://rajeevg.com pnpm exec playwright test tests/e2e/hackathon-analytics.spec.ts tests/e2e/hackathon-ga4.spec.ts tests/e2e/hackathon-reporting-consistency.spec.ts --reporter=list --workers=1`
   - Result: `6 passed`
 - `E2E_BASE_URL=https://rajeevg.com pnpm exec playwright test tests/e2e/projects-dashboard-audit.spec.ts --reporter=list --workers=1`

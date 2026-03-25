@@ -90,21 +90,26 @@ type RunRealtimeReportResponse = protos.google.analytics.data.v1beta.IRunRealtim
 
 let analyticsClient: BetaAnalyticsDataClient | null = null
 
+function cleanEnvValue(value: string | undefined) {
+  return value?.trim()
+}
+
 function getPropertyId() {
-  return process.env.GA4_PROPERTY_ID || DEFAULT_PROPERTY_ID
+  return cleanEnvValue(process.env.GA4_PROPERTY_ID) || DEFAULT_PROPERTY_ID
 }
 
 function getStreamId() {
-  return process.env.GA4_SITE_STREAM_ID || DEFAULT_STREAM_ID
+  return cleanEnvValue(process.env.GA4_SITE_STREAM_ID) || DEFAULT_STREAM_ID
 }
 
 function getSiteHostname() {
-  return process.env.GA4_SITE_HOSTNAME || DEFAULT_SITE_HOSTNAME
+  return cleanEnvValue(process.env.GA4_SITE_HOSTNAME) || DEFAULT_SITE_HOSTNAME
 }
 
 function parseInlineCredentials() {
   const inlineCredentials =
-    process.env.GA4_SERVICE_ACCOUNT_JSON || process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON
+    cleanEnvValue(process.env.GA4_SERVICE_ACCOUNT_JSON) ||
+    cleanEnvValue(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON)
 
   if (!inlineCredentials) return null
 
@@ -128,8 +133,8 @@ function getAnalyticsClient() {
   }
 
   const keyFilename =
-    process.env.GA4_SERVICE_ACCOUNT_PATH ||
-    process.env.GOOGLE_APPLICATION_CREDENTIALS ||
+    cleanEnvValue(process.env.GA4_SERVICE_ACCOUNT_PATH) ||
+    cleanEnvValue(process.env.GOOGLE_APPLICATION_CREDENTIALS) ||
     DEFAULT_CREDENTIALS_PATH
 
   analyticsClient = new BetaAnalyticsDataClient({ keyFilename })
