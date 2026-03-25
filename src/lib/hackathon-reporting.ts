@@ -10,10 +10,10 @@ import {
   runHackathonBigQueryQuery,
 } from "@/lib/hackathon-bigquery"
 import { getHackathonPropertyId } from "@/lib/hackathon-ga4-common"
-import { buildHackathonAnalyticsDatasetFromGa4 } from "@/lib/hackathon-reporting-fallback"
 import { getDummyHackathonAnalyticsDataset } from "@/lib/hackathon-reporting-dummy"
 import {
   describeHackathonVoteTruthReconciliation,
+  getHackathonEventDay,
   getHackathonVoteTruth,
 } from "@/lib/hackathon-vote-truth"
 import type {
@@ -45,6 +45,10 @@ function isDatasetEmpty(dataset: Omit<HackathonAnalyticsDataset, "source" | "gen
   )
 }
 
+function whereEventDate(eventDayIsoDate: string | null) {
+  return eventDayIsoDate ? `WHERE event_date = DATE '${eventDayIsoDate}'` : ""
+}
+
 export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalyticsDataset> {
   noStore()
 
@@ -54,6 +58,8 @@ export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalytics
       getRawExportTableCount(getHackathonPropertyId()),
       getHackathonVoteTruth(),
     ])
+    const eventDay = getHackathonEventDay(voteTruthResult.summary)
+    const eventDateClause = whereEventDate(eventDay?.isoDate ?? null)
 
     const [
       overview,
@@ -82,6 +88,7 @@ export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalytics
           manager_actions AS managerActions,
           total_score AS totalScore
         FROM ${hackathonDatasetPath("daily_overview")}
+        ${eventDateClause}
         ORDER BY event_date
       `),
       runQuery<EventBreakdownRow>(`
@@ -93,6 +100,7 @@ export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalytics
           event_count AS eventCount,
           unique_users AS uniqueUsers
         FROM ${hackathonDatasetPath("event_breakdown")}
+        ${eventDateClause}
         ORDER BY event_date, event_count DESC
       `),
       runQuery<EntryPerformanceRow>(`
@@ -112,6 +120,7 @@ export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalytics
           average_score AS averageScore,
           view_to_vote_rate AS viewToVoteRate
         FROM ${hackathonDatasetPath("entry_performance")}
+        ${eventDateClause}
         ORDER BY event_date, total_score DESC
       `),
       runQuery<RoundSnapshotRow>(`
@@ -124,6 +133,7 @@ export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalytics
           participating_judge_count AS participatingJudgeCount,
           total_remaining_votes AS totalRemainingVotes
         FROM ${hackathonDatasetPath("round_snapshots")}
+        ${eventDateClause}
         ORDER BY event_date
       `),
       runQuery<AuthFunnelRow>(`
@@ -140,6 +150,7 @@ export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalytics
           google_failures AS googleFailures,
           unique_users AS uniqueUsers
         FROM ${hackathonDatasetPath("auth_funnel_daily")}
+        ${eventDateClause}
         ORDER BY event_date, auth_completions DESC
       `),
       runQuery<VotingFunnelRow>(`
@@ -160,6 +171,7 @@ export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalytics
           unique_submitters AS uniqueSubmitters,
           submission_rate AS submissionRate
         FROM ${hackathonDatasetPath("voting_funnel_daily")}
+        ${eventDateClause}
         ORDER BY event_date, submittedVotes DESC
       `),
       runQuery<ManagerOperationsRow>(`
@@ -180,6 +192,7 @@ export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalytics
           resets,
           reset_failures AS resetFailures
         FROM ${hackathonDatasetPath("manager_operations_daily")}
+        ${eventDateClause}
         ORDER BY event_date
       `),
       runQuery<ExperienceOverviewRow>(`
@@ -201,6 +214,7 @@ export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalytics
           avg_interaction_count AS avgInteractionCount,
           avg_scroll_depth_percent AS avgScrollDepthPercent
         FROM ${hackathonDatasetPath("experience_overview_daily")}
+        ${eventDateClause}
         ORDER BY event_date, viewportCategory
       `),
     ])
@@ -230,7 +244,7 @@ export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalytics
         generatedAt: new Date().toISOString(),
         hasLiveRows,
         notes: [
-          "Live mode is reading directly from the dedicated hackathon_reporting dataset in BigQuery.",
+          `Live mode is reading directly from the dedicated hackathon_reporting dataset in BigQuery, scoped to ${eventDay?.label ?? "the live event day"}.`,
           `Warehouse reconciliation: ${modeledRowCount} rows are currently landed across ${MODELED_TABLES.length} modeled tables, while the raw export dataset ga4_${getHackathonPropertyId()} has ${rawExportTableCount} landed tables.`,
           "This route never reads the main rajeevg.com page analytics tables, which avoids the mixed-data problem from the old Looker shell.",
           ...describeHackathonVoteTruthReconciliation({
@@ -243,43 +257,49 @@ export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalytics
       }
     }
 
-    return buildHackathonAnalyticsDatasetFromGa4([
-      `Warehouse reconciliation: 0 rows are landed across ${MODELED_TABLES.length} modeled tables, and the raw export dataset ga4_${getHackathonPropertyId()} currently has ${rawExportTableCount} landed tables.`,
-      "This keeps the analytics route truthful and populated while the BigQuery-side pipeline catches up.",
-    ])
+    return {
+      source: "live",
+      generatedAt: new Date().toISOString(),
+      hasLiveRows: false,
+      notes: [
+        "BigQuery modeled tables are still empty, so this route is currently showing warehouse status only.",
+        `Warehouse reconciliation: 0 rows are landed across ${MODELED_TABLES.length} modeled tables, and the raw export dataset ga4_${getHackathonPropertyId()} currently has ${rawExportTableCount} landed tables.`,
+        "No GA4-derived fallback metrics are rendered on this route anymore, so the BigQuery page stays strictly warehouse-scoped.",
+      ],
+      voteTruth: voteTruthResult.summary,
+      overview: [],
+      eventBreakdown: [],
+      entryPerformance: [],
+      roundSnapshots: [],
+      authFunnel: [],
+      votingFunnel: [],
+      managerOperations: [],
+      experienceOverview: [],
+      definitions: dummy.definitions,
+    }
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown BigQuery error"
-    try {
-      return await buildHackathonAnalyticsDatasetFromGa4([
-        "Live mode could not reach the reporting dataset from this runtime, so the dashboard fell back to a GA4-derived modeled view.",
-        message,
-      ])
-    } catch (fallbackError) {
-      const dummy = getDummyHackathonAnalyticsDataset()
-      const fallbackMessage =
-        fallbackError instanceof Error ? fallbackError.message : "Unknown GA4 fallback error"
+    const dummy = getDummyHackathonAnalyticsDataset()
 
-      return {
-        source: "live",
-        generatedAt: new Date().toISOString(),
-        hasLiveRows: false,
-        notes: [
-          "Live mode could not reach either the reporting dataset or the GA4 fallback from this runtime.",
-          message,
-          fallbackMessage,
-          "Dummy preview is still available so the shell can be reviewed and exercised end to end.",
-        ],
-        voteTruth: null,
-        overview: [],
-        eventBreakdown: [],
-        entryPerformance: [],
-        roundSnapshots: [],
-        authFunnel: [],
-        votingFunnel: [],
-        managerOperations: [],
-        experienceOverview: [],
-        definitions: dummy.definitions,
-      }
+    return {
+      source: "live",
+      generatedAt: new Date().toISOString(),
+      hasLiveRows: false,
+      notes: [
+        "Live mode could not reach the reporting dataset from this runtime.",
+        message,
+        "Dummy preview is still available so the shell can be reviewed and exercised end to end.",
+      ],
+      voteTruth: null,
+      overview: [],
+      eventBreakdown: [],
+      entryPerformance: [],
+      roundSnapshots: [],
+      authFunnel: [],
+      votingFunnel: [],
+      managerOperations: [],
+      experienceOverview: [],
+      definitions: dummy.definitions,
     }
   }
 }

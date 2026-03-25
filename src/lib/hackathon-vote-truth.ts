@@ -37,9 +37,21 @@ export type HackathonVoteTruthResult = {
   note: string | null
 }
 
+export type HackathonEventDay = {
+  isoDate: string
+  label: string
+}
+
 function formatCoverageRate(value: number) {
   const percentage = value * 100
   return `${percentage >= 10 ? percentage.toFixed(0) : percentage.toFixed(1)}%`
+}
+
+function toIsoDate(value: string | null | undefined) {
+  if (!value) return null
+  const parsed = new Date(value)
+  if (Number.isNaN(parsed.getTime())) return null
+  return parsed.toISOString().slice(0, 10)
 }
 
 function getHackathonVotingAppBaseUrl() {
@@ -163,6 +175,25 @@ export async function getHackathonVoteTruth(): Promise<HackathonVoteTruthResult>
       summary: null,
       note: error instanceof Error ? error.message : "Unknown source-of-truth summary error.",
     }
+  }
+}
+
+export function getHackathonEventDay(summary: HackathonVoteTruthSummary | null): HackathonEventDay | null {
+  const isoDate =
+    toIsoDate(summary?.startedAt) ||
+    toIsoDate(summary?.finalizedAt) ||
+    toIsoDate(summary?.generatedAt)
+
+  if (!isoDate) return null
+
+  return {
+    isoDate,
+    label: new Intl.DateTimeFormat("en-GB", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      timeZone: "UTC",
+    }).format(new Date(`${isoDate}T00:00:00Z`)),
   }
 }
 

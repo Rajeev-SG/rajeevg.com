@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 
 import { HackathonAnalyticsDashboard } from "@/components/hackathon-analytics-dashboard"
+import { getHackathonBigQueryStatus } from "@/lib/hackathon-bigquery-status"
 import { getHackathonAnalyticsDataset } from "@/lib/hackathon-reporting"
 import { getDummyHackathonAnalyticsDataset } from "@/lib/hackathon-reporting-dummy"
 import { site } from "@/lib/site"
@@ -8,12 +9,13 @@ import { site } from "@/lib/site"
 export const runtime = "nodejs"
 
 export default async function HackathonVotingAnalyticsPage() {
-  const [live, dummy] = await Promise.all([
+  const [live, dummy, status] = await Promise.all([
     getHackathonAnalyticsDataset(),
     Promise.resolve(getDummyHackathonAnalyticsDataset()),
+    getHackathonBigQueryStatus(),
   ])
 
-  return <HackathonAnalyticsDashboard live={live} dummy={dummy} />
+  return <HackathonAnalyticsDashboard live={live} dummy={dummy} status={status} />
 }
 
 export async function generateMetadata(): Promise<Metadata> {

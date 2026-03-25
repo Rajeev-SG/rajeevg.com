@@ -3,6 +3,7 @@ import "server-only"
 import { getDummyHackathonAnalyticsDataset } from "@/lib/hackathon-reporting-dummy"
 import {
   describeHackathonVoteTruthReconciliation,
+  getHackathonEventDay,
   getHackathonVoteTruth,
 } from "@/lib/hackathon-vote-truth"
 import type {
@@ -19,11 +20,11 @@ import type {
 import {
   HACKATHON_BREAKDOWN_EVENT_NAMES,
   HACKATHON_EXPERIENCE_EVENT_NAMES,
-  HACKATHON_HISTORICAL_WINDOW,
-  HACKATHON_REPORTING_DATE_RANGE,
   HACKATHON_VOTING_EVENT_NAMES,
   MANAGER_EVENT_NAMES,
   andFilter,
+  buildHackathonReportingDateRange,
+  describeHackathonReportingWindow,
   dimensionValue,
   exactStringFilter,
   getHackathonHostname,
@@ -60,6 +61,14 @@ export async function buildHackathonAnalyticsDatasetFromGa4(notes: string[]): Pr
   const hostFilter = exactStringFilter("hostName", hostname)
   const dummy = getDummyHackathonAnalyticsDataset()
   const voteTruthResultPromise = getHackathonVoteTruth()
+  const voteTruthResult = await voteTruthResultPromise
+  const eventDay = getHackathonEventDay(voteTruthResult.summary)
+  const reportingDateRange = buildHackathonReportingDateRange(
+    eventDay?.isoDate ?? new Date().toISOString().slice(0, 10),
+  )
+  const reportingWindow = describeHackathonReportingWindow(
+    eventDay?.label ?? reportingDateRange.startDate,
+  )
 
   const [
     overviewBaseResponse,
@@ -74,7 +83,7 @@ export async function buildHackathonAnalyticsDatasetFromGa4(notes: string[]): Pr
     experienceMetricsResponse,
   ] = await Promise.all([
     runHackathonGa4Report({
-      dateRanges: [HACKATHON_REPORTING_DATE_RANGE],
+      dateRanges: [reportingDateRange],
       dimensions: [{ name: "date" }],
       metrics: [
         { name: "eventCount" },
@@ -87,7 +96,7 @@ export async function buildHackathonAnalyticsDatasetFromGa4(notes: string[]): Pr
       limit: 100,
     }),
     runHackathonGa4Report({
-      dateRanges: [HACKATHON_REPORTING_DATE_RANGE],
+      dateRanges: [reportingDateRange],
       dimensions: [
         { name: "date" },
         { name: "eventName" },
@@ -112,7 +121,7 @@ export async function buildHackathonAnalyticsDatasetFromGa4(notes: string[]): Pr
       limit: 1000,
     }),
     runHackathonGa4Report({
-      dateRanges: [HACKATHON_REPORTING_DATE_RANGE],
+      dateRanges: [reportingDateRange],
       dimensions: [
         { name: "date" },
         { name: "eventName" },
@@ -125,7 +134,7 @@ export async function buildHackathonAnalyticsDatasetFromGa4(notes: string[]): Pr
       limit: 2000,
     }),
     runHackathonGa4Report({
-      dateRanges: [HACKATHON_REPORTING_DATE_RANGE],
+      dateRanges: [reportingDateRange],
       dimensions: [
         { name: "date" },
         { name: "customEvent:entry_slug" },
@@ -152,22 +161,9 @@ export async function buildHackathonAnalyticsDatasetFromGa4(notes: string[]): Pr
       orderBys: [{ dimension: { dimensionName: "date" } }, { metric: { metricName: "eventCount" }, desc: true }],
       limit: 2000,
     }),
+    Promise.resolve({ rows: [] }),
     runHackathonGa4Report({
-      dateRanges: [HACKATHON_REPORTING_DATE_RANGE],
-      dimensions: [{ name: "date" }, { name: "customEvent:competition_status" }],
-      metrics: [
-        { name: "eventCount" },
-        { name: "averageCustomEvent:entry_count" },
-        { name: "averageCustomEvent:open_entry_count" },
-        { name: "averageCustomEvent:participating_judge_count" },
-        { name: "averageCustomEvent:total_remaining_votes" },
-      ],
-      dimensionFilter: andFilter([hostFilter, exactStringFilter("eventName", "competition_state_snapshot")]),
-      orderBys: [{ dimension: { dimensionName: "date" } }],
-      limit: 100,
-    }),
-    runHackathonGa4Report({
-      dateRanges: [HACKATHON_REPORTING_DATE_RANGE],
+      dateRanges: [reportingDateRange],
       dimensions: [{ name: "date" }, { name: "eventName" }],
       metrics: [{ name: "eventCount" }, { name: "totalUsers" }],
       dimensionFilter: andFilter([
@@ -185,7 +181,7 @@ export async function buildHackathonAnalyticsDatasetFromGa4(notes: string[]): Pr
       limit: 500,
     }),
     runHackathonGa4Report({
-      dateRanges: [HACKATHON_REPORTING_DATE_RANGE],
+      dateRanges: [reportingDateRange],
       dimensions: [
         { name: "date" },
         { name: "customEvent:entry_slug" },
@@ -201,7 +197,7 @@ export async function buildHackathonAnalyticsDatasetFromGa4(notes: string[]): Pr
       limit: 2000,
     }),
     runHackathonGa4Report({
-      dateRanges: [HACKATHON_REPORTING_DATE_RANGE],
+      dateRanges: [reportingDateRange],
       dimensions: [{ name: "date" }, { name: "eventName" }, { name: "customEvent:entry_voting_open" }],
       metrics: [
         { name: "eventCount" },
@@ -213,7 +209,7 @@ export async function buildHackathonAnalyticsDatasetFromGa4(notes: string[]): Pr
       limit: 500,
     }),
     runHackathonGa4Report({
-      dateRanges: [HACKATHON_REPORTING_DATE_RANGE],
+      dateRanges: [reportingDateRange],
       dimensions: [
         { name: "date" },
         { name: "customEvent:viewport_category" },
@@ -227,7 +223,7 @@ export async function buildHackathonAnalyticsDatasetFromGa4(notes: string[]): Pr
       limit: 1000,
     }),
     runHackathonGa4Report({
-      dateRanges: [HACKATHON_REPORTING_DATE_RANGE],
+      dateRanges: [reportingDateRange],
       dimensions: [
         { name: "date" },
         { name: "customEvent:viewport_category" },
@@ -631,7 +627,6 @@ export async function buildHackathonAnalyticsDatasetFromGa4(notes: string[]): Pr
     }))
     .sort((left, right) => left.eventDate.localeCompare(right.eventDate) || left.viewportCategory.localeCompare(right.viewportCategory))
 
-  const voteTruthResult = await voteTruthResultPromise
   const dataset = {
     voteTruth: voteTruthResult.summary,
     overview: Array.from(overviewMap.values()).sort((left, right) => left.eventDate.localeCompare(right.eventDate)),
@@ -654,7 +649,7 @@ export async function buildHackathonAnalyticsDatasetFromGa4(notes: string[]): Pr
     notes: [
       ...(hasLiveRows
         ? [
-            `BigQuery modeled tables are still empty, so this route is currently showing GA4-derived telemetry plus the live vote ledger over ${HACKATHON_HISTORICAL_WINDOW.toLowerCase()}, not warehouse-modeled rows.`,
+            `BigQuery modeled tables are still empty, so this route is currently showing GA4-derived telemetry plus the live vote ledger over ${reportingWindow.toLowerCase()}, not warehouse-modeled rows.`,
           ]
         : ["GA4 fallback also returned no material rows for the current hackathon host and reporting window."]),
       ...notes,

@@ -7,13 +7,6 @@ const DEFAULT_HACKATHON_STREAM_ID = "14214480224"
 const DEFAULT_HACKATHON_HOSTNAME = "vote.rajeevg.com"
 const DEFAULT_CREDENTIALS_PATH = "/Users/rajeev/.codex/auth/google/ga4-mcp-personal-gws-1.json"
 
-export const HACKATHON_HISTORICAL_WINDOW = "Last 30 days including today"
-export const HACKATHON_REPORTING_DATE_RANGE = {
-  startDate: "30daysAgo",
-  endDate: "today",
-  name: "Last30Days",
-} as const
-
 export const HACKATHON_EVENT_NAMES = [
   "judge_auth_dialog_opened",
   "judge_auth_email_requested",
@@ -27,7 +20,6 @@ export const HACKATHON_EVENT_NAMES = [
   "vote_submit_started",
   "vote_submitted",
   "vote_submit_failed",
-  "competition_state_snapshot",
   "competition_round_started",
   "competition_round_start_failed",
   "competition_round_finalized",
@@ -82,6 +74,18 @@ export const HACKATHON_EXPERIENCE_EVENT_NAMES = [
   "scoreboard_view_changed",
   "section_view",
 ] as const
+
+export function buildHackathonReportingDateRange(eventDate: string) {
+  return {
+    startDate: eventDate,
+    endDate: eventDate,
+    name: "HackathonEventDay",
+  } as const
+}
+
+export function describeHackathonReportingWindow(eventDateLabel: string) {
+  return `Hackathon event day (${eventDateLabel})`
+}
 
 export type ReportRow = protos.google.analytics.data.v1beta.IRow
 export type RunReportResponse = protos.google.analytics.data.v1beta.IRunReportResponse

@@ -192,8 +192,6 @@ async function openBigQueryDashboard(page: Page) {
   await expect(
     page.getByRole("heading", { name: "Hackathon reporting dashboard" }),
   ).toBeVisible()
-  await page.getByRole("button", { name: "Dummy preview" }).click()
-  await expect(page.getByText(/Dummy preview mode is turned on/i).first()).toBeVisible()
 }
 
 async function openGa4Dashboard(page: Page) {
@@ -231,22 +229,26 @@ test.describe("projects dashboard audit", () => {
           `hackathon-bigquery-${viewport.key}-hero`,
           page.locator('[data-analytics-reporting-shell="hero"]').first(),
         )
+        await captureViewport(
+          page,
+          `hackathon-bigquery-${viewport.key}-warehouse-status`,
+          page.getByRole("heading", { name: "Warehouse status" }).first(),
+        )
 
-        const echartsHeadings = [
+        await page.getByRole("button", { name: "Dummy preview" }).click()
+        const previewHeadings = [
           "Daily momentum",
           "Voting funnel",
           "Auth mix",
           "Leaderboard by aggregate score",
           "Conversion quality by entry",
-          "Round-control activity",
-          "Engagement heatmap",
           "Event taxonomy",
         ]
 
-        for (const heading of echartsHeadings) {
+        for (const heading of previewHeadings) {
           await captureViewport(
             page,
-            `hackathon-bigquery-${viewport.key}-echarts-${heading.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+            `hackathon-bigquery-${viewport.key}-preview-echarts-${heading.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
             page.getByRole("heading", { name: heading }).first(),
           )
         }
@@ -255,10 +257,10 @@ test.describe("projects dashboard audit", () => {
         await expect(page.locator("svg").first()).toBeVisible()
         await assertNoObservableTextCollisions(page, `bigquery observable ${viewport.key}`)
 
-        for (const heading of echartsHeadings) {
+        for (const heading of previewHeadings) {
           await captureViewport(
             page,
-            `hackathon-bigquery-${viewport.key}-observable-${heading.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+            `hackathon-bigquery-${viewport.key}-preview-observable-${heading.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
             page.getByRole("heading", { name: heading }).first(),
           )
         }
@@ -289,23 +291,16 @@ test.describe("projects dashboard audit", () => {
             name: "hero",
             locator: page.locator('[data-analytics-reporting-shell="hero"]').first(),
           },
-          { name: "historical-event-surface", locator: page.getByRole("heading", { name: "Historical event surface" }).first() },
-          { name: "round-snapshot-surface", locator: page.getByRole("heading", { name: "Round snapshot surface" }).first() },
+          { name: "consent-impact", locator: page.getByRole("heading", { name: "Consent and tracking impact" }).first() },
+          { name: "event-day-event-surface", locator: page.getByRole("heading", { name: "Event-day event surface" }).first() },
+          { name: "telemetry-checkpoints", locator: page.getByRole("heading", { name: "Telemetry checkpoints" }).first() },
           { name: "entry-surface", locator: page.getByRole("heading", { name: "Entry surface" }).first() },
-          { name: "manager-operations", locator: page.getByRole("heading", { name: "Manager operations" }).first() },
-          { name: "promoted-hackathon-schema", locator: page.getByRole("heading", { name: "Promoted hackathon schema" }).first() },
+          { name: "promoted-schema", locator: page.getByText("Promoted schema and derived metrics", { exact: true }).first() },
         ]
 
         for (const surface of surfaces) {
           await captureViewport(page, `hackathon-ga4-${viewport.key}-${surface.name}`, surface.locator)
         }
-
-        await page.getByRole("button", { name: "Dummy preview" }).click()
-        await captureViewport(
-          page,
-          `hackathon-ga4-${viewport.key}-dummy-hero`,
-          page.locator('[data-analytics-reporting-shell="hero"]').first(),
-        )
 
         await assertNoVisibleTextClipping(page, `ga4 ${viewport.key}`)
         expect(consoleErrors, `ga4 ${viewport.key} has console errors`).toEqual([])

@@ -39,20 +39,6 @@ export type HackathonGaConsentSummary = {
   consentGrantedUpdates: number
 }
 
-export type HackathonGaRoundStateRow = {
-  competitionStatus: string
-  eventCount: number
-  averageEntryCount: number
-  averageOpenEntryCount: number
-  averageParticipatingJudgeCount: number
-  averageRemainingVotes: number
-}
-
-export type HackathonGaManagerRow = {
-  eventName: string
-  eventCount: number
-}
-
 export type HackathonGaDefinition = {
   key: string
   label: string
@@ -74,7 +60,5 @@ export type HackathonGaReport = {
   consentSummary: HackathonGaConsentSummary
   eventSurface: HackathonGaEventRow[]
   entrySurface: HackathonGaEntryRow[]
-  roundSurface: HackathonGaRoundStateRow[]
-  managerSurface: HackathonGaManagerRow[]
   definitions: HackathonGaDefinition[]
 }

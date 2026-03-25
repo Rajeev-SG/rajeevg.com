@@ -120,38 +120,6 @@ const dimensions: AnalyticsDefinition[] = [
 
 const metrics: AnalyticsDefinition[] = [
   {
-    key: "entry_count",
-    label: "Entry count",
-    type: "metric",
-    meaning: "Number of projects loaded into the scoreboard snapshot.",
-    typicalValues: "count",
-    interpretation: "Use it to validate import completeness and board scale.",
-  },
-  {
-    key: "open_entry_count",
-    label: "Open entry count",
-    type: "metric",
-    meaning: "Number of projects currently open for judging.",
-    typicalValues: "count",
-    interpretation: "Use it to see how much of the field is live at any moment.",
-  },
-  {
-    key: "participating_judge_count",
-    label: "Participating judge count",
-    type: "metric",
-    meaning: "Number of judges who have started scoring and are in the round denominator.",
-    typicalValues: "count",
-    interpretation: "Use it for judging participation rather than just total sign-ins.",
-  },
-  {
-    key: "total_remaining_votes",
-    label: "Total remaining votes",
-    type: "metric",
-    meaning: "Outstanding vote obligations across open entries for participating judges.",
-    typicalValues: "count",
-    interpretation: "Use it as the manager’s core readiness signal before closing an entry or finalizing.",
-  },
-  {
     key: "issue_count",
     label: "Issue count",
     type: "metric",

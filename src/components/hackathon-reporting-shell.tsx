@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react"
 import Link from "next/link"
-import { BarChart3, ChevronDown, Database, Gauge, RadioTower, ShieldCheck } from "lucide-react"
+import { BarChart3, ChevronDown, Database, Gauge, RadioTower } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -18,11 +18,20 @@ type SurfaceTab = {
   href: string
 }
 
-type MetricDefinition = {
+export type MetricDefinition = {
   label: string
   value: string
   detail: string
   icon: ReactNode
+  definitionId?: string
+}
+
+export function buildSchemaAnchorId(value: string) {
+  return `schema-${value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")}`
 }
 
 const SURFACE_TABS: SurfaceTab[] = [
@@ -115,13 +124,20 @@ function MetricCard({
   value,
   detail,
   icon,
+  definitionId,
 }: MetricDefinition) {
   return (
     <Card className="min-h-full border-border/70 bg-background/80">
       <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-3">
         <div className="space-y-1">
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-            {label}
+            {definitionId ? (
+              <a href={`#${definitionId}`} className="transition hover:text-foreground">
+                {label}
+              </a>
+            ) : (
+              label
+            )}
           </p>
           <CardTitle className="text-3xl">{value}</CardTitle>
         </div>
@@ -142,7 +158,6 @@ export function buildHackathonSummaryMetrics(metrics: {
   actualVotes: string
   trackedVoteSubmissions: string
   trackingCoverage: string
-  managerActions: string
   fallbackTelemetry?: boolean
 }): MetricDefinition[] {
   const telemetryPrefix = metrics.fallbackTelemetry ? "Fallback " : ""
@@ -156,18 +171,21 @@ export function buildHackathonSummaryMetrics(metrics: {
       value: metrics.eventCount,
       detail: telemetryDetail ?? "Total hackathon analytics events returned in the current reporting window.",
       icon: <BarChart3 className="size-4" />,
+      definitionId: buildSchemaAnchorId("Event count"),
     },
     {
       label: `${telemetryPrefix}users`,
       value: metrics.totalUsers,
       detail: telemetryDetail ?? "Distinct users observed on the hackathon reporting surface in the same window.",
       icon: <RadioTower className="size-4" />,
+      definitionId: buildSchemaAnchorId("Users"),
     },
     {
       label: "Persisted votes",
       value: metrics.actualVotes,
       detail: "Authoritative vote rows from the live voting app snapshot that powers the public scoreboard.",
       icon: <Gauge className="size-4" />,
+      definitionId: buildSchemaAnchorId("Persisted votes"),
     },
     {
       label: `${telemetryPrefix}tracked submits`,
@@ -175,19 +193,14 @@ export function buildHackathonSummaryMetrics(metrics: {
       detail:
         telemetryDetail ?? "GA4 vote_submitted events captured as analytics telemetry for the same window.",
       icon: <RadioTower className="size-4" />,
+      definitionId: buildSchemaAnchorId("Tracked submits"),
     },
     {
       label: "GA4 coverage",
       value: metrics.trackingCoverage,
       detail: "Tracked submits divided by the authoritative persisted vote total.",
       icon: <Database className="size-4" />,
-    },
-    {
-      label: `${telemetryPrefix}manager actions`,
-      value: metrics.managerActions,
-      detail:
-        telemetryDetail ?? "Uploads, round controls, and entry state operations recorded for the manager.",
-      icon: <ShieldCheck className="size-4" />,
+      definitionId: buildSchemaAnchorId("GA4 coverage"),
     },
   ]
 }

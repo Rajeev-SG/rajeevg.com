@@ -6,6 +6,7 @@ import { getModeledTableRowCounts, getRawExportTableCount } from "@/lib/hackatho
 import { getDummyHackathonAnalyticsDataset } from "@/lib/hackathon-reporting-dummy"
 import {
   describeHackathonVoteTruthReconciliation,
+  getHackathonEventDay,
   getHackathonVoteTruth,
 } from "@/lib/hackathon-vote-truth"
 import type {
@@ -13,18 +14,16 @@ import type {
   HackathonGaDefinition,
   HackathonGaEntryRow,
   HackathonGaEventRow,
-  HackathonGaManagerRow,
   HackathonGaOverview,
   HackathonGaReport,
-  HackathonGaRoundStateRow,
 } from "@/lib/hackathon-ga4-reporting-types"
 import {
   HACKATHON_EVENT_NAMES,
-  HACKATHON_HISTORICAL_WINDOW,
-  HACKATHON_REPORTING_DATE_RANGE,
   MANAGER_EVENT_NAMES,
   RunReportResponse,
   andFilter,
+  buildHackathonReportingDateRange,
+  describeHackathonReportingWindow,
   dimensionValue,
   exactStringFilter,
   getHackathonHostname,
@@ -52,10 +51,6 @@ const DEFINITIONS: HackathonGaDefinition[] = [
   { key: "customEvent:score", label: "Score", type: "metric", meaning: "The single 0-10 score chosen in a vote event." },
   { key: "customEvent:aggregate_score", label: "Aggregate Score", type: "metric", meaning: "The current summed scoreboard total represented by the event payload." },
   { key: "customEvent:vote_count", label: "Vote Count", type: "metric", meaning: "The number of votes represented by the event payload or snapshot." },
-  { key: "customEvent:entry_count", label: "Entry Count", type: "metric", meaning: "How many projects were loaded into the current competition snapshot." },
-  { key: "customEvent:open_entry_count", label: "Open Entry Count", type: "metric", meaning: "How many projects were accepting new votes at that moment." },
-  { key: "customEvent:participating_judge_count", label: "Participating Judge Count", type: "metric", meaning: "How many judges had joined the completion denominator by scoring at least one project." },
-  { key: "customEvent:total_remaining_votes", label: "Total Remaining Votes", type: "metric", meaning: "Outstanding vote obligations still blocking completion or finalization." },
 ]
 
 function normalizeState(value: string) {
@@ -129,35 +124,13 @@ function buildDummyReport(): HackathonGaReport {
       averageScore: row.averageScore,
     }))
 
-  const roundSurface = dataset.roundSnapshots
-    .slice(-3)
-    .map<HackathonGaRoundStateRow>((row) => ({
-      competitionStatus: row.competitionStatus,
-      eventCount: 1,
-      averageEntryCount: row.entryCount,
-      averageOpenEntryCount: row.openEntryCount,
-      averageParticipatingJudgeCount: row.participatingJudgeCount,
-      averageRemainingVotes: row.totalRemainingVotes,
-    }))
-
-  const managerSurface = dataset.managerOperations
-    .slice(-1)
-    .flatMap<HackathonGaManagerRow>((row) => [
-      { eventName: "workbook_upload_completed", eventCount: row.workbookUploadSuccesses },
-      { eventName: "entry_voting_state_changed", eventCount: row.entryVotingOpened + row.entryVotingClosed },
-      { eventName: "competition_round_started", eventCount: row.roundStarts },
-      { eventName: "competition_round_finalized", eventCount: row.finalizations },
-      { eventName: "competition_round_reset", eventCount: row.resets },
-    ])
-    .filter((row) => row.eventCount > 0)
-
   return {
     source: "dummy",
     generatedAt: new Date().toISOString(),
     propertyId: getHackathonPropertyId(),
     hostname: getHackathonHostname(),
     streamId: getHackathonStreamId(),
-    historicalWindow: HACKATHON_HISTORICAL_WINDOW,
+    historicalWindow: "Hackathon event day preview",
     hasLiveRows: false,
     notes: [
       "Dummy preview is active, so this GA surface shows the intended reporting layout before the shared property returns hackathon rows.",
@@ -168,8 +141,6 @@ function buildDummyReport(): HackathonGaReport {
     consentSummary,
     eventSurface,
     entrySurface,
-    roundSurface,
-    managerSurface,
     definitions: DEFINITIONS,
   }
 }
@@ -322,30 +293,20 @@ function mapConsentSummary(
   return summary
 }
 
-function mapRoundSurface(response: RunReportResponse): HackathonGaRoundStateRow[] {
-  return (response.rows ?? []).map((row) => ({
-    competitionStatus: dimensionValue(row, 0) || "unknown",
-    eventCount: metricValue(row, 0),
-    averageEntryCount: metricValue(row, 1),
-    averageOpenEntryCount: metricValue(row, 2),
-    averageParticipatingJudgeCount: metricValue(row, 3),
-    averageRemainingVotes: metricValue(row, 4),
-  }))
-}
-
-function mapManagerSurface(response: RunReportResponse): HackathonGaManagerRow[] {
-  return (response.rows ?? []).map((row) => ({
-    eventName: dimensionValue(row, 0),
-    eventCount: metricValue(row, 0),
-  }))
-}
-
 export async function getHackathonGa4Report(): Promise<HackathonGaReport> {
   noStore()
 
   try {
     const hostname = getHackathonHostname()
     const hostFilter = exactStringFilter("hostName", hostname)
+    const voteTruthResult = await getHackathonVoteTruth()
+    const eventDay = getHackathonEventDay(voteTruthResult.summary)
+    const reportingDateRange = buildHackathonReportingDateRange(
+      eventDay?.isoDate ?? new Date().toISOString().slice(0, 10),
+    )
+    const reportingWindow = describeHackathonReportingWindow(
+      eventDay?.label ?? reportingDateRange.startDate,
+    )
 
     const [
       overviewResponse,
@@ -353,129 +314,102 @@ export async function getHackathonGa4Report(): Promise<HackathonGaReport> {
       eventResponse,
       entryDialogResponse,
       entrySubmitResponse,
-      roundResponse,
-      managerResponse,
       pageContextConsentResponse,
       consentUpdateResponse,
-    ] =
-      await Promise.all([
-        runHackathonGa4Report({
-          dateRanges: [HACKATHON_REPORTING_DATE_RANGE],
-          dimensions: [],
-          metrics: [
-            { name: "eventCount" },
-            { name: "totalUsers" },
-            { name: "screenPageViews" },
-          ],
-          dimensionFilter: hostFilter,
-          limit: 1,
-        }),
-        runHackathonGa4Report({
-          dateRanges: [HACKATHON_REPORTING_DATE_RANGE],
-          dimensions: [{ name: "eventName" }],
-          metrics: [{ name: "eventCount" }],
-          dimensionFilter: andFilter([hostFilter, inListFilter("eventName", HACKATHON_EVENT_NAMES)]),
-          orderBys: [{ metric: { metricName: "eventCount" }, desc: true }],
-          limit: 100,
-        }),
-        runHackathonGa4Report({
-          dateRanges: [HACKATHON_REPORTING_DATE_RANGE],
-          dimensions: [
-            { name: "eventName" },
-            { name: "customEvent:viewer_role" },
-            { name: "customEvent:competition_status" },
-          ],
-          metrics: [{ name: "eventCount" }, { name: "totalUsers" }],
-          dimensionFilter: andFilter([hostFilter, inListFilter("eventName", HACKATHON_EVENT_NAMES)]),
-          orderBys: [{ metric: { metricName: "eventCount" }, desc: true }],
-          limit: 400,
-        }),
-        runHackathonGa4Report({
-          dateRanges: [HACKATHON_REPORTING_DATE_RANGE],
-          dimensions: [
-            { name: "customEvent:entry_slug" },
-            { name: "customEvent:entry_name" },
-            { name: "customEvent:analytics_consent_state" },
-          ],
-          metrics: [{ name: "eventCount" }, { name: "totalUsers" }, { name: "averageCustomEvent:score" }],
-          dimensionFilter: andFilter([hostFilter, exactStringFilter("eventName", "vote_dialog_viewed")]),
-          orderBys: [{ metric: { metricName: "eventCount" }, desc: true }],
-          limit: 500,
-        }),
-        runHackathonGa4Report({
-          dateRanges: [HACKATHON_REPORTING_DATE_RANGE],
-          dimensions: [
-            { name: "customEvent:entry_slug" },
-            { name: "customEvent:entry_name" },
-          ],
-          metrics: [{ name: "eventCount" }, { name: "totalUsers" }, { name: "averageCustomEvent:score" }],
-          dimensionFilter: andFilter([hostFilter, exactStringFilter("eventName", "vote_submitted")]),
-          orderBys: [{ metric: { metricName: "eventCount" }, desc: true }],
-          limit: 500,
-        }),
-        runHackathonGa4Report({
-          dateRanges: [HACKATHON_REPORTING_DATE_RANGE],
-          dimensions: [{ name: "customEvent:competition_status" }],
-          metrics: [
-            { name: "eventCount" },
-            { name: "averageCustomEvent:entry_count" },
-            { name: "averageCustomEvent:open_entry_count" },
-            { name: "averageCustomEvent:participating_judge_count" },
-            { name: "averageCustomEvent:total_remaining_votes" },
-          ],
-          dimensionFilter: andFilter([
-            hostFilter,
-            exactStringFilter("eventName", "competition_state_snapshot"),
-          ]),
-          orderBys: [{ metric: { metricName: "eventCount" }, desc: true }],
-          limit: 10,
-        }),
-        runHackathonGa4Report({
-          dateRanges: [HACKATHON_REPORTING_DATE_RANGE],
-          dimensions: [{ name: "eventName" }],
-          metrics: [{ name: "eventCount" }],
-          dimensionFilter: andFilter([hostFilter, inListFilter("eventName", MANAGER_EVENT_NAMES)]),
-          orderBys: [{ metric: { metricName: "eventCount" }, desc: true }],
-          limit: 20,
-        }),
-        runHackathonGa4Report({
-          dateRanges: [HACKATHON_REPORTING_DATE_RANGE],
-          dimensions: [{ name: "customEvent:analytics_consent_state" }],
-          metrics: [{ name: "eventCount" }],
-          dimensionFilter: andFilter([hostFilter, exactStringFilter("eventName", "page_context")]),
-          orderBys: [{ metric: { metricName: "eventCount" }, desc: true }],
-          limit: 20,
-        }),
-        runHackathonGa4Report({
-          dateRanges: [HACKATHON_REPORTING_DATE_RANGE],
-          dimensions: [{ name: "customEvent:consent_preference" }],
-          metrics: [{ name: "eventCount" }],
-          dimensionFilter: andFilter([hostFilter, exactStringFilter("eventName", "consent_state_updated")]),
-          orderBys: [{ metric: { metricName: "eventCount" }, desc: true }],
-          limit: 20,
-        }),
-      ])
+    ] = await Promise.all([
+      runHackathonGa4Report({
+        dateRanges: [reportingDateRange],
+        dimensions: [],
+        metrics: [
+          { name: "eventCount" },
+          { name: "totalUsers" },
+          { name: "screenPageViews" },
+        ],
+        dimensionFilter: hostFilter,
+        limit: 1,
+      }),
+      runHackathonGa4Report({
+        dateRanges: [reportingDateRange],
+        dimensions: [{ name: "eventName" }],
+        metrics: [{ name: "eventCount" }],
+        dimensionFilter: andFilter([hostFilter, inListFilter("eventName", HACKATHON_EVENT_NAMES)]),
+        orderBys: [{ metric: { metricName: "eventCount" }, desc: true }],
+        limit: 100,
+      }),
+      runHackathonGa4Report({
+        dateRanges: [reportingDateRange],
+        dimensions: [
+          { name: "eventName" },
+          { name: "customEvent:viewer_role" },
+          { name: "customEvent:competition_status" },
+        ],
+        metrics: [{ name: "eventCount" }, { name: "totalUsers" }],
+        dimensionFilter: andFilter([hostFilter, inListFilter("eventName", HACKATHON_EVENT_NAMES)]),
+        orderBys: [{ metric: { metricName: "eventCount" }, desc: true }],
+        limit: 400,
+      }),
+      runHackathonGa4Report({
+        dateRanges: [reportingDateRange],
+        dimensions: [
+          { name: "customEvent:entry_slug" },
+          { name: "customEvent:entry_name" },
+          { name: "customEvent:analytics_consent_state" },
+        ],
+        metrics: [
+          { name: "eventCount" },
+          { name: "totalUsers" },
+          { name: "averageCustomEvent:score" },
+        ],
+        dimensionFilter: andFilter([hostFilter, exactStringFilter("eventName", "vote_dialog_viewed")]),
+        orderBys: [{ metric: { metricName: "eventCount" }, desc: true }],
+        limit: 500,
+      }),
+      runHackathonGa4Report({
+        dateRanges: [reportingDateRange],
+        dimensions: [
+          { name: "customEvent:entry_slug" },
+          { name: "customEvent:entry_name" },
+        ],
+        metrics: [
+          { name: "eventCount" },
+          { name: "totalUsers" },
+          { name: "averageCustomEvent:score" },
+        ],
+        dimensionFilter: andFilter([hostFilter, exactStringFilter("eventName", "vote_submitted")]),
+        orderBys: [{ metric: { metricName: "eventCount" }, desc: true }],
+        limit: 500,
+      }),
+      runHackathonGa4Report({
+        dateRanges: [reportingDateRange],
+        dimensions: [{ name: "customEvent:analytics_consent_state" }],
+        metrics: [{ name: "eventCount" }],
+        dimensionFilter: andFilter([hostFilter, exactStringFilter("eventName", "page_context")]),
+        orderBys: [{ metric: { metricName: "eventCount" }, desc: true }],
+        limit: 20,
+      }),
+      runHackathonGa4Report({
+        dateRanges: [reportingDateRange],
+        dimensions: [{ name: "customEvent:consent_preference" }],
+        metrics: [{ name: "eventCount" }],
+        dimensionFilter: andFilter([hostFilter, exactStringFilter("eventName", "consent_state_updated")]),
+        orderBys: [{ metric: { metricName: "eventCount" }, desc: true }],
+        limit: 20,
+      }),
+    ])
 
     const eventTotals = mapEventTotals(eventTotalsResponse)
     const eventSurface = mapEventSurface(eventResponse)
     const entrySurface = mapEntrySurface(entryDialogResponse, entrySubmitResponse)
-    const roundSurface = mapRoundSurface(roundResponse)
-    const managerSurface = mapManagerSurface(managerResponse)
     const overview = mapOverview(overviewResponse, eventTotals)
     const consentSummary = mapConsentSummary(pageContextConsentResponse, consentUpdateResponse)
-    const [modeledTableCounts, rawExportTableCount, voteTruthResult] = await Promise.all([
+    const [modeledTableCounts, rawExportTableCount] = await Promise.all([
       getModeledTableRowCounts(),
       getRawExportTableCount(getHackathonPropertyId()),
-      getHackathonVoteTruth(),
     ])
     const modeledRowCount = modeledTableCounts.reduce((sum, row) => sum + row.rowCount, 0)
 
     const hasLiveRows =
-      overview.eventCount > 0 ||
-      eventSurface.length > 0 ||
-      entrySurface.length > 0 ||
-      roundSurface.length > 0 ||
-      managerSurface.length > 0
+      overview.eventCount > 0 || eventSurface.length > 0 || entrySurface.length > 0
 
     return {
       source: "live",
@@ -483,12 +417,12 @@ export async function getHackathonGa4Report(): Promise<HackathonGaReport> {
       propertyId: getHackathonPropertyId(),
       hostname,
       streamId: getHackathonStreamId(),
-      historicalWindow: HACKATHON_HISTORICAL_WINDOW,
+      historicalWindow: reportingWindow,
       hasLiveRows,
       voteTruth: voteTruthResult.summary,
       notes: hasLiveRows
         ? [
-            "Live mode is reading directly from the shared GA4 property through the official Google Analytics Data API client, using the last 30 days including today.",
+            `Live mode is reading directly from the shared GA4 property through the official Google Analytics Data API client, scoped to ${reportingWindow}.`,
             `Warehouse reconciliation: the modeled BigQuery dataset currently has ${modeledRowCount} landed rows across ${modeledTableCounts.length} tables, and ga4_${getHackathonPropertyId()} currently has ${rawExportTableCount} landed raw export tables.`,
             "The route is filtered to vote.rajeevg.com so the hackathon app stays separated from rajeevg.com content analytics even though both live on the same property.",
             ...describeHackathonVoteTruthReconciliation({
@@ -498,20 +432,18 @@ export async function getHackathonGa4Report(): Promise<HackathonGaReport> {
             }),
           ]
         : [
-            "The GA4 property is reachable, but no hackathon-host rows were returned for the current reporting window.",
+            `The GA4 property is reachable, but no hackathon-host rows were returned for ${reportingWindow}.`,
             "Use Dummy preview to review the GA reporting shell while the shared property starts collecting or retaining hackathon rows.",
             ...describeHackathonVoteTruthReconciliation({
               trackedVotes: overview.voteSubmissions,
               voteTruth: voteTruthResult.summary,
               fallbackNote: voteTruthResult.note,
             }),
-      ],
+          ],
       overview,
       consentSummary,
       eventSurface,
       entrySurface,
-      roundSurface,
-      managerSurface,
       definitions: DEFINITIONS,
     }
   } catch (error) {
@@ -535,8 +467,7 @@ export async function getHackathonGa4Report(): Promise<HackathonGaReport> {
       },
       eventSurface: [],
       entrySurface: [],
-      roundSurface: [],
-      managerSurface: [],
+      definitions: DEFINITIONS,
     }
   }
 }

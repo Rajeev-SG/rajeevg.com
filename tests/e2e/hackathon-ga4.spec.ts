@@ -37,7 +37,9 @@ test.describe("hackathon ga4 reporting surface", () => {
     await expect(page.getByText("Host vote.rajeevg.com")).toBeVisible()
     await expect(page.getByRole("button", { name: "Dummy preview" })).toHaveCount(0)
     await expect(page.getByText("Consent and tracking impact")).toBeVisible()
+    await expect(page.getByText("Event-day event surface")).toBeVisible()
     await expect(page.getByText("Round snapshot surface")).toHaveCount(0)
+    await expect(page.getByText("Manager operations")).toHaveCount(0)
 
     const liveNote = page.getByText(
       /Live mode is reading directly from the shared GA4 property|The GA4 property is reachable, but no hackathon-host rows were returned|Live GA mode could not complete the report request/i,
@@ -49,9 +51,8 @@ test.describe("hackathon ga4 reporting surface", () => {
     ).toBeVisible()
 
     await page.getByText("Promoted schema and derived metrics", { exact: true }).click()
-    await expect(
-      page.getByRole("heading", { name: "Granted page-context share" }),
-    ).toBeVisible()
+    await page.getByText(/More derived metrics/).click()
+    await expect(page.getByText("Granted page-context share", { exact: true }).last()).toBeVisible()
     await page.getByText("Source reconciliation", { exact: true }).click()
     await expect(page.getByText(/Tracked analytics coverage/i).first()).toBeVisible()
 
@@ -63,6 +64,9 @@ test.describe("hackathon ga4 reporting surface", () => {
     )
 
     await expect(page.getByText("AVG AGGREGATE")).toHaveCount(0)
+    await expect(page.getByText("Granted dialog share")).toHaveCount(0)
+    await expect(page.getByText("Denied dialogs")).toHaveCount(0)
+    await expect(page.getByText(/unknown consent state/i)).toHaveCount(0)
 
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - window.innerWidth,

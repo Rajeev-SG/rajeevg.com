@@ -38,28 +38,25 @@ test.describe("hackathon analytics dashboard", () => {
       "page",
     )
     await expect(page.getByRole("link", { name: "GA4 property", exact: true })).toBeVisible()
-    await expect(page.getByText(/BigQuery modeled tables are still empty/i).first()).toBeVisible()
     await expect(page.getByText("Promoted schema and derived metrics")).toBeVisible()
     await expect(page.getByText("Source reconciliation")).toBeVisible()
-    await expect(
-      page.getByText(/Tracked analytics coverage:/i).first(),
-    ).not.toBeVisible()
+    await expect(page.getByRole("heading", { name: "Warehouse status" })).toBeVisible()
+    await expect(page.getByRole("link", { name: "Modeled rows" }).first()).toBeVisible()
 
     await page.getByText("Source reconciliation", { exact: true }).click()
     await expect(
-      page.getByText(/Tracked analytics coverage:/i).first(),
+      page.getByText(/No GA4-derived fallback metrics are rendered on this route anymore/i).first(),
     ).toBeVisible()
     await page.getByText("Source reconciliation", { exact: true }).click()
 
     await page.getByText("Promoted schema and derived metrics", { exact: true }).click()
-    await expect(
-      page.getByRole("heading", { name: "Granted page-context share" }),
-    ).toBeVisible()
+    await expect(page.locator("#schema-modeled-rows summary").first()).toBeVisible()
 
     const sourceToggle = page.getByRole("button", { name: "Dummy preview" })
     await sourceToggle.click()
 
     await expect(page.getByText(/Dummy preview mode is turned on/i).first()).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Daily volume" })).toBeVisible()
     await expect(page.locator("canvas").first()).toBeVisible()
 
     await capture(
@@ -95,10 +92,10 @@ test.describe("hackathon analytics dashboard", () => {
       await liveButton.click()
       await expect(
         page.getByText(
-          /Live mode is reading directly from the dedicated hackathon_reporting dataset|BigQuery modeled tables are still empty, so this route is currently showing GA4-derived telemetry plus the live vote ledger|Live mode could not reach the reporting dataset from this runtime, so the dashboard fell back to a GA4-derived modeled view|Live mode could not reach either the reporting dataset or the GA4 fallback from this runtime/i,
+          /Live mode is reading directly from the dedicated hackathon_reporting dataset|BigQuery modeled tables are still empty, so this route is currently showing warehouse status only|Live mode could not reach the reporting dataset from this runtime/i,
         ).first(),
       ).toBeVisible()
-      await expect(page.getByText(/Fallback event count/i)).toBeVisible()
+      await expect(page.getByRole("heading", { name: "Warehouse status" })).toBeVisible()
     } else {
       await expect(liveButton).toBeDisabled()
     }

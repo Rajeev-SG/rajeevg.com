@@ -45,14 +45,16 @@ Last updated: 2026-03-25
 - That route uses:
   - a dedicated BigQuery adapter
   - the isolated `hackathon_reporting` dataset
-  - `ECharts` and `Observable Plot` renderers
-  - a `Dummy preview` mode so the shell stays reviewable before rows land
+  - warehouse-only live mode
+  - `ECharts` and `Observable Plot` renderers in explicit preview mode
+  - a `Dummy preview` mode only on the BigQuery route
 - The GA API route uses:
   - the official `@google-analytics/data` client
   - property `498363924`
   - host filter `vote.rajeevg.com`
   - stream marker `14214480224`
   - promoted hackathon custom dimensions and metrics verified through `analytics_mcp`
+  - event-day-only filtering derived from the live voting summary endpoint
 - The Codex MCP config at [`~/.codex/config.toml`](/Users/rajeev/.codex/config.toml) now includes:
   - `analytics_mcp`
   - `gcloud`
@@ -72,7 +74,12 @@ Last updated: 2026-03-25
   - `properties/498363924/bigQueryLinks/QW0m3ZzhTl2jFYPJO2MIzA`
   - project number: `401448512581` (`personal-gws-1`)
   - dataset location: `EU`
-  - linked stream: `properties/498363924/dataStreams/11542983613`
+  - daily export: enabled
+  - streaming export: enabled
+  - linked streams:
+    - `properties/498363924/dataStreams/11542983613`
+    - `properties/498363924/dataStreams/14214480224`
+  - excluded events: none returned by the live Admin API response
 - The BigQuery dataset `ga4_498363924` exists in `personal-gws-1`.
 - Project billing is enabled on `personal-gws-1`.
 - The export link is attached to the live web stream, but as of 2026-03-25 no `events_*` or `events_intraday_*` tables had landed yet. The route-level reconciliation proof now confirms that this lag is real rather than a dashboard-query bug, because direct GA4 report queries return hackathon rows while raw export still has zero landed tables.
@@ -216,6 +223,7 @@ Last updated: 2026-03-25
   - `voting_funnel_daily`
 - The raw export dataset `personal-gws-1:ga4_498363924` also still had `0` landed tables.
 - Because of that, the BigQuery route now uses a GA4-derived modeled fallback instead of pretending the warehouse has landed data.
+ - Because of that, the BigQuery route now stays warehouse-only in live mode and exposes the warehouse evidence directly instead of showing GA4-derived summary metrics there.
 
 ### Hackathon reporting route
 
@@ -226,8 +234,8 @@ Last updated: 2026-03-25
 - It is isolated from main-site page analytics and does not read the generic `rajeevg.com` content-reporting tables.
 - It now exposes source-reconciliation notes so the page can say whether it is rendering:
   - modeled BigQuery rows
-  - a GA4-derived modeled fallback
-  - or an error-backed fallback
+  - warehouse-only empty-export evidence
+  - or an error-backed warehouse failure
 - Runtime envs now set on the Vercel production project:
   - `BIGQUERY_PROJECT_ID`
   - `BIGQUERY_DATASET_ID`
@@ -238,6 +246,8 @@ Last updated: 2026-03-25
   - `GA4_HACKATHON_STREAM_ID`
 - Fresh proof on 2026-03-25:
   - `curl -I https://rajeevg.com/projects/hackathon-voting-analytics` returned `200`
+  - `vercel deploy --prod --yes` successfully aliased the latest deployment to `https://rajeevg.com`
+  - production Playwright proof passed on both hackathon routes after deploy
   - `curl -I https://rajeevg.com/projects/hackathon-voting-analytics/google-analytics` returned `200`
   - production desktop Playwright proof passed
   - production mobile Playwright proof passed

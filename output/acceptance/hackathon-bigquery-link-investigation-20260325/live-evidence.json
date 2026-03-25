@@ -1,0 +1,85 @@
+{
+  "checkedAt": "2026-03-25T23:13:44.942Z",
+  "propertyId": "498363924",
+  "streamId": "14214480224",
+  "bigQueryLink": {
+    "name": "properties/498363924/bigQueryLinks/QW0m3ZzhTl2jFYPJO2MIzA",
+    "project": "projects/401448512581",
+    "createTime": "2026-03-23T22:07:07.294Z",
+    "dailyExportEnabled": true,
+    "streamingExportEnabled": true,
+    "exportStreams": [
+      "properties/498363924/dataStreams/11542983613",
+      "properties/498363924/dataStreams/14214480224"
+    ],
+    "datasetLocation": "EU"
+  },
+  "rawExportTableCount": 0,
+  "rawExportTables": [],
+  "modeledTables": [
+    {
+      "table": "auth_funnel_daily",
+      "rowCount": 0
+    },
+    {
+      "table": "daily_overview",
+      "rowCount": 0
+    },
+    {
+      "table": "entry_performance",
+      "rowCount": 0
+    },
+    {
+      "table": "event_breakdown",
+      "rowCount": 0
+    },
+    {
+      "table": "experience_overview_daily",
+      "rowCount": 0
+    },
+    {
+      "table": "manager_operations_daily",
+      "rowCount": 0
+    },
+    {
+      "table": "round_snapshots",
+      "rowCount": 0
+    },
+    {
+      "table": "voting_funnel_daily",
+      "rowCount": 0
+    }
+  ],
+  "voteTruth": {
+    "generatedAt": "2026-03-25T23:13:44.893Z",
+    "startedAt": "2026-03-25T15:18:40.027Z",
+    "finalizedAt": null,
+    "totals": {
+      "totalVotes": 297,
+      "uniqueJudges": 37,
+      "totalEntries": 9,
+      "openEntries": 9,
+      "participatingJudges": 37,
+      "remainingVotes": 15,
+      "totalScore": 1916,
+      "averageScore": 6.45
+    }
+  },
+  "ga4EventDayCounts": {
+    "vote_dialog_viewed": 342,
+    "page_context": 215,
+    "vote_submitted": 172,
+    "consent_state_updated": 33,
+    "judge_auth_completed": 19
+  },
+  "pageContextConsentStateCounts": {
+    "denied": 172,
+    "granted": 43
+  },
+  "voteDialogViewedConsentStateCounts": {
+    "granted": 278,
+    "denied": 5,
+    "blank": 59
+  }
+}
+

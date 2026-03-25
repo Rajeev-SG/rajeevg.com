@@ -10,9 +10,8 @@ import { CanvasRenderer } from "echarts/renderers"
 import {
   Activity,
   BarChart3,
+  Database,
   Eye,
-  Gauge,
-  GitBranch,
   Layers3,
   RadioTower,
   Sparkles,
@@ -24,20 +23,20 @@ import type {
   DailyOverviewRow,
   EntryPerformanceRow,
   EventBreakdownRow,
-  ExperienceOverviewRow,
   HackathonAnalyticsDataset,
-  ManagerOperationsRow,
-  RoundSnapshotRow,
   VotingFunnelRow,
 } from "@/lib/hackathon-reporting-types"
+import type { HackathonBigQueryStatus } from "@/lib/hackathon-bigquery-status"
 import type { HackathonVoteTruthEntry } from "@/lib/hackathon-vote-truth"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
+  buildSchemaAnchorId,
   HackathonDisclosureCard,
   HackathonReportingNotesCard,
   HackathonReportingShell,
   buildHackathonSummaryMetrics,
+  type MetricDefinition,
 } from "@/components/hackathon-reporting-shell"
 import { cn } from "@/lib/utils"
 
@@ -61,6 +60,7 @@ echarts.use([
 type DashboardProps = {
   live: HackathonAnalyticsDataset
   dummy: HackathonAnalyticsDataset
+  status: HackathonBigQueryStatus
 }
 
 type RendererMode = "echarts" | "observable"
@@ -178,24 +178,6 @@ function aggregateVoting(rows: VotingFunnelRow[]) {
   )
 }
 
-function aggregateManager(rows: ManagerOperationsRow[]) {
-  return rows.reduce(
-    (acc, row) => {
-      acc.importedProjectTotal += row.importedProjectTotal
-      acc.entryVotingOpened += row.entryVotingOpened
-      acc.entryVotingClosed += row.entryVotingClosed
-      acc.finalizations += row.finalizations
-      acc.resets += row.resets
-      return acc
-    },
-    { importedProjectTotal: 0, entryVotingOpened: 0, entryVotingClosed: 0, finalizations: 0, resets: 0 },
-  )
-}
-
-function getLatestSnapshot(rows: RoundSnapshotRow[]) {
-  return rows.at(-1)
-}
-
 function groupEntryPerformance(
   rows: EntryPerformanceRow[],
   truthEntries: HackathonVoteTruthEntry[] = [],
@@ -232,42 +214,6 @@ function groupEntryPerformance(
       }
     })
     .sort((a, b) => b.totalScore - a.totalScore)
-}
-
-function aggregateExperience(rows: ExperienceOverviewRow[]) {
-  const viewportMap = new Map<string, { viewport: string; engaged: number; users: number; count: number }>()
-  const boardViewMap = new Map<string, { boardView: string; tableViewSwitches: number; chartViewSwitches: number; users: number }>()
-  for (const row of rows) {
-    const viewport = viewportMap.get(row.viewportCategory) ?? {
-      viewport: row.viewportCategory,
-      engaged: 0,
-      users: 0,
-      count: 0,
-    }
-    viewport.engaged += row.avgEngagedSeconds
-    viewport.users += row.uniqueUsers
-    viewport.count += 1
-    viewportMap.set(row.viewportCategory, viewport)
-
-    const boardView = boardViewMap.get(row.boardView) ?? {
-      boardView: row.boardView,
-      tableViewSwitches: 0,
-      chartViewSwitches: 0,
-      users: 0,
-    }
-    boardView.tableViewSwitches += row.tableViewSwitches
-    boardView.chartViewSwitches += row.chartViewSwitches
-    boardView.users += row.uniqueUsers
-    boardViewMap.set(row.boardView, boardView)
-  }
-
-  return {
-    viewportSummary: Array.from(viewportMap.values()).map((row) => ({
-      ...row,
-      avgEngagedSeconds: row.count ? row.engaged / row.count : 0,
-    })),
-    boardViewSummary: Array.from(boardViewMap.values()),
-  }
 }
 
 function aggregateEventTaxonomy(rows: EventBreakdownRow[]) {
@@ -441,12 +387,35 @@ type DerivedDefinition = {
   interpretation: string
 }
 
-type ConsentInsight = {
-  grantedPageContexts: number
-  deniedPageContexts: number
-  unknownPageContexts: number
-  consentGrantUpdates: number
-  grantedPageContextShare: number | null
+function DefinitionGroup<T>({
+  items,
+  overflowLabel,
+  gridClassName,
+  renderItem,
+}: {
+  items: readonly T[]
+  overflowLabel: string
+  gridClassName: string
+  renderItem: (item: T) => React.ReactNode
+}) {
+  const visibleItems = items.slice(0, 5)
+  const hiddenItems = items.slice(5)
+
+  return (
+    <div className="space-y-4">
+      <div className={gridClassName}>{visibleItems.map((item) => renderItem(item))}</div>
+      {hiddenItems.length ? (
+        <details className="rounded-2xl border border-border/60 bg-background/50">
+          <summary className="cursor-pointer px-4 py-3 text-sm font-medium text-foreground">
+            {overflowLabel} ({hiddenItems.length})
+          </summary>
+          <div className={cn("border-t border-border/60 px-4 py-4", gridClassName)}>
+            {hiddenItems.map((item) => renderItem(item))}
+          </div>
+        </details>
+      ) : null}
+    </div>
+  )
 }
 
 function DefinitionTable({
@@ -458,36 +427,49 @@ function DefinitionTable({
 }) {
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 lg:grid-cols-2">
-        {derivedDefinitions.map((definition) => (
-          <Card key={definition.label} className="border-border/70 bg-background/70">
-            <CardHeader className="space-y-3 pb-3">
+      <DefinitionGroup
+        items={derivedDefinitions}
+        overflowLabel="More derived metrics"
+        gridClassName="grid gap-4 lg:grid-cols-2"
+        renderItem={(definition) => (
+          <details
+            key={definition.label}
+            id={buildSchemaAnchorId(definition.label)}
+            className="rounded-2xl border border-border/70 bg-background/70"
+          >
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 [&::-webkit-details-marker]:hidden">
               <div className="flex flex-wrap items-center gap-2">
-                <CardTitle className="break-words text-base">{definition.label}</CardTitle>
+                <span className="break-words text-base font-semibold">{definition.label}</span>
                 <Badge variant="outline">derived</Badge>
               </div>
-              <CardDescription className="text-sm leading-6">{definition.meaning}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
+              <span className="text-xs uppercase tracking-[0.24em] text-muted-foreground">Open</span>
+            </summary>
+            <div className="space-y-3 border-t border-border/60 px-5 py-4 text-sm">
+              <p className="leading-6 text-muted-foreground">{definition.meaning}</p>
               <div>
                 <p className="font-medium text-foreground">How to read it</p>
                 <p className="text-muted-foreground">{definition.interpretation}</p>
               </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      <div className="grid gap-4 lg:grid-cols-2">
-        {definitions.map((definition) => (
-          <Card key={definition.key} className="border-border/70 bg-background/80">
-            <CardHeader className="space-y-3 pb-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <CardTitle className="break-words text-base">{definition.label}</CardTitle>
-                <Badge variant="outline">{definition.type}</Badge>
-              </div>
-              <CardDescription className="text-sm leading-6">{definition.meaning}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
+            </div>
+          </details>
+        )}
+      />
+      <DefinitionGroup
+        items={definitions}
+        overflowLabel="More schema fields"
+        gridClassName="grid gap-4 lg:grid-cols-2"
+        renderItem={(definition) => (
+          <details
+            key={definition.key}
+            id={buildSchemaAnchorId(definition.label)}
+            className="rounded-2xl border border-border/70 bg-background/80"
+          >
+            <summary className="flex cursor-pointer list-none flex-col gap-2 px-5 py-4 sm:flex-row sm:items-center sm:justify-between [&::-webkit-details-marker]:hidden">
+              <span className="break-words text-base font-semibold">{definition.label}</span>
+              <Badge variant="outline">{definition.type}</Badge>
+            </summary>
+            <div className="space-y-3 border-t border-border/60 px-5 py-4 text-sm">
+              <p className="leading-6 text-muted-foreground">{definition.meaning}</p>
               <div>
                 <p className="font-medium text-foreground">Typical values or units</p>
                 <p className="break-words text-muted-foreground">{definition.typicalValues}</p>
@@ -496,76 +478,114 @@ function DefinitionTable({
                 <p className="font-medium text-foreground">How to read it</p>
                 <p className="text-muted-foreground">{definition.interpretation}</p>
               </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+            </div>
+          </details>
+        )}
+      />
     </div>
   )
 }
 
-function deriveConsentInsight(
-  rows: ExperienceOverviewRow[],
-  consentGrantUpdates: number,
-): ConsentInsight {
-  const summary = rows.reduce(
-    (acc, row) => {
-      if (row.analyticsConsentState === "granted") acc.grantedPageContexts += row.pageContextViews
-      else if (row.analyticsConsentState === "denied") acc.deniedPageContexts += row.pageContextViews
-      else acc.unknownPageContexts += row.pageContextViews
-      return acc
-    },
-    {
-      grantedPageContexts: 0,
-      deniedPageContexts: 0,
-      unknownPageContexts: 0,
-      consentGrantUpdates,
-    },
-  )
-
-  const knownPageContexts = summary.grantedPageContexts + summary.deniedPageContexts
-
-  return {
-    ...summary,
-    grantedPageContextShare:
-      knownPageContexts > 0 ? summary.grantedPageContexts / knownPageContexts : null,
-  }
-}
-
-export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
+export function HackathonAnalyticsDashboard({ live, dummy, status }: DashboardProps) {
   const { resolvedTheme } = useTheme()
   const palette = usePalette(resolvedTheme)
   const [renderer, setRenderer] = React.useState<RendererMode>("echarts")
-  const [source, setSource] = React.useState<SourceMode>(live.hasLiveRows ? "live" : "dummy")
+  const [source, setSource] = React.useState<SourceMode>("live")
 
   const dataset = source === "live" ? live : dummy
+  const isLiveWarehouseOnly = source === "live" && !dataset.hasLiveRows
   const overviewTotals = aggregateOverview(dataset.overview)
   const authTotals = aggregateAuth(dataset.authFunnel)
   const votingTotals = aggregateVoting(dataset.votingFunnel)
-  const managerTotals = aggregateManager(dataset.managerOperations)
-  const latestSnapshot = getLatestSnapshot(dataset.roundSnapshots)
   const entries = groupEntryPerformance(dataset.entryPerformance, dataset.voteTruth?.entries ?? [])
-  const experience = aggregateExperience(dataset.experienceOverview)
   const taxonomy = aggregateEventTaxonomy(dataset.eventBreakdown)
-  const consentInsight = deriveConsentInsight(dataset.experienceOverview, overviewTotals.consentGrants)
-  const isGaFallback = dataset.notes.some((note) =>
-    note.includes("BigQuery modeled tables are still empty")
-  )
-
-  const summaryCards = buildHackathonSummaryMetrics({
-    eventCount: formatCount(overviewTotals.totalEvents),
-    totalUsers: formatCount(overviewTotals.uniqueUsers),
-    actualVotes:
-      dataset.voteTruth != null ? formatCount(dataset.voteTruth.totals.totalVotes) : "Unavailable",
-    trackedVoteSubmissions: formatCount(overviewTotals.voteSubmissions),
-    trackingCoverage: formatCoverageRate(
-      overviewTotals.voteSubmissions,
-      dataset.voteTruth?.totals.totalVotes ?? null
-    ),
-    managerActions: formatCount(overviewTotals.managerActions),
-    fallbackTelemetry: isGaFallback,
-  })
+  const primaryModeledTableRows = status.modeledTableRows.slice(0, 5)
+  const overflowModeledTableRows = status.modeledTableRows.slice(5)
+  const summaryCards: MetricDefinition[] = isLiveWarehouseOnly
+    ? [
+        {
+          label: "Modeled rows",
+          value: formatCount(status.modeledRowCount),
+          detail: "Total landed rows across the dedicated hackathon_reporting warehouse tables.",
+          icon: <Database className="size-4" />,
+          definitionId: buildSchemaAnchorId("Modeled rows"),
+        },
+        {
+          label: "Modeled tables with rows",
+          value: formatCount(status.modeledTablesWithRows),
+          detail: "How many of the eight warehouse tables currently contain at least one landed row.",
+          icon: <Layers3 className="size-4" />,
+          definitionId: buildSchemaAnchorId("Modeled tables with rows"),
+        },
+        {
+          label: "Raw export tables",
+          value: formatCount(status.rawExportTableCount),
+          detail: "How many raw GA4 export tables currently exist in ga4_498363924.",
+          icon: <RadioTower className="size-4" />,
+          definitionId: buildSchemaAnchorId("Raw export tables"),
+        },
+        {
+          label: "Daily export",
+          value: status.link?.dailyExportEnabled ? "Enabled" : "Unavailable",
+          detail: "Admin-side BigQuery link status for daily GA4 export.",
+          icon: <Activity className="size-4" />,
+          definitionId: buildSchemaAnchorId("Daily export"),
+        },
+        {
+          label: "Streaming export",
+          value: status.link?.streamingExportEnabled ? "Enabled" : "Unavailable",
+          detail: "Admin-side BigQuery link status for streaming GA4 export.",
+          icon: <Activity className="size-4" />,
+          definitionId: buildSchemaAnchorId("Streaming export"),
+        },
+      ]
+    : buildHackathonSummaryMetrics({
+        eventCount: formatCount(overviewTotals.totalEvents),
+        totalUsers: formatCount(overviewTotals.uniqueUsers),
+        actualVotes:
+          dataset.voteTruth != null ? formatCount(dataset.voteTruth.totals.totalVotes) : "Unavailable",
+        trackedVoteSubmissions: formatCount(overviewTotals.voteSubmissions),
+        trackingCoverage: formatCoverageRate(
+          overviewTotals.voteSubmissions,
+          dataset.voteTruth?.totals.totalVotes ?? null
+        ),
+      })
   const derivedDefinitions: DerivedDefinition[] = [
+    {
+      label: "Modeled rows",
+      meaning: "Total landed rows across the dedicated hackathon_reporting warehouse tables.",
+      interpretation: "If this is zero, the BigQuery dashboard should be treated as a warehouse-status page, not an analytics story.",
+    },
+    {
+      label: "Modeled tables with rows",
+      meaning: "How many modeled warehouse tables currently contain data.",
+      interpretation: "This is the quickest way to tell whether any part of the reporting model has started landing.",
+    },
+    {
+      label: "Raw export tables",
+      meaning: "How many raw GA4 export tables currently exist in the ga4_498363924 dataset.",
+      interpretation: "If this is zero, the break is upstream of modeling and the raw export has not landed at all.",
+    },
+    {
+      label: "Daily export",
+      meaning: "Whether the live GA4 BigQuery link has daily export enabled.",
+      interpretation: "Enabled here but zero raw tables means the issue is not just a dashboard-query bug.",
+    },
+    {
+      label: "Streaming export",
+      meaning: "Whether the live GA4 BigQuery link has streaming export enabled.",
+      interpretation: "Enabled here but zero raw tables means intraday export is configured yet still not landing.",
+    },
+    {
+      label: "Event count",
+      meaning: "All modeled analytics events returned for the dashboard reporting window.",
+      interpretation: "Use this only when warehouse rows have landed or when reviewing the dummy preview.",
+    },
+    {
+      label: "Users",
+      meaning: "Distinct modeled users returned for the dashboard reporting window.",
+      interpretation: "Use this only when warehouse rows have landed or when reviewing the dummy preview.",
+    },
     {
       label: "Persisted votes",
       meaning: "Authoritative vote rows from the live competition summary, independent of analytics consent.",
@@ -579,12 +599,37 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
     {
       label: "GA4 coverage",
       meaning: "Tracked submits divided by persisted votes.",
-      interpretation: "This shows how much of the true vote ledger is visible in analytics telemetry.",
+      interpretation: "This only belongs on the dummy preview or GA4 route, not the live warehouse-status view.",
     },
     {
-      label: "Granted page-context share",
-      meaning: "Page-context events with analytics consent granted divided by known granted plus denied page-context states.",
-      interpretation: "This is the clearest consent-rate proxy on the page, and it explains why telemetry undercounts persisted votes.",
+      label: "Auth completions",
+      meaning: "Successful judge authentication events in the modeled data.",
+      interpretation: "Use this to understand modeled access completion volume on the event day.",
+    },
+    {
+      label: "Auth failures",
+      meaning: "Modeled authentication failures in the same event-day window.",
+      interpretation: "Use this as a friction signal when sign-in appears to be underperforming.",
+    },
+    {
+      label: "Dialog views",
+      meaning: "Modeled vote-modal views for the event day.",
+      interpretation: "This measures demand for the scoring surface before submits are considered.",
+    },
+    {
+      label: "Aggregate score",
+      meaning: "Summed score mass accumulated by an entry in the modeled dataset.",
+      interpretation: "Use this to compare ranking strength across entries on the event day.",
+    },
+    {
+      label: "Average score",
+      meaning: "Average score value recorded for an entry in the modeled dataset.",
+      interpretation: "Use this to compare score quality independently from vote volume.",
+    },
+    {
+      label: "View-to-vote rate",
+      meaning: "Submitted votes divided by eligible dialog views for the entry.",
+      interpretation: "This is the modeled conversion rate for the vote surface.",
     },
   ]
 
@@ -592,10 +637,6 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
   const entryLabels = entries.map((entry) => entry.entryName)
   const eventDates = dataset.overview.map((row) => row.eventDate)
   const overviewPlotRows = dataset.overview.map((row) => ({
-    ...row,
-    eventDateLabel: formatCompactDateLabel(row.eventDate),
-  }))
-  const managerOperationsPlotRows = dataset.managerOperations.map((row) => ({
     ...row,
     eventDateLabel: formatCompactDateLabel(row.eventDate),
   }))
@@ -645,12 +686,6 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
               barMaxWidth: 26,
               data: dataset.overview.map((row) => row.voteSubmissions),
             },
-            {
-              name: "Manager actions",
-              type: "line",
-              smooth: true,
-              data: dataset.overview.map((row) => row.managerActions),
-            },
           ],
         }}
       />
@@ -678,12 +713,6 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
                 x: width < 640 ? "eventDateLabel" : "eventDate",
                 y: "uniqueUsers",
                 stroke: palette.accent[0],
-                marker: true,
-              }),
-              Plot.lineY(overviewPlotRows, {
-                x: width < 640 ? "eventDateLabel" : "eventDate",
-                y: "managerActions",
-                stroke: palette.accent[4],
                 marker: true,
               }),
             ],
@@ -924,162 +953,6 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
       />
     )
 
-  const managerChart =
-    renderer === "echarts" ? (
-      <EChartSurface
-        option={{
-          backgroundColor: "transparent",
-          color: palette.accent,
-          legend: { bottom: 0, textStyle: { color: palette.muted } },
-          tooltip: { trigger: "axis" },
-          grid: { left: 26, right: 20, top: 20, bottom: 52, containLabel: true },
-          xAxis: {
-            type: "category",
-            data: dataset.managerOperations.map((row) => row.eventDate),
-            axisLabel: { color: palette.muted },
-          },
-          yAxis: {
-            type: "value",
-            axisLabel: { color: palette.muted },
-            splitLine: { lineStyle: { color: palette.grid } },
-          },
-          series: [
-            { name: "Uploads", type: "bar", stack: "ops", data: dataset.managerOperations.map((row) => row.workbookUploadSuccesses) },
-            { name: "Entry opens", type: "bar", stack: "ops", data: dataset.managerOperations.map((row) => row.entryVotingOpened) },
-            { name: "Entry closes", type: "bar", stack: "ops", data: dataset.managerOperations.map((row) => row.entryVotingClosed) },
-            { name: "Round starts", type: "bar", stack: "ops", data: dataset.managerOperations.map((row) => row.roundStarts) },
-            { name: "Finalizations", type: "bar", stack: "ops", data: dataset.managerOperations.map((row) => row.finalizations) },
-          ],
-        }}
-      />
-    ) : (
-      <ObservableSurface
-        builder={(width) =>
-          Plot.plot({
-            width,
-            height: chartHeightForWidth(width),
-            marginBottom: width < 640 ? 68 : 48,
-            style: { background: palette.panel, color: palette.text },
-            x: { label: null, tickRotate: width < 640 ? -34 : -20 },
-            y: { label: "Daily manager operations", grid: true },
-            color: { legend: true },
-            marks: [
-              Plot.barY(managerOperationsPlotRows, {
-                x: width < 640 ? "eventDateLabel" : "eventDate",
-                y: "workbookUploadSuccesses",
-                fill: palette.accent[0],
-                inset: 0.2,
-              }),
-              Plot.barY(managerOperationsPlotRows, {
-                x: width < 640 ? "eventDateLabel" : "eventDate",
-                y: "entryVotingOpened",
-                fill: palette.accent[2],
-                inset: 0.45,
-              }),
-              Plot.barY(managerOperationsPlotRows, {
-                x: width < 640 ? "eventDateLabel" : "eventDate",
-                y: "entryVotingClosed",
-                fill: palette.accent[4],
-                inset: 0.7,
-              }),
-              Plot.lineY(managerOperationsPlotRows, {
-                x: width < 640 ? "eventDateLabel" : "eventDate",
-                y: "finalizations",
-                stroke: palette.accent[5],
-                marker: true,
-              }),
-            ],
-          })
-        }
-      />
-    )
-
-  const experienceCells = dataset.experienceOverview.map((row) => ({
-    key: `${row.viewportCategory}-${row.boardView}`,
-    viewportCategory: row.viewportCategory,
-    boardView: row.boardView,
-    avgEngagedSeconds: row.avgEngagedSeconds,
-  }))
-
-  const uniqueViewports = Array.from(new Set(experienceCells.map((row) => row.viewportCategory)))
-  const uniqueBoardViews = Array.from(new Set(experienceCells.map((row) => row.boardView)))
-
-  const experienceChart =
-    renderer === "echarts" ? (
-      <EChartSurface
-        option={{
-          backgroundColor: "transparent",
-          tooltip: { trigger: "item" },
-          grid: { left: 54, right: 20, top: 20, bottom: 30 },
-          xAxis: {
-            type: "category",
-            data: uniqueBoardViews,
-            axisLabel: { color: palette.muted },
-          },
-          yAxis: {
-            type: "category",
-            data: uniqueViewports,
-            axisLabel: { color: palette.muted },
-          },
-          visualMap: {
-            min: 0,
-            max: Math.max(...experienceCells.map((row) => row.avgEngagedSeconds), 1),
-            calculable: false,
-            orient: "horizontal",
-            left: "center",
-            bottom: 0,
-            inRange: {
-              color: ["#0f172a", palette.accent[0]],
-            },
-            textStyle: { color: palette.muted },
-          },
-          series: [
-            {
-              type: "heatmap",
-              data: experienceCells.map((row) => [
-                uniqueBoardViews.indexOf(row.boardView),
-                uniqueViewports.indexOf(row.viewportCategory),
-                Number(row.avgEngagedSeconds.toFixed(1)),
-              ]),
-              label: { show: true, color: palette.text },
-            },
-          ],
-        }}
-      />
-    ) : (
-      <ObservableSurface
-        builder={(width) =>
-          Plot.plot({
-            width,
-            height: chartHeightForWidth(width),
-            marginLeft: 64,
-            style: { background: palette.panel, color: palette.text },
-            x: { label: null },
-            y: { label: null },
-            color: { scheme: "blues", legend: true },
-            marks: [
-              Plot.cell(experienceCells, {
-                x: "boardView",
-                y: "viewportCategory",
-                fill: "avgEngagedSeconds",
-                inset: 2,
-              }),
-              ...(width >= 720
-                ? [
-                    Plot.text(experienceCells, {
-                      x: "boardView",
-                      y: "viewportCategory",
-                      text: (d) => formatScore(d.avgEngagedSeconds),
-                      fill: palette.text,
-                    }),
-                  ]
-                : []),
-            ],
-          })
-        }
-      />
-    )
-
   const taxonomyChartData = taxonomy.map((group) => ({
     name: `${group.viewerRole} / ${group.competitionStatus}`,
     children: group.events.slice(0, 8).map((event) => ({
@@ -1159,13 +1032,18 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
         onSourceChange={setSource}
         source={source}
         summaryMetrics={summaryCards}
-        topBadges={["Hackathon", "Host vote.rajeevg.com", "BigQuery"]}
+        topBadges={[
+          "Hackathon",
+          "Host vote.rajeevg.com",
+          status.eventDayLabel ? `Event day ${status.eventDayLabel}` : "Event day unavailable",
+          "BigQuery",
+        ]}
         preMetricContent={
           <div className="space-y-4">
             <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
               <HackathonDisclosureCard
                 title="Promoted schema and derived metrics"
-                description="The reference layer sits up front now, so every top-line card and section metric has a clear definition before you read the rest of the dashboard."
+                description="The reference layer sits up front now, and every visible metric label links back here."
               >
                 <DefinitionTable
                   definitions={dataset.definitions}
@@ -1174,309 +1052,263 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
               </HackathonDisclosureCard>
               <HackathonReportingNotesCard notes={dataset.notes} />
             </div>
-
-            <Card className="border-border/70 bg-background/80">
-              <CardHeader>
-                <CardTitle>Consent and tracking impact</CardTitle>
-                <CardDescription>
-                  This is the trust layer for the route: how often analytics consent was granted on known page-context hits, and how that affects the visible vote telemetry.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                <MetricTile
-                  label="Granted page-context share"
-                  value={
-                    consentInsight.grantedPageContextShare == null
-                      ? "N/A"
-                      : formatPercent(consentInsight.grantedPageContextShare)
-                  }
-                />
-                <MetricTile
-                  label="Granted page-context hits"
-                  value={formatCount(consentInsight.grantedPageContexts)}
-                />
-                <MetricTile
-                  label="Denied page-context hits"
-                  value={formatCount(consentInsight.deniedPageContexts)}
-                />
-                <MetricTile
-                  label="Consent grants captured"
-                  value={formatCount(consentInsight.consentGrantUpdates)}
-                />
-                <div className="sm:col-span-2 xl:col-span-4 rounded-2xl border border-border/70 bg-muted/30 p-4">
-                  <p className="text-sm leading-6 text-muted-foreground">
-                    {consentInsight.grantedPageContextShare == null
-                      ? "Known consent-state page-context rows are not available yet, so this route can only show vote tracking coverage rather than a page-context consent share."
-                      : `Only ${formatPercent(
-                          consentInsight.grantedPageContextShare,
-                        )} of known page-context hits were granted. That is why the telemetry cards on this route must be read as fallback behavior signals rather than as warehouse truth.`}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
           </div>
         }
       >
-      <SectionShell
-        eyebrow="Pulse"
-        title="Round pulse and volume"
-        description="This combines the scoreboard-sized story with the traffic-shaped story, so you can tell whether usage, votes, and manager interventions rose together."
-        actions={<RendererToggle renderer={renderer} onChange={setRenderer} />}
-      >
-        <div className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
-          <Card className="border-border/70 bg-background/80">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="size-4" />
-                Daily momentum
-              </CardTitle>
-              <CardDescription>
-                Unique users, submitted votes, and manager actions over the reporting window.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>{overviewChart}</CardContent>
-          </Card>
-          <Card className="border-border/70 bg-background/80">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Gauge className="size-4" />
-                Latest round state
-              </CardTitle>
-              <CardDescription>
-                The freshest denominator snapshot from the dedicated round snapshot table.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-3 sm:grid-cols-2">
-                <MetricTile label="Status" value={latestSnapshot?.competitionStatus ?? "pending"} />
-                <MetricTile label="Entries" value={formatCount(latestSnapshot?.entryCount ?? 0)} />
-                <MetricTile label="Open entries" value={formatCount(latestSnapshot?.openEntryCount ?? 0)} />
-                <MetricTile label="Judges in denominator" value={formatCount(latestSnapshot?.participatingJudgeCount ?? 0)} />
-              </div>
-              <div className="rounded-2xl border border-border/70 bg-muted/30 p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-                  Remaining votes
-                </p>
-                <p className="mt-2 text-4xl font-semibold tracking-tight">
-                  {formatCount(latestSnapshot?.totalRemainingVotes ?? 0)}
-                </p>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  This is the on-the-day manager number to trust before closing individual entries or finalizing the round.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </SectionShell>
-
-      <SectionShell
-        eyebrow="Funnel"
-        title="Voting funnel and judge access"
-        description="This section answers the first real operational question people ask: did judges get in cleanly, open the modal, and actually finish their votes?"
-      >
-        <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-          <Card className="border-border/70 bg-background/80">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <RadioTower className="size-4" />
-                Voting funnel
-              </CardTitle>
-              <CardDescription>
-                From auth to submitted vote, using the dedicated voting funnel table rather than generic GA conversion events.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>{funnelChart}</CardContent>
-          </Card>
-          <Card className="border-border/70 bg-background/80">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Sparkles className="size-4" />
-                Auth mix
-              </CardTitle>
-              <CardDescription>
-                Passwordless and Google auth completions split by method, ready for when live rows start landing.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {authChart}
-              <div className="grid gap-3 sm:grid-cols-2">
-                <MetricTile label="Auth completions" value={formatCount(authTotals.authCompletions)} />
-                <MetricTile label="Auth failures" value={formatCount(authTotals.authFailures + authTotals.googleFailures)} />
-                <MetricTile label="Dialog views" value={formatCount(votingTotals.dialogViews)} />
-                <MetricTile label="Tracked submits" value={formatCount(votingTotals.submittedVotes)} />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </SectionShell>
-
-      <SectionShell
-        eyebrow="Entries"
-        title="Entry analysis"
-        description="Project-by-project performance needs both ranking and friction context, so this section pairs the scoreboard story with conversion quality."
-      >
-        <div className="grid gap-6">
-          <Card className="border-border/70 bg-background/80">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="size-4" />
-                Leaderboard by aggregate score
-              </CardTitle>
-              <CardDescription>
-                Summed score mass across the reporting window, taken from entry performance rather than the public scoreboard UI.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>{leaderboardChart}</CardContent>
-          </Card>
-          <Card className="border-border/70 bg-background/80">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Eye className="size-4" />
-                Conversion quality by entry
-              </CardTitle>
-              <CardDescription>
-                Bubble size tracks submitted votes, the x-axis shows average score, and the y-axis shows how reliably an eligible modal view became a vote.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>{entryScatter}</CardContent>
-          </Card>
-          {topEntry ? (
+      {isLiveWarehouseOnly ? (
+        <SectionShell
+          eyebrow="Warehouse"
+          title="Warehouse status"
+          description="The BigQuery route stays strictly warehouse-scoped now. When the export is empty, this page shows warehouse evidence instead of GA4 fallback numbers."
+        >
+          <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
             <Card className="border-border/70 bg-background/80">
               <CardHeader>
-                <CardTitle>Current top entry readout</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <Database className="size-4" />
+                  Modeled tables
+                </CardTitle>
                 <CardDescription>
-                  The leading project right now, with the exact metrics most likely to come up in a retrospective.
+                  Every table in the dedicated `hackathon_reporting` dataset, with the current landed row count.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                <MetricTile label="Entry" value={topEntry.entryName} />
-                <MetricTile label="Aggregate score" value={formatCount(topEntry.totalScore)} />
-                <MetricTile label="Average score" value={formatScore(topEntry.averageScore)} />
-                <MetricTile label="View-to-vote rate" value={formatPercent(topEntry.viewToVoteRate)} />
+              <CardContent className="space-y-3">
+                {primaryModeledTableRows.map((row) => (
+                  <div
+                    key={row.table}
+                    className="flex items-center justify-between gap-3 rounded-2xl border border-border/60 bg-background/50 px-4 py-3"
+                  >
+                    <p className="break-words font-medium text-foreground">{row.table}</p>
+                    <p className="shrink-0 text-lg font-semibold">{formatCount(row.rowCount)}</p>
+                  </div>
+                ))}
+                {overflowModeledTableRows.length ? (
+                  <details className="rounded-2xl border border-border/60 bg-background/50">
+                    <summary className="cursor-pointer px-4 py-3 text-sm font-medium text-foreground">
+                      More modeled tables ({overflowModeledTableRows.length})
+                    </summary>
+                    <div className="space-y-3 border-t border-border/60 px-4 py-4">
+                      {overflowModeledTableRows.map((row) => (
+                        <div
+                          key={row.table}
+                          className="flex items-center justify-between gap-3 rounded-2xl border border-border/60 bg-background/70 px-4 py-3"
+                        >
+                          <p className="break-words font-medium text-foreground">{row.table}</p>
+                          <p className="shrink-0 text-lg font-semibold">{formatCount(row.rowCount)}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </details>
+                ) : null}
               </CardContent>
             </Card>
-          ) : null}
-        </div>
-      </SectionShell>
 
-      <SectionShell
-        eyebrow="Manager"
-        title="Manager operations"
-        description="This is the operational trust layer: upload behavior, entry open-close activity, and the few actions that can change the state of the event."
-      >
-        <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-          <Card className="border-border/70 bg-background/80">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <GitBranch className="size-4" />
-                Round-control activity
-              </CardTitle>
-              <CardDescription>
-                Uploads, entry state changes, round starts, and finalizations across the reporting window.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>{managerChart}</CardContent>
-          </Card>
-          <Card className="border-border/70 bg-background/80">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Layers3 className="size-4" />
-                Operations digest
-              </CardTitle>
-              <CardDescription>
-                The fastest way to answer “did the control surface behave the way we expected?”
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="grid gap-3 sm:grid-cols-2">
-              <MetricTile label="Projects imported" value={formatCount(managerTotals.importedProjectTotal)} />
-              <MetricTile label="Entries opened" value={formatCount(managerTotals.entryVotingOpened)} />
-              <MetricTile label="Entries closed" value={formatCount(managerTotals.entryVotingClosed)} />
-              <MetricTile label="Finalizations" value={formatCount(managerTotals.finalizations)} />
-              <MetricTile label="Resets" value={formatCount(managerTotals.resets)} />
-              <MetricTile label="Workbook issues" value={formatCount(dataset.managerOperations.reduce((sum, row) => sum + row.workbookIssueTotal, 0))} />
-            </CardContent>
-          </Card>
-        </div>
-      </SectionShell>
-
-      <SectionShell
-        eyebrow="Experience"
-        title="Experience, devices, and board behavior"
-        description="The reporting shell should answer not just whether votes happened, but how the interface behaved across device classes, themes, and table-versus-chart board usage."
-      >
-        <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-          <Card className="border-border/70 bg-background/80">
-            <CardHeader>
-              <CardTitle>Engagement heatmap</CardTitle>
-              <CardDescription>
-                Average engaged seconds by viewport category and preferred board view.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>{experienceChart}</CardContent>
-          </Card>
-          <Card className="border-border/70 bg-background/80">
-            <CardHeader>
-              <CardTitle>Board-view behavior</CardTitle>
-              <CardDescription>
-                Whether people stayed in table mode or deliberately explored the chart renderer.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {experience.boardViewSummary.map((row) => (
-                <div key={row.boardView} className="rounded-2xl border border-border/70 bg-muted/30 p-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-                        {row.boardView}
+            <Card className="border-border/70 bg-background/80">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <RadioTower className="size-4" />
+                  Export link proof
+                </CardTitle>
+                <CardDescription>
+                  Live Admin API evidence for the GA4 to BigQuery export link that should be feeding this route.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4 text-sm">
+                {status.link ? (
+                  <>
+                    <div className="rounded-2xl border border-border/60 bg-background/50 p-4">
+                      <p className="font-medium text-foreground">{status.link.name}</p>
+                      <p className="mt-2 text-muted-foreground">
+                        Created {new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" }).format(new Date(status.link.createTime))} UTC
                       </p>
-                      <p className="mt-1 text-2xl font-semibold">{formatCount(row.users)} users</p>
+                      <p className="mt-2 text-muted-foreground">
+                        Dataset location {status.link.datasetLocation}. Daily export {status.link.dailyExportEnabled ? "enabled" : "disabled"}. Streaming export {status.link.streamingExportEnabled ? "enabled" : "disabled"}.
+                      </p>
                     </div>
-                    <div className="text-right text-sm text-muted-foreground">
-                      <p>Table switches: {formatCount(row.tableViewSwitches)}</p>
-                      <p>Chart switches: {formatCount(row.chartViewSwitches)}</p>
+                    <div className="rounded-2xl border border-border/60 bg-background/50 p-4">
+                      <p className="font-medium text-foreground">Selected streams</p>
+                      <ul className="mt-2 space-y-2 text-muted-foreground">
+                        {status.link.exportStreams.map((stream) => (
+                          <li key={stream}>{stream}</li>
+                        ))}
+                      </ul>
                     </div>
-                  </div>
-                </div>
-              ))}
-              {experience.viewportSummary.map((row) => (
-                <div key={row.viewport} className="flex items-center justify-between border-b border-border/60 py-2 text-sm last:border-b-0">
-                  <span className="font-medium capitalize">{row.viewport}</span>
-                  <span className="text-muted-foreground">
-                    {formatScore(row.avgEngagedSeconds)}s avg engaged time
-                  </span>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </div>
-      </SectionShell>
+                    <div className="rounded-2xl border border-border/60 bg-background/50 p-4">
+                      <p className="font-medium text-foreground">Excluded events</p>
+                      <p className="mt-2 text-muted-foreground">
+                        {status.link.excludedEvents.length
+                          ? status.link.excludedEvents.join(", ")
+                          : "None returned by the live Admin API response."}
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-muted-foreground">
+                    The warehouse check succeeded, but the Admin API link record could not be read from this runtime.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </SectionShell>
+      ) : (
+        <>
+          <SectionShell
+            eyebrow="Pulse"
+            title="Daily volume"
+            description="Event-day modeled volume only, without the removed round snapshot and manager-operation surfaces."
+            actions={<RendererToggle renderer={renderer} onChange={setRenderer} />}
+          >
+            <Card className="border-border/70 bg-background/80">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="size-4" />
+                  Daily momentum
+                </CardTitle>
+                <CardDescription>
+                  Unique users and submitted votes over the modeled event-day window.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>{overviewChart}</CardContent>
+            </Card>
+          </SectionShell>
 
-      <SectionShell
-        eyebrow="Taxonomy"
-        title="Event taxonomy"
-        description="This is the grouped event vocabulary by role and competition state, without repeating the schema reference that now lives near the top of the page."
-      >
-        <div className="grid gap-6">
-          <Card className="border-border/70 bg-background/80">
-            <CardHeader>
-              <CardTitle>Event taxonomy</CardTitle>
-              <CardDescription>
-                Grouped by viewer role and competition status so you can see whether the event vocabulary is balanced or manager-heavy.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>{taxonomyChart}</CardContent>
-          </Card>
-        </div>
-      </SectionShell>
+          <SectionShell
+            eyebrow="Funnel"
+            title="Voting funnel and judge access"
+            description="This section answers the first real operational question people ask: did judges get in cleanly, open the modal, and actually finish their votes?"
+          >
+            <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+              <Card className="border-border/70 bg-background/80">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <RadioTower className="size-4" />
+                    Voting funnel
+                  </CardTitle>
+                  <CardDescription>
+                    From auth to submitted vote, using the dedicated voting funnel table rather than generic GA conversion events.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>{funnelChart}</CardContent>
+              </Card>
+              <Card className="border-border/70 bg-background/80">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Sparkles className="size-4" />
+                    Auth mix
+                  </CardTitle>
+                  <CardDescription>
+                    Passwordless and Google auth completions split by method.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {authChart}
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <MetricTile label="Auth completions" value={formatCount(authTotals.authCompletions)} definitionId={buildSchemaAnchorId("Auth completions")} />
+                    <MetricTile label="Auth failures" value={formatCount(authTotals.authFailures + authTotals.googleFailures)} definitionId={buildSchemaAnchorId("Auth failures")} />
+                    <MetricTile label="Dialog views" value={formatCount(votingTotals.dialogViews)} definitionId={buildSchemaAnchorId("Dialog views")} />
+                    <MetricTile label="Tracked submits" value={formatCount(votingTotals.submittedVotes)} definitionId={buildSchemaAnchorId("Tracked submits")} />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </SectionShell>
+
+          <SectionShell
+            eyebrow="Entries"
+            title="Entry analysis"
+            description="Project-by-project performance needs both ranking and friction context, so this section pairs the scoreboard story with conversion quality."
+          >
+            <div className="grid gap-6">
+              <Card className="border-border/70 bg-background/80">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BarChart3 className="size-4" />
+                    Leaderboard by aggregate score
+                  </CardTitle>
+                  <CardDescription>
+                    Summed score mass across the modeled event-day window.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>{leaderboardChart}</CardContent>
+              </Card>
+              <Card className="border-border/70 bg-background/80">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Eye className="size-4" />
+                    Conversion quality by entry
+                  </CardTitle>
+                  <CardDescription>
+                    Bubble size tracks submitted votes, the x-axis shows average score, and the y-axis shows how reliably an eligible modal view became a vote.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>{entryScatter}</CardContent>
+              </Card>
+              {topEntry ? (
+                <Card className="border-border/70 bg-background/80">
+                  <CardHeader>
+                    <CardTitle>Current top entry readout</CardTitle>
+                    <CardDescription>
+                      The leading project right now, with the exact metrics most likely to come up in a retrospective.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                    <MetricTile label="Entry" value={topEntry.entryName} />
+                    <MetricTile label="Aggregate score" value={formatCount(topEntry.totalScore)} definitionId={buildSchemaAnchorId("Aggregate score")} />
+                    <MetricTile label="Average score" value={formatScore(topEntry.averageScore)} definitionId={buildSchemaAnchorId("Average score")} />
+                    <MetricTile label="View-to-vote rate" value={formatPercent(topEntry.viewToVoteRate)} definitionId={buildSchemaAnchorId("View-to-vote rate")} />
+                  </CardContent>
+                </Card>
+              ) : null}
+            </div>
+          </SectionShell>
+        </>
+      )}
+
+      {!isLiveWarehouseOnly ? (
+        <SectionShell
+          eyebrow="Taxonomy"
+          title="Event taxonomy"
+          description="Grouped event vocabulary by role and competition state, without repeating the schema reference that now lives near the top of the page."
+        >
+          <div className="grid gap-6">
+            <Card className="border-border/70 bg-background/80">
+              <CardHeader>
+                <CardTitle>Event taxonomy</CardTitle>
+                <CardDescription>
+                  Grouped by viewer role and competition status so you can see whether the event vocabulary is balanced or manager-heavy.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>{taxonomyChart}</CardContent>
+            </Card>
+          </div>
+        </SectionShell>
+      ) : null}
       </HackathonReportingShell>
     </div>
   )
 }
 
-function MetricTile({ label, value }: { label: string; value: string }) {
+function MetricTile({
+  label,
+  value,
+  definitionId,
+}: {
+  label: string
+  value: string
+  definitionId?: string
+}) {
   return (
     <div className="rounded-2xl border border-border/70 bg-muted/30 p-4">
-      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">{label}</p>
+      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+        {definitionId ? (
+          <a href={`#${definitionId}`} className="transition hover:text-foreground">
+            {label}
+          </a>
+        ) : (
+          label
+        )}
+      </p>
       <p className="mt-2 break-words text-lg font-semibold tracking-tight">{value}</p>
     </div>
   )

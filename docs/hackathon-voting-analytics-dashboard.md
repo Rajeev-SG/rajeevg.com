@@ -6,223 +6,188 @@ Last updated: 2026-03-25
 
 These routes are the in-site reporting surfaces for the hackathon voting app:
 
-- Production route: `https://rajeevg.com/projects/hackathon-voting-analytics`
-- GA4 API route: `https://rajeevg.com/projects/hackathon-voting-analytics/google-analytics`
-- Source repo for the voting product: `https://github.com/Rajeev-SG/hackathon-voting-prototype`
+- Production BigQuery route: `https://rajeevg.com/projects/hackathon-voting-analytics`
+- Production GA4 route: `https://rajeevg.com/projects/hackathon-voting-analytics/google-analytics`
+- Voting app source repo: `https://github.com/Rajeev-SG/hackathon-voting-prototype`
 
-They exist because the Looker Studio artifact was not trustworthy enough for the event-memory use case. The BigQuery dashboard lives inside `rajeevg.com`, reads only from the dedicated hackathon reporting dataset, and keeps a full dummy-data mode so the visual shell can still be reviewed before export rows land. The GA4 route uses the official Google Analytics Data API client against the shared property, pinned to the hackathon hostname.
+They now separate three things clearly:
 
-Both routes now share the same reporting shell: the same hero, route tabs, source toggle, summary cards, and source card all stay in the same position so switching between BigQuery and GA4 does not cause a visible re-layout at the top of the page.
+- the authoritative vote ledger from the voting app
+- direct GA4 telemetry from the shared property
+- warehouse status for the GA4-to-BigQuery export and the modeled `hackathon_reporting` dataset
 
-Both routes now also reconcile against the voting app's public source-of-truth summary endpoint at `https://vote.rajeevg.com/api/reporting/public-summary`. That endpoint is backed by the same competition snapshot that powers the public scoreboard, so the `Persisted votes` card reflects real stored votes instead of GA4 event coverage.
+## Current route behavior
 
-As of 2026-03-25, the BigQuery route is also warehouse-aware:
+### BigQuery route
 
-- if modeled BigQuery rows are available, it reads `personal-gws-1.hackathon_reporting`
-- if the modeled tables are still empty, it renders a GA4-derived modeled fallback and says so in the notes card
-- if the runtime cannot reach BigQuery at all, it also falls back to GA4 and exposes the runtime failure in the notes
+Live mode on `/projects/hackathon-voting-analytics` is now strictly warehouse-scoped.
 
-The production GA4 path also now trims env-derived hostname and stream values before using them in exact filters. That matters because the Vercel env values for the hackathon hostname and stream had trailing newlines during the post-event audit, which otherwise caused a false-zero GA4 result.
+- It defaults to `Live reporting`, even when the warehouse is empty.
+- It no longer shows GA4-derived metric cards in live mode.
+- When modeled tables are empty, it renders warehouse evidence only:
+  - modeled row count
+  - modeled tables with rows
+  - raw export table count
+  - daily export status
+  - streaming export status
+- It shows the Admin API BigQuery-link proof directly on the page:
+  - link name
+  - creation time
+  - dataset location
+  - selected streams
+  - excluded events response
+- `Dummy preview` only exists on this route, and only as an explicit preview mode.
 
-## What the routes do
+### GA4 route
 
-- BigQuery dashboard:
-  - reads live reporting rows from `personal-gws-1.hackathon_reporting` when modeled rows exist
-  - never reads the main `rajeevg.com` page-reporting tables
-  - falls back to a GA4-derived modeled dataset when the warehouse is empty or unreachable
-  - keeps `Persisted votes` pinned to the live voting-app summary even while the warehouse is empty
-  - labels fallback telemetry cards explicitly as `Fallback ...` when the warehouse is empty, so non-zero cards are not misread as modeled BigQuery rows
-  - surfaces warehouse reconciliation notes in a collapsed disclosure instead of an always-open wall of text
-  - surfaces a visible `Consent and tracking impact` card before the topline metrics
-  - lets the viewer switch between:
-    - `ECharts`
-    - `Observable Plot`
-  - lets the viewer switch between:
-    - `Live reporting`
-    - `Dummy preview`
-- GA4 API surface:
-  - reads the shared GA4 property `498363924` through `@google-analytics/data`
-  - filters all report queries to `hostName = vote.rajeevg.com`
-  - uses the promoted hackathon dimensions and metrics directly from the property
-  - keeps persisted vote totals separate from GA4 `vote_submitted`, which is shown as tracked analytics coverage only
-  - moves the schema reference to the top of the page and keeps it collapsed by default
-  - removes the redundant GA4 `Round snapshot surface` and replaces it with consent-impact and telemetry-quality views
-  - removes the redundant `Avg aggregate` entry metric and replaces the entry rows with consent, coverage, tracked submit, and source-of-truth vote metrics
-  - no longer exposes `Dummy preview`; that toggle now only exists on the BigQuery route
+The GA4 route stays telemetry-focused and event-day scoped.
 
-The dummy mode is intentional. It lets the reporting shell stay reviewable even while Google is still populating raw export rows.
+- It reads the shared GA4 property `498363924` through `@google-analytics/data`.
+- It filters all report queries to `hostName = vote.rajeevg.com`.
+- It is limited to the live event day derived from the voting app summary, not the older rolling window.
+- It now shows only:
+  - `Consent and tracking impact`
+  - `Event-day event surface`
+  - `Telemetry checkpoints`
+  - `Entry surface`
+- It no longer shows:
+  - `Dummy preview`
+  - `Experience`
+  - `Manager operations`
+  - `Round snapshot surface`
+  - `Granted dialog share`
+  - `Denied dialogs`
+  - `competition_state_snapshot`
 
-## Reporting sections
+## Interaction and layout rules now enforced
 
-The route is designed to go beyond simple topline metrics. The current sections are:
+- The schema panel sits between the hero and the topline metrics.
+- The schema panel is collapsed by default.
+- The source-reconciliation panel is collapsed by default.
+- Individual schema cards are collapsed by default.
+- Visible metric labels link back to schema definitions through anchor links.
+- Panels expose at most five visible cards at once.
+- Extra cards are moved behind a disclosure such as `More derived metrics`, `More schema fields`, `More event groups`, `More entries`, or `More modeled tables`.
 
-- `Round pulse and volume`
-  - Daily usage, vote volume, and manager-action context
-- `Voting funnel and judge access`
-  - Auth-to-vote funnel, auth mix, and submission completion quality
-- `Entry analysis`
-  - Per-project dialog demand, blockage, score totals, average score, and conversion rate
-- `Manager operations`
-  - Workbook uploads, round starts, per-entry voting control, reset/finalize activity, and failure counters
-- `Experience, devices, and board behavior`
-  - Viewport mix, consent state, board-view usage, interaction depth, and engagement quality
-- `Event taxonomy`
-  - Event-family breakdown without repeating the top-of-page schema reference
+## Admin-side BigQuery link investigation
 
-## BigQuery model
+Fresh admin-side evidence on 2026-03-25 confirmed the following for GA4 property `498363924`:
 
-The route expects the following reporting tables inside `hackathon_reporting`:
+- BigQuery link: `properties/498363924/bigQueryLinks/QW0m3ZzhTl2jFYPJO2MIzA`
+- Linked project: `projects/401448512581` (`personal-gws-1`)
+- Created: `2026-03-23T22:07:07.294Z`
+- Dataset location: `EU`
+- `dailyExportEnabled = true`
+- `streamingExportEnabled = true`
+- Selected streams:
+  - `properties/498363924/dataStreams/11542983613`
+  - `properties/498363924/dataStreams/14214480224`
+- Excluded events:
+  - none returned by the live Admin API response
 
-- `daily_overview`
-- `event_breakdown`
-- `entry_performance`
-- `round_snapshots`
-- `auth_funnel_daily`
-- `voting_funnel_daily`
-- `manager_operations_daily`
-- `experience_overview_daily`
+Fresh BigQuery checks at the same time showed:
 
-## Runtime configuration
-
-The `rajeevg.com` Vercel project needs these env vars:
-
-- `BIGQUERY_PROJECT_ID=personal-gws-1`
-- `BIGQUERY_DATASET_ID=hackathon_reporting`
-- `BIGQUERY_SERVICE_ACCOUNT_JSON=<service account json>`
-- `GA4_PROPERTY_ID=498363924`
-- `GA4_SERVICE_ACCOUNT_JSON=<service account json>`
-- `GA4_HACKATHON_HOSTNAME=vote.rajeevg.com`
-- `GA4_HACKATHON_STREAM_ID=14214480224`
-- `HACKATHON_VOTING_APP_URL=https://vote.rajeevg.com`
-
-The live adapter is implemented in:
-
-- [/Users/rajeev/Code/rajeevg.com/src/lib/hackathon-reporting.ts](/Users/rajeev/Code/rajeevg.com/src/lib/hackathon-reporting.ts)
-- [/Users/rajeev/Code/rajeevg.com/src/lib/hackathon-ga4-reporting.ts](/Users/rajeev/Code/rajeevg.com/src/lib/hackathon-ga4-reporting.ts)
-
-The dummy dataset is implemented in:
-
-- [/Users/rajeev/Code/rajeevg.com/src/lib/hackathon-reporting-dummy.ts](/Users/rajeev/Code/rajeevg.com/src/lib/hackathon-reporting-dummy.ts)
-
-## Verified status on 2026-03-25
-
-Both routes are live, verified, and now reconcile the source discrepancy honestly instead of collapsing to an empty shell.
-
-Production proof:
-
-- `curl -I https://rajeevg.com/projects/hackathon-voting-analytics` returned `200`
-- `curl -I https://rajeevg.com/projects/hackathon-voting-analytics/google-analytics` returned `200`
-- Desktop Playwright proof passed on production
-- Mobile Playwright proof passed on production
-- Desktop and mobile shared-shell consistency proof passed on production
-- Exhaustive production dashboard audit passed for:
-  - `/projects/hackathon-voting-analytics`
-  - `/projects/hackathon-voting-analytics/google-analytics`
-  - `/projects/site-analytics`
-- `analytics_mcp.run_report` accepted the exact hackathon GA query shapes used by the GA4 route:
-  - `eventName + customEvent:viewer_role + customEvent:competition_status`
-  - `customEvent:competition_status + averageCustomEvent:entry_count/open_entry_count/participating_judge_count/total_remaining_votes`
-
-Reconciliation proof on 2026-03-25 now records the current live snapshot explicitly instead of treating GA4 `vote_submitted` as the real vote total:
-
-- live voting-app public summary:
-  - persisted votes: `297`
-  - unique judges: `37`
-  - total entries: `9`
-- direct GA4 proof for `hostName = vote.rajeevg.com`:
-  - `vote_dialog_viewed`: `345`
-  - `vote_submitted`: `170`
-  - `judge_auth_completed`: `21`
-  - `consent_state_updated`: `48`
-- direct GA4 consent-state proof for `page_context` on `vote.rajeevg.com`:
-  - `granted`: `70`
-  - `denied`: `211`
-- public dashboard reconciliation:
-  - `/projects/hackathon-voting-analytics` persisted votes: `297`
-  - `/projects/hackathon-voting-analytics/google-analytics` persisted votes: `297`
-  - both routes show `Tracked submits: 170` and `GA4 coverage: 57%`
-  - both routes show `Granted page-context share: 25%` from `70 granted / 211 denied`
-
-Current warehouse state:
-
-- Raw export dataset `personal-gws-1:ga4_498363924`
+- raw export dataset `personal-gws-1:ga4_498363924`
   - landed table count: `0`
-- Modeled dataset `personal-gws-1:hackathon_reporting`
-  - landed table count: `8`
-  - total row count: `0`
+- modeled dataset `personal-gws-1:hackathon_reporting`
+  - landed tables: `8`
+  - total landed modeled rows: `0`
 
-Current modeled table-row counts in `personal-gws-1.hackathon_reporting`:
+That means the export failure is not in the dashboard query logic and not in the modeled warehouse SQL. GA4 collection is live, the BigQuery link exists, daily export is enabled, streaming export is enabled, and both streams are selected, but no raw export tables have landed.
 
-- `auth_funnel_daily`: `0`
-- `daily_overview`: `0`
-- `entry_performance`: `0`
-- `event_breakdown`: `0`
-- `experience_overview_daily`: `0`
-- `manager_operations_daily`: `0`
-- `round_snapshots`: `0`
-- `voting_funnel_daily`: `0`
+## Event-day truth and telemetry
 
-That means the current discrepancy is real and explained:
+Fresh source-of-truth summary from `https://vote.rajeevg.com/api/reporting/public-summary` on 2026-03-25:
 
-- the shared GA4 property has live hackathon rows
-- raw BigQuery export has not landed tables yet
-- the modeled warehouse therefore also has no rows
+- generated at: `2026-03-25T23:13:44.893Z`
+- started at: `2026-03-25T15:18:40.027Z`
+- finalized at: `null`
+- persisted votes: `297`
+- unique judges: `37`
+- total entries: `9`
 
-Because of that, the public BigQuery route currently renders a GA4-derived modeled fallback and says so in the live notes card. The GA4 API route reads the host-filtered property directly and now includes `today`, so it shows the real hackathon traffic instead of the earlier false-empty window.
+Fresh direct GA4 event-day proof for `hostName = vote.rajeevg.com` on 2026-03-25:
+
+- `vote_dialog_viewed = 342`
+- `page_context = 215`
+- `vote_submitted = 172`
+- `consent_state_updated = 33`
+- `judge_auth_completed = 19`
+
+Fresh direct consent-state proof for `page_context` on 2026-03-25:
+
+- `denied = 172`
+- `granted = 43`
+- no `unknown` row returned
+
+Fresh direct consent-state proof for `vote_dialog_viewed` on 2026-03-25:
+
+- `granted = 278`
+- `denied = 5`
+- blank consent-state value = `59`
+
+Important interpretation:
+
+- `unknown` or blank consent state is not a third user consent state.
+- It means the event row did not carry a populated `analytics_consent_state` custom dimension.
+- That is why the page now uses `page_context` as the consent-rate proxy and no longer surfaces `unknown dialog consent` as a topline UX concept.
+
+## Verified status on production
+
+The live production routes were redeployed on 2026-03-25 and then revalidated directly against `https://rajeevg.com`.
+
+Production validation passed:
+
+- `E2E_BASE_URL=https://rajeevg.com pnpm exec playwright test tests/e2e/hackathon-analytics.spec.ts tests/e2e/hackathon-ga4.spec.ts tests/e2e/hackathon-reporting-consistency.spec.ts --reporter=list --workers=1`
+  - result: `6 passed`
+- `E2E_BASE_URL=https://rajeevg.com pnpm exec playwright test tests/e2e/projects-dashboard-audit.spec.ts --reporter=list --workers=1`
+  - result: `3 passed, 3 skipped`
+  - the skips are expected because that spec manages its own viewport matrix inside the desktop project
+
+Local validation also passed:
+
+- `pnpm lint`
+- `pnpm build`
+- `E2E_BASE_URL=http://127.0.0.1:3020 pnpm exec playwright test tests/e2e/hackathon-analytics.spec.ts tests/e2e/hackathon-ga4.spec.ts tests/e2e/hackathon-reporting-consistency.spec.ts --reporter=list --workers=1`
+  - result: `6 passed`
+- `E2E_BASE_URL=http://127.0.0.1:3020 pnpm exec playwright test tests/e2e/projects-dashboard-audit.spec.ts --reporter=list --workers=1`
+  - result: `3 passed, 3 skipped`
 
 ## Evidence
 
-- Production desktop top screenshot:
+- BigQuery desktop top proof:
   - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260325/desktop-light-top.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260325/desktop-light-top.png)
-- Production desktop voting funnel screenshot:
-  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260325/desktop-light-voting-funnel.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260325/desktop-light-voting-funnel.png)
-- Production desktop Observable entry-analysis screenshot:
-  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260325/desktop-light-entry-analysis-observable.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260325/desktop-light-entry-analysis-observable.png)
-- Production mobile top screenshot:
+- BigQuery mobile top proof:
   - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260325/mobile-dark-top.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260325/mobile-dark-top.png)
-- Production mobile Observable screenshot:
-  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260325/mobile-dark-entry-analysis-observable.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260325/mobile-dark-entry-analysis-observable.png)
-- GA4 desktop screenshot:
+- GA4 desktop top proof:
   - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-ga4-dashboard-20260325/desktop-light-top.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-ga4-dashboard-20260325/desktop-light-top.png)
-- GA4 mobile screenshot:
+- GA4 mobile top proof:
   - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-ga4-dashboard-20260325/mobile-dark-top.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-ga4-dashboard-20260325/mobile-dark-top.png)
-- Shared-shell consistency screenshots:
-  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260325/desktop-light-bigquery-shell.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260325/desktop-light-bigquery-shell.png)
-  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260325/desktop-light-ga4-shell.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260325/desktop-light-ga4-shell.png)
-  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260325/mobile-dark-bigquery-shell.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260325/mobile-dark-bigquery-shell.png)
-  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260325/mobile-dark-ga4-shell.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260325/mobile-dark-ga4-shell.png)
-- Exhaustive local dashboard audit artifacts:
-  - [/Users/rajeev/Code/rajeevg.com/output/acceptance/projects-dashboard-audit-20260325/local](/Users/rajeev/Code/rajeevg.com/output/acceptance/projects-dashboard-audit-20260325/local)
-- Exhaustive production dashboard audit artifacts:
-  - [/Users/rajeev/Code/rajeevg.com/output/acceptance/projects-dashboard-audit-20260325/prod](/Users/rajeev/Code/rajeevg.com/output/acceptance/projects-dashboard-audit-20260325/prod)
-- Reconciliation proof:
-  - [/Users/rajeev/Code/rajeevg.com/output/acceptance/reporting-reconciliation-20260325/proof.md](/Users/rajeev/Code/rajeevg.com/output/acceptance/reporting-reconciliation-20260325/proof.md)
-  - [/Users/rajeev/Code/rajeevg.com/output/acceptance/reporting-vote-reconciliation-20260325/proof.md](/Users/rajeev/Code/rajeevg.com/output/acceptance/reporting-vote-reconciliation-20260325/proof.md)
-
-The exhaustive audit covers every chart, chart label region, summary block, and long-form list surface on:
-
-- `/projects/hackathon-voting-analytics`
-- `/projects/hackathon-voting-analytics/google-analytics`
-- `/projects/site-analytics`
-
-It captures desktop, wide-desktop, tablet, and mobile-dark viewports, and it checks for horizontal overflow, clipped text, Observable SVG text collisions, and console errors before preserving the screenshots.
+- Production warehouse-status audit screenshot:
+  - [/Users/rajeev/Code/rajeevg.com/output/acceptance/projects-dashboard-audit-20260325/prod/hackathon-bigquery-desktop-light-warehouse-status.png](/Users/rajeev/Code/rajeevg.com/output/acceptance/projects-dashboard-audit-20260325/prod/hackathon-bigquery-desktop-light-warehouse-status.png)
+- Production GA4 event-day audit screenshot:
+  - [/Users/rajeev/Code/rajeevg.com/output/acceptance/projects-dashboard-audit-20260325/prod/hackathon-ga4-desktop-light-event-day-event-surface.png](/Users/rajeev/Code/rajeevg.com/output/acceptance/projects-dashboard-audit-20260325/prod/hackathon-ga4-desktop-light-event-day-event-surface.png)
+- Production GA4 mobile entry-surface audit screenshot:
+  - [/Users/rajeev/Code/rajeevg.com/output/acceptance/projects-dashboard-audit-20260325/prod/hackathon-ga4-mobile-dark-entry-surface.png](/Users/rajeev/Code/rajeevg.com/output/acceptance/projects-dashboard-audit-20260325/prod/hackathon-ga4-mobile-dark-entry-surface.png)
+- Admin-side investigation proof:
+  - [/Users/rajeev/Code/rajeevg.com/output/acceptance/hackathon-bigquery-link-investigation-20260325/proof.md](/Users/rajeev/Code/rajeevg.com/output/acceptance/hackathon-bigquery-link-investigation-20260325/proof.md)
+  - [/Users/rajeev/Code/rajeevg.com/output/acceptance/hackathon-bigquery-link-investigation-20260325/live-evidence.json](/Users/rajeev/Code/rajeevg.com/output/acceptance/hackathon-bigquery-link-investigation-20260325/live-evidence.json)
 
 ## Commands to reuse
 
-Local validation:
+Local:
 
 ```bash
 pnpm lint
 pnpm build
+E2E_BASE_URL=http://127.0.0.1:3020 pnpm exec playwright test tests/e2e/hackathon-analytics.spec.ts tests/e2e/hackathon-ga4.spec.ts tests/e2e/hackathon-reporting-consistency.spec.ts --reporter=list --workers=1
 E2E_BASE_URL=http://127.0.0.1:3020 pnpm exec playwright test tests/e2e/projects-dashboard-audit.spec.ts --reporter=list --workers=1
-E2E_BASE_URL=http://127.0.0.1:3020 pnpm exec playwright test tests/e2e/hackathon-analytics.spec.ts --reporter=list --workers=1
 ```
 
-Production validation:
+Production:
 
 ```bash
-curl -I https://rajeevg.com/projects/hackathon-voting-analytics
-E2E_BASE_URL=https://rajeevg.com pnpm exec playwright test tests/e2e/projects-dashboard-audit.spec.ts --reporter=list --workers=1
+vercel deploy --prod --yes
 E2E_BASE_URL=https://rajeevg.com pnpm exec playwright test tests/e2e/hackathon-analytics.spec.ts tests/e2e/hackathon-ga4.spec.ts tests/e2e/hackathon-reporting-consistency.spec.ts --reporter=list --workers=1
-curl -I https://rajeevg.com/projects/hackathon-voting-analytics/google-analytics
+E2E_BASE_URL=https://rajeevg.com pnpm exec playwright test tests/e2e/projects-dashboard-audit.spec.ts --reporter=list --workers=1
 ```
