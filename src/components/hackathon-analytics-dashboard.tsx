@@ -30,6 +30,7 @@ import type {
   RoundSnapshotRow,
   VotingFunnelRow,
 } from "@/lib/hackathon-reporting-types"
+import type { HackathonVoteTruthEntry } from "@/lib/hackathon-vote-truth"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -195,7 +196,11 @@ function getLatestSnapshot(rows: RoundSnapshotRow[]) {
   return rows.at(-1)
 }
 
-function groupEntryPerformance(rows: EntryPerformanceRow[]) {
+function groupEntryPerformance(
+  rows: EntryPerformanceRow[],
+  truthEntries: HackathonVoteTruthEntry[] = [],
+) {
+  const truthBySlug = new Map(truthEntries.map((entry) => [entry.slug, entry]))
   const map = new Map<string, EntryPerformanceRow & { daysObserved: number }>()
   for (const row of rows) {
     const current = map.get(row.entrySlug)
@@ -216,11 +221,16 @@ function groupEntryPerformance(rows: EntryPerformanceRow[]) {
     current.daysObserved += 1
   }
   return Array.from(map.values())
-    .map((row) => ({
-      ...row,
-      averageScore: row.averageScore / row.daysObserved,
-      viewToVoteRate: row.viewToVoteRate / row.daysObserved,
-    }))
+    .map((row) => {
+      const truthEntry = truthBySlug.get(row.entrySlug)
+
+      return {
+        ...row,
+        totalScore: truthEntry?.totalScore ?? row.totalScore,
+        averageScore: truthEntry?.averageScore ?? row.averageScore / row.daysObserved,
+        viewToVoteRate: Math.min(row.viewToVoteRate / row.daysObserved, 1),
+      }
+    })
     .sort((a, b) => b.totalScore - a.totalScore)
 }
 
@@ -534,7 +544,7 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
   const votingTotals = aggregateVoting(dataset.votingFunnel)
   const managerTotals = aggregateManager(dataset.managerOperations)
   const latestSnapshot = getLatestSnapshot(dataset.roundSnapshots)
-  const entries = groupEntryPerformance(dataset.entryPerformance)
+  const entries = groupEntryPerformance(dataset.entryPerformance, dataset.voteTruth?.entries ?? [])
   const experience = aggregateExperience(dataset.experienceOverview)
   const taxonomy = aggregateEventTaxonomy(dataset.eventBreakdown)
   const consentInsight = deriveConsentInsight(dataset.experienceOverview, overviewTotals.consentGrants)
