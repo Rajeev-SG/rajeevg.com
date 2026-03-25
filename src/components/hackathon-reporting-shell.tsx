@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react"
 import Link from "next/link"
-import { BarChart3, Database, Gauge, RadioTower, ShieldCheck } from "lucide-react"
+import { BarChart3, ChevronDown, Database, Gauge, RadioTower, ShieldCheck } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -49,16 +49,22 @@ function formatGeneratedAt(value: string) {
 function SourceToggle({
   source,
   onChange,
+  showDummyPreview,
 }: {
   source: HackathonReportingSourceMode
   onChange: (value: HackathonReportingSourceMode) => void
+  showDummyPreview: boolean
 }) {
-  return (
-    <div className="inline-flex flex-wrap rounded-full border border-border bg-muted/50 p-1">
-      {([
+  const items = showDummyPreview
+    ? ([
         { value: "live", label: "Live reporting" },
         { value: "dummy", label: "Dummy preview" },
-      ] as const).map((item) => (
+      ] as const)
+    : ([{ value: "live", label: "Live reporting" }] as const)
+
+  return (
+    <div className="inline-flex flex-wrap rounded-full border border-border bg-muted/50 p-1">
+      {items.map((item) => (
         <button
           key={item.value}
           type="button"
@@ -137,18 +143,24 @@ export function buildHackathonSummaryMetrics(metrics: {
   trackedVoteSubmissions: string
   trackingCoverage: string
   managerActions: string
+  fallbackTelemetry?: boolean
 }): MetricDefinition[] {
+  const telemetryPrefix = metrics.fallbackTelemetry ? "Fallback " : ""
+  const telemetryDetail = metrics.fallbackTelemetry
+    ? "Shown from GA4-derived fallback telemetry because the modeled BigQuery tables are still empty."
+    : undefined
+
   return [
     {
-      label: "Event count",
+      label: `${telemetryPrefix}event count`,
       value: metrics.eventCount,
-      detail: "Total hackathon analytics events returned in the current reporting window.",
+      detail: telemetryDetail ?? "Total hackathon analytics events returned in the current reporting window.",
       icon: <BarChart3 className="size-4" />,
     },
     {
-      label: "Users",
+      label: `${telemetryPrefix}users`,
       value: metrics.totalUsers,
-      detail: "Distinct users observed on the hackathon reporting surface in the same window.",
+      detail: telemetryDetail ?? "Distinct users observed on the hackathon reporting surface in the same window.",
       icon: <RadioTower className="size-4" />,
     },
     {
@@ -158,9 +170,10 @@ export function buildHackathonSummaryMetrics(metrics: {
       icon: <Gauge className="size-4" />,
     },
     {
-      label: "Tracked submits",
+      label: `${telemetryPrefix}tracked submits`,
       value: metrics.trackedVoteSubmissions,
-      detail: "GA4 vote_submitted events captured as analytics telemetry for the same window.",
+      detail:
+        telemetryDetail ?? "GA4 vote_submitted events captured as analytics telemetry for the same window.",
       icon: <RadioTower className="size-4" />,
     },
     {
@@ -170,12 +183,50 @@ export function buildHackathonSummaryMetrics(metrics: {
       icon: <Database className="size-4" />,
     },
     {
-      label: "Manager actions",
+      label: `${telemetryPrefix}manager actions`,
       value: metrics.managerActions,
-      detail: "Uploads, round controls, and entry state operations recorded for the manager.",
+      detail:
+        telemetryDetail ?? "Uploads, round controls, and entry state operations recorded for the manager.",
       icon: <ShieldCheck className="size-4" />,
     },
   ]
+}
+
+export function HackathonDisclosureCard({
+  title,
+  description,
+  icon,
+  defaultOpen = false,
+  children,
+}: {
+  title: string
+  description: string
+  icon?: ReactNode
+  defaultOpen?: boolean
+  children: ReactNode
+}) {
+  return (
+    <details
+      className="group rounded-[1.5rem] border border-border/70 bg-background/80"
+      open={defaultOpen}
+    >
+      <summary className="flex cursor-pointer list-none items-start justify-between gap-4 px-5 py-5 [&::-webkit-details-marker]:hidden">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            {icon ? (
+              <span className="rounded-full border border-border/60 bg-muted/30 p-2 text-muted-foreground">
+                {icon}
+              </span>
+            ) : null}
+            <h3 className="text-base font-semibold">{title}</h3>
+          </div>
+          <p className="max-w-3xl text-sm leading-6 text-muted-foreground">{description}</p>
+        </div>
+        <ChevronDown className="mt-1 size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
+      </summary>
+      <div className="px-5 pb-5">{children}</div>
+    </details>
+  )
 }
 
 export function HackathonReportingNotesCard({
@@ -186,14 +237,11 @@ export function HackathonReportingNotesCard({
   if (!notes.length) return null
 
   return (
-    <Card className="border-border/70 bg-background/80">
-      <CardHeader>
-        <CardTitle className="text-base">Source reconciliation</CardTitle>
-        <CardDescription>
-          Fresh reporting boundaries and discrepancies for this surface.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+    <HackathonDisclosureCard
+      title="Source reconciliation"
+      description="Fresh reporting boundaries, fallback behavior, and proven discrepancies for this surface."
+    >
+      <div className="space-y-3">
         <ul className="space-y-3 text-sm leading-6 text-muted-foreground">
           {notes.map((note) => (
             <li key={note} className="rounded-2xl border border-border/60 bg-background/50 px-4 py-3">
@@ -201,8 +249,8 @@ export function HackathonReportingNotesCard({
             </li>
           ))}
         </ul>
-      </CardContent>
-    </Card>
+      </div>
+    </HackathonDisclosureCard>
   )
 }
 
@@ -214,6 +262,8 @@ export function HackathonReportingShell({
   topBadges,
   summary,
   summaryMetrics,
+  preMetricContent,
+  showDummyPreview = activeSurface === "bigquery",
   children,
 }: {
   activeSurface: HackathonReportingSurface
@@ -223,6 +273,8 @@ export function HackathonReportingShell({
   topBadges: string[]
   summary: string
   summaryMetrics: MetricDefinition[]
+  preMetricContent?: ReactNode
+  showDummyPreview?: boolean
   children: ReactNode
 }) {
   return (
@@ -262,7 +314,11 @@ export function HackathonReportingShell({
             </div>
             <div className="flex flex-wrap gap-3">
               <SurfaceTabs activeSurface={activeSurface} />
-              <SourceToggle onChange={onSourceChange} source={source} />
+              <SourceToggle
+                onChange={onSourceChange}
+                showDummyPreview={showDummyPreview}
+                source={source}
+              />
             </div>
           </div>
           <Card className="h-full min-h-[12.5rem] border-border/70 bg-background/80">
@@ -291,6 +347,8 @@ export function HackathonReportingShell({
           </Card>
         </div>
       </section>
+
+      {preMetricContent}
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
         {summaryMetrics.map((metric) => (

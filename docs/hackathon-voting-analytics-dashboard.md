@@ -31,20 +31,24 @@ The production GA4 path also now trims env-derived hostname and stream values be
   - never reads the main `rajeevg.com` page-reporting tables
   - falls back to a GA4-derived modeled dataset when the warehouse is empty or unreachable
   - keeps `Persisted votes` pinned to the live voting-app summary even while the warehouse is empty
-  - labels GA4-derived submit counts as tracked telemetry instead of actual votes
-  - surfaces warehouse reconciliation notes so the viewer can see whether the page is using modeled BigQuery rows or fallback GA4 rows
+  - labels fallback telemetry cards explicitly as `Fallback ...` when the warehouse is empty, so non-zero cards are not misread as modeled BigQuery rows
+  - surfaces warehouse reconciliation notes in a collapsed disclosure instead of an always-open wall of text
+  - surfaces a visible `Consent and tracking impact` card before the topline metrics
   - lets the viewer switch between:
-  - `ECharts`
-  - `Observable Plot`
+    - `ECharts`
+    - `Observable Plot`
   - lets the viewer switch between:
-  - `Live reporting`
-  - `Dummy preview`
+    - `Live reporting`
+    - `Dummy preview`
 - GA4 API surface:
   - reads the shared GA4 property `498363924` through `@google-analytics/data`
   - filters all report queries to `hostName = vote.rajeevg.com`
   - uses the promoted hackathon dimensions and metrics directly from the property
   - keeps persisted vote totals separate from GA4 `vote_submitted`, which is shown as tracked analytics coverage only
-  - keeps its own `Dummy preview` so the shell stays reviewable while property rows are still sparse
+  - moves the schema reference to the top of the page and keeps it collapsed by default
+  - removes the redundant GA4 `Round snapshot surface` and replaces it with consent-impact and telemetry-quality views
+  - removes the redundant `Avg aggregate` entry metric and replaces the entry rows with consent, coverage, tracked submit, and source-of-truth vote metrics
+  - no longer exposes `Dummy preview`; that toggle now only exists on the BigQuery route
 
 The dummy mode is intentional. It lets the reporting shell stay reviewable even while Google is still populating raw export rows.
 
@@ -62,8 +66,8 @@ The route is designed to go beyond simple topline metrics. The current sections 
   - Workbook uploads, round starts, per-entry voting control, reset/finalize activity, and failure counters
 - `Experience, devices, and board behavior`
   - Viewport mix, consent state, board-view usage, interaction depth, and engagement quality
-- `Event taxonomy and promoted schema`
-  - Event-family breakdown and a data dictionary for the promoted reporting dimensions and metrics
+- `Event taxonomy`
+  - Event-family breakdown without repeating the top-of-page schema reference
 
 ## BigQuery model
 
@@ -126,11 +130,18 @@ Reconciliation proof on 2026-03-25 now records the current live snapshot explici
   - unique judges: `37`
   - total entries: `9`
 - direct GA4 proof for `hostName = vote.rajeevg.com`:
-  - `vote_submitted`: `20`
+  - `vote_dialog_viewed`: `345`
+  - `vote_submitted`: `170`
+  - `judge_auth_completed`: `21`
+  - `consent_state_updated`: `48`
+- direct GA4 consent-state proof for `page_context` on `vote.rajeevg.com`:
+  - `granted`: `70`
+  - `denied`: `211`
 - public dashboard reconciliation:
   - `/projects/hackathon-voting-analytics` persisted votes: `297`
   - `/projects/hackathon-voting-analytics/google-analytics` persisted votes: `297`
-  - both routes show `Tracked submits: 20` and `GA4 coverage: 6.7%`
+  - both routes show `Tracked submits: 170` and `GA4 coverage: 57%`
+  - both routes show `Granted page-context share: 25%` from `70 granted / 211 denied`
 
 Current warehouse state:
 
@@ -162,24 +173,24 @@ Because of that, the public BigQuery route currently renders a GA4-derived model
 ## Evidence
 
 - Production desktop top screenshot:
-  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260324/desktop-light-top.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260324/desktop-light-top.png)
+  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260325/desktop-light-top.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260325/desktop-light-top.png)
 - Production desktop voting funnel screenshot:
-  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260324/desktop-light-voting-funnel.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260324/desktop-light-voting-funnel.png)
+  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260325/desktop-light-voting-funnel.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260325/desktop-light-voting-funnel.png)
 - Production desktop Observable entry-analysis screenshot:
-  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260324/desktop-light-entry-analysis-observable.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260324/desktop-light-entry-analysis-observable.png)
+  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260325/desktop-light-entry-analysis-observable.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260325/desktop-light-entry-analysis-observable.png)
 - Production mobile top screenshot:
-  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260324/mobile-dark-top.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260324/mobile-dark-top.png)
+  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260325/mobile-dark-top.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260325/mobile-dark-top.png)
 - Production mobile Observable screenshot:
-  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260324/mobile-dark-entry-analysis-observable.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260324/mobile-dark-entry-analysis-observable.png)
+  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260325/mobile-dark-entry-analysis-observable.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-dashboard-20260325/mobile-dark-entry-analysis-observable.png)
 - GA4 desktop screenshot:
-  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-ga4-dashboard-20260324/desktop-light-top.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-ga4-dashboard-20260324/desktop-light-top.png)
+  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-ga4-dashboard-20260325/desktop-light-top.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-ga4-dashboard-20260325/desktop-light-top.png)
 - GA4 mobile screenshot:
-  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-ga4-dashboard-20260324/mobile-dark-top.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-ga4-dashboard-20260324/mobile-dark-top.png)
+  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-ga4-dashboard-20260325/mobile-dark-top.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-ga4-dashboard-20260325/mobile-dark-top.png)
 - Shared-shell consistency screenshots:
-  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260324/desktop-light-bigquery-shell.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260324/desktop-light-bigquery-shell.png)
-  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260324/desktop-light-ga4-shell.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260324/desktop-light-ga4-shell.png)
-  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260324/mobile-dark-bigquery-shell.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260324/mobile-dark-bigquery-shell.png)
-  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260324/mobile-dark-ga4-shell.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260324/mobile-dark-ga4-shell.png)
+  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260325/desktop-light-bigquery-shell.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260325/desktop-light-bigquery-shell.png)
+  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260325/desktop-light-ga4-shell.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260325/desktop-light-ga4-shell.png)
+  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260325/mobile-dark-bigquery-shell.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260325/mobile-dark-bigquery-shell.png)
+  - [/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260325/mobile-dark-ga4-shell.png](/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-reporting-consistency-20260325/mobile-dark-ga4-shell.png)
 - Exhaustive local dashboard audit artifacts:
   - [/Users/rajeev/Code/rajeevg.com/output/acceptance/projects-dashboard-audit-20260325/local](/Users/rajeev/Code/rajeevg.com/output/acceptance/projects-dashboard-audit-20260325/local)
 - Exhaustive production dashboard audit artifacts:
@@ -212,8 +223,6 @@ Production validation:
 ```bash
 curl -I https://rajeevg.com/projects/hackathon-voting-analytics
 E2E_BASE_URL=https://rajeevg.com pnpm exec playwright test tests/e2e/projects-dashboard-audit.spec.ts --reporter=list --workers=1
-E2E_BASE_URL=https://rajeevg.com pnpm exec playwright test tests/e2e/hackathon-analytics.spec.ts --reporter=list --workers=1
+E2E_BASE_URL=https://rajeevg.com pnpm exec playwright test tests/e2e/hackathon-analytics.spec.ts tests/e2e/hackathon-ga4.spec.ts tests/e2e/hackathon-reporting-consistency.spec.ts --reporter=list --workers=1
 curl -I https://rajeevg.com/projects/hackathon-voting-analytics/google-analytics
-E2E_BASE_URL=https://rajeevg.com pnpm exec playwright test tests/e2e/hackathon-ga4.spec.ts --reporter=list --workers=1
-E2E_BASE_URL=https://rajeevg.com pnpm exec playwright test tests/e2e/hackathon-reporting-consistency.spec.ts --reporter=list --workers=1
 ```

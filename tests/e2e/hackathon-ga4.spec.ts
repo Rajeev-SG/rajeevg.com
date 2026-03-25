@@ -5,7 +5,7 @@ import { expect, test, type Locator, type Page } from "@playwright/test"
 
 const artifactRoot = path.resolve(
   process.cwd(),
-  "output/playwright/hackathon-ga4-dashboard-20260324",
+  "output/playwright/hackathon-ga4-dashboard-20260325",
 )
 
 async function capture(locator: Locator, filename: string) {
@@ -24,7 +24,7 @@ async function dismissConsentIfPresent(page: Page) {
 }
 
 test.describe("hackathon ga4 reporting surface", () => {
-  test("supports live and dummy GA reporting modes", async ({ page }, testInfo) => {
+  test("shows reconciled GA reporting without the broken fallback controls", async ({ page }, testInfo) => {
     await page.goto("/projects/hackathon-voting-analytics/google-analytics")
     await dismissConsentIfPresent(page)
 
@@ -35,16 +35,25 @@ test.describe("hackathon ga4 reporting surface", () => {
     await expect(page.getByRole("link", { name: "BigQuery analysis", exact: true })).toBeVisible()
     await expect(page.getByRole("link", { name: "GA4 property", exact: true })).toHaveAttribute("aria-current", "page")
     await expect(page.getByText("Host vote.rajeevg.com")).toBeVisible()
+    await expect(page.getByRole("button", { name: "Dummy preview" })).toHaveCount(0)
+    await expect(page.getByText("Consent and tracking impact")).toBeVisible()
+    await expect(page.getByText("Round snapshot surface")).toHaveCount(0)
 
     const liveNote = page.getByText(
       /Live mode is reading directly from the shared GA4 property|The GA4 property is reachable, but no hackathon-host rows were returned|Live GA mode could not complete the report request/i,
     ).first()
     await expect(liveNote).toBeVisible()
 
-    await page.getByRole("button", { name: "Dummy preview" }).click()
     await expect(
-      page.getByText(/Dummy preview is active, so this GA surface shows the intended reporting layout/i).first(),
+      page.getByText(/Only .* page-context hits were granted|Known granted-versus-denied page-context rows are not available yet/i).first(),
     ).toBeVisible()
+
+    await page.getByText("Promoted schema and derived metrics", { exact: true }).click()
+    await expect(
+      page.getByRole("heading", { name: "Granted page-context share" }),
+    ).toBeVisible()
+    await page.getByText("Source reconciliation", { exact: true }).click()
+    await expect(page.getByText(/Tracked analytics coverage/i).first()).toBeVisible()
 
     await capture(
       testInfo.project.name === "desktop-light"
@@ -52,6 +61,8 @@ test.describe("hackathon ga4 reporting surface", () => {
         : page.locator("section").first(),
       `${testInfo.project.name}-top.png`,
     )
+
+    await expect(page.getByText("AVG AGGREGATE")).toHaveCount(0)
 
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - window.innerWidth,

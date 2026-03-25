@@ -33,6 +33,7 @@ import type {
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
+  HackathonDisclosureCard,
   HackathonReportingNotesCard,
   HackathonReportingShell,
   buildHackathonSummaryMetrics,
@@ -424,32 +425,101 @@ function RendererToggle({
   )
 }
 
-function DefinitionTable({ definitions }: { definitions: AnalyticsDefinition[] }) {
+type DerivedDefinition = {
+  label: string
+  meaning: string
+  interpretation: string
+}
+
+type ConsentInsight = {
+  grantedPageContexts: number
+  deniedPageContexts: number
+  unknownPageContexts: number
+  consentGrantUpdates: number
+  grantedPageContextShare: number | null
+}
+
+function DefinitionTable({
+  definitions,
+  derivedDefinitions,
+}: {
+  definitions: AnalyticsDefinition[]
+  derivedDefinitions: DerivedDefinition[]
+}) {
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
-      {definitions.map((definition) => (
-        <Card key={definition.key} className="border-border/70 bg-background/80">
-          <CardHeader className="space-y-3 pb-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <CardTitle className="break-words text-base">{definition.label}</CardTitle>
-              <Badge variant="outline">{definition.type}</Badge>
-            </div>
-            <CardDescription className="text-sm leading-6">{definition.meaning}</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm">
-            <div>
-              <p className="font-medium text-foreground">Typical values or units</p>
-              <p className="break-words text-muted-foreground">{definition.typicalValues}</p>
-            </div>
-            <div>
-              <p className="font-medium text-foreground">How to read it</p>
-              <p className="text-muted-foreground">{definition.interpretation}</p>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+    <div className="space-y-6">
+      <div className="grid gap-4 lg:grid-cols-2">
+        {derivedDefinitions.map((definition) => (
+          <Card key={definition.label} className="border-border/70 bg-background/70">
+            <CardHeader className="space-y-3 pb-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <CardTitle className="break-words text-base">{definition.label}</CardTitle>
+                <Badge variant="outline">derived</Badge>
+              </div>
+              <CardDescription className="text-sm leading-6">{definition.meaning}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              <div>
+                <p className="font-medium text-foreground">How to read it</p>
+                <p className="text-muted-foreground">{definition.interpretation}</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <div className="grid gap-4 lg:grid-cols-2">
+        {definitions.map((definition) => (
+          <Card key={definition.key} className="border-border/70 bg-background/80">
+            <CardHeader className="space-y-3 pb-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <CardTitle className="break-words text-base">{definition.label}</CardTitle>
+                <Badge variant="outline">{definition.type}</Badge>
+              </div>
+              <CardDescription className="text-sm leading-6">{definition.meaning}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              <div>
+                <p className="font-medium text-foreground">Typical values or units</p>
+                <p className="break-words text-muted-foreground">{definition.typicalValues}</p>
+              </div>
+              <div>
+                <p className="font-medium text-foreground">How to read it</p>
+                <p className="text-muted-foreground">{definition.interpretation}</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   )
+}
+
+function deriveConsentInsight(
+  rows: ExperienceOverviewRow[],
+  consentGrantUpdates: number,
+): ConsentInsight {
+  const summary = rows.reduce(
+    (acc, row) => {
+      if (row.analyticsConsentState === "granted") acc.grantedPageContexts += row.pageContextViews
+      else if (row.analyticsConsentState === "denied") acc.deniedPageContexts += row.pageContextViews
+      else acc.unknownPageContexts += row.pageContextViews
+      return acc
+    },
+    {
+      grantedPageContexts: 0,
+      deniedPageContexts: 0,
+      unknownPageContexts: 0,
+      consentGrantUpdates,
+    },
+  )
+
+  const knownPageContexts = summary.grantedPageContexts + summary.deniedPageContexts
+
+  return {
+    ...summary,
+    grantedPageContextShare:
+      knownPageContexts > 0 ? summary.grantedPageContexts / knownPageContexts : null,
+  }
 }
 
 export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
@@ -467,6 +537,10 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
   const entries = groupEntryPerformance(dataset.entryPerformance)
   const experience = aggregateExperience(dataset.experienceOverview)
   const taxonomy = aggregateEventTaxonomy(dataset.eventBreakdown)
+  const consentInsight = deriveConsentInsight(dataset.experienceOverview, overviewTotals.consentGrants)
+  const isGaFallback = dataset.notes.some((note) =>
+    note.includes("BigQuery modeled tables are still empty")
+  )
 
   const summaryCards = buildHackathonSummaryMetrics({
     eventCount: formatCount(overviewTotals.totalEvents),
@@ -479,7 +553,30 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
       dataset.voteTruth?.totals.totalVotes ?? null
     ),
     managerActions: formatCount(overviewTotals.managerActions),
+    fallbackTelemetry: isGaFallback,
   })
+  const derivedDefinitions: DerivedDefinition[] = [
+    {
+      label: "Persisted votes",
+      meaning: "Authoritative vote rows from the live competition summary, independent of analytics consent.",
+      interpretation: "Use this as the vote ledger. It is the number the public scoreboard is actually based on.",
+    },
+    {
+      label: "Tracked submits",
+      meaning: "GA4 vote_submitted telemetry captured for the same host and reporting window.",
+      interpretation: "Use this for consented interaction trendlines, not for final vote totals.",
+    },
+    {
+      label: "GA4 coverage",
+      meaning: "Tracked submits divided by persisted votes.",
+      interpretation: "This shows how much of the true vote ledger is visible in analytics telemetry.",
+    },
+    {
+      label: "Granted page-context share",
+      meaning: "Page-context events with analytics consent granted divided by known granted plus denied page-context states.",
+      interpretation: "This is the clearest consent-rate proxy on the page, and it explains why telemetry undercounts persisted votes.",
+    },
+  ]
 
   const topEntry = entries[0]
   const entryLabels = entries.map((entry) => entry.entryName)
@@ -1053,9 +1150,63 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
         source={source}
         summaryMetrics={summaryCards}
         topBadges={["Hackathon", "Host vote.rajeevg.com", "BigQuery"]}
-      >
-      <HackathonReportingNotesCard notes={dataset.notes} />
+        preMetricContent={
+          <div className="space-y-4">
+            <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+              <HackathonDisclosureCard
+                title="Promoted schema and derived metrics"
+                description="The reference layer sits up front now, so every top-line card and section metric has a clear definition before you read the rest of the dashboard."
+              >
+                <DefinitionTable
+                  definitions={dataset.definitions}
+                  derivedDefinitions={derivedDefinitions}
+                />
+              </HackathonDisclosureCard>
+              <HackathonReportingNotesCard notes={dataset.notes} />
+            </div>
 
+            <Card className="border-border/70 bg-background/80">
+              <CardHeader>
+                <CardTitle>Consent and tracking impact</CardTitle>
+                <CardDescription>
+                  This is the trust layer for the route: how often analytics consent was granted on known page-context hits, and how that affects the visible vote telemetry.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <MetricTile
+                  label="Granted page-context share"
+                  value={
+                    consentInsight.grantedPageContextShare == null
+                      ? "N/A"
+                      : formatPercent(consentInsight.grantedPageContextShare)
+                  }
+                />
+                <MetricTile
+                  label="Granted page-context hits"
+                  value={formatCount(consentInsight.grantedPageContexts)}
+                />
+                <MetricTile
+                  label="Denied page-context hits"
+                  value={formatCount(consentInsight.deniedPageContexts)}
+                />
+                <MetricTile
+                  label="Consent grants captured"
+                  value={formatCount(consentInsight.consentGrantUpdates)}
+                />
+                <div className="sm:col-span-2 xl:col-span-4 rounded-2xl border border-border/70 bg-muted/30 p-4">
+                  <p className="text-sm leading-6 text-muted-foreground">
+                    {consentInsight.grantedPageContextShare == null
+                      ? "Known consent-state page-context rows are not available yet, so this route can only show vote tracking coverage rather than a page-context consent share."
+                      : `Only ${formatPercent(
+                          consentInsight.grantedPageContextShare,
+                        )} of known page-context hits were granted. That is why the telemetry cards on this route must be read as fallback behavior signals rather than as warehouse truth.`}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        }
+      >
       <SectionShell
         eyebrow="Pulse"
         title="Round pulse and volume"
@@ -1292,8 +1443,8 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
 
       <SectionShell
         eyebrow="Taxonomy"
-        title="Event taxonomy and promoted schema"
-        description="This is the operator-facing reference layer: what the event vocabulary looks like, how it groups by role and round state, and what each promoted dimension or metric actually means."
+        title="Event taxonomy"
+        description="This is the grouped event vocabulary by role and competition state, without repeating the schema reference that now lives near the top of the page."
       >
         <div className="grid gap-6">
           <Card className="border-border/70 bg-background/80">
@@ -1305,7 +1456,6 @@ export function HackathonAnalyticsDashboard({ live, dummy }: DashboardProps) {
             </CardHeader>
             <CardContent>{taxonomyChart}</CardContent>
           </Card>
-          <DefinitionTable definitions={dataset.definitions} />
         </div>
       </SectionShell>
       </HackathonReportingShell>

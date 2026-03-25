@@ -88,7 +88,12 @@ export async function buildHackathonAnalyticsDatasetFromGa4(notes: string[]): Pr
     }),
     runHackathonGa4Report({
       dateRanges: [HACKATHON_REPORTING_DATE_RANGE],
-      dimensions: [{ name: "date" }, { name: "eventName" }, { name: "customEvent:viewer_role" }],
+      dimensions: [
+        { name: "date" },
+        { name: "eventName" },
+        { name: "customEvent:viewer_role" },
+        { name: "customEvent:consent_preference" },
+      ],
       metrics: [{ name: "eventCount" }],
       dimensionFilter: andFilter([
         hostFilter,
@@ -104,7 +109,7 @@ export async function buildHackathonAnalyticsDatasetFromGa4(notes: string[]): Pr
         ]),
       ]),
       orderBys: [{ dimension: { dimensionName: "date" } }],
-      limit: 300,
+      limit: 1000,
     }),
     runHackathonGa4Report({
       dateRanges: [HACKATHON_REPORTING_DATE_RANGE],
@@ -117,7 +122,7 @@ export async function buildHackathonAnalyticsDatasetFromGa4(notes: string[]): Pr
       metrics: [{ name: "eventCount" }, { name: "totalUsers" }],
       dimensionFilter: andFilter([hostFilter, inListFilter("eventName", HACKATHON_BREAKDOWN_EVENT_NAMES)]),
       orderBys: [{ dimension: { dimensionName: "date" } }, { metric: { metricName: "eventCount" }, desc: true }],
-      limit: 500,
+      limit: 2000,
     }),
     runHackathonGa4Report({
       dateRanges: [HACKATHON_REPORTING_DATE_RANGE],
@@ -145,7 +150,7 @@ export async function buildHackathonAnalyticsDatasetFromGa4(notes: string[]): Pr
         ]),
       ]),
       orderBys: [{ dimension: { dimensionName: "date" } }, { metric: { metricName: "eventCount" }, desc: true }],
-      limit: 1000,
+      limit: 2000,
     }),
     runHackathonGa4Report({
       dateRanges: [HACKATHON_REPORTING_DATE_RANGE],
@@ -177,7 +182,7 @@ export async function buildHackathonAnalyticsDatasetFromGa4(notes: string[]): Pr
         ]),
       ]),
       orderBys: [{ dimension: { dimensionName: "date" } }],
-      limit: 200,
+      limit: 500,
     }),
     runHackathonGa4Report({
       dateRanges: [HACKATHON_REPORTING_DATE_RANGE],
@@ -193,7 +198,7 @@ export async function buildHackathonAnalyticsDatasetFromGa4(notes: string[]): Pr
       metrics: [{ name: "eventCount" }, { name: "totalUsers" }],
       dimensionFilter: andFilter([hostFilter, inListFilter("eventName", HACKATHON_VOTING_EVENT_NAMES)]),
       orderBys: [{ dimension: { dimensionName: "date" } }],
-      limit: 1000,
+      limit: 2000,
     }),
     runHackathonGa4Report({
       dateRanges: [HACKATHON_REPORTING_DATE_RANGE],
@@ -205,7 +210,7 @@ export async function buildHackathonAnalyticsDatasetFromGa4(notes: string[]): Pr
       ],
       dimensionFilter: andFilter([hostFilter, inListFilter("eventName", MANAGER_EVENT_NAMES)]),
       orderBys: [{ dimension: { dimensionName: "date" } }],
-      limit: 300,
+      limit: 500,
     }),
     runHackathonGa4Report({
       dateRanges: [HACKATHON_REPORTING_DATE_RANGE],
@@ -219,7 +224,7 @@ export async function buildHackathonAnalyticsDatasetFromGa4(notes: string[]): Pr
       metrics: [{ name: "eventCount" }, { name: "totalUsers" }],
       dimensionFilter: andFilter([hostFilter, inListFilter("eventName", HACKATHON_EXPERIENCE_EVENT_NAMES)]),
       orderBys: [{ dimension: { dimensionName: "date" } }],
-      limit: 400,
+      limit: 1000,
     }),
     runHackathonGa4Report({
       dateRanges: [HACKATHON_REPORTING_DATE_RANGE],
@@ -236,7 +241,7 @@ export async function buildHackathonAnalyticsDatasetFromGa4(notes: string[]): Pr
       ],
       dimensionFilter: andFilter([hostFilter, exactStringFilter("eventName", "page_engagement_summary")]),
       orderBys: [{ dimension: { dimensionName: "date" } }],
-      limit: 200,
+      limit: 500,
     }),
   ])
 
@@ -265,6 +270,7 @@ export async function buildHackathonAnalyticsDatasetFromGa4(notes: string[]): Pr
     const eventDate = formatGaDate(dimensionValue(row, 0))
     const eventName = dimensionValue(row, 1)
     const eventCount = metricValue(row, 0)
+    const consentPreference = normalizeDimension(dimensionValue(row, 3))
     const daily = overviewMap.get(eventDate)
 
     if (!daily) continue
@@ -275,7 +281,9 @@ export async function buildHackathonAnalyticsDatasetFromGa4(notes: string[]): Pr
     if (eventName === "workbook_upload_completed") daily.workbookUploads += eventCount
     if (eventName === "competition_round_started") daily.roundOpens += eventCount
     if (eventName === "competition_round_finalized") daily.finalizations += eventCount
-    if (eventName === "consent_state_updated") daily.consentGrants += eventCount
+    if (eventName === "consent_state_updated" && consentPreference === "granted") {
+      daily.consentGrants += eventCount
+    }
     if (MANAGER_EVENT_NAMES.includes(eventName as (typeof MANAGER_EVENT_NAMES)[number])) {
       daily.managerActions += eventCount
     }
@@ -646,7 +654,7 @@ export async function buildHackathonAnalyticsDatasetFromGa4(notes: string[]): Pr
     notes: [
       ...(hasLiveRows
         ? [
-            `BigQuery modeled tables are still empty, so this live route is temporarily rendered from the shared GA4 property over ${HACKATHON_HISTORICAL_WINDOW.toLowerCase()}.`,
+            `BigQuery modeled tables are still empty, so this route is currently showing GA4-derived telemetry plus the live vote ledger over ${HACKATHON_HISTORICAL_WINDOW.toLowerCase()}, not warehouse-modeled rows.`,
           ]
         : ["GA4 fallback also returned no material rows for the current hackathon host and reporting window."]),
       ...notes,

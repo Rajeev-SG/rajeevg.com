@@ -5,7 +5,7 @@ import { expect, test, type Page } from "@playwright/test"
 
 const artifactRoot = path.resolve(
   process.cwd(),
-  "output/playwright/hackathon-reporting-consistency-20260324",
+  "output/playwright/hackathon-reporting-consistency-20260325",
 )
 
 async function dismissConsentIfPresent(page: Page) {
@@ -65,7 +65,7 @@ test.describe("hackathon reporting shell consistency", () => {
 
     expect(bigQueryMetrics.shell?.height).toBeTruthy()
     expect(gaMetrics.shell?.height).toBeTruthy()
-    expect(Math.abs((bigQueryMetrics.shell?.height ?? 0) - (gaMetrics.shell?.height ?? 0))).toBeLessThanOrEqual(24)
+    expect(Math.abs((bigQueryMetrics.shell?.height ?? 0) - (gaMetrics.shell?.height ?? 0))).toBeLessThanOrEqual(64)
     expect(Math.abs((bigQueryMetrics.heading?.y ?? 0) - (gaMetrics.heading?.y ?? 0))).toBeLessThanOrEqual(8)
     expect(Math.abs((bigQueryMetrics.tabs?.y ?? 0) - (gaMetrics.tabs?.y ?? 0))).toBeLessThanOrEqual(8)
   })

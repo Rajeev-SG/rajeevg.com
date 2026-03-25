@@ -24,10 +24,19 @@ export type HackathonGaEntryRow = {
   entryName: string
   entrySlug: string
   dialogViews: number
+  consentedDialogViews: number
+  deniedDialogViews: number
+  unknownDialogViews: number
   voteSubmissions: number
   totalUsers: number
   averageScore: number
-  averageAggregateScore: number
+}
+
+export type HackathonGaConsentSummary = {
+  pageContextGranted: number
+  pageContextDenied: number
+  pageContextUnknown: number
+  consentGrantedUpdates: number
 }
 
 export type HackathonGaRoundStateRow = {
@@ -62,6 +71,7 @@ export type HackathonGaReport = {
   notes: string[]
   voteTruth: HackathonVoteTruthSummary | null
   overview: HackathonGaOverview
+  consentSummary: HackathonGaConsentSummary
   eventSurface: HackathonGaEventRow[]
   entrySurface: HackathonGaEntryRow[]
   roundSurface: HackathonGaRoundStateRow[]
