@@ -1,5 +1,10 @@
 import "server-only"
 
+import {
+  ARCHIVED_HACKATHON_VOTE_TRUTH,
+  ARCHIVED_HACKATHON_VOTE_TRUTH_DATE_LABEL,
+} from "@/lib/hackathon-vote-truth-archive"
+
 const DEFAULT_HACKATHON_VOTING_APP_URL = "https://vote.rajeevg.com"
 
 export type HackathonVoteTruthEntry = {
@@ -57,6 +62,10 @@ function toIsoDate(value: string | null | undefined) {
 function getHackathonVotingAppBaseUrl() {
   const value = process.env.HACKATHON_VOTING_APP_URL?.trim()
   return (value || DEFAULT_HACKATHON_VOTING_APP_URL).replace(/\/+$/, "")
+}
+
+function buildArchivedSnapshotNote(reason: string) {
+  return `Using the archived ${ARCHIVED_HACKATHON_VOTE_TRUTH_DATE_LABEL} hackathon snapshot because ${reason}`
 }
 
 function isFiniteNumber(value: unknown): value is number {
@@ -164,16 +173,35 @@ export async function getHackathonVoteTruth(): Promise<HackathonVoteTruthResult>
 
     if (!summary) {
       return {
-        summary: null,
-        note: "Source-of-truth summary response did not match the expected schema.",
+        summary: ARCHIVED_HACKATHON_VOTE_TRUTH,
+        note: buildArchivedSnapshotNote(
+          "the live source-of-truth summary response did not match the expected schema."
+        ),
+      }
+    }
+
+    if (
+      summary.status === "PREPARING" &&
+      summary.totals.totalVotes === 0 &&
+      summary.totals.totalEntries === 0 &&
+      !summary.startedAt &&
+      !summary.finalizedAt
+    ) {
+      return {
+        summary: ARCHIVED_HACKATHON_VOTE_TRUTH,
+        note: buildArchivedSnapshotNote(
+          "the live voting app is currently reset to a PREPARING state with zero recorded votes and entries."
+        ),
       }
     }
 
     return { summary, note: null }
   } catch (error) {
     return {
-      summary: null,
-      note: error instanceof Error ? error.message : "Unknown source-of-truth summary error.",
+      summary: ARCHIVED_HACKATHON_VOTE_TRUTH,
+      note: buildArchivedSnapshotNote(
+        error instanceof Error ? `${error.message}.` : "the live source-of-truth summary could not be reached."
+      ),
     }
   }
 }
@@ -217,7 +245,8 @@ export function describeHackathonVoteTruthReconciliation({
   const coverageRate = persistedVotes > 0 ? trackedVotes / persistedVotes : 0
 
   return [
-    `Source of truth: the live voting app currently reports ${persistedVotes} persisted votes across ${voteTruth.totals.totalEntries} entries and ${voteTruth.totals.uniqueJudges} judges at ${voteTruth.summaryUrl}.`,
+    ...(fallbackNote ? [fallbackNote] : []),
+    `Source of truth: the hackathon snapshot reports ${persistedVotes} persisted votes across ${voteTruth.totals.totalEntries} entries and ${voteTruth.totals.uniqueJudges} judges at ${voteTruth.summaryUrl}.`,
     `Tracked analytics coverage: GA4 currently shows ${trackedVotes} vote_submitted events, a gap of ${voteGap} versus the persisted vote total (${formatCoverageRate(coverageRate)} coverage).`,
     "The gap is expected because vote_submitted is client-side telemetry behind analytics consent, while the persisted vote total comes from the live competition snapshot that powers the public scoreboard.",
   ]

@@ -246,7 +246,8 @@ export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalytics
           "This route never reads the main rajeevg.com page analytics tables, which avoids the mixed-data problem from the old Looker shell.",
           ...(voteTruthResult.summary
             ? [
-                `Source of truth: the live voting app currently reports ${voteTruthResult.summary.totals.totalVotes} recorded votes across ${voteTruthResult.summary.totals.totalEntries} entries and ${voteTruthResult.summary.totals.uniqueJudges} judges at ${voteTruthResult.summary.summaryUrl}.`,
+                ...(voteTruthResult.note ? [voteTruthResult.note] : []),
+                `Source of truth: the hackathon snapshot reports ${voteTruthResult.summary.totals.totalVotes} recorded votes across ${voteTruthResult.summary.totals.totalEntries} entries and ${voteTruthResult.summary.totals.uniqueJudges} judges at ${voteTruthResult.summary.summaryUrl}.`,
               ]
             : voteTruthResult.note
               ? [`Source-of-truth snapshot could not be read from the voting app: ${voteTruthResult.note}`]

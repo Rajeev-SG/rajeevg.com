@@ -103,6 +103,8 @@ That means the export failure is not in the dashboard query logic and not in the
 
 ## Event-day truth and telemetry
 
+The reporting routes now pin themselves to the archived 25 March 2026 hackathon snapshot whenever the live voting app summary has reset back to a new `PREPARING` state. Without that guard, the public dashboard would incorrectly show zero recorded votes and today's empty app state instead of the finished event ledger.
+
 Fresh source-of-truth summary from `https://vote.rajeevg.com/api/reporting/public-summary` on 2026-03-25:
 
 - generated at: `2026-03-25T23:13:44.893Z`

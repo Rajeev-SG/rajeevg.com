@@ -62,6 +62,12 @@ test.describe("hackathon ga4 reporting surface", () => {
     await expect(page.getByText("Votes saved by the voting app itself. This is the source-of-truth total.")).toBeVisible()
 
     await page.getByText("What this page includes", { exact: true }).click()
+    await expect(
+      page.getByText(/archived 25 March 2026 hackathon snapshot/i).first(),
+    ).toBeVisible()
+    await expect(
+      page.getByText(/297 persisted votes across 9 entries and 37 judges/i).first(),
+    ).toBeVisible()
     await expect(page.getByText(/Tracked analytics coverage/i).first()).toBeVisible()
 
     await capture(
