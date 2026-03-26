@@ -1,0 +1,76 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="120" y1="80" x2="1480" y2="820" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F172A"/>
+      <stop offset="1" stop-color="#111827"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#172554"/>
+      <stop offset="1" stop-color="#111827"/>
+    </linearGradient>
+    <linearGradient id="good" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#0F766E"/>
+      <stop offset="1" stop-color="#115E59"/>
+    </linearGradient>
+    <linearGradient id="warn" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#92400E"/>
+      <stop offset="1" stop-color="#7C2D12"/>
+    </linearGradient>
+    <linearGradient id="bad" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#7F1D1D"/>
+      <stop offset="1" stop-color="#4C0519"/>
+    </linearGradient>
+    <filter id="shadow" x="0" y="0" width="1600" height="900" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#020617" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="900" rx="40" fill="url(#bg)"/>
+  <circle cx="1330" cy="180" r="220" fill="#1D4ED8" fill-opacity="0.14"/>
+  <circle cx="220" cy="730" r="190" fill="#0EA5E9" fill-opacity="0.12"/>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="72" width="1456" height="756" rx="36" fill="#0B1120" fill-opacity="0.78" stroke="#334155" stroke-opacity="0.65"/>
+  </g>
+
+  <text x="110" y="150" fill="#E5E7EB" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="700" letter-spacing="0.28em">EVENT-DAY MEASUREMENT FRACTURE</text>
+  <text x="110" y="206" fill="#F8FAFC" font-family="Inter, Arial, sans-serif" font-size="56" font-weight="800">One hackathon day, four conflicting answers</text>
+  <text x="110" y="258" fill="#94A3B8" font-family="Inter, Arial, sans-serif" font-size="25">March 25, 2026. Same competition. Same day. Very different numbers depending on where you look.</text>
+
+  <rect x="110" y="318" width="320" height="360" rx="28" fill="url(#good)" stroke="#99F6E4" stroke-opacity="0.35"/>
+  <text x="142" y="380" fill="#CCFBF1" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="0.22em">BACK-END LEDGER</text>
+  <text x="142" y="462" fill="#F8FAFC" font-family="Inter, Arial, sans-serif" font-size="94" font-weight="800">297</text>
+  <text x="142" y="516" fill="#ECFEFF" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700">Persisted votes</text>
+  <text x="142" y="568" fill="#CCFBF1" font-family="Inter, Arial, sans-serif" font-size="23">System of record for completed votes</text>
+  <text x="142" y="618" fill="#CCFBF1" font-family="Inter, Arial, sans-serif" font-size="23">37 participating judges</text>
+  <text x="142" y="652" fill="#CCFBF1" font-family="Inter, Arial, sans-serif" font-size="23">9 real competition entries</text>
+
+  <rect x="452" y="318" width="320" height="360" rx="28" fill="url(#panel)" stroke="#60A5FA" stroke-opacity="0.28"/>
+  <text x="484" y="380" fill="#BFDBFE" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="0.22em">GA4 RAW TELEMETRY</text>
+  <text x="484" y="462" fill="#F8FAFC" font-family="Inter, Arial, sans-serif" font-size="94" font-weight="800">172</text>
+  <text x="484" y="516" fill="#E0F2FE" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700">vote_submitted events</text>
+  <text x="484" y="568" fill="#BFDBFE" font-family="Inter, Arial, sans-serif" font-size="23">57.9% of stored votes</text>
+  <text x="484" y="618" fill="#BFDBFE" font-family="Inter, Arial, sans-serif" font-size="23">Includes malformed + test rows</text>
+  <text x="484" y="652" fill="#BFDBFE" font-family="Inter, Arial, sans-serif" font-size="23">Browser-observed, not business-final</text>
+
+  <rect x="794" y="318" width="320" height="360" rx="28" fill="url(#warn)" stroke="#FCD34D" stroke-opacity="0.34"/>
+  <text x="826" y="380" fill="#FDE68A" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="0.22em">GA4 CLEANED</text>
+  <text x="826" y="462" fill="#F8FAFC" font-family="Inter, Arial, sans-serif" font-size="94" font-weight="800">163</text>
+  <text x="826" y="516" fill="#FEF3C7" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700">Real-entry submits</text>
+  <text x="826" y="568" fill="#FDE68A" font-family="Inter, Arial, sans-serif" font-size="23">54.9% of stored votes</text>
+  <text x="826" y="618" fill="#FDE68A" font-family="Inter, Arial, sans-serif" font-size="23">4 test rows removed</text>
+  <text x="826" y="652" fill="#FDE68A" font-family="Inter, Arial, sans-serif" font-size="23">5 malformed rows isolated</text>
+
+  <rect x="1136" y="318" width="320" height="360" rx="28" fill="url(#bad)" stroke="#FDA4AF" stroke-opacity="0.3"/>
+  <text x="1168" y="380" fill="#FECDD3" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="0.22em">BIGQUERY EXPORT</text>
+  <text x="1168" y="462" fill="#F8FAFC" font-family="Inter, Arial, sans-serif" font-size="94" font-weight="800">0</text>
+  <text x="1168" y="516" fill="#FFE4E6" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700">Raw export tables</text>
+  <text x="1168" y="568" fill="#FECDD3" font-family="Inter, Arial, sans-serif" font-size="23">Daily export enabled</text>
+  <text x="1168" y="618" fill="#FECDD3" font-family="Inter, Arial, sans-serif" font-size="23">Streaming export enabled</text>
+  <text x="1168" y="652" fill="#FECDD3" font-family="Inter, Arial, sans-serif" font-size="23">But nothing landed in ga4_498363924</text>
+
+  <line x1="270" y1="722" x2="1296" y2="722" stroke="#334155" stroke-width="2" stroke-dasharray="10 12"/>
+  <text x="110" y="778" fill="#94A3B8" font-family="Inter, Arial, sans-serif" font-size="24">Hard-quant takeaway:</text>
+  <text x="340" y="778" fill="#F8FAFC" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700">A browser dashboard can understate the actual completed outcome by 45.1%</text>
+  <text x="110" y="814" fill="#94A3B8" font-family="Inter, Arial, sans-serif" font-size="22">unless it is calibrated against source-of-truth and post-event data.</text>
+</svg>

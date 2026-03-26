@@ -1,0 +1,71 @@
+<svg width="1600" height="960" viewBox="0 0 1600 960" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="180" y1="60" x2="1460" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FEF3C7"/>
+      <stop offset="0.45" stop-color="#FFF7ED"/>
+      <stop offset="1" stop-color="#EFF6FF"/>
+    </linearGradient>
+    <linearGradient id="browser" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#E0F2FE"/>
+      <stop offset="1" stop-color="#BAE6FD"/>
+    </linearGradient>
+    <linearGradient id="backend" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#DCFCE7"/>
+      <stop offset="1" stop-color="#BBF7D0"/>
+    </linearGradient>
+    <linearGradient id="offline" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#FCE7F3"/>
+      <stop offset="1" stop-color="#FBCFE8"/>
+    </linearGradient>
+    <linearGradient id="center" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#1D4ED8"/>
+      <stop offset="1" stop-color="#0F766E"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1600" height="960" rx="42" fill="url(#bg)"/>
+  <circle cx="260" cy="164" r="120" fill="#F59E0B" fill-opacity="0.12"/>
+  <circle cx="1360" cy="816" r="150" fill="#2563EB" fill-opacity="0.12"/>
+
+  <text x="110" y="124" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="0.28em">CALIBRATED EFFECTIVENESS MEASUREMENT</text>
+  <text x="110" y="186" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="58" font-weight="800">No single source can carry the whole story</text>
+  <text x="110" y="236" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="25">Browser analytics explains journeys. Back-end systems prove completed outcomes. Offline events close the commercial loop.</text>
+
+  <rect x="110" y="320" width="360" height="430" rx="34" fill="url(#browser)" stroke="#0284C7" stroke-opacity="0.2"/>
+  <text x="146" y="390" fill="#0C4A6E" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="0.18em">BROWSER + MODELLED</text>
+  <text x="146" y="456" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="40" font-weight="800">Best for path and friction</text>
+  <text x="146" y="522" fill="#164E63" font-family="Inter, Arial, sans-serif" font-size="26">What people saw</text>
+  <text x="146" y="562" fill="#164E63" font-family="Inter, Arial, sans-serif" font-size="26">What they clicked</text>
+  <text x="146" y="602" fill="#164E63" font-family="Inter, Arial, sans-serif" font-size="26">Where consent reduced observability</text>
+  <text x="146" y="656" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700">Weakness</text>
+  <text x="146" y="694" fill="#164E63" font-family="Inter, Arial, sans-serif" font-size="24">Identity breaks, consent loss, modeled estimates, export differences</text>
+
+  <rect x="620" y="268" width="360" height="484" rx="34" fill="url(#backend)" stroke="#15803D" stroke-opacity="0.2"/>
+  <text x="656" y="338" fill="#166534" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="0.18em">BACK-END SOURCE OF TRUTH</text>
+  <text x="656" y="404" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="40" font-weight="800">Best for completed business events</text>
+  <text x="656" y="468" fill="#166534" font-family="Inter, Arial, sans-serif" font-size="26">Votes stored in Postgres</text>
+  <text x="656" y="508" fill="#166534" font-family="Inter, Arial, sans-serif" font-size="26">Orders actually paid</text>
+  <text x="656" y="548" fill="#166534" font-family="Inter, Arial, sans-serif" font-size="26">Leads actually created</text>
+  <text x="656" y="588" fill="#166534" font-family="Inter, Arial, sans-serif" font-size="26">Applications actually submitted</text>
+  <text x="656" y="642" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700">Weakness</text>
+  <text x="656" y="680" fill="#166534" font-family="Inter, Arial, sans-serif" font-size="24">Often lacks channel, creative, and exposure context on its own</text>
+
+  <rect x="1130" y="320" width="360" height="430" rx="34" fill="url(#offline)" stroke="#DB2777" stroke-opacity="0.18"/>
+  <text x="1166" y="390" fill="#9D174D" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="0.18em">OFFLINE + POST-EVENT</text>
+  <text x="1166" y="456" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="40" font-weight="800">Best for revenue reality</text>
+  <text x="1166" y="522" fill="#9D174D" font-family="Inter, Arial, sans-serif" font-size="26">Finalized score workbook</text>
+  <text x="1166" y="562" fill="#9D174D" font-family="Inter, Arial, sans-serif" font-size="26">In-store purchase</text>
+  <text x="1166" y="602" fill="#9D174D" font-family="Inter, Arial, sans-serif" font-size="26">Phone sale</text>
+  <text x="1166" y="642" fill="#9D174D" font-family="Inter, Arial, sans-serif" font-size="26">Car test drive or branch appointment</text>
+  <text x="1166" y="696" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700">Weakness</text>
+  <text x="1166" y="734" fill="#9D174D" font-family="Inter, Arial, sans-serif" font-size="24">Lag, match-rate limits, upload windows, and CRM hygiene</text>
+
+  <circle cx="800" cy="790" r="118" fill="url(#center)"/>
+  <text x="742" y="770" fill="#DBEAFE" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="0.16em">CALIBRATED</text>
+  <text x="713" y="812" fill="#F8FAFC" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800">Effectiveness</text>
+  <text x="739" y="846" fill="#E0F2FE" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700">measurement</text>
+
+  <path d="M470 540C550 540 560 540 620 540" stroke="#0284C7" stroke-width="8" stroke-linecap="round"/>
+  <path d="M980 540C1050 540 1060 540 1130 540" stroke="#DB2777" stroke-width="8" stroke-linecap="round"/>
+  <path d="M800 752V658" stroke="#0F766E" stroke-width="8" stroke-linecap="round"/>
+</svg>
