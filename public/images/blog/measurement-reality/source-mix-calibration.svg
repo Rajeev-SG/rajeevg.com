@@ -27,45 +27,78 @@
   <circle cx="260" cy="164" r="120" fill="#F59E0B" fill-opacity="0.12"/>
   <circle cx="1360" cy="816" r="150" fill="#2563EB" fill-opacity="0.12"/>
 
-  <text x="110" y="124" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="0.28em">CALIBRATED EFFECTIVENESS MEASUREMENT</text>
-  <text x="110" y="186" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="58" font-weight="800">No single source can carry the whole story</text>
-  <text x="110" y="236" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="25">Browser analytics explains journeys. Back-end systems prove completed outcomes. Offline events close the commercial loop.</text>
+  <text x="110" y="124" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="0.24em">CALIBRATED EFFECTIVENESS MEASUREMENT</text>
+  <text fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="54" font-weight="800">
+    <tspan x="110" y="186">No single source can carry</tspan>
+    <tspan x="110" y="244">the whole story</tspan>
+  </text>
+  <text fill="#475569" font-family="Inter, Arial, sans-serif" font-size="24">
+    <tspan x="110" y="294">Browser analytics explains journeys. Back-end systems prove completed outcomes.</tspan>
+    <tspan x="110" y="326">Offline events close the commercial loop.</tspan>
+  </text>
 
-  <rect x="110" y="320" width="360" height="430" rx="34" fill="url(#browser)" stroke="#0284C7" stroke-opacity="0.2"/>
-  <text x="146" y="390" fill="#0C4A6E" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="0.18em">BROWSER + MODELLED</text>
-  <text x="146" y="456" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="40" font-weight="800">Best for path and friction</text>
-  <text x="146" y="522" fill="#164E63" font-family="Inter, Arial, sans-serif" font-size="26">What people saw</text>
-  <text x="146" y="562" fill="#164E63" font-family="Inter, Arial, sans-serif" font-size="26">What they clicked</text>
-  <text x="146" y="602" fill="#164E63" font-family="Inter, Arial, sans-serif" font-size="26">Where consent reduced observability</text>
-  <text x="146" y="656" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700">Weakness</text>
-  <text x="146" y="694" fill="#164E63" font-family="Inter, Arial, sans-serif" font-size="24">Identity breaks, consent loss, modeled estimates, export differences</text>
+  <rect x="110" y="382" width="360" height="376" rx="34" fill="url(#browser)" stroke="#0284C7" stroke-opacity="0.2"/>
+  <text x="146" y="442" fill="#0C4A6E" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="0.15em">BROWSER + MODELLED</text>
+  <text fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="36" font-weight="800">
+    <tspan x="146" y="500">Best for path</tspan>
+    <tspan x="146" y="542">and friction</tspan>
+  </text>
+  <text fill="#164E63" font-family="Inter, Arial, sans-serif" font-size="24">
+    <tspan x="146" y="596">What people saw</tspan>
+    <tspan x="146" y="632">What they clicked</tspan>
+    <tspan x="146" y="668">Where consent reduced</tspan>
+    <tspan x="146" y="700">observability</tspan>
+  </text>
+  <text x="146" y="734" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700">Weakness</text>
+  <text fill="#164E63" font-family="Inter, Arial, sans-serif" font-size="21">
+    <tspan x="146" y="764">Identity breaks, consent loss,</tspan>
+    <tspan x="146" y="792">modeled estimates, export</tspan>
+    <tspan x="146" y="820">differences</tspan>
+  </text>
 
-  <rect x="620" y="268" width="360" height="484" rx="34" fill="url(#backend)" stroke="#15803D" stroke-opacity="0.2"/>
-  <text x="656" y="338" fill="#166534" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="0.18em">BACK-END SOURCE OF TRUTH</text>
-  <text x="656" y="404" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="40" font-weight="800">Best for completed business events</text>
-  <text x="656" y="468" fill="#166534" font-family="Inter, Arial, sans-serif" font-size="26">Votes stored in Postgres</text>
-  <text x="656" y="508" fill="#166534" font-family="Inter, Arial, sans-serif" font-size="26">Orders actually paid</text>
-  <text x="656" y="548" fill="#166534" font-family="Inter, Arial, sans-serif" font-size="26">Leads actually created</text>
-  <text x="656" y="588" fill="#166534" font-family="Inter, Arial, sans-serif" font-size="26">Applications actually submitted</text>
-  <text x="656" y="642" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700">Weakness</text>
-  <text x="656" y="680" fill="#166534" font-family="Inter, Arial, sans-serif" font-size="24">Often lacks channel, creative, and exposure context on its own</text>
+  <rect x="620" y="330" width="360" height="428" rx="34" fill="url(#backend)" stroke="#15803D" stroke-opacity="0.2"/>
+  <text x="656" y="390" fill="#166534" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="0.15em">BACK-END SOURCE OF TRUTH</text>
+  <text fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="36" font-weight="800">
+    <tspan x="656" y="448">Best for completed</tspan>
+    <tspan x="656" y="490">business events</tspan>
+  </text>
+  <text fill="#166534" font-family="Inter, Arial, sans-serif" font-size="24">
+    <tspan x="656" y="548">Votes stored in Postgres</tspan>
+    <tspan x="656" y="584">Orders actually paid</tspan>
+    <tspan x="656" y="620">Leads actually created</tspan>
+    <tspan x="656" y="656">Applications actually submitted</tspan>
+  </text>
+  <text x="656" y="694" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700">Weakness</text>
+  <text fill="#166534" font-family="Inter, Arial, sans-serif" font-size="21">
+    <tspan x="656" y="724">Often lacks channel, creative,</tspan>
+    <tspan x="656" y="752">and exposure context on its own</tspan>
+  </text>
 
-  <rect x="1130" y="320" width="360" height="430" rx="34" fill="url(#offline)" stroke="#DB2777" stroke-opacity="0.18"/>
-  <text x="1166" y="390" fill="#9D174D" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="0.18em">OFFLINE + POST-EVENT</text>
-  <text x="1166" y="456" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="40" font-weight="800">Best for revenue reality</text>
-  <text x="1166" y="522" fill="#9D174D" font-family="Inter, Arial, sans-serif" font-size="26">Finalized score workbook</text>
-  <text x="1166" y="562" fill="#9D174D" font-family="Inter, Arial, sans-serif" font-size="26">In-store purchase</text>
-  <text x="1166" y="602" fill="#9D174D" font-family="Inter, Arial, sans-serif" font-size="26">Phone sale</text>
-  <text x="1166" y="642" fill="#9D174D" font-family="Inter, Arial, sans-serif" font-size="26">Car test drive or branch appointment</text>
-  <text x="1166" y="696" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700">Weakness</text>
-  <text x="1166" y="734" fill="#9D174D" font-family="Inter, Arial, sans-serif" font-size="24">Lag, match-rate limits, upload windows, and CRM hygiene</text>
+  <rect x="1130" y="382" width="360" height="376" rx="34" fill="url(#offline)" stroke="#DB2777" stroke-opacity="0.18"/>
+  <text x="1166" y="442" fill="#9D174D" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="0.15em">OFFLINE + POST-EVENT</text>
+  <text fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="36" font-weight="800">
+    <tspan x="1166" y="500">Best for revenue</tspan>
+    <tspan x="1166" y="542">reality</tspan>
+  </text>
+  <text fill="#9D174D" font-family="Inter, Arial, sans-serif" font-size="24">
+    <tspan x="1166" y="596">Finalized score workbook</tspan>
+    <tspan x="1166" y="632">In-store purchase</tspan>
+    <tspan x="1166" y="668">Phone sale</tspan>
+    <tspan x="1166" y="704">Car test drive or branch</tspan>
+    <tspan x="1166" y="736">appointment</tspan>
+  </text>
+  <text x="1166" y="770" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700">Weakness</text>
+  <text fill="#9D174D" font-family="Inter, Arial, sans-serif" font-size="21">
+    <tspan x="1166" y="800">Lag, match-rate limits, upload</tspan>
+    <tspan x="1166" y="828">windows, and CRM hygiene</tspan>
+  </text>
 
-  <circle cx="800" cy="790" r="118" fill="url(#center)"/>
-  <text x="742" y="770" fill="#DBEAFE" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="0.16em">CALIBRATED</text>
-  <text x="713" y="812" fill="#F8FAFC" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800">Effectiveness</text>
-  <text x="739" y="846" fill="#E0F2FE" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700">measurement</text>
+  <circle cx="800" cy="842" r="82" fill="url(#center)"/>
+  <text x="744" y="824" fill="#DBEAFE" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="0.14em">CALIBRATED</text>
+  <text x="741" y="858" fill="#F8FAFC" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="800">Effectiveness</text>
+  <text x="755" y="888" fill="#E0F2FE" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700">measurement</text>
 
-  <path d="M470 540C550 540 560 540 620 540" stroke="#0284C7" stroke-width="8" stroke-linecap="round"/>
-  <path d="M980 540C1050 540 1060 540 1130 540" stroke="#DB2777" stroke-width="8" stroke-linecap="round"/>
-  <path d="M800 752V658" stroke="#0F766E" stroke-width="8" stroke-linecap="round"/>
+  <path d="M470 566C550 566 560 566 620 566" stroke="#0284C7" stroke-width="8" stroke-linecap="round"/>
+  <path d="M980 566C1050 566 1060 566 1130 566" stroke="#DB2777" stroke-width="8" stroke-linecap="round"/>
+  <path d="M800 758V724" stroke="#0F766E" stroke-width="8" stroke-linecap="round"/>
 </svg>

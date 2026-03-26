@@ -90,6 +90,15 @@ For exhaustive dashboard proof across all three `/projects` analytics routes, us
 
 The earlier Looker Studio path is not the source of truth.
 
+## Article visual proof
+
+For a full article-by-article visual QA pass, use `tests/e2e/article-visual-audit.spec.ts`.
+
+- It walks every published post from `.velite/posts.json`
+- It checks console cleanliness, broken images, Mermaid rendering, and horizontal overflow
+- It captures fresh desktop, wide-desktop, tablet, and mobile screenshots plus desktop figure crops
+- Artifacts land under `output/acceptance/article-visual-audit-20260326/local-playwright/`
+
 ## Project structure
 
 All paths below are relative to `web/`.
