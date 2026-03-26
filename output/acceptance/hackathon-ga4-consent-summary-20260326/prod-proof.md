@@ -26,7 +26,7 @@ Deploy the action-based consent-summary fix and revalidate production.
 - Deploy:
   - `vercel deploy --prod --yes`
   - production alias: `https://rajeevg.com`
-  - deployment URL: `https://rajeevg-pvodky89a-rajeevgills-projects.vercel.app`
+  - deployment URL: `https://rajeevg-uztl841j2-rajeevgills-projects.vercel.app`
 - HTML verification:
   - `curl -L --max-time 20 -s https://rajeevg.com/projects/hackathon-voting-analytics/google-analytics | rg -o "max-w-screen-xl|2xl:max-w-\\[1400px\\]"`
 - Production browser proof:
