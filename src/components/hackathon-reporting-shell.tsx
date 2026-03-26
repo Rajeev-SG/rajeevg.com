@@ -160,14 +160,14 @@ export function buildHackathonSummaryMetrics(metrics: {
 
   return [
     {
-      label: metrics.fallbackTelemetry ? "Fallback tracked events" : "Tracked events",
+      label: metrics.fallbackTelemetry ? "Fallback host events" : "All tracked host events",
       value: metrics.eventCount,
       detail: telemetryDetail ?? "Total hackathon analytics events returned in the current reporting window.",
       icon: <BarChart3 className="size-4" />,
       tooltip: "All analytics events counted for this page's reporting window. Use it as volume, not as a vote total.",
     },
     {
-      label: metrics.fallbackTelemetry ? "Fallback tracked users" : "Tracked users",
+      label: metrics.fallbackTelemetry ? "Fallback GA4 users" : "Tracked GA4 users",
       value: metrics.totalUsers,
       detail: telemetryDetail ?? "Distinct users observed on vote.rajeevg.com across all tracked host activity in the same window.",
       icon: <RadioTower className="size-4" />,
@@ -181,12 +181,14 @@ export function buildHackathonSummaryMetrics(metrics: {
       tooltip: "Votes saved by the voting app itself. This is the source-of-truth total.",
     },
     {
-      label: metrics.fallbackTelemetry ? "Fallback tracked vote submissions" : "Tracked vote submissions",
+      label: metrics.fallbackTelemetry
+        ? "Fallback matched vote submissions"
+        : "Tracked matched vote submissions",
       value: metrics.trackedVoteSubmissions,
       detail:
-        telemetryDetail ?? "GA4 vote_submitted events captured as analytics telemetry for the same window.",
+        telemetryDetail ?? "GA4 vote_submitted telemetry that matched the live competition entries in the same window.",
       icon: <RadioTower className="size-4" />,
-      tooltip: "Vote submissions that analytics actually recorded. This can be lower than recorded votes when telemetry is missing or filtered.",
+      tooltip: "Vote submissions that analytics actually recorded after the page matches rows back to the live competition entries. This can be lower than recorded votes when telemetry is missing or filtered.",
     },
     {
       label: "Vote tracking coverage",

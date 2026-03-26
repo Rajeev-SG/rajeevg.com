@@ -46,12 +46,12 @@ The GA4 route stays telemetry-focused and event-day scoped.
 - It filters all report queries to `hostName = vote.rajeevg.com`.
 - It is limited to the live event day derived from the voting app summary, not the older rolling window.
 - It now shows only:
-  - `Consent and measurement`
+  - `Known-consent action mix`
   - `Top tracked events`
   - `Entry-by-entry tracking`
-- The consent summary now shows only two action-share percentages:
-  - `Consented actions`
-  - `Non-consented actions`
+- The consent summary now shows ratio-first known-consent action buckets:
+  - `Consented tracked actions`
+  - `Non-consented tracked actions`
 - It no longer shows:
   - `Dummy preview`
   - `Experience`
@@ -138,8 +138,8 @@ Important interpretation:
 
 - `unknown` or blank consent state is not a third user consent state.
 - It means the event row did not carry a populated `analytics_consent_state` custom dimension.
-- The consent card now uses an action denominator instead of overlapping user buckets.
-- The visible percentages exclude the 96 unknown-consent actions and show the split only across the 1,650 actions with a known consent state.
+- The consent card now uses ratio-first action counts instead of overlapping user buckets or topline percentages.
+- The visible consent ratios exclude the 96 unknown-consent actions and show the split only across the 1,650 actions with a known consent state.
 - The topline `Vote tracking coverage` metric is a different formula: `tracked vote submissions / recorded votes`.
 - That card now presents the raw ratio first and keeps the percentage in the supporting sentence, so it is less likely to be misread as another consent-style share.
 - The GA4 entry cards now exclude rows that do not match the live competition slate, so test entries such as `raj-test` or `test-2` do not appear in the visible entry analysis.

@@ -264,6 +264,7 @@ function buildTopBlogChart(
   if (!rows.length) return null
 
   const topRows = rows.slice(0, 6)
+  const maxViews = Math.max(...topRows.map((row) => row.screenPageViews), 1)
 
   return renderer === "echarts" ? (
     <EChartSurface
@@ -308,13 +309,14 @@ function buildTopBlogChart(
           width,
           height: chartHeightForWidth(width),
           marginLeft: width < 640 ? 156 : 140,
-          marginRight: 32,
+          marginRight: width < 640 ? 48 : 88,
           style: { background: palette.plotBackground, color: palette.text },
-          x: { label: null, grid: true },
+          x: { label: null, grid: true, domain: [0, Math.ceil(maxViews * 1.15)] },
           y: { label: null },
           color: { legend: true, range: [palette.accent[0], palette.accent[1]] },
           marks: [
             Plot.ruleX([0], { stroke: palette.grid }),
+            Plot.ruleX([Math.ceil(maxViews * 1.15)], { stroke: "transparent" }),
             Plot.barX(topRows, {
               x: "screenPageViews",
               y: (row) => formatChartPathLabel(row.pagePath),
@@ -623,13 +625,13 @@ export function SiteAnalyticsDashboard({ report }: { report: SiteAnalyticsDashbo
           icon={<RadioTower className="size-4" />}
         />
         <MetricCard
-          label="Avg engagement"
+          label="Avg engagement per user"
           value={formatDuration(averageEngagementSeconds)}
           detail="Average engaged time per active user, using GA4’s engagement-duration metric."
           icon={<Clock3 className="size-4" />}
         />
         <MetricCard
-          label="Blog share"
+          label="Blog share of page views"
           value={`${Math.round(
             report.overview.screenPageViews > 0
               ? (report.overview.blogScreenPageViews / report.overview.screenPageViews) * 100
@@ -703,7 +705,7 @@ export function SiteAnalyticsDashboard({ report }: { report: SiteAnalyticsDashbo
                   </div>
                   <div>
                     <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-                      Engagement
+                      Total engagement time
                     </p>
                     <p className="text-lg font-semibold">
                       {formatDuration(row.userEngagementDuration)}
@@ -772,7 +774,12 @@ export function SiteAnalyticsDashboard({ report }: { report: SiteAnalyticsDashbo
                         {formatInteger(row.eventCount)} total event hits in the retained window
                       </p>
                     </div>
-                    <p className="shrink-0 text-2xl font-semibold">{formatInteger(row.keyEvents)}</p>
+                    <div className="shrink-0 text-right">
+                      <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+                        Key-event hits
+                      </p>
+                      <p className="text-2xl font-semibold">{formatInteger(row.keyEvents)}</p>
+                    </div>
                   </div>
                 ))
               ) : (
@@ -811,7 +818,7 @@ export function SiteAnalyticsDashboard({ report }: { report: SiteAnalyticsDashbo
                     </div>
                     <div>
                       <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-                        Engagement
+                        Total engagement time
                       </p>
                       <p className="text-xl font-semibold">
                         {formatDuration(row.userEngagementDuration)}
@@ -852,7 +859,7 @@ export function SiteAnalyticsDashboard({ report }: { report: SiteAnalyticsDashbo
                   </div>
                   <div>
                     <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-                      Engagement
+                      Total engagement time
                     </p>
                     <p className="text-lg font-semibold">
                       {formatDuration(row.userEngagementDuration)}

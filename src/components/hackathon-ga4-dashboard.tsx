@@ -342,16 +342,16 @@ export function HackathonGa4Dashboard({
             cleanTrackedSubmissions,
             report.voteTruth.totals.totalVotes,
           )} of recorded votes were captured as GA4 vote_submitted events on the same event day.`
-        : "Tracked vote submissions divided by the source-of-truth recorded vote total.",
+        : "Tracked matched vote submissions divided by the source-of-truth recorded vote total.",
   })
   const derivedDefinitions: DerivedDefinition[] = [
     {
-      label: "Tracked events",
+      label: "All tracked host events",
       meaning: "All analytics events GA4 returned for the hackathon host on the live event day.",
       interpretation: "Use this as an activity volume number, not as a vote or judge total.",
     },
     {
-      label: "Tracked users",
+      label: "Tracked GA4 users",
       meaning: "Distinct GA4 users seen on vote.rajeevg.com during the live event day.",
       interpretation: "This is an analytics audience count, not the official list of judges.",
     },
@@ -361,13 +361,13 @@ export function HackathonGa4Dashboard({
       interpretation: "Use this as the official vote ledger. It is the total the public scoreboard is based on.",
     },
     {
-      label: "Tracked vote submissions",
+      label: "Tracked matched vote submissions",
       meaning: "GA4 vote_submitted telemetry that matched the live competition entries for the same event day.",
       interpretation: "Use this for trend and measurement quality, not as the final vote count.",
     },
     {
       label: "Vote tracking coverage",
-      meaning: "Tracked vote submissions divided by recorded votes.",
+      meaning: "Tracked matched vote submissions divided by recorded votes.",
       interpretation: "Read the card as a raw ratio first, then the supporting sentence for the percentage. It is a vote-ledger formula, not a consent or user percentage.",
     },
     {
@@ -386,14 +386,14 @@ export function HackathonGa4Dashboard({
       interpretation: "Read it as a signal from tracked votes only, not as the official scoreboard average.",
     },
     {
-      label: "Consented actions",
-      meaning: "Share of tracked hackathon actions with a recorded consent state that reached GA4 as consented.",
-      interpretation: "Formula: consented actions divided by consented plus non-consented actions. It is an action split, not a user split.",
+      label: "Consented tracked actions",
+      meaning: "Tracked hackathon actions with a known consent state that reached GA4 as consented.",
+      interpretation: "Read this with its denominator. It is an action-level mix, not a user split and not a vote-capture rate.",
     },
     {
-      label: "Non-consented actions",
-      meaning: "Share of tracked hackathon actions with a recorded consent state that reached GA4 as non-consented.",
-      interpretation: "Formula: non-consented actions divided by consented plus non-consented actions. Unknown consent-state actions are excluded from the percentage split.",
+      label: "Non-consented tracked actions",
+      meaning: "Tracked hackathon actions with a known consent state that reached GA4 as non-consented.",
+      interpretation: "Read this with its denominator. Unknown consent-state actions are excluded from this split.",
     },
   ]
 
@@ -437,42 +437,56 @@ export function HackathonGa4Dashboard({
 
             <Card className="border-border/70 bg-background/80">
               <CardHeader>
-                <CardTitle>Consent and measurement</CardTitle>
+                <CardTitle>Known-consent action mix</CardTitle>
                 <CardDescription>
-                  Share of tracked hackathon actions that GA4 recorded as consented versus non-consented during the event day.
+                  Share of tracked hackathon actions with a known consent state. This is an action-level split, not a user split and not a vote-capture rate.
                 </CardDescription>
               </CardHeader>
               <CardContent className="grid gap-3 sm:grid-cols-2">
                 <SurfaceMetric
-                  label="Consented actions"
-                  value={formatShare(consentedActionShare)}
-                  tooltip="Formula: consented actions divided by all tracked hackathon actions with a known consent state."
+                  label="Consented tracked actions"
+                  value={
+                    knownConsentActions > 0
+                      ? `${formatInteger(report.consentSummary.consentedActions)} / ${formatInteger(
+                          knownConsentActions,
+                        )}`
+                      : "N/A"
+                  }
+                  tooltip="Tracked hackathon actions recorded as consented, divided by all tracked hackathon actions with a known consent state."
                 />
                 <SurfaceMetric
-                  label="Non-consented actions"
-                  value={formatShare(nonConsentedActionShare)}
-                  tooltip="Formula: non-consented actions divided by all tracked hackathon actions with a known consent state."
+                  label="Non-consented tracked actions"
+                  value={
+                    knownConsentActions > 0
+                      ? `${formatInteger(report.consentSummary.nonConsentedActions)} / ${formatInteger(
+                          knownConsentActions,
+                        )}`
+                      : "N/A"
+                  }
+                  tooltip="Tracked hackathon actions recorded as non-consented, divided by all tracked hackathon actions with a known consent state."
                 />
                 <div className="sm:col-span-2 rounded-2xl border border-border/70 bg-muted/30 p-4">
                   <p className="text-sm leading-6 text-muted-foreground">
                     {knownConsentActions <= 0
-                      ? "A clean consented-versus-non-consented action split is not available yet."
-                      : `${formatShare(consentedActionShare)} is ${formatInteger(
+                      ? "A clean known-consent action split is not available yet."
+                      : `${formatInteger(
                           report.consentSummary.consentedActions,
-                        )} consented actions out of ${formatInteger(
+                        )} of ${formatInteger(
                           knownConsentActions,
-                        )} actions with a known consent state. ${formatShare(
-                          nonConsentedActionShare,
-                        )} is ${formatInteger(
+                        )} known-consent tracked actions were recorded as consented, which is ${formatShare(
+                          consentedActionShare,
+                        )}. ${formatInteger(
                           report.consentSummary.nonConsentedActions,
-                        )} out of the same ${formatInteger(
+                        )} of ${formatInteger(
                           knownConsentActions,
+                        )} were non-consented, which is ${formatShare(
+                          nonConsentedActionShare,
                         )}. ${
                           report.consentSummary.unknownActions > 0
                             ? `${formatInteger(
                                 report.consentSummary.unknownActions,
-                              )} additional tracked actions arrived without a populated consent flag, so they are excluded from this split.`
-                            : "No tracked actions were excluded from this split."
+                              )} additional tracked actions had no populated consent flag, so they are excluded from this split. This action mix should not be compared directly with stored votes or GA4 vote-submission coverage.`
+                            : "No tracked actions were excluded from this split. This action mix should not be compared directly with stored votes or GA4 vote-submission coverage."
                         }`}
                   </p>
                 </div>
@@ -603,7 +617,7 @@ export function HackathonGa4Dashboard({
                         tooltip="vote_dialog_viewed events that matched this competition entry."
                       />
                       <SurfaceMetric
-                        label="Tracked vote submissions"
+                        label="Tracked matched vote submissions"
                         value={formatInteger(row.voteSubmissions)}
                         tooltip="vote_submitted events GA4 recorded for this competition entry."
                       />
@@ -612,11 +626,11 @@ export function HackathonGa4Dashboard({
                         value={row.actualVotes == null ? "Unavailable" : formatInteger(row.actualVotes)}
                         tooltip="Votes saved by the app for this entry. This is the source-of-truth value."
                       />
-                      <SurfaceMetric
-                        label="Vote tracking coverage"
-                        value={formatShare(row.trackingCoverage)}
-                        tooltip="Tracked vote submissions divided by recorded votes for this entry."
-                      />
+                        <SurfaceMetric
+                          label="Vote tracking coverage"
+                          value={formatShare(row.trackingCoverage)}
+                          tooltip="Tracked matched vote submissions divided by recorded votes for this entry."
+                        />
                       <SurfaceMetric
                         label="Average vote score"
                         value={formatScore(row.averageScore)}
@@ -662,7 +676,7 @@ export function HackathonGa4Dashboard({
                               tooltip="vote_dialog_viewed events that matched this competition entry."
                             />
                             <SurfaceMetric
-                              label="Tracked vote submissions"
+                              label="Tracked matched vote submissions"
                               value={formatInteger(row.voteSubmissions)}
                               tooltip="vote_submitted events GA4 recorded for this competition entry."
                             />
@@ -674,7 +688,7 @@ export function HackathonGa4Dashboard({
                             <SurfaceMetric
                               label="Vote tracking coverage"
                               value={formatShare(row.trackingCoverage)}
-                              tooltip="Tracked vote submissions divided by recorded votes for this entry."
+                              tooltip="Tracked matched vote submissions divided by recorded votes for this entry."
                             />
                             <SurfaceMetric
                               label="Average vote score"

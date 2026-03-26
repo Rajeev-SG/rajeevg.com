@@ -138,9 +138,26 @@ So the right reading is:
 - observed consent rate inside that event stream: `44 / 221 = 19.9%`
 - observed denied share inside that event stream: `177 / 221 = 80.1%`
 
+That should not be compared directly with the broader hackathon action mix visible on the GA4 dashboard:
+
+- `1,337` consented tracked actions
+- `313` non-consented tracked actions
+- `96` tracked actions with no populated consent flag
+
+That dashboard split uses a different denominator:
+
+- consented tracked action share: `1,337 / (1,337 + 313) = 81.0%`
+- non-consented tracked action share: `313 / (1,337 + 313) = 19.0%`
+
 But a single visitor can contribute more than once. Someone can land with denied consent, then grant consent later, and generate both states across separate `page_context` events.
 
-That is why event-level consent metrics are useful for understanding measurement conditions, but dangerous if someone mistakes them for a clean user count.
+So the honest reading is:
+
+- the `page_context` split was mostly denied in one narrow page-level stream
+- the broader known-consent hackathon action mix was mostly consented
+- neither split explains vote-capture coverage on its own
+
+That is why event-level consent metrics are useful for understanding measurement conditions, but dangerous if someone mistakes them for a clean user count or a vote-capture rate.
 
 <div className="not-prose my-6 flex flex-wrap gap-2">
   <ArticleExplain term="Observed data">Data GA4 can tie to usable identifiers because the browser allowed that level of observation. In consent-aware setups, this is the part of the measurement stream with the richest identity continuity.</ArticleExplain>
@@ -424,7 +441,7 @@ It was:
 - the browser observed `172` submit events
 - only `163` were clean real-entry submit events
 - the application actually stored `297` votes
-- the consent state was mostly denied in the clearest page-level consent split we could observe
+- the clearest `page_context` consent split was mostly denied, but that was not the same as overall vote-capture coverage
 - the BigQuery export path was linked but empty
 
 That is not a failure of measurement. That is measurement behaving like the real world.
