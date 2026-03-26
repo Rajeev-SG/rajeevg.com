@@ -456,89 +456,86 @@ export function HackathonGa4Dashboard({
           </div>
         }
       >
-        <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-          <Card className="border-border/70 bg-background/80">
-            <CardHeader>
-              <CardTitle>Top tracked events</CardTitle>
-              <CardDescription>
-                The biggest GA4 event groups for the live event day, shown as telemetry rather than as warehouse modeling.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {report.eventSurface.length ? (
-                <>
-                  {primaryEventSurface.map((row) => (
-                  <div
-                    key={`${row.eventName}-${row.viewerRole}-${row.competitionStatus}`}
-                    className="rounded-2xl border border-border/60 bg-background/50 p-4"
-                  >
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                      <div className="min-w-0">
-                        <p className="break-words font-medium text-foreground">{row.eventName}</p>
-                        <p className="break-words text-sm text-muted-foreground">
-                          {row.viewerRole} · {row.competitionStatus}
-                        </p>
-                      </div>
-                      <div className="shrink-0 text-right">
-                        <p className="text-2xl font-semibold">{formatInteger(row.eventCount)}</p>
-                        <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
-                          {formatInteger(row.totalUsers)} users
-                        </p>
-                      </div>
+        <Card className="border-border/70 bg-background/80">
+          <CardHeader>
+            <CardTitle>Top tracked events</CardTitle>
+            <CardDescription>
+              The biggest GA4 event groups for the live event day, shown as telemetry rather than as warehouse modeling.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {report.eventSurface.length ? (
+              <>
+                {primaryEventSurface.map((row) => (
+                <div
+                  key={`${row.eventName}-${row.viewerRole}-${row.competitionStatus}`}
+                  className="rounded-2xl border border-border/60 bg-background/50 p-4"
+                >
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <p className="break-words font-medium text-foreground">{row.eventName}</p>
+                      <p className="break-words text-sm text-muted-foreground">
+                        {row.viewerRole} · {row.competitionStatus}
+                      </p>
                     </div>
-                    <div className="mt-2 h-2 rounded-full bg-muted/40">
-                      <div
-                        className="h-2 rounded-full bg-cyan-500/80"
-                        style={{
-                          width: `${Math.max(
-                            8,
-                            Math.round((row.eventCount / eventSurfaceMax) * 100),
-                          )}%`,
-                        }}
-                      />
+                    <div className="shrink-0 text-right">
+                      <p className="text-2xl font-semibold">{formatInteger(row.eventCount)}</p>
+                      <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
+                        {formatInteger(row.totalUsers)} users
+                      </p>
                     </div>
                   </div>
-                  ))}
-                  {overflowEventSurface.length ? (
-                    <details className="rounded-2xl border border-border/60 bg-background/50">
-                      <summary className="cursor-pointer px-4 py-3 text-sm font-medium text-foreground">
-                        More event groups ({overflowEventSurface.length})
-                      </summary>
-                      <div className="space-y-3 border-t border-border/60 px-4 py-4">
-                        {overflowEventSurface.map((row) => (
-                          <div
-                            key={`${row.eventName}-${row.viewerRole}-${row.competitionStatus}`}
-                            className="rounded-2xl border border-border/60 bg-background/70 p-4"
-                          >
-                            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                              <div className="min-w-0">
-                                <p className="break-words font-medium text-foreground">{row.eventName}</p>
-                                <p className="break-words text-sm text-muted-foreground">
-                                  {row.viewerRole} · {row.competitionStatus}
-                                </p>
-                              </div>
-                              <div className="shrink-0 text-right">
-                                <p className="text-2xl font-semibold">{formatInteger(row.eventCount)}</p>
-                                <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
-                                  {formatInteger(row.totalUsers)} users
-                                </p>
-                              </div>
+                  <div className="mt-2 h-2 rounded-full bg-muted/40">
+                    <div
+                      className="h-2 rounded-full bg-cyan-500/80"
+                      style={{
+                        width: `${Math.max(
+                          8,
+                          Math.round((row.eventCount / eventSurfaceMax) * 100),
+                        )}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+                ))}
+                {overflowEventSurface.length ? (
+                  <details className="rounded-2xl border border-border/60 bg-background/50">
+                    <summary className="cursor-pointer px-4 py-3 text-sm font-medium text-foreground">
+                      More event groups ({overflowEventSurface.length})
+                    </summary>
+                    <div className="space-y-3 border-t border-border/60 px-4 py-4">
+                      {overflowEventSurface.map((row) => (
+                        <div
+                          key={`${row.eventName}-${row.viewerRole}-${row.competitionStatus}`}
+                          className="rounded-2xl border border-border/60 bg-background/70 p-4"
+                        >
+                          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                            <div className="min-w-0">
+                              <p className="break-words font-medium text-foreground">{row.eventName}</p>
+                              <p className="break-words text-sm text-muted-foreground">
+                                {row.viewerRole} · {row.competitionStatus}
+                              </p>
+                            </div>
+                            <div className="shrink-0 text-right">
+                              <p className="text-2xl font-semibold">{formatInteger(row.eventCount)}</p>
+                              <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
+                                {formatInteger(row.totalUsers)} users
+                              </p>
                             </div>
                           </div>
-                        ))}
-                      </div>
-                    </details>
-                  ) : null}
-                </>
-              ) : (
-                <p className="text-sm leading-6 text-muted-foreground">
-                  No hackathon-host event rows were returned by GA for the current event day.
-                </p>
-              )}
-            </CardContent>
-          </Card>
-
-        </div>
+                        </div>
+                      ))}
+                    </div>
+                  </details>
+                ) : null}
+              </>
+            ) : (
+              <p className="text-sm leading-6 text-muted-foreground">
+                No hackathon-host event rows were returned by GA for the current event day.
+              </p>
+            )}
+          </CardContent>
+        </Card>
 
         <Card className="border-border/70 bg-background/80">
           <CardHeader>
