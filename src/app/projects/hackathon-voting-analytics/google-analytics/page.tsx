@@ -19,12 +19,12 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: "Hackathon GA4 reporting",
     description:
-      "A GA Data API reporting route for the hackathon voting app, filtered to vote.rajeevg.com and backed by the shared property’s promoted hackathon schema.",
+      "A direct GA4 dashboard for the hackathon voting app, filtered to vote.rajeevg.com and focused on telemetry quality for the live event day.",
     alternates: { canonical: "/projects/hackathon-voting-analytics/google-analytics" },
     openGraph: {
       title: `Hackathon GA4 reporting • ${site.name}`,
       description:
-        "A Google Analytics Data API surface for the hackathon voting app, distinct from the BigQuery fallback dashboard.",
+        "A Google Analytics Data API surface for the hackathon voting app, focused on consent impact, telemetry quality, and event-day behavior.",
       url: `${site.siteUrl}/projects/hackathon-voting-analytics/google-analytics`,
     },
   }

@@ -2,28 +2,23 @@
 
 import type { ReactNode } from "react"
 import Link from "next/link"
-import { BarChart3, ChevronDown, Database, Gauge, RadioTower } from "lucide-react"
+import { BarChart3, ChevronDown, Database, Gauge, Info, RadioTower } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 
 export type HackathonReportingSurface = "bigquery" | "ga4"
 export type HackathonReportingSourceMode = "live" | "dummy"
-
-type SurfaceTab = {
-  key: HackathonReportingSurface
-  label: string
-  href: string
-}
 
 export type MetricDefinition = {
   label: string
   value: string
   detail: string
   icon: ReactNode
-  definitionId?: string
+  tooltip?: string
 }
 
 export function buildSchemaAnchorId(value: string) {
@@ -33,19 +28,6 @@ export function buildSchemaAnchorId(value: string) {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")}`
 }
-
-const SURFACE_TABS: SurfaceTab[] = [
-  {
-    key: "bigquery",
-    label: "BigQuery analysis",
-    href: "/projects/hackathon-voting-analytics",
-  },
-  {
-    key: "ga4",
-    label: "GA4 property",
-    href: "/projects/hackathon-voting-analytics/google-analytics",
-  },
-]
 
 function formatGeneratedAt(value: string) {
   return new Intl.DateTimeFormat("en-GB", {
@@ -92,30 +74,37 @@ function SourceToggle({
   )
 }
 
-function SurfaceTabs({ activeSurface }: { activeSurface: HackathonReportingSurface }) {
+export function DefinitionTooltipLabel({
+  label,
+  tooltip,
+  className,
+}: {
+  label: string
+  tooltip?: string
+  className?: string
+}) {
+  if (!tooltip) return <span className={className}>{label}</span>
+
   return (
-    <div className="inline-flex flex-wrap rounded-full border border-border bg-muted/40 p-1">
-      {SURFACE_TABS.map((tab) => {
-        const active = tab.key === activeSurface
-        return (
-          <Button
-            key={tab.key}
-            asChild
-            variant="ghost"
+    <TooltipProvider delayDuration={120}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
             className={cn(
-              "h-auto rounded-full px-4 py-2 text-xs font-semibold sm:text-sm",
-              active
-                ? "bg-background text-foreground shadow-sm hover:bg-background"
-                : "text-muted-foreground hover:text-foreground",
+              "inline-flex items-center gap-1 rounded-sm text-left transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/70",
+              className,
             )}
           >
-            <Link aria-current={active ? "page" : undefined} href={tab.href}>
-              {tab.label}
-            </Link>
-          </Button>
-        )
-      })}
-    </div>
+            <span>{label}</span>
+            <Info className="size-3 shrink-0 opacity-70" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="top" align="start" className="max-w-xs text-left leading-5">
+          {tooltip}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   )
 }
 
@@ -124,20 +113,14 @@ function MetricCard({
   value,
   detail,
   icon,
-  definitionId,
+  tooltip,
 }: MetricDefinition) {
   return (
     <Card className="min-h-full border-border/70 bg-background/80">
       <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-3">
         <div className="space-y-1">
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-            {definitionId ? (
-              <a href={`#${definitionId}`} className="transition hover:text-foreground">
-                {label}
-              </a>
-            ) : (
-              label
-            )}
+            <DefinitionTooltipLabel label={label} tooltip={tooltip} />
           </p>
           <CardTitle className="text-3xl">{value}</CardTitle>
         </div>
@@ -160,47 +143,46 @@ export function buildHackathonSummaryMetrics(metrics: {
   trackingCoverage: string
   fallbackTelemetry?: boolean
 }): MetricDefinition[] {
-  const telemetryPrefix = metrics.fallbackTelemetry ? "Fallback " : ""
   const telemetryDetail = metrics.fallbackTelemetry
     ? "Shown from GA4-derived fallback telemetry because the modeled BigQuery tables are still empty."
     : undefined
 
   return [
     {
-      label: `${telemetryPrefix}event count`,
+      label: metrics.fallbackTelemetry ? "Fallback tracked events" : "Tracked events",
       value: metrics.eventCount,
       detail: telemetryDetail ?? "Total hackathon analytics events returned in the current reporting window.",
       icon: <BarChart3 className="size-4" />,
-      definitionId: buildSchemaAnchorId("Event count"),
+      tooltip: "All analytics events counted for this page's reporting window. Use it as volume, not as a vote total.",
     },
     {
-      label: `${telemetryPrefix}users`,
+      label: metrics.fallbackTelemetry ? "Fallback tracked users" : "Tracked users",
       value: metrics.totalUsers,
       detail: telemetryDetail ?? "Distinct users observed on the hackathon reporting surface in the same window.",
       icon: <RadioTower className="size-4" />,
-      definitionId: buildSchemaAnchorId("Users"),
+      tooltip: "Distinct analytics users seen in this reporting window. This is a telemetry audience count, not the official judge roster.",
     },
     {
-      label: "Persisted votes",
+      label: "Recorded votes",
       value: metrics.actualVotes,
       detail: "Authoritative vote rows from the live voting app snapshot that powers the public scoreboard.",
       icon: <Gauge className="size-4" />,
-      definitionId: buildSchemaAnchorId("Persisted votes"),
+      tooltip: "Votes saved by the voting app itself. This is the source-of-truth total.",
     },
     {
-      label: `${telemetryPrefix}tracked submits`,
+      label: metrics.fallbackTelemetry ? "Fallback tracked vote submissions" : "Tracked vote submissions",
       value: metrics.trackedVoteSubmissions,
       detail:
         telemetryDetail ?? "GA4 vote_submitted events captured as analytics telemetry for the same window.",
       icon: <RadioTower className="size-4" />,
-      definitionId: buildSchemaAnchorId("Tracked submits"),
+      tooltip: "Vote submissions that analytics actually recorded. This can be lower than recorded votes when telemetry is missing or filtered.",
     },
     {
-      label: "GA4 coverage",
+      label: "Analytics coverage",
       value: metrics.trackingCoverage,
-      detail: "Tracked submits divided by the authoritative persisted vote total.",
+      detail: "Tracked vote submissions divided by the source-of-truth recorded vote total.",
       icon: <Database className="size-4" />,
-      definitionId: buildSchemaAnchorId("GA4 coverage"),
+      tooltip: "How much of the real vote ledger is visible in analytics for the same period.",
     },
   ]
 }
@@ -251,8 +233,8 @@ export function HackathonReportingNotesCard({
 
   return (
     <HackathonDisclosureCard
-      title="Source reconciliation"
-      description="Fresh reporting boundaries, fallback behavior, and proven discrepancies for this surface."
+      title="What this page includes"
+      description="Fresh scope notes, data boundaries, and any proven caveats for this reporting surface."
     >
       <div className="space-y-3">
         <ul className="space-y-3 text-sm leading-6 text-muted-foreground">
@@ -274,6 +256,7 @@ export function HackathonReportingShell({
   generatedAt,
   topBadges,
   summary,
+  heroDescription,
   summaryMetrics,
   preMetricContent,
   showDummyPreview = activeSurface === "bigquery",
@@ -285,6 +268,7 @@ export function HackathonReportingShell({
   generatedAt: string
   topBadges: string[]
   summary: string
+  heroDescription?: string
   summaryMetrics: MetricDefinition[]
   preMetricContent?: ReactNode
   showDummyPreview?: boolean
@@ -320,13 +304,11 @@ export function HackathonReportingShell({
                 Hackathon reporting dashboard
               </h1>
               <p className="max-w-3xl text-base text-muted-foreground sm:text-lg">
-                The shell stays fixed while you switch between BigQuery modeling and direct GA4
-                property reporting, so it is easier to compare the same hackathon story without
-                reorienting yourself every time.
+                {heroDescription ??
+                  "Each page now stays focused on a single reporting source, so the evidence, caveats, and live numbers are easier to read without context switching."}
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
-              <SurfaceTabs activeSurface={activeSurface} />
               <SourceToggle
                 onChange={onSourceChange}
                 showDummyPreview={showDummyPreview}
@@ -338,7 +320,7 @@ export function HackathonReportingShell({
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <Database className="size-4" />
-                Reporting source
+                About this page
               </CardTitle>
               <CardDescription>
                 Generated {formatGeneratedAt(generatedAt)} UTC

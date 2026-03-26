@@ -32,12 +32,12 @@ test.describe("hackathon ga4 reporting surface", () => {
       page.getByRole("heading", { name: "Hackathon reporting dashboard" }),
     ).toBeVisible()
 
-    await expect(page.getByRole("link", { name: "BigQuery analysis", exact: true })).toBeVisible()
-    await expect(page.getByRole("link", { name: "GA4 property", exact: true })).toHaveAttribute("aria-current", "page")
+    await expect(page.getByRole("link", { name: "BigQuery analysis", exact: true })).toHaveCount(0)
+    await expect(page.getByRole("link", { name: "GA4 property", exact: true })).toHaveCount(0)
     await expect(page.getByText("Host vote.rajeevg.com")).toBeVisible()
     await expect(page.getByRole("button", { name: "Dummy preview" })).toHaveCount(0)
-    await expect(page.getByText("Consent and tracking impact")).toBeVisible()
-    await expect(page.getByText("Event-day event surface")).toBeVisible()
+    await expect(page.getByText("Consent and measurement")).toBeVisible()
+    await expect(page.getByText("Top tracked events")).toBeVisible()
     await expect(page.getByText("Round snapshot surface")).toHaveCount(0)
     await expect(page.getByText("Manager operations")).toHaveCount(0)
 
@@ -47,13 +47,13 @@ test.describe("hackathon ga4 reporting surface", () => {
     await expect(liveNote).toBeVisible()
 
     await expect(
-      page.getByText(/Only .* page-context hits were granted|Known granted-versus-denied page-context rows are not available yet/i).first(),
+      page.getByText(/of known consent-state page signals were granted|cannot estimate consent impact with confidence/i).first(),
     ).toBeVisible()
 
-    await page.getByText("Promoted schema and derived metrics", { exact: true }).click()
+    await page.getByText("Metric and field definitions", { exact: true }).click()
     await page.getByText(/More derived metrics/).click()
-    await expect(page.getByText("Granted page-context share", { exact: true }).last()).toBeVisible()
-    await page.getByText("Source reconciliation", { exact: true }).click()
+    await expect(page.getByText("Consent rate", { exact: true }).last()).toBeVisible()
+    await page.getByText("What this page includes", { exact: true }).click()
     await expect(page.getByText(/Tracked analytics coverage/i).first()).toBeVisible()
 
     await capture(
@@ -67,6 +67,10 @@ test.describe("hackathon ga4 reporting surface", () => {
     await expect(page.getByText("Granted dialog share")).toHaveCount(0)
     await expect(page.getByText("Denied dialogs")).toHaveCount(0)
     await expect(page.getByText(/unknown consent state/i)).toHaveCount(0)
+    await expect(page.getByText("Raj test")).toHaveCount(0)
+    await expect(page.getByText("test-2")).toHaveCount(0)
+    await expect(page.getByText("test-3")).toHaveCount(0)
+    await expect(page.getByText("test 1")).toHaveCount(0)
 
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - window.innerWidth,

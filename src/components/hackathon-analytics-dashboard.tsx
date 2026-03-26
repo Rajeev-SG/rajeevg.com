@@ -32,10 +32,10 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   buildSchemaAnchorId,
+  DefinitionTooltipLabel,
   HackathonDisclosureCard,
   HackathonReportingNotesCard,
   HackathonReportingShell,
-  buildHackathonSummaryMetrics,
   type MetricDefinition,
 } from "@/components/hackathon-reporting-shell"
 import { cn } from "@/lib/utils"
@@ -76,12 +76,6 @@ function formatScore(value: number) {
 
 function formatCount(value: number) {
   return new Intl.NumberFormat("en-GB").format(value)
-}
-
-function formatCoverageRate(trackedVotes: number, persistedVotes: number | null) {
-  if (persistedVotes == null || persistedVotes <= 0) return "N/A"
-  const percentage = (trackedVotes / persistedVotes) * 100
-  return `${percentage >= 10 ? percentage.toFixed(0) : percentage.toFixed(1)}%`
 }
 
 function chartHeightForWidth(width: number) {
@@ -504,130 +498,147 @@ export function HackathonAnalyticsDashboard({ live, dummy, status }: DashboardPr
   const summaryCards: MetricDefinition[] = isLiveWarehouseOnly
     ? [
         {
-          label: "Modeled rows",
+          label: "Warehouse rows",
           value: formatCount(status.modeledRowCount),
           detail: "Total landed rows across the dedicated hackathon_reporting warehouse tables.",
           icon: <Database className="size-4" />,
-          definitionId: buildSchemaAnchorId("Modeled rows"),
+          tooltip: "All rows currently landed across the dedicated BigQuery reporting tables.",
         },
         {
-          label: "Modeled tables with rows",
+          label: "Warehouse tables with data",
           value: formatCount(status.modeledTablesWithRows),
           detail: "How many of the eight warehouse tables currently contain at least one landed row.",
           icon: <Layers3 className="size-4" />,
-          definitionId: buildSchemaAnchorId("Modeled tables with rows"),
+          tooltip: "How many of the eight modeled BigQuery tables currently contain data.",
         },
         {
-          label: "Raw export tables",
+          label: "Raw GA4 export tables",
           value: formatCount(status.rawExportTableCount),
           detail: "How many raw GA4 export tables currently exist in ga4_498363924.",
           icon: <RadioTower className="size-4" />,
-          definitionId: buildSchemaAnchorId("Raw export tables"),
+          tooltip: "How many raw GA4 export tables exist in ga4_498363924 right now.",
         },
         {
-          label: "Daily export",
+          label: "Daily BigQuery export",
           value: status.link?.dailyExportEnabled ? "Enabled" : "Unavailable",
           detail: "Admin-side BigQuery link status for daily GA4 export.",
           icon: <Activity className="size-4" />,
-          definitionId: buildSchemaAnchorId("Daily export"),
+          tooltip: "Whether the live GA4 to BigQuery link is configured to export daily tables.",
         },
         {
-          label: "Streaming export",
+          label: "Streaming BigQuery export",
           value: status.link?.streamingExportEnabled ? "Enabled" : "Unavailable",
           detail: "Admin-side BigQuery link status for streaming GA4 export.",
           icon: <Activity className="size-4" />,
-          definitionId: buildSchemaAnchorId("Streaming export"),
+          tooltip: "Whether the live GA4 to BigQuery link is configured to export intraday streaming tables.",
         },
       ]
-    : buildHackathonSummaryMetrics({
-        eventCount: formatCount(overviewTotals.totalEvents),
-        totalUsers: formatCount(overviewTotals.uniqueUsers),
-        actualVotes:
-          dataset.voteTruth != null ? formatCount(dataset.voteTruth.totals.totalVotes) : "Unavailable",
-        trackedVoteSubmissions: formatCount(overviewTotals.voteSubmissions),
-        trackingCoverage: formatCoverageRate(
-          overviewTotals.voteSubmissions,
-          dataset.voteTruth?.totals.totalVotes ?? null
-        ),
-      })
+    : [
+        {
+          label: "Modeled events",
+          value: formatCount(overviewTotals.totalEvents),
+          detail: "All analytics events returned by the warehouse model for the live event day.",
+          icon: <BarChart3 className="size-4" />,
+          tooltip: "All modeled analytics events returned by BigQuery for this page's reporting window.",
+        },
+        {
+          label: "Modeled users",
+          value: formatCount(overviewTotals.uniqueUsers),
+          detail: "Distinct users returned by the warehouse model for the same reporting window.",
+          icon: <RadioTower className="size-4" />,
+          tooltip: "Distinct modeled users returned by BigQuery for this page's reporting window.",
+        },
+        {
+          label: "Recorded votes",
+          value:
+            dataset.voteTruth != null ? formatCount(dataset.voteTruth.totals.totalVotes) : "Unavailable",
+          detail: "Source-of-truth votes from the live voting app snapshot.",
+          icon: <Database className="size-4" />,
+          tooltip: "Votes saved by the app itself. This is the official vote total.",
+        },
+        {
+          label: "Successful judge sign-ins",
+          value: formatCount(overviewTotals.judgeAuthCompletions),
+          detail: "Judge sign-ins observed in the warehouse model for the live event day.",
+          icon: <Sparkles className="size-4" />,
+          tooltip: "Successful judge sign-ins recorded in the warehouse model for the reporting window.",
+        },
+        {
+          label: "Total score",
+          value: formatCount(overviewTotals.totalScore),
+          detail: "Total score mass accumulated across all modeled votes in the reporting window.",
+          icon: <Activity className="size-4" />,
+          tooltip: "The sum of all modeled vote scores recorded in the warehouse for the reporting window.",
+        },
+      ]
   const derivedDefinitions: DerivedDefinition[] = [
     {
-      label: "Modeled rows",
+      label: "Warehouse rows",
       meaning: "Total landed rows across the dedicated hackathon_reporting warehouse tables.",
       interpretation: "If this is zero, the BigQuery dashboard should be treated as a warehouse-status page, not an analytics story.",
     },
     {
-      label: "Modeled tables with rows",
+      label: "Warehouse tables with data",
       meaning: "How many modeled warehouse tables currently contain data.",
       interpretation: "This is the quickest way to tell whether any part of the reporting model has started landing.",
     },
     {
-      label: "Raw export tables",
+      label: "Raw GA4 export tables",
       meaning: "How many raw GA4 export tables currently exist in the ga4_498363924 dataset.",
       interpretation: "If this is zero, the break is upstream of modeling and the raw export has not landed at all.",
     },
     {
-      label: "Daily export",
+      label: "Daily BigQuery export",
       meaning: "Whether the live GA4 BigQuery link has daily export enabled.",
       interpretation: "Enabled here but zero raw tables means the issue is not just a dashboard-query bug.",
     },
     {
-      label: "Streaming export",
+      label: "Streaming BigQuery export",
       meaning: "Whether the live GA4 BigQuery link has streaming export enabled.",
       interpretation: "Enabled here but zero raw tables means intraday export is configured yet still not landing.",
     },
     {
-      label: "Event count",
+      label: "Modeled events",
       meaning: "All modeled analytics events returned for the dashboard reporting window.",
-      interpretation: "Use this only when warehouse rows have landed or when reviewing the dummy preview.",
+      interpretation: "Use this as BigQuery-modeled event volume, not as a vote total.",
     },
     {
-      label: "Users",
+      label: "Modeled users",
       meaning: "Distinct modeled users returned for the dashboard reporting window.",
-      interpretation: "Use this only when warehouse rows have landed or when reviewing the dummy preview.",
+      interpretation: "Use this as the modeled audience size for the event day.",
     },
     {
-      label: "Persisted votes",
-      meaning: "Authoritative vote rows from the live competition summary, independent of analytics consent.",
-      interpretation: "Use this as the vote ledger. It is the number the public scoreboard is actually based on.",
+      label: "Recorded votes",
+      meaning: "Votes saved by the live voting app, independent of analytics consent.",
+      interpretation: "Use this as the official vote ledger alongside the warehouse model.",
     },
     {
-      label: "Tracked submits",
-      meaning: "GA4 vote_submitted telemetry captured for the same host and reporting window.",
-      interpretation: "Use this for consented interaction trendlines, not for final vote totals.",
-    },
-    {
-      label: "GA4 coverage",
-      meaning: "Tracked submits divided by persisted votes.",
-      interpretation: "This only belongs on the dummy preview or GA4 route, not the live warehouse-status view.",
-    },
-    {
-      label: "Auth completions",
+      label: "Successful judge sign-ins",
       meaning: "Successful judge authentication events in the modeled data.",
       interpretation: "Use this to understand modeled access completion volume on the event day.",
     },
     {
-      label: "Auth failures",
+      label: "Sign-in failures",
       meaning: "Modeled authentication failures in the same event-day window.",
       interpretation: "Use this as a friction signal when sign-in appears to be underperforming.",
     },
     {
-      label: "Dialog views",
+      label: "Vote modal opens",
       meaning: "Modeled vote-modal views for the event day.",
       interpretation: "This measures demand for the scoring surface before submits are considered.",
     },
     {
-      label: "Aggregate score",
-      meaning: "Summed score mass accumulated by an entry in the modeled dataset.",
+      label: "Total score",
+      meaning: "Summed score mass accumulated by an entry or the full event in the modeled dataset.",
       interpretation: "Use this to compare ranking strength across entries on the event day.",
     },
     {
-      label: "Average score",
+      label: "Average vote score",
       meaning: "Average score value recorded for an entry in the modeled dataset.",
       interpretation: "Use this to compare score quality independently from vote volume.",
     },
     {
-      label: "View-to-vote rate",
+      label: "Vote conversion rate",
       meaning: "Submitted votes divided by eligible dialog views for the entry.",
       interpretation: "This is the modeled conversion rate for the vote surface.",
     },
@@ -675,13 +686,13 @@ export function HackathonAnalyticsDashboard({ live, dummy, status }: DashboardPr
           },
           series: [
             {
-              name: "Unique users",
+              name: "Modeled users",
               type: "line",
               smooth: true,
               data: dataset.overview.map((row) => row.uniqueUsers),
             },
             {
-              name: "Tracked submits",
+              name: "Recorded vote submissions",
               type: "bar",
               barMaxWidth: 26,
               data: dataset.overview.map((row) => row.voteSubmissions),
@@ -722,12 +733,12 @@ export function HackathonAnalyticsDashboard({ live, dummy, status }: DashboardPr
     )
 
   const funnelStages = [
-    { stage: "Auth requested", value: authTotals.authRequests || authTotals.googleStarts },
-    { stage: "Auth completed", value: authTotals.authCompletions },
-    { stage: "Dialog viewed", value: votingTotals.dialogViews },
-    { stage: "Score selected", value: votingTotals.scoreSelections },
+    { stage: "Sign-in requested", value: authTotals.authRequests || authTotals.googleStarts },
+    { stage: "Sign-in completed", value: authTotals.authCompletions },
+    { stage: "Vote modal opened", value: votingTotals.dialogViews },
+    { stage: "Score chosen", value: votingTotals.scoreSelections },
     { stage: "Submit started", value: votingTotals.submitStarts },
-    { stage: "Tracked submit", value: votingTotals.submittedVotes },
+    { stage: "Vote submitted", value: votingTotals.submittedVotes },
   ].filter((item) => item.value > 0)
 
   const funnelChart =
@@ -841,7 +852,7 @@ export function HackathonAnalyticsDashboard({ live, dummy, status }: DashboardPr
           grid: { left: 56, right: 76, top: 36, bottom: 44, containLabel: true },
           xAxis: {
             type: "value",
-            name: "Average score",
+            name: "Average vote score",
             min: Number(scoreDomain.min.toFixed(1)),
             max: Number(scoreDomain.max.toFixed(1)),
             nameTextStyle: { color: palette.muted },
@@ -850,7 +861,7 @@ export function HackathonAnalyticsDashboard({ live, dummy, status }: DashboardPr
           },
           yAxis: {
             type: "value",
-            name: "View-to-vote rate",
+            name: "Vote conversion rate",
             min: Number(voteRateDomain.min.toFixed(2)),
             max: Number(voteRateDomain.max.toFixed(2)),
             nameTextStyle: { color: palette.muted },
@@ -881,9 +892,9 @@ export function HackathonAnalyticsDashboard({ live, dummy, status }: DashboardPr
             marginLeft: 56,
             marginBottom: width < 640 ? 64 : 48,
             style: { background: palette.panel, color: palette.text },
-            x: { label: "Average score", grid: true, domain: [scoreDomain.min, scoreDomain.max] },
+            x: { label: "Average vote score", grid: true, domain: [scoreDomain.min, scoreDomain.max] },
             y: {
-              label: "View to vote rate",
+              label: "Vote conversion rate",
               percent: true,
               grid: true,
               domain: [voteRateDomain.min, voteRateDomain.max],
@@ -1027,8 +1038,9 @@ export function HackathonAnalyticsDashboard({ live, dummy, status }: DashboardPr
         generatedAt={dataset.generatedAt}
         summary={
           dataset.notes[0] ??
-          "Modeled reporting from the dedicated BigQuery dataset for richer slices, funnels, and cross-event analysis."
+          "Warehouse reporting from the dedicated BigQuery dataset for the hackathon event day."
         }
+        heroDescription="This page is the warehouse view for the hackathon. It either shows the modeled BigQuery story or, when the export is empty, the exact evidence for why the warehouse is still blank."
         onSourceChange={setSource}
         source={source}
         summaryMetrics={summaryCards}
@@ -1042,8 +1054,8 @@ export function HackathonAnalyticsDashboard({ live, dummy, status }: DashboardPr
           <div className="space-y-4">
             <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
               <HackathonDisclosureCard
-                title="Promoted schema and derived metrics"
-                description="The reference layer sits up front now, and every visible metric label links back here."
+                title="Metric and field definitions"
+                description="Plain-English definitions for every warehouse metric and field used on this page."
               >
                 <DefinitionTable
                   definitions={dataset.definitions}
@@ -1059,7 +1071,7 @@ export function HackathonAnalyticsDashboard({ live, dummy, status }: DashboardPr
         <SectionShell
           eyebrow="Warehouse"
           title="Warehouse status"
-          description="The BigQuery route stays strictly warehouse-scoped now. When the export is empty, this page shows warehouse evidence instead of GA4 fallback numbers."
+          description="This page stays warehouse-scoped. When the export is empty, it shows proof of the warehouse state instead of substitute analytics totals."
         >
           <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
             <Card className="border-border/70 bg-background/80">
@@ -1156,7 +1168,7 @@ export function HackathonAnalyticsDashboard({ live, dummy, status }: DashboardPr
           <SectionShell
             eyebrow="Pulse"
             title="Daily volume"
-            description="Event-day modeled volume only, without the removed round snapshot and manager-operation surfaces."
+            description="Modeled event-day activity from BigQuery, focused on the core judging story."
             actions={<RendererToggle renderer={renderer} onChange={setRenderer} />}
           >
             <Card className="border-border/70 bg-background/80">
@@ -1165,9 +1177,9 @@ export function HackathonAnalyticsDashboard({ live, dummy, status }: DashboardPr
                   <Activity className="size-4" />
                   Daily momentum
                 </CardTitle>
-                <CardDescription>
-                  Unique users and submitted votes over the modeled event-day window.
-                </CardDescription>
+                  <CardDescription>
+                    Modeled users and recorded vote submissions over the event-day window.
+                  </CardDescription>
               </CardHeader>
               <CardContent>{overviewChart}</CardContent>
             </Card>
@@ -1175,8 +1187,8 @@ export function HackathonAnalyticsDashboard({ live, dummy, status }: DashboardPr
 
           <SectionShell
             eyebrow="Funnel"
-            title="Voting funnel and judge access"
-            description="This section answers the first real operational question people ask: did judges get in cleanly, open the modal, and actually finish their votes?"
+            title="Judge access and vote flow"
+            description="This section answers the main operational question: did judges get in cleanly, open voting, and complete submissions?"
           >
             <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
               <Card className="border-border/70 bg-background/80">
@@ -1198,16 +1210,16 @@ export function HackathonAnalyticsDashboard({ live, dummy, status }: DashboardPr
                     Auth mix
                   </CardTitle>
                   <CardDescription>
-                    Passwordless and Google auth completions split by method.
+                    Passwordless and Google sign-ins split by method.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {authChart}
                   <div className="grid gap-3 sm:grid-cols-2">
-                    <MetricTile label="Auth completions" value={formatCount(authTotals.authCompletions)} definitionId={buildSchemaAnchorId("Auth completions")} />
-                    <MetricTile label="Auth failures" value={formatCount(authTotals.authFailures + authTotals.googleFailures)} definitionId={buildSchemaAnchorId("Auth failures")} />
-                    <MetricTile label="Dialog views" value={formatCount(votingTotals.dialogViews)} definitionId={buildSchemaAnchorId("Dialog views")} />
-                    <MetricTile label="Tracked submits" value={formatCount(votingTotals.submittedVotes)} definitionId={buildSchemaAnchorId("Tracked submits")} />
+                    <MetricTile label="Successful judge sign-ins" value={formatCount(authTotals.authCompletions)} tooltip="Successful judge sign-ins recorded in the warehouse model." />
+                    <MetricTile label="Sign-in failures" value={formatCount(authTotals.authFailures + authTotals.googleFailures)} tooltip="Authentication failures recorded in the warehouse model." />
+                    <MetricTile label="Vote modal opens" value={formatCount(votingTotals.dialogViews)} tooltip="Modeled openings of the voting modal for the event day." />
+                    <MetricTile label="Recorded vote submissions" value={formatCount(votingTotals.submittedVotes)} tooltip="Vote submissions recorded in the BigQuery model for the event day." />
                   </div>
                 </CardContent>
               </Card>
@@ -1216,18 +1228,18 @@ export function HackathonAnalyticsDashboard({ live, dummy, status }: DashboardPr
 
           <SectionShell
             eyebrow="Entries"
-            title="Entry analysis"
-            description="Project-by-project performance needs both ranking and friction context, so this section pairs the scoreboard story with conversion quality."
+            title="Entry performance"
+            description="Project-by-project performance, combining leaderboard strength with how reliably views turned into votes."
           >
             <div className="grid gap-6">
               <Card className="border-border/70 bg-background/80">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <BarChart3 className="size-4" />
-                    Leaderboard by aggregate score
+                    Leaderboard by total score
                   </CardTitle>
                   <CardDescription>
-                    Summed score mass across the modeled event-day window.
+                    Total score accumulated across the modeled event-day window.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>{leaderboardChart}</CardContent>
@@ -1236,10 +1248,10 @@ export function HackathonAnalyticsDashboard({ live, dummy, status }: DashboardPr
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Eye className="size-4" />
-                    Conversion quality by entry
+                    Vote conversion by entry
                   </CardTitle>
                   <CardDescription>
-                    Bubble size tracks submitted votes, the x-axis shows average score, and the y-axis shows how reliably an eligible modal view became a vote.
+                    Bubble size tracks recorded votes, the x-axis shows average vote score, and the y-axis shows how reliably an eligible modal view became a vote.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>{entryScatter}</CardContent>
@@ -1254,9 +1266,9 @@ export function HackathonAnalyticsDashboard({ live, dummy, status }: DashboardPr
                   </CardHeader>
                   <CardContent className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                     <MetricTile label="Entry" value={topEntry.entryName} />
-                    <MetricTile label="Aggregate score" value={formatCount(topEntry.totalScore)} definitionId={buildSchemaAnchorId("Aggregate score")} />
-                    <MetricTile label="Average score" value={formatScore(topEntry.averageScore)} definitionId={buildSchemaAnchorId("Average score")} />
-                    <MetricTile label="View-to-vote rate" value={formatPercent(topEntry.viewToVoteRate)} definitionId={buildSchemaAnchorId("View-to-vote rate")} />
+                    <MetricTile label="Total score" value={formatCount(topEntry.totalScore)} tooltip="The sum of all scores recorded for this entry in the modeled dataset." />
+                    <MetricTile label="Average vote score" value={formatScore(topEntry.averageScore)} tooltip="The average score recorded for this entry in the modeled dataset." />
+                    <MetricTile label="Vote conversion rate" value={formatPercent(topEntry.viewToVoteRate)} tooltip="Recorded vote submissions divided by eligible modal opens for this entry." />
                   </CardContent>
                 </Card>
               ) : null}
@@ -1268,15 +1280,15 @@ export function HackathonAnalyticsDashboard({ live, dummy, status }: DashboardPr
       {!isLiveWarehouseOnly ? (
         <SectionShell
           eyebrow="Taxonomy"
-          title="Event taxonomy"
-          description="Grouped event vocabulary by role and competition state, without repeating the schema reference that now lives near the top of the page."
+          title="Tracked event mix"
+          description="Event vocabulary grouped by viewer role and judging state, so you can see where the modeled activity is concentrated."
         >
           <div className="grid gap-6">
             <Card className="border-border/70 bg-background/80">
               <CardHeader>
-                <CardTitle>Event taxonomy</CardTitle>
+                <CardTitle>Tracked event mix</CardTitle>
                 <CardDescription>
-                  Grouped by viewer role and competition status so you can see whether the event vocabulary is balanced or manager-heavy.
+                  Grouped by viewer role and competition status so you can quickly see whether activity is public, judge-led, or manager-led.
                 </CardDescription>
               </CardHeader>
               <CardContent>{taxonomyChart}</CardContent>
@@ -1292,22 +1304,16 @@ export function HackathonAnalyticsDashboard({ live, dummy, status }: DashboardPr
 function MetricTile({
   label,
   value,
-  definitionId,
+  tooltip,
 }: {
   label: string
   value: string
-  definitionId?: string
+  tooltip?: string
 }) {
   return (
     <div className="rounded-2xl border border-border/70 bg-muted/30 p-4">
       <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-        {definitionId ? (
-          <a href={`#${definitionId}`} className="transition hover:text-foreground">
-            {label}
-          </a>
-        ) : (
-          label
-        )}
+        <DefinitionTooltipLabel label={label} tooltip={tooltip} />
       </p>
       <p className="mt-2 break-words text-lg font-semibold tracking-tight">{value}</p>
     </div>

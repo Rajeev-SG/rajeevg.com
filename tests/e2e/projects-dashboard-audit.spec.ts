@@ -240,9 +240,9 @@ test.describe("projects dashboard audit", () => {
           "Daily momentum",
           "Voting funnel",
           "Auth mix",
-          "Leaderboard by aggregate score",
-          "Conversion quality by entry",
-          "Event taxonomy",
+          "Leaderboard by total score",
+          "Vote conversion by entry",
+          "Tracked event mix",
         ]
 
         for (const heading of previewHeadings) {
@@ -291,11 +291,11 @@ test.describe("projects dashboard audit", () => {
             name: "hero",
             locator: page.locator('[data-analytics-reporting-shell="hero"]').first(),
           },
-          { name: "consent-impact", locator: page.getByRole("heading", { name: "Consent and tracking impact" }).first() },
-          { name: "event-day-event-surface", locator: page.getByRole("heading", { name: "Event-day event surface" }).first() },
-          { name: "telemetry-checkpoints", locator: page.getByRole("heading", { name: "Telemetry checkpoints" }).first() },
-          { name: "entry-surface", locator: page.getByRole("heading", { name: "Entry surface" }).first() },
-          { name: "promoted-schema", locator: page.getByText("Promoted schema and derived metrics", { exact: true }).first() },
+          { name: "consent-and-measurement", locator: page.getByRole("heading", { name: "Consent and measurement" }).first() },
+          { name: "top-tracked-events", locator: page.getByRole("heading", { name: "Top tracked events" }).first() },
+          { name: "measurement-quality-checks", locator: page.getByRole("heading", { name: "Measurement quality checks" }).first() },
+          { name: "entry-by-entry-tracking", locator: page.getByRole("heading", { name: "Entry-by-entry tracking" }).first() },
+          { name: "metric-and-field-definitions", locator: page.getByText("Metric and field definitions", { exact: true }).first() },
         ]
 
         for (const surface of surfaces) {

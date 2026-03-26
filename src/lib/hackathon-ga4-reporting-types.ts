@@ -44,6 +44,8 @@ export type HackathonGaDefinition = {
   label: string
   type: "dimension" | "metric"
   meaning: string
+  typicalValues: string
+  interpretation: string
 }
 
 export type HackathonGaReport = {

@@ -33,24 +33,20 @@ test.describe("hackathon analytics dashboard", () => {
         name: "Hackathon reporting dashboard",
       }),
     ).toBeVisible()
-    await expect(page.getByRole("link", { name: "BigQuery analysis", exact: true })).toHaveAttribute(
-      "aria-current",
-      "page",
-    )
-    await expect(page.getByRole("link", { name: "GA4 property", exact: true })).toBeVisible()
-    await expect(page.getByText("Promoted schema and derived metrics")).toBeVisible()
-    await expect(page.getByText("Source reconciliation")).toBeVisible()
+    await expect(page.getByRole("link", { name: "BigQuery analysis", exact: true })).toHaveCount(0)
+    await expect(page.getByRole("link", { name: "GA4 property", exact: true })).toHaveCount(0)
+    await expect(page.getByText("Metric and field definitions")).toBeVisible()
+    await expect(page.getByText("What this page includes")).toBeVisible()
     await expect(page.getByRole("heading", { name: "Warehouse status" })).toBeVisible()
-    await expect(page.getByRole("link", { name: "Modeled rows" }).first()).toBeVisible()
 
-    await page.getByText("Source reconciliation", { exact: true }).click()
+    await page.getByText("What this page includes", { exact: true }).click()
     await expect(
       page.getByText(/No GA4-derived fallback metrics are rendered on this route anymore/i).first(),
     ).toBeVisible()
-    await page.getByText("Source reconciliation", { exact: true }).click()
+    await page.getByText("What this page includes", { exact: true }).click()
 
-    await page.getByText("Promoted schema and derived metrics", { exact: true }).click()
-    await expect(page.locator("#schema-modeled-rows summary").first()).toBeVisible()
+    await page.getByText("Metric and field definitions", { exact: true }).click()
+    await expect(page.locator("#schema-warehouse-rows summary").first()).toBeVisible()
 
     const sourceToggle = page.getByRole("button", { name: "Dummy preview" })
     await sourceToggle.click()
@@ -67,7 +63,7 @@ test.describe("hackathon analytics dashboard", () => {
     )
     if (testInfo.project.name === "desktop-light") {
       await capture(
-        page.locator("#voting-funnel-and-judge-access"),
+        page.locator("#judge-access-and-vote-flow"),
         `${testInfo.project.name}-voting-funnel.png`,
       )
     }
@@ -77,8 +73,8 @@ test.describe("hackathon analytics dashboard", () => {
 
     await capture(
       testInfo.project.name === "desktop-light"
-        ? page.locator("#entry-analysis")
-        : page.locator("#voting-funnel-and-judge-access"),
+        ? page.locator("#entry-performance")
+        : page.locator("#judge-access-and-vote-flow"),
       `${testInfo.project.name}-entry-analysis-observable.png`,
     )
 

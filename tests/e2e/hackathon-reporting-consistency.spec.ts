@@ -26,12 +26,12 @@ async function capture(page: Page, filename: string) {
 async function getShellMetrics(page: Page) {
   const shell = page.locator('[data-analytics-reporting-shell="hero"]').first()
   const heading = page.getByRole("heading", { name: "Hackathon reporting dashboard" })
-  const tabs = page.getByRole("link", { name: "BigQuery analysis", exact: true })
+  const sourceToggle = page.getByRole("button", { name: "Live reporting" }).first()
 
   return {
     shell: await shell.boundingBox(),
     heading: await heading.boundingBox(),
-    tabs: await tabs.boundingBox(),
+    sourceToggle: await sourceToggle.boundingBox(),
   }
 }
 
@@ -49,7 +49,7 @@ test.describe("hackathon reporting shell consistency", () => {
     const bigQueryMetrics = await getShellMetrics(page)
     await capture(page, `${testInfo.project.name}-bigquery-shell.png`)
 
-    await page.getByRole("link", { name: "GA4 property", exact: true }).click()
+    await page.goto("/projects/hackathon-voting-analytics/google-analytics")
     await expect(page).toHaveURL(/\/projects\/hackathon-voting-analytics\/google-analytics$/)
     await expect(
       page.getByRole("heading", { name: "Hackathon reporting dashboard" }),
@@ -67,6 +67,6 @@ test.describe("hackathon reporting shell consistency", () => {
     expect(gaMetrics.shell?.height).toBeTruthy()
     expect(Math.abs((bigQueryMetrics.shell?.height ?? 0) - (gaMetrics.shell?.height ?? 0))).toBeLessThanOrEqual(64)
     expect(Math.abs((bigQueryMetrics.heading?.y ?? 0) - (gaMetrics.heading?.y ?? 0))).toBeLessThanOrEqual(8)
-    expect(Math.abs((bigQueryMetrics.tabs?.y ?? 0) - (gaMetrics.tabs?.y ?? 0))).toBeLessThanOrEqual(8)
+    expect(Math.abs((bigQueryMetrics.sourceToggle?.y ?? 0) - (gaMetrics.sourceToggle?.y ?? 0))).toBeLessThanOrEqual(8)
   })
 })

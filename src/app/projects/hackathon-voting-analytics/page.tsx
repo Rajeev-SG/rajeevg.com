@@ -22,12 +22,12 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: "Hackathon voting analytics",
     description:
-      "An advanced analytics dashboard for the hackathon voting app, with live BigQuery-backed reporting and a dummy-preview shell.",
+      "A BigQuery warehouse dashboard for the hackathon voting app, with live warehouse-status proof and a modeled preview shell.",
     alternates: { canonical: "/projects/hackathon-voting-analytics" },
     openGraph: {
       title: `Hackathon voting analytics • ${site.name}`,
       description:
-        "A reporting route for the hackathon voting app, designed to replace the weak Looker Studio artifact with a richer public dashboard.",
+        "A warehouse-first reporting route for the hackathon voting app, focused on BigQuery evidence and modeled event-day analysis.",
       url: `${site.siteUrl}/projects/hackathon-voting-analytics`,
     },
   }

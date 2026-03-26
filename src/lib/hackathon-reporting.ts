@@ -12,7 +12,6 @@ import {
 import { getHackathonPropertyId } from "@/lib/hackathon-ga4-common"
 import { getDummyHackathonAnalyticsDataset } from "@/lib/hackathon-reporting-dummy"
 import {
-  describeHackathonVoteTruthReconciliation,
   getHackathonEventDay,
   getHackathonVoteTruth,
 } from "@/lib/hackathon-vote-truth"
@@ -237,8 +236,6 @@ export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalytics
     const modeledRowCount = modeledTableCounts.reduce((sum, table) => sum + table.rowCount, 0)
 
     if (hasLiveRows) {
-      const trackedVotes = overview.reduce((sum, row) => sum + row.voteSubmissions, 0)
-
       return {
         source: "live",
         generatedAt: new Date().toISOString(),
@@ -247,11 +244,13 @@ export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalytics
           `Live mode is reading directly from the dedicated hackathon_reporting dataset in BigQuery, scoped to ${eventDay?.label ?? "the live event day"}.`,
           `Warehouse reconciliation: ${modeledRowCount} rows are currently landed across ${MODELED_TABLES.length} modeled tables, while the raw export dataset ga4_${getHackathonPropertyId()} has ${rawExportTableCount} landed tables.`,
           "This route never reads the main rajeevg.com page analytics tables, which avoids the mixed-data problem from the old Looker shell.",
-          ...describeHackathonVoteTruthReconciliation({
-            trackedVotes,
-            voteTruth: voteTruthResult.summary,
-            fallbackNote: voteTruthResult.note,
-          }),
+          ...(voteTruthResult.summary
+            ? [
+                `Source of truth: the live voting app currently reports ${voteTruthResult.summary.totals.totalVotes} recorded votes across ${voteTruthResult.summary.totals.totalEntries} entries and ${voteTruthResult.summary.totals.uniqueJudges} judges at ${voteTruthResult.summary.summaryUrl}.`,
+              ]
+            : voteTruthResult.note
+              ? [`Source-of-truth snapshot could not be read from the voting app: ${voteTruthResult.note}`]
+              : []),
         ],
         ...dataset,
       }

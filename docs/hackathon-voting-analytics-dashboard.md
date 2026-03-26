@@ -1,6 +1,6 @@
 # Hackathon Voting Analytics Dashboard
 
-Last updated: 2026-03-25
+Last updated: 2026-03-26
 
 ## Purpose
 
@@ -23,13 +23,13 @@ They now separate three things clearly:
 Live mode on `/projects/hackathon-voting-analytics` is now strictly warehouse-scoped.
 
 - It defaults to `Live reporting`, even when the warehouse is empty.
-- It no longer shows GA4-derived metric cards in live mode.
+- It no longer shows GA4 route comparison toggles or GA4-derived metric cards.
 - When modeled tables are empty, it renders warehouse evidence only:
-  - modeled row count
-  - modeled tables with rows
-  - raw export table count
-  - daily export status
-  - streaming export status
+  - warehouse row count
+  - warehouse tables with data
+  - raw GA4 export table count
+  - daily BigQuery export status
+  - streaming BigQuery export status
 - It shows the Admin API BigQuery-link proof directly on the page:
   - link name
   - creation time
@@ -46,10 +46,10 @@ The GA4 route stays telemetry-focused and event-day scoped.
 - It filters all report queries to `hostName = vote.rajeevg.com`.
 - It is limited to the live event day derived from the voting app summary, not the older rolling window.
 - It now shows only:
-  - `Consent and tracking impact`
-  - `Event-day event surface`
-  - `Telemetry checkpoints`
-  - `Entry surface`
+  - `Consent and measurement`
+  - `Top tracked events`
+  - `Measurement quality checks`
+  - `Entry-by-entry tracking`
 - It no longer shows:
   - `Dummy preview`
   - `Experience`
@@ -58,6 +58,7 @@ The GA4 route stays telemetry-focused and event-day scoped.
   - `Granted dialog share`
   - `Denied dialogs`
   - `competition_state_snapshot`
+  - unmatched test-only entries in the visible entry cards
 
 ## Interaction and layout rules now enforced
 
@@ -65,7 +66,7 @@ The GA4 route stays telemetry-focused and event-day scoped.
 - The schema panel is collapsed by default.
 - The source-reconciliation panel is collapsed by default.
 - Individual schema cards are collapsed by default.
-- Visible metric labels link back to schema definitions through anchor links.
+- Visible metric labels now use inline tooltips instead of anchor links, so readers can get definitions without jumping around the page.
 - Panels expose at most five visible cards at once.
 - Extra cards are moved behind a disclosure such as `More derived metrics`, `More schema fields`, `More event groups`, `More entries`, or `More modeled tables`.
 
@@ -131,6 +132,7 @@ Important interpretation:
 - `unknown` or blank consent state is not a third user consent state.
 - It means the event row did not carry a populated `analytics_consent_state` custom dimension.
 - That is why the page now uses `page_context` as the consent-rate proxy and no longer surfaces `unknown dialog consent` as a topline UX concept.
+- The GA4 entry cards now exclude rows that do not match the live competition slate, so test entries such as `raj-test` or `test-2` do not appear in the visible entry analysis.
 
 ## Verified status on production
 

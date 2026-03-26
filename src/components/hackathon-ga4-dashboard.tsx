@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   buildSchemaAnchorId,
+  DefinitionTooltipLabel,
   HackathonDisclosureCard,
   HackathonReportingNotesCard,
   HackathonReportingShell,
@@ -95,7 +96,14 @@ type EntrySurfaceView = {
   trackingCoverage: number | null
 }
 
-function buildEntrySurface(report: HackathonGaReport): EntrySurfaceView[] {
+type EntrySurfaceBuildResult = {
+  rows: EntrySurfaceView[]
+  omittedEntries: number
+  omittedDialogViews: number
+  omittedTrackedSubmissions: number
+}
+
+function buildEntrySurface(report: HackathonGaReport): EntrySurfaceBuildResult {
   const truthEntries = report.voteTruth?.entries ?? []
   const truthBySlug = new Map(truthEntries.map((entry) => [entry.slug, entry]))
   const truthByName = new Map(
@@ -150,7 +158,7 @@ function buildEntrySurface(report: HackathonGaReport): EntrySurfaceView[] {
     grouped.set(key, current)
   }
 
-  return Array.from(grouped.values())
+  const rows = Array.from(grouped.values())
     .map(({ scoreSum, scoreSamples, ...row }) => {
       const averageScore =
         scoreSamples > 0
@@ -167,7 +175,13 @@ function buildEntrySurface(report: HackathonGaReport): EntrySurfaceView[] {
         trackingCoverage,
       }
     })
-    .sort((left, right) => {
+  const filteredRows =
+    truthEntries.length > 0 ? rows.filter((row) => row.actualVotes != null) : rows
+  const omittedRows =
+    truthEntries.length > 0 ? rows.filter((row) => row.actualVotes == null) : []
+
+  return {
+    rows: filteredRows.sort((left, right) => {
       if ((right.actualVotes ?? -1) !== (left.actualVotes ?? -1)) {
         return (right.actualVotes ?? -1) - (left.actualVotes ?? -1)
       }
@@ -177,7 +191,11 @@ function buildEntrySurface(report: HackathonGaReport): EntrySurfaceView[] {
       }
 
       return right.dialogViews - left.dialogViews
-    })
+    }),
+    omittedEntries: omittedRows.length,
+    omittedDialogViews: omittedRows.reduce((sum, row) => sum + row.dialogViews, 0),
+    omittedTrackedSubmissions: omittedRows.reduce((sum, row) => sum + row.voteSubmissions, 0),
+  }
 }
 
 function DefinitionTable({
@@ -222,6 +240,14 @@ function DefinitionTable({
       <div className="border-t border-border/60 px-4 py-4">
         <p className="break-all text-sm text-muted-foreground">{definition.key}</p>
         <p className="mt-3 text-sm leading-6 text-muted-foreground">{definition.meaning}</p>
+        <div className="mt-3">
+          <p className="text-sm font-medium text-foreground">Typical values or units</p>
+          <p className="text-sm text-muted-foreground">{definition.typicalValues}</p>
+        </div>
+        <div className="mt-3">
+          <p className="text-sm font-medium text-foreground">How to read it</p>
+          <p className="text-sm text-muted-foreground">{definition.interpretation}</p>
+        </div>
       </div>
     </details>
   ))
@@ -245,22 +271,16 @@ function DefinitionTable({
 function SurfaceMetric({
   label,
   value,
-  definitionId,
+  tooltip,
 }: {
   label: string
   value: string
-  definitionId?: string
+  tooltip?: string
 }) {
   return (
     <div className="rounded-2xl border border-border/70 bg-muted/30 p-4">
       <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-        {definitionId ? (
-          <a href={`#${definitionId}`} className="transition hover:text-foreground">
-            {label}
-          </a>
-        ) : (
-          label
-        )}
+        <DefinitionTooltipLabel label={label} tooltip={tooltip} />
       </p>
       <p className="mt-2 break-words text-lg font-semibold tracking-tight">{value}</p>
     </div>
@@ -276,11 +296,22 @@ export function HackathonGa4Dashboard({
 }) {
   const [source, setSource] = useState<"live" | "dummy">("live")
   const report = source === "live" ? live : dummy
-  const entrySurface = useMemo(() => buildEntrySurface(report), [report])
+  const entrySurfaceResult = useMemo(() => buildEntrySurface(report), [report])
+  const entrySurface = entrySurfaceResult.rows
   const knownPageContexts =
     report.consentSummary.pageContextGranted + report.consentSummary.pageContextDenied
-  const grantedPageContextShare =
+  const consentRate =
     knownPageContexts > 0 ? report.consentSummary.pageContextGranted / knownPageContexts : null
+  const cleanDialogViews = entrySurface.reduce((sum, row) => sum + row.dialogViews, 0)
+  const cleanTrackedSubmissions = entrySurface.reduce((sum, row) => sum + row.voteSubmissions, 0)
+  const ga4Notes = [
+    ...report.notes,
+    ...(entrySurfaceResult.omittedEntries > 0
+      ? [
+          `Entry-level cards exclude ${entrySurfaceResult.omittedEntries} GA4-only entries that do not match the live competition slate, removing ${formatInteger(entrySurfaceResult.omittedTrackedSubmissions)} tracked submit rows and ${formatInteger(entrySurfaceResult.omittedDialogViews)} dialog-view rows from the visible entry analysis.`,
+        ]
+      : []),
+  ]
   const eventSurfaceMax = useMemo(
     () => Math.max(...report.eventSurface.map((row) => row.eventCount), 1),
     [report.eventSurface],
@@ -295,72 +326,72 @@ export function HackathonGa4Dashboard({
     totalUsers: formatInteger(report.overview.totalUsers),
     actualVotes:
       report.voteTruth != null ? formatInteger(report.voteTruth.totals.totalVotes) : "Unavailable",
-    trackedVoteSubmissions: formatInteger(report.overview.voteSubmissions),
+    trackedVoteSubmissions: formatInteger(cleanTrackedSubmissions),
     trackingCoverage: formatCoverageRate(
-      report.overview.voteSubmissions,
+      cleanTrackedSubmissions,
       report.voteTruth?.totals.totalVotes ?? null,
     ),
   })
   const derivedDefinitions: DerivedDefinition[] = [
     {
-      label: "Event count",
-      meaning: "All hackathon-host analytics events returned on the live event day.",
-      interpretation: "Use this to understand telemetry volume, not as a scorecard metric.",
+      label: "Tracked events",
+      meaning: "All analytics events GA4 returned for the hackathon host on the live event day.",
+      interpretation: "Use this as an activity volume number, not as a vote or judge total.",
     },
     {
-      label: "Users",
+      label: "Tracked users",
       meaning: "Distinct GA4 users seen on vote.rajeevg.com during the live event day.",
-      interpretation: "This is a telemetry audience number, not a judge roster.",
+      interpretation: "This is an analytics audience count, not the official list of judges.",
     },
     {
-      label: "Persisted votes",
-      meaning: "Authoritative vote rows from the live competition summary, independent of analytics consent.",
-      interpretation: "Use this as the vote ledger. It is the number the public scoreboard actually closes over.",
+      label: "Recorded votes",
+      meaning: "Votes saved by the live voting app, independent of analytics consent.",
+      interpretation: "Use this as the official vote ledger. It is the total the public scoreboard is based on.",
     },
     {
-      label: "Tracked submits",
-      meaning: "GA4 vote_submitted telemetry captured for the same host and reporting window.",
-      interpretation: "Use this for behavior trends, not as the final vote count.",
+      label: "Tracked vote submissions",
+      meaning: "GA4 vote_submitted telemetry that matched the live competition entries for the same event day.",
+      interpretation: "Use this for trend and measurement quality, not as the final vote count.",
     },
     {
-      label: "GA4 coverage",
-      meaning: "Tracked submits divided by persisted votes.",
-      interpretation: "This is the clearest indication of how much of the real vote ledger is visible in analytics.",
+      label: "Analytics coverage",
+      meaning: "Tracked vote submissions divided by recorded votes.",
+      interpretation: "This shows how much of the real vote ledger is visible in analytics.",
     },
     {
-      label: "Auth completions",
+      label: "Successful judge sign-ins",
       meaning: "judge_auth_completed events captured on the live event day.",
       interpretation: "Use this to see successful sign-ins GA4 observed, not the final list of judges.",
     },
     {
-      label: "Dialog views",
-      meaning: "vote_dialog_viewed telemetry captured on the live event day.",
-      interpretation: "This is demand for the vote modal before submit completion is considered.",
+      label: "Vote modal opens",
+      meaning: "vote_dialog_viewed events that matched the live competition entries.",
+      interpretation: "Use this to understand demand for the scoring modal before submissions are counted.",
     },
     {
-      label: "Avg score",
-      meaning: "Average submitted score value captured for the entry on the live event day.",
-      interpretation: "Read it as a quality signal for votes GA4 actually saw, not as the authoritative scoreboard average.",
+      label: "Average vote score",
+      meaning: "Average score from tracked submissions for that entry on the live event day.",
+      interpretation: "Read it as a signal from tracked votes only, not as the official scoreboard average.",
     },
     {
-      label: "Granted page-context share",
-      meaning: "Page-context events with granted analytics consent divided by known granted plus denied page-context states.",
-      interpretation: "This is the consent-rate proxy that best explains why telemetry and the live vote ledger diverge.",
+      label: "Consent rate",
+      meaning: "The share of known page-context events that carried analytics_consent_state = granted.",
+      interpretation: "This is the clearest consent proxy on the page. It explains why analytics totals can diverge from the recorded vote ledger.",
     },
     {
-      label: "Granted page-context hits",
-      meaning: "page_context events on the live event day where GA carried analytics_consent_state = granted.",
-      interpretation: "This is the numerator behind the granted share.",
+      label: "Granted consent signals",
+      meaning: "page_context events where GA4 received analytics_consent_state = granted.",
+      interpretation: "This is the numerator behind the consent rate.",
     },
     {
-      label: "Denied page-context hits",
-      meaning: "page_context events on the live event day where GA carried analytics_consent_state = denied.",
-      interpretation: "This is the denominator counterpart behind the granted share.",
+      label: "Denied consent signals",
+      meaning: "page_context events where GA4 received analytics_consent_state = denied.",
+      interpretation: "This is the comparison bucket behind the consent rate.",
     },
     {
-      label: "Consent grants captured",
-      meaning: "consent_state_updated events on the live event day where consent_preference = granted.",
-      interpretation: "This shows observed positive consent actions, separate from page-context state.",
+      label: "Explicit accept actions",
+      meaning: "consent_state_updated events where the tracked preference was granted.",
+      interpretation: "This shows deliberate opt-ins, separate from the broader consent-rate proxy above.",
     },
   ]
 
@@ -378,8 +409,9 @@ export function HackathonGa4Dashboard({
         generatedAt={report.generatedAt}
         summary={
           report.notes[0] ??
-          "Direct GA4 reporting for the same hackathon story, using the promoted event schema on the shared property."
+          "Direct GA4 reporting for the live hackathon event day, focused on what analytics captured and what it missed."
         }
+        heroDescription="This page is the direct analytics view for the hackathon event day. It focuses on telemetry quality, consent impact, and live competition behavior without mixing in warehouse status."
         onSourceChange={setSource}
         showDummyPreview={false}
         source={source}
@@ -389,8 +421,8 @@ export function HackathonGa4Dashboard({
           <div className="space-y-4">
             <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
               <HackathonDisclosureCard
-                title="Promoted schema and derived metrics"
-                description="The schema reference now sits between the header and the topline cards, so the article explains both the underlying GA fields and the reporting math built on top of them."
+                title="Metric and field definitions"
+                description="Plain-English definitions for every GA4 metric and field used on this page."
                 icon={<ListTree className="size-4" />}
               >
                 <DefinitionTable
@@ -398,44 +430,44 @@ export function HackathonGa4Dashboard({
                   derivedDefinitions={derivedDefinitions}
                 />
               </HackathonDisclosureCard>
-              <HackathonReportingNotesCard notes={report.notes} />
+              <HackathonReportingNotesCard notes={ga4Notes} />
             </div>
 
             <Card className="border-border/70 bg-background/80">
               <CardHeader>
-                <CardTitle>Consent and tracking impact</CardTitle>
+                <CardTitle>Consent and measurement</CardTitle>
                 <CardDescription>
-                  This is the evidence layer for why the telemetry cards do not match the live vote ledger one for one.
+                  This section explains why analytics totals can be lower than the app’s recorded vote totals.
                 </CardDescription>
               </CardHeader>
               <CardContent className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 <SurfaceMetric
-                  label="Granted page-context share"
-                  value={formatShare(grantedPageContextShare)}
-                  definitionId={buildSchemaAnchorId("Granted page-context share")}
+                  label="Consent rate"
+                  value={formatShare(consentRate)}
+                  tooltip="The share of known page-context events that GA4 received with consent marked as granted."
                 />
                 <SurfaceMetric
-                  label="Granted page-context hits"
+                  label="Granted consent signals"
                   value={formatInteger(report.consentSummary.pageContextGranted)}
-                  definitionId={buildSchemaAnchorId("Granted page-context hits")}
+                  tooltip="page_context events where GA4 received analytics_consent_state = granted."
                 />
                 <SurfaceMetric
-                  label="Denied page-context hits"
+                  label="Denied consent signals"
                   value={formatInteger(report.consentSummary.pageContextDenied)}
-                  definitionId={buildSchemaAnchorId("Denied page-context hits")}
+                  tooltip="page_context events where GA4 received analytics_consent_state = denied."
                 />
                 <SurfaceMetric
-                  label="Consent grants captured"
+                  label="Explicit accept actions"
                   value={formatInteger(report.consentSummary.consentGrantedUpdates)}
-                  definitionId={buildSchemaAnchorId("Consent grants captured")}
+                  tooltip="consent_state_updated events where the tracked preference was granted."
                 />
                 <div className="sm:col-span-2 xl:col-span-4 rounded-2xl border border-border/70 bg-muted/30 p-4">
                   <p className="text-sm leading-6 text-muted-foreground">
-                    {grantedPageContextShare == null
-                      ? "Known granted-versus-denied page-context rows are not available yet, so this route can only fall back to vote tracking coverage when explaining telemetry loss."
-                      : `Only ${formatShare(
-                          grantedPageContextShare,
-                        )} of known page-context hits were granted. That means this page is useful for understanding consented behavior, but it cannot act as the final vote ledger.`}
+                    {consentRate == null
+                      ? "Known granted-versus-denied page-context rows are not available yet, so this page cannot estimate consent impact with confidence."
+                      : `${formatShare(
+                          consentRate,
+                        )} of known consent-state page signals were granted. That is why this page is useful for measuring behavior, but not for replacing the app’s recorded vote ledger.`}
                   </p>
                 </div>
               </CardContent>
@@ -446,9 +478,9 @@ export function HackathonGa4Dashboard({
         <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
           <Card className="border-border/70 bg-background/80">
             <CardHeader>
-              <CardTitle>Event-day event surface</CardTitle>
+              <CardTitle>Top tracked events</CardTitle>
               <CardDescription>
-                The top GA event groupings for the live event day, kept intentionally simple so the page shows behavior patterns without pretending it is a warehouse model.
+                The biggest GA4 event groups for the live event day, shown as telemetry rather than as warehouse modeling.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -527,35 +559,35 @@ export function HackathonGa4Dashboard({
 
           <Card className="border-border/70 bg-background/80">
             <CardHeader>
-              <CardTitle>Telemetry checkpoints</CardTitle>
+              <CardTitle>Measurement quality checks</CardTitle>
               <CardDescription>
-                The route keeps the checkpoints that explain reporting quality on the live event day: auth completions, dialog demand, tracked submits, and the live vote total they are being compared against.
+                These are the four numbers that explain how close GA4 is to the real competition activity.
               </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-3 sm:grid-cols-2">
               <SurfaceMetric
-                label="Auth completions"
+                label="Successful judge sign-ins"
                 value={formatInteger(report.overview.judgeAuthCompletions)}
-                definitionId={buildSchemaAnchorId("Auth completions")}
+                tooltip="judge_auth_completed events GA4 recorded on the live event day."
               />
               <SurfaceMetric
-                label="Dialog views"
-                value={formatInteger(report.overview.voteDialogViews)}
-                definitionId={buildSchemaAnchorId("Dialog views")}
+                label="Vote modal opens"
+                value={formatInteger(cleanDialogViews)}
+                tooltip="vote_dialog_viewed events that matched the live competition entries."
               />
               <SurfaceMetric
-                label="Tracked submits"
-                value={formatInteger(report.overview.voteSubmissions)}
-                definitionId={buildSchemaAnchorId("Tracked submits")}
+                label="Tracked vote submissions"
+                value={formatInteger(cleanTrackedSubmissions)}
+                tooltip="vote_submitted events that matched the live competition entries."
               />
               <SurfaceMetric
-                label="Persisted votes"
+                label="Recorded votes"
                 value={
                   report.voteTruth
                     ? formatInteger(report.voteTruth.totals.totalVotes)
                     : "Unavailable"
                 }
-                definitionId={buildSchemaAnchorId("Persisted votes")}
+                tooltip="Votes saved by the app itself. This is the official total."
               />
             </CardContent>
           </Card>
@@ -563,9 +595,9 @@ export function HackathonGa4Dashboard({
 
         <Card className="border-border/70 bg-background/80">
           <CardHeader>
-            <CardTitle>Entry surface</CardTitle>
+            <CardTitle>Entry-by-entry tracking</CardTitle>
             <CardDescription>
-              Per-project demand, tracked submits, source-of-truth vote counts, and score quality for the live event day.
+              Real competition entries only, with GA4 demand, tracked submissions, recorded vote totals, and tracked average score.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -586,40 +618,40 @@ export function HackathonGa4Dashboard({
                       </div>
                       <div className="flex flex-wrap gap-2">
                         <Badge variant="outline">
-                          Persisted votes{" "}
+                          Recorded votes{" "}
                           {row.actualVotes == null ? "Unavailable" : formatInteger(row.actualVotes)}
                         </Badge>
                         <Badge variant="outline">
-                          Coverage {formatShare(row.trackingCoverage)}
+                          Analytics coverage {formatShare(row.trackingCoverage)}
                         </Badge>
                       </div>
                     </div>
 
                     <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
                       <SurfaceMetric
-                        label="Dialog views"
+                        label="Vote modal opens"
                         value={formatInteger(row.dialogViews)}
-                        definitionId={buildSchemaAnchorId("Dialog views")}
+                        tooltip="vote_dialog_viewed events that matched this competition entry."
                       />
                       <SurfaceMetric
-                        label="Tracked submits"
+                        label="Tracked vote submissions"
                         value={formatInteger(row.voteSubmissions)}
-                        definitionId={buildSchemaAnchorId("Tracked submits")}
+                        tooltip="vote_submitted events GA4 recorded for this competition entry."
                       />
                       <SurfaceMetric
-                        label="Persisted votes"
+                        label="Recorded votes"
                         value={row.actualVotes == null ? "Unavailable" : formatInteger(row.actualVotes)}
-                        definitionId={buildSchemaAnchorId("Persisted votes")}
+                        tooltip="Votes saved by the app for this entry. This is the source-of-truth value."
                       />
                       <SurfaceMetric
-                        label="GA4 coverage"
+                        label="Analytics coverage"
                         value={formatShare(row.trackingCoverage)}
-                        definitionId={buildSchemaAnchorId("GA4 coverage")}
+                        tooltip="Tracked vote submissions divided by recorded votes for this entry."
                       />
                       <SurfaceMetric
-                        label="Avg score"
+                        label="Average vote score"
                         value={formatScore(row.averageScore)}
-                        definitionId={buildSchemaAnchorId("Avg score")}
+                        tooltip="Average score from tracked submissions for this entry."
                       />
                     </div>
                   </div>
@@ -645,40 +677,40 @@ export function HackathonGa4Dashboard({
                             </div>
                             <div className="flex flex-wrap gap-2">
                               <Badge variant="outline">
-                                Persisted votes{" "}
+                                Recorded votes{" "}
                                 {row.actualVotes == null ? "Unavailable" : formatInteger(row.actualVotes)}
                               </Badge>
                               <Badge variant="outline">
-                                Coverage {formatShare(row.trackingCoverage)}
+                                Analytics coverage {formatShare(row.trackingCoverage)}
                               </Badge>
                             </div>
                           </div>
 
                           <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
                             <SurfaceMetric
-                              label="Dialog views"
+                              label="Vote modal opens"
                               value={formatInteger(row.dialogViews)}
-                              definitionId={buildSchemaAnchorId("Dialog views")}
+                              tooltip="vote_dialog_viewed events that matched this competition entry."
                             />
                             <SurfaceMetric
-                              label="Tracked submits"
+                              label="Tracked vote submissions"
                               value={formatInteger(row.voteSubmissions)}
-                              definitionId={buildSchemaAnchorId("Tracked submits")}
+                              tooltip="vote_submitted events GA4 recorded for this competition entry."
                             />
                             <SurfaceMetric
-                              label="Persisted votes"
+                              label="Recorded votes"
                               value={row.actualVotes == null ? "Unavailable" : formatInteger(row.actualVotes)}
-                              definitionId={buildSchemaAnchorId("Persisted votes")}
+                              tooltip="Votes saved by the app for this entry. This is the source-of-truth value."
                             />
                             <SurfaceMetric
-                              label="GA4 coverage"
+                              label="Analytics coverage"
                               value={formatShare(row.trackingCoverage)}
-                              definitionId={buildSchemaAnchorId("GA4 coverage")}
+                              tooltip="Tracked vote submissions divided by recorded votes for this entry."
                             />
                             <SurfaceMetric
-                              label="Avg score"
+                              label="Average vote score"
                               value={formatScore(row.averageScore)}
-                              definitionId={buildSchemaAnchorId("Avg score")}
+                              tooltip="Average score from tracked submissions for this entry."
                             />
                           </div>
                         </div>
