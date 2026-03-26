@@ -265,6 +265,8 @@ function buildTopBlogChart(
 
   const topRows = rows.slice(0, 6)
   const maxViews = Math.max(...topRows.map((row) => row.screenPageViews), 1)
+  const xDomainMax = Math.ceil(maxViews / 10) * 10 + 20
+  const xTicks = Array.from({ length: Math.max(1, Math.floor((xDomainMax - 10) / 10)) }, (_, index) => (index + 1) * 10)
 
   return renderer === "echarts" ? (
     <EChartSurface
@@ -311,16 +313,24 @@ function buildTopBlogChart(
           marginLeft: width < 640 ? 156 : 140,
           marginRight: width < 640 ? 48 : 88,
           style: { background: palette.plotBackground, color: palette.text },
-          x: { label: null, grid: true, domain: [0, Math.ceil(maxViews * 1.15)] },
+          x: {
+            label: null,
+            axis: null,
+            domain: [0, xDomainMax],
+          },
           y: { label: null },
-          color: { legend: true, range: [palette.accent[0], palette.accent[1]] },
           marks: [
             Plot.ruleX([0], { stroke: palette.grid }),
-            Plot.ruleX([Math.ceil(maxViews * 1.15)], { stroke: "transparent" }),
+            Plot.gridX(xTicks, { stroke: palette.grid }),
+            Plot.axisX(xTicks, {
+              label: null,
+              color: palette.muted,
+              tickSize: 0,
+            }),
             Plot.barX(topRows, {
               x: "screenPageViews",
               y: (row) => formatChartPathLabel(row.pagePath),
-              fill: "screenPageViews",
+              fill: palette.accent[0],
               insetRight: 0.2,
             }),
             Plot.dot(topRows, {
