@@ -150,7 +150,8 @@ export function buildHackathonSummaryMetrics(metrics: {
   totalUsers: string
   actualVotes: string
   trackedVoteSubmissions: string
-  trackingCoverage: string
+  trackingCoverageValue: string
+  trackingCoverageDetail: string
   fallbackTelemetry?: boolean
 }): MetricDefinition[] {
   const telemetryDetail = metrics.fallbackTelemetry
@@ -189,10 +190,10 @@ export function buildHackathonSummaryMetrics(metrics: {
     },
     {
       label: "Vote tracking coverage",
-      value: metrics.trackingCoverage,
-      detail: "Tracked vote submissions divided by the source-of-truth recorded vote total.",
+      value: metrics.trackingCoverageValue,
+      detail: metrics.trackingCoverageDetail,
       icon: <Database className="size-4" />,
-      tooltip: "Formula: tracked vote submissions divided by recorded votes. This is a vote-ledger coverage percentage, not a user or consent percentage.",
+      tooltip: "Formula shown directly as tracked vote submissions divided by recorded votes. The percentage lives in the supporting text so it is harder to confuse with consent percentages.",
     },
   ]
 }

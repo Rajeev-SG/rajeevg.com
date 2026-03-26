@@ -332,10 +332,17 @@ export function HackathonGa4Dashboard({
     actualVotes:
       report.voteTruth != null ? formatInteger(report.voteTruth.totals.totalVotes) : "Unavailable",
     trackedVoteSubmissions: formatInteger(cleanTrackedSubmissions),
-    trackingCoverage: formatCoverageRate(
-      cleanTrackedSubmissions,
-      report.voteTruth?.totals.totalVotes ?? null,
-    ),
+    trackingCoverageValue:
+      report.voteTruth != null
+        ? `${formatInteger(cleanTrackedSubmissions)} / ${formatInteger(report.voteTruth.totals.totalVotes)}`
+        : "N/A",
+    trackingCoverageDetail:
+      report.voteTruth != null
+        ? `${formatCoverageRate(
+            cleanTrackedSubmissions,
+            report.voteTruth.totals.totalVotes,
+          )} of recorded votes were captured as GA4 vote_submitted events on the same event day.`
+        : "Tracked vote submissions divided by the source-of-truth recorded vote total.",
   })
   const derivedDefinitions: DerivedDefinition[] = [
     {
@@ -361,7 +368,7 @@ export function HackathonGa4Dashboard({
     {
       label: "Vote tracking coverage",
       meaning: "Tracked vote submissions divided by recorded votes.",
-      interpretation: "This shows how much of the real vote ledger is visible in analytics.",
+      interpretation: "Read the card as a raw ratio first, then the supporting sentence for the percentage. It is a vote-ledger formula, not a consent or user percentage.",
     },
     {
       label: "Successful judge sign-ins",

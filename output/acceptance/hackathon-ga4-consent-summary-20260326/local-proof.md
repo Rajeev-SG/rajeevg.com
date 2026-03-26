@@ -19,6 +19,7 @@ Open the hackathon GA4 dashboard, dismiss the consent banner if present, and ver
 - Both desktop and mobile runs passed.
 - The consent card rendered the action-based percentage model.
 - The rendered copy spelled out the live local math: `81%` from `1,337 / 1,650` and `19%` from `313 / 1,650`, with `96` unknown-consent actions excluded.
+- The topline vote coverage card rendered a raw ratio first, with the percentage moved into the supporting sentence.
 - The dashboard continued to render the rest of the GA4 route correctly, with no reappearance of the removed fallback controls.
 - Screenshot review passed for the top section in both tested viewports.
 

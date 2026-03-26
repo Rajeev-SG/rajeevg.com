@@ -33,6 +33,8 @@ Deploy the action-based consent-summary fix and revalidate production.
   - `E2E_BASE_URL=https://rajeevg.com pnpm exec playwright test tests/e2e/hackathon-ga4.spec.ts --reporter=list --workers=1`
 - Live rendered consent copy verification:
   - `81% is 1,337 consented actions out of 1,650 actions with a known consent state. 19% is 313 out of the same 1,650. 96 additional tracked actions arrived without a populated consent flag, so they are excluded from this split.`
+- Live rendered vote-coverage verification:
+  - the topline card shows a raw tracked-votes-versus-recorded-votes ratio, with the percentage in the supporting sentence rather than as a second topline percentage
 
 ## Verdict
 

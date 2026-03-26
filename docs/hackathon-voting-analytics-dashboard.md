@@ -141,6 +141,7 @@ Important interpretation:
 - The consent card now uses an action denominator instead of overlapping user buckets.
 - The visible percentages exclude the 96 unknown-consent actions and show the split only across the 1,650 actions with a known consent state.
 - The topline `Vote tracking coverage` metric is a different formula: `tracked vote submissions / recorded votes`.
+- That card now presents the raw ratio first and keeps the percentage in the supporting sentence, so it is less likely to be misread as another consent-style share.
 - The GA4 entry cards now exclude rows that do not match the live competition slate, so test entries such as `raj-test` or `test-2` do not appear in the visible entry analysis.
 
 ## Verified status on production
