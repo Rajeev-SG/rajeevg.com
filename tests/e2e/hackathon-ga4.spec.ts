@@ -48,14 +48,14 @@ test.describe("hackathon ga4 reporting surface", () => {
     await expect(liveNote).toBeVisible()
 
     await expect(
-      page.getByText(/accepted and .* denied across .* page views with a known consent state|known accepted-versus-denied consent rows are not available yet/i).first(),
+      page.getByText(/tracked users were seen accepted and .* were seen denied|known accepted-versus-denied consent rows are not available yet/i).first(),
     ).toBeVisible()
 
     await page.getByText("Metric and field definitions", { exact: true }).click()
     await page.getByText(/More derived metrics/).click()
-    await expect(page.getByText("Accepted consent rate", { exact: true }).last()).toBeVisible()
-    await expect(page.getByText("Accepted actions", { exact: true })).toHaveCount(0)
-    await expect(page.getByText("Denied actions", { exact: true })).toHaveCount(0)
+    await expect(page.getByText("Accepted users", { exact: true }).last()).toBeVisible()
+    await expect(page.getByText("% accepted", { exact: true })).toHaveCount(0)
+    await expect(page.getByText("% denied", { exact: true })).toHaveCount(0)
 
     const recordedVotesExplain = page.getByRole("button", { name: "Explain Recorded votes" }).first()
     await recordedVotesExplain.click()

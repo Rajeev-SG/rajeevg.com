@@ -195,15 +195,15 @@ function buildDummyReport(): HackathonGaReport {
   )
   const consentSummary = dataset.experienceOverview.reduce<HackathonGaConsentSummary>(
     (acc, row) => {
-      if (row.analyticsConsentState === "granted") acc.pageContextAccepted += row.pageContextViews
-      else if (row.analyticsConsentState === "denied") acc.pageContextDenied += row.pageContextViews
-      else acc.pageContextUnknown += row.pageContextViews
+      if (row.analyticsConsentState === "granted") acc.acceptedUsers += row.uniqueUsers
+      else if (row.analyticsConsentState === "denied") acc.deniedUsers += row.uniqueUsers
+      else acc.unknownUsers += row.uniqueUsers
       return acc
     },
     {
-      pageContextAccepted: 0,
-      pageContextDenied: 0,
-      pageContextUnknown: 0,
+      acceptedUsers: 0,
+      deniedUsers: 0,
+      unknownUsers: 0,
     },
   )
 
@@ -377,17 +377,17 @@ function mapEntrySurface(dialogResponse: RunReportResponse, submitResponse: RunR
 
 function mapConsentSummary(pageContextResponse: RunReportResponse): HackathonGaConsentSummary {
   const summary: HackathonGaConsentSummary = {
-    pageContextAccepted: 0,
-    pageContextDenied: 0,
-    pageContextUnknown: 0,
+    acceptedUsers: 0,
+    deniedUsers: 0,
+    unknownUsers: 0,
   }
 
   for (const row of pageContextResponse.rows ?? []) {
     const state = normalizeState(dimensionValue(row, 0))
-    const count = metricValue(row, 0)
-    if (state === "granted") summary.pageContextAccepted += count
-    else if (state === "denied") summary.pageContextDenied += count
-    else summary.pageContextUnknown += count
+    const users = metricValue(row, 1)
+    if (state === "granted") summary.acceptedUsers += users
+    else if (state === "denied") summary.deniedUsers += users
+    else summary.unknownUsers += users
   }
 
   return summary
@@ -481,7 +481,7 @@ export async function getHackathonGa4Report(): Promise<HackathonGaReport> {
       runHackathonGa4Report({
         dateRanges: [reportingDateRange],
         dimensions: [{ name: "customEvent:analytics_consent_state" }],
-        metrics: [{ name: "eventCount" }],
+        metrics: [{ name: "eventCount" }, { name: "totalUsers" }],
         dimensionFilter: andFilter([hostFilter, exactStringFilter("eventName", "page_context")]),
         orderBys: [{ metric: { metricName: "eventCount" }, desc: true }],
         limit: 20,
@@ -551,9 +551,9 @@ export async function getHackathonGa4Report(): Promise<HackathonGaReport> {
       voteTruth: null,
       overview: emptyOverview(),
       consentSummary: {
-        pageContextAccepted: 0,
-        pageContextDenied: 0,
-        pageContextUnknown: 0,
+        acceptedUsers: 0,
+        deniedUsers: 0,
+        unknownUsers: 0,
       },
       eventSurface: [],
       entrySurface: [],

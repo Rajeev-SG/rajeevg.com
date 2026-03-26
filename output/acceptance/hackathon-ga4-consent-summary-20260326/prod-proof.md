@@ -1,38 +1,36 @@
-# Hackathon GA4 consent summary production proof
+# Hackathon GA4 consent summary production status
 
 Date: 2026-03-26
 Production URL: `https://rajeevg.com/projects/hackathon-voting-analytics/google-analytics`
-Deployment URL: `https://rajeevg-8lx3ztb8e-rajeevgills-projects.vercel.app`
+Production URL checked: `https://rajeevg.com/projects/hackathon-voting-analytics/google-analytics`
 
 ## Target flow
 
-Verify the live hackathon GA4 dashboard after deploy and confirm the consent summary now shows only `% accepted` and `% denied`, without the extra action-count cards.
+Attempt to deploy the count-based consent fix and revalidate production.
 
 ## Expected behavior
 
 - Production responds successfully on the GA4 route.
-- The consent card shows only `% accepted` and `% denied`.
-- Desktop and mobile checks still pass after aliasing to `https://rajeevg.com`.
+- Production accepts a fresh deploy.
+- The live card updates from the older percentage split to the newer count-based summary.
 
 ## Observed behavior
 
-- `curl -I` returned `HTTP/2 200` for both `/projects/hackathon-voting-analytics/google-analytics` and `/projects/hackathon-voting-analytics`.
-- The targeted Playwright spec passed in both desktop and mobile viewports against `https://rajeevg.com`.
-- The updated consent copy and simpler percentage-only model rendered correctly in production.
+- Production still returns `HTTP/2 200` on the GA4 route.
+- A fresh production deploy is currently blocked because the local Vercel auth file no longer contains a valid token.
+- The current live site still shows the older percentage-based consent card.
 
 ## Evidence
 
-- Deploy:
+- Deploy attempt:
   - `vercel deploy --prod --yes`
+  - result: `Error: The specified token is not valid. Use \`vercel login\` to generate a new token.`
 - HTTP checks:
   - `curl -I https://rajeevg.com/projects/hackathon-voting-analytics/google-analytics`
-  - `curl -I https://rajeevg.com/projects/hackathon-voting-analytics`
-- Browser proof:
-  - `E2E_BASE_URL=https://rajeevg.com pnpm exec playwright test tests/e2e/hackathon-ga4.spec.ts --reporter=list --workers=1`
-- Screenshots refreshed by the Playwright run:
-  - `/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-ga4-dashboard-20260325/desktop-light-top.png`
-  - `/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-ga4-dashboard-20260325/mobile-dark-top.png`
+- Live audit screenshots showing the current production state:
+  - `/Users/rajeev/Code/rajeevg.com/output/acceptance/projects-dashboard-audit-20260325/prod/hackathon-ga4-desktop-light-hero.png`
+  - `/Users/rajeev/Code/rajeevg.com/output/acceptance/projects-dashboard-audit-20260325/prod/hackathon-ga4-mobile-dark-hero.png`
 
 ## Verdict
 
-Pass. The production dashboard now uses a simpler percentage-only consent summary and remained stable through post-deploy desktop and mobile validation.
+Blocked. The count-based consent fix is implemented and locally validated, but production still shows the older version because Vercel auth must be restored before deploy.

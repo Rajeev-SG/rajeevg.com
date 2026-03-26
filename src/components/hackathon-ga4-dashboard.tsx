@@ -298,12 +298,8 @@ export function HackathonGa4Dashboard({
   const report = source === "live" ? live : dummy
   const entrySurfaceResult = useMemo(() => buildEntrySurface(report), [report])
   const entrySurface = entrySurfaceResult.rows
-  const knownConsentViews =
-    report.consentSummary.pageContextAccepted + report.consentSummary.pageContextDenied
-  const acceptedRate =
-    knownConsentViews > 0 ? report.consentSummary.pageContextAccepted / knownConsentViews : null
-  const deniedRate =
-    knownConsentViews > 0 ? report.consentSummary.pageContextDenied / knownConsentViews : null
+  const knownConsentUsers =
+    report.consentSummary.acceptedUsers + report.consentSummary.deniedUsers
   const cleanTrackedSubmissions = entrySurface.reduce((sum, row) => sum + row.voteSubmissions, 0)
   const ga4Notes = [
     ...report.notes,
@@ -375,14 +371,14 @@ export function HackathonGa4Dashboard({
       interpretation: "Read it as a signal from tracked votes only, not as the official scoreboard average.",
     },
     {
-      label: "Accepted consent rate",
-      meaning: "The share of known-consent page views where consent was marked as accepted.",
-      interpretation: "Use this as the simplest top-line acceptance percentage on the page.",
+      label: "Accepted users",
+      meaning: "Tracked users who appeared on page_context rows with consent marked as accepted.",
+      interpretation: "Use this as the plain accepted count, not as a unique daily audience total.",
     },
     {
-      label: "Denied consent rate",
-      meaning: "The share of known-consent page views where consent was marked as denied.",
-      interpretation: "Read this alongside the accepted percentage. The two numbers share the same denominator.",
+      label: "Denied users",
+      meaning: "Tracked users who appeared on page_context rows with consent marked as denied.",
+      interpretation: "Users can appear in both accepted and denied counts if they first loaded denied and later accepted.",
     },
   ]
 
@@ -428,29 +424,31 @@ export function HackathonGa4Dashboard({
               <CardHeader>
                 <CardTitle>Consent and measurement</CardTitle>
                 <CardDescription>
-                  A simple split of accepted versus denied consent on page views where the consent state was known.
+                  A plain count of tracked users seen with accepted versus denied consent during the event day.
                 </CardDescription>
               </CardHeader>
               <CardContent className="grid gap-3 sm:grid-cols-2">
                 <SurfaceMetric
-                  label="% accepted"
-                  value={formatShare(acceptedRate)}
-                  tooltip="Accepted page_context rows divided by all page_context rows with a known consent state."
+                  label="Accepted"
+                  value={formatInteger(report.consentSummary.acceptedUsers)}
+                  tooltip="Tracked users seen on page_context rows where consent was marked accepted."
                 />
                 <SurfaceMetric
-                  label="% denied"
-                  value={formatShare(deniedRate)}
-                  tooltip="Denied page_context rows divided by all page_context rows with a known consent state."
+                  label="Denied"
+                  value={formatInteger(report.consentSummary.deniedUsers)}
+                  tooltip="Tracked users seen on page_context rows where consent was marked denied."
                 />
                 <div className="sm:col-span-2 rounded-2xl border border-border/70 bg-muted/30 p-4">
                   <p className="text-sm leading-6 text-muted-foreground">
-                    {acceptedRate == null
+                    {knownConsentUsers <= 0
                       ? "Known accepted-versus-denied consent rows are not available yet."
-                      : `${formatShare(acceptedRate)} accepted and ${formatShare(
-                          deniedRate,
-                        )} denied across ${formatInteger(
-                          knownConsentViews,
-                        )} page views with a known consent state.`}
+                      : `${formatInteger(
+                          report.consentSummary.acceptedUsers,
+                        )} tracked users were seen accepted and ${formatInteger(
+                          report.consentSummary.deniedUsers,
+                        )} were seen denied. The overall tracked-user total is ${formatInteger(
+                          report.overview.totalUsers,
+                        )}, so these consent buckets overlap when the same person first lands denied and later accepts.`}
                   </p>
                 </div>
               </CardContent>
