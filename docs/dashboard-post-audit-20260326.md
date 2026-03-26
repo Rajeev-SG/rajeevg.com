@@ -86,6 +86,22 @@ Result:
 - Site analytics dashboard audit: pass
 - Placeholder dashboard redirect browser proof: pass
 
+### Production checks
+
+- `vercel deploy --prod --yes`
+- `curl -I https://rajeevg.com/projects/site-analytics`
+- `curl -I https://rajeevg.com/projects/hackathon-voting-analytics/google-analytics`
+- `curl -I https://rajeevg.com/dashboard`
+- `E2E_BASE_URL=https://rajeevg.com pnpm exec playwright test tests/e2e/hackathon-ga4.spec.ts tests/e2e/hackathon-post-and-site-analytics.spec.ts tests/e2e/projects-dashboard-audit.spec.ts --reporter=list --workers=1`
+
+Result:
+
+- production deploy completed and aliased to `https://rajeevg.com`
+- site analytics route returned `200`
+- hackathon GA4 route returned `200`
+- `/dashboard` now returns `307` to `/projects/site-analytics`
+- Playwright prod proof: `13` passed, `3` skipped, `0` failures
+
 ## Assessment
 
 The dashboards are materially clearer after this pass because the most misleading metric pairings now expose their denominator differences instead of hiding them.
@@ -94,4 +110,4 @@ The biggest improvement is that the consent card no longer competes visually wit
 
 ## Residual observations
 
-- `curl -I /dashboard` can still return a `200` response because of Next.js route handling, but browser navigation redirects correctly to `/projects/site-analytics`. The user-facing behavior is correct, and the browser proof is the authoritative check for this route.
+- The first post-deploy Playwright run saw one broken-image failure on the hackathon article while the new alias was still warming. A direct `curl -I` on the image returned `200`, and the immediate rerun of the full production suite passed cleanly. The final production state is green.
