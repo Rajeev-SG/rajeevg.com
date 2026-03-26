@@ -298,8 +298,16 @@ export function HackathonGa4Dashboard({
   const report = source === "live" ? live : dummy
   const entrySurfaceResult = useMemo(() => buildEntrySurface(report), [report])
   const entrySurface = entrySurfaceResult.rows
-  const knownConsentUsers =
-    report.consentSummary.acceptedUsers + report.consentSummary.deniedUsers
+  const knownConsentActions =
+    report.consentSummary.consentedActions + report.consentSummary.nonConsentedActions
+  const consentedActionShare =
+    knownConsentActions > 0
+      ? report.consentSummary.consentedActions / knownConsentActions
+      : null
+  const nonConsentedActionShare =
+    knownConsentActions > 0
+      ? report.consentSummary.nonConsentedActions / knownConsentActions
+      : null
   const cleanTrackedSubmissions = entrySurface.reduce((sum, row) => sum + row.voteSubmissions, 0)
   const ga4Notes = [
     ...report.notes,
@@ -351,7 +359,7 @@ export function HackathonGa4Dashboard({
       interpretation: "Use this for trend and measurement quality, not as the final vote count.",
     },
     {
-      label: "Analytics coverage",
+      label: "Vote tracking coverage",
       meaning: "Tracked vote submissions divided by recorded votes.",
       interpretation: "This shows how much of the real vote ledger is visible in analytics.",
     },
@@ -371,14 +379,14 @@ export function HackathonGa4Dashboard({
       interpretation: "Read it as a signal from tracked votes only, not as the official scoreboard average.",
     },
     {
-      label: "Accepted users",
-      meaning: "Tracked users who appeared on page_context rows with consent marked as accepted.",
-      interpretation: "Use this as the plain accepted count, not as a unique daily audience total.",
+      label: "Consented actions",
+      meaning: "Share of tracked hackathon actions with a recorded consent state that reached GA4 as consented.",
+      interpretation: "Formula: consented actions divided by consented plus non-consented actions. It is an action split, not a user split.",
     },
     {
-      label: "Denied users",
-      meaning: "Tracked users who appeared on page_context rows with consent marked as denied.",
-      interpretation: "Users can appear in both accepted and denied counts if they first loaded denied and later accepted.",
+      label: "Non-consented actions",
+      meaning: "Share of tracked hackathon actions with a recorded consent state that reached GA4 as non-consented.",
+      interpretation: "Formula: non-consented actions divided by consented plus non-consented actions. Unknown consent-state actions are excluded from the percentage split.",
     },
   ]
 
@@ -424,31 +432,41 @@ export function HackathonGa4Dashboard({
               <CardHeader>
                 <CardTitle>Consent and measurement</CardTitle>
                 <CardDescription>
-                  A plain count of tracked users seen with accepted versus denied consent during the event day.
+                  Share of tracked hackathon actions that GA4 recorded as consented versus non-consented during the event day.
                 </CardDescription>
               </CardHeader>
               <CardContent className="grid gap-3 sm:grid-cols-2">
                 <SurfaceMetric
-                  label="Accepted"
-                  value={formatInteger(report.consentSummary.acceptedUsers)}
-                  tooltip="Tracked users seen on page_context rows where consent was marked accepted."
+                  label="Consented actions"
+                  value={formatShare(consentedActionShare)}
+                  tooltip="Formula: consented actions divided by all tracked hackathon actions with a known consent state."
                 />
                 <SurfaceMetric
-                  label="Denied"
-                  value={formatInteger(report.consentSummary.deniedUsers)}
-                  tooltip="Tracked users seen on page_context rows where consent was marked denied."
+                  label="Non-consented actions"
+                  value={formatShare(nonConsentedActionShare)}
+                  tooltip="Formula: non-consented actions divided by all tracked hackathon actions with a known consent state."
                 />
                 <div className="sm:col-span-2 rounded-2xl border border-border/70 bg-muted/30 p-4">
                   <p className="text-sm leading-6 text-muted-foreground">
-                    {knownConsentUsers <= 0
-                      ? "Known accepted-versus-denied consent rows are not available yet."
-                      : `${formatInteger(
-                          report.consentSummary.acceptedUsers,
-                        )} tracked users were seen accepted and ${formatInteger(
-                          report.consentSummary.deniedUsers,
-                        )} were seen denied. The overall tracked-user total is ${formatInteger(
-                          report.overview.totalUsers,
-                        )}, so these consent buckets overlap when the same person first lands denied and later accepts.`}
+                    {knownConsentActions <= 0
+                      ? "A clean consented-versus-non-consented action split is not available yet."
+                      : `${formatShare(consentedActionShare)} is ${formatInteger(
+                          report.consentSummary.consentedActions,
+                        )} consented actions out of ${formatInteger(
+                          knownConsentActions,
+                        )} actions with a known consent state. ${formatShare(
+                          nonConsentedActionShare,
+                        )} is ${formatInteger(
+                          report.consentSummary.nonConsentedActions,
+                        )} out of the same ${formatInteger(
+                          knownConsentActions,
+                        )}. ${
+                          report.consentSummary.unknownActions > 0
+                            ? `${formatInteger(
+                                report.consentSummary.unknownActions,
+                              )} additional tracked actions arrived without a populated consent flag, so they are excluded from this split.`
+                            : "No tracked actions were excluded from this split."
+                        }`}
                   </p>
                 </div>
               </CardContent>
@@ -566,7 +584,7 @@ export function HackathonGa4Dashboard({
                           {row.actualVotes == null ? "Unavailable" : formatInteger(row.actualVotes)}
                         </Badge>
                         <Badge variant="outline">
-                          Analytics coverage {formatShare(row.trackingCoverage)}
+                          Vote tracking coverage {formatShare(row.trackingCoverage)}
                         </Badge>
                       </div>
                     </div>
@@ -588,7 +606,7 @@ export function HackathonGa4Dashboard({
                         tooltip="Votes saved by the app for this entry. This is the source-of-truth value."
                       />
                       <SurfaceMetric
-                        label="Analytics coverage"
+                        label="Vote tracking coverage"
                         value={formatShare(row.trackingCoverage)}
                         tooltip="Tracked vote submissions divided by recorded votes for this entry."
                       />
@@ -625,7 +643,7 @@ export function HackathonGa4Dashboard({
                                 {row.actualVotes == null ? "Unavailable" : formatInteger(row.actualVotes)}
                               </Badge>
                               <Badge variant="outline">
-                                Analytics coverage {formatShare(row.trackingCoverage)}
+                                Vote tracking coverage {formatShare(row.trackingCoverage)}
                               </Badge>
                             </div>
                           </div>
@@ -647,7 +665,7 @@ export function HackathonGa4Dashboard({
                               tooltip="Votes saved by the app for this entry. This is the source-of-truth value."
                             />
                             <SurfaceMetric
-                              label="Analytics coverage"
+                              label="Vote tracking coverage"
                               value={formatShare(row.trackingCoverage)}
                               tooltip="Tracked vote submissions divided by recorded votes for this entry."
                             />

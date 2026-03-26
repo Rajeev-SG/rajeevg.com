@@ -49,9 +49,9 @@ The GA4 route stays telemetry-focused and event-day scoped.
   - `Consent and measurement`
   - `Top tracked events`
   - `Entry-by-entry tracking`
-- The consent summary now shows only two plain counts:
-  - `Accepted`
-  - `Denied`
+- The consent summary now shows only two action-share percentages:
+  - `Consented actions`
+  - `Non-consented actions`
 - It no longer shows:
   - `Dummy preview`
   - `Experience`
@@ -120,10 +120,13 @@ Fresh direct GA4 event-day proof for `hostName = vote.rajeevg.com` on 2026-03-25
 - `consent_state_updated = 33`
 - `judge_auth_completed = 19`
 
-Fresh direct consent-state proof for `page_context` on 2026-03-25:
+Fresh direct consent-state proof for tracked hackathon actions on 2026-03-25:
 
-- `accepted users = 32`
-- `denied users = 34`
+- `consented actions = 1,337`
+- `non-consented actions = 313`
+- `unknown consent-state actions = 96`
+- `consented action share = 1,337 / (1,337 + 313) = 81%`
+- `non-consented action share = 313 / (1,337 + 313) = 19%`
 
 Fresh direct consent-state proof for `vote_dialog_viewed` on 2026-03-25:
 
@@ -135,8 +138,9 @@ Important interpretation:
 
 - `unknown` or blank consent state is not a third user consent state.
 - It means the event row did not carry a populated `analytics_consent_state` custom dimension.
-- The consent card now keeps the UI simpler by showing only accepted and denied user counts.
-- Those buckets can overlap because the same tracked user may first load with denied consent and later appear again after accepting.
+- The consent card now uses an action denominator instead of overlapping user buckets.
+- The visible percentages exclude the 96 unknown-consent actions and show the split only across the 1,650 actions with a known consent state.
+- The topline `Vote tracking coverage` metric is a different formula: `tracked vote submissions / recorded votes`.
 - The GA4 entry cards now exclude rows that do not match the live competition slate, so test entries such as `raj-test` or `test-2` do not appear in the visible entry analysis.
 
 ## Verified status on production

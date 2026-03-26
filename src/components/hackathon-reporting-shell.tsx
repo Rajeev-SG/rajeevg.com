@@ -168,9 +168,9 @@ export function buildHackathonSummaryMetrics(metrics: {
     {
       label: metrics.fallbackTelemetry ? "Fallback tracked users" : "Tracked users",
       value: metrics.totalUsers,
-      detail: telemetryDetail ?? "Distinct users observed on the hackathon reporting surface in the same window.",
+      detail: telemetryDetail ?? "Distinct users observed on vote.rajeevg.com across all tracked host activity in the same window.",
       icon: <RadioTower className="size-4" />,
-      tooltip: "Distinct analytics users seen in this reporting window. This is a telemetry audience count, not the official judge roster.",
+      tooltip: "Distinct analytics users seen in this reporting window. This is a user count, so it does not share a denominator with consent-action percentages or vote tracking coverage.",
     },
     {
       label: "Recorded votes",
@@ -188,11 +188,11 @@ export function buildHackathonSummaryMetrics(metrics: {
       tooltip: "Vote submissions that analytics actually recorded. This can be lower than recorded votes when telemetry is missing or filtered.",
     },
     {
-      label: "Analytics coverage",
+      label: "Vote tracking coverage",
       value: metrics.trackingCoverage,
       detail: "Tracked vote submissions divided by the source-of-truth recorded vote total.",
       icon: <Database className="size-4" />,
-      tooltip: "How much of the real vote ledger is visible in analytics for the same period.",
+      tooltip: "Formula: tracked vote submissions divided by recorded votes. This is a vote-ledger coverage percentage, not a user or consent percentage.",
     },
   ]
 }
