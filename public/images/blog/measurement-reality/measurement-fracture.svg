@@ -94,7 +94,7 @@
     <tspan x="110" y="856">completed outcome by 45.1%</tspan>
   </text>
   <text fill="#94A3B8" font-family="Inter, Arial, sans-serif" font-size="20">
-    <tspan x="110" y="884">unless it is calibrated against source-of-truth</tspan>
-    <tspan x="110" y="910">and post-event data.</tspan>
+    <tspan x="110" y="876">unless it is calibrated against source-of-truth</tspan>
+    <tspan x="110" y="900">and post-event data.</tspan>
   </text>
 </svg>
