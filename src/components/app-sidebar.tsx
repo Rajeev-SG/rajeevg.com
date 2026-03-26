@@ -43,7 +43,7 @@ const data = {
       items: [
         { title: "Site analytics", url: "/projects/site-analytics" },
         { title: "Hackathon analytics", url: "/projects/hackathon-voting-analytics" },
-        { title: "Hackathon measurement", url: "/projects/hackathon-voting-analytics/google-analytics" },
+        { title: "Hackathon GA4", url: "/projects/hackathon-voting-analytics/google-analytics" },
       ],
     },
     {

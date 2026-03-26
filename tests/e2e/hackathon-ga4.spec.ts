@@ -36,7 +36,7 @@ test.describe("hackathon ga4 reporting surface", () => {
     await expect(page.getByRole("link", { name: "GA4 property", exact: true })).toHaveCount(0)
     await expect(page.getByText("Host vote.rajeevg.com")).toBeVisible()
     await expect(page.getByRole("button", { name: "Dummy preview" })).toHaveCount(0)
-    await expect(page.getByText("Known-consent action mix")).toBeVisible()
+    await expect(page.getByText("Consent and measurement")).toBeVisible()
     await expect(page.getByText("Top tracked events")).toBeVisible()
     await expect(page.getByText("Measurement quality checks")).toHaveCount(0)
     await expect(page.getByText("Round snapshot surface")).toHaveCount(0)
@@ -48,13 +48,14 @@ test.describe("hackathon ga4 reporting surface", () => {
     await expect(liveNote).toBeVisible()
 
     await expect(
-      page.getByText(/known-consent tracked actions were recorded as consented|clean known-consent action split is not available yet/i).first(),
+      page.getByText(/tracked users were seen accepted and .* were seen denied|known accepted-versus-denied consent rows are not available yet/i).first(),
     ).toBeVisible()
 
     await page.getByText("Metric and field definitions", { exact: true }).click()
     await page.getByText(/More derived metrics/).click()
-    await expect(page.getByText("Consented tracked actions", { exact: true }).last()).toBeVisible()
-    await expect(page.getByText("Non-consented tracked actions", { exact: true }).last()).toBeVisible()
+    await expect(page.getByText("Accepted users", { exact: true }).last()).toBeVisible()
+    await expect(page.getByText("% accepted", { exact: true })).toHaveCount(0)
+    await expect(page.getByText("% denied", { exact: true })).toHaveCount(0)
 
     const recordedVotesExplain = page.getByRole("button", { name: "Explain Recorded votes" }).first()
     await recordedVotesExplain.click()

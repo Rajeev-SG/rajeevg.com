@@ -104,10 +104,6 @@ test.describe("hackathon editorial proof", () => {
       page.getByRole("heading", { name: "GA4 content and instrumentation dashboard" }),
     ).toBeVisible()
     await expect(page.getByText(/Live reporting boundaries/i)).toBeVisible()
-    await expect(page.getByText("Avg engagement per user")).toBeVisible()
-    await expect(page.getByText("Blog share of page views")).toBeVisible()
-    await expect(page.getByText("Total engagement time").first()).toBeVisible()
-    await expect(page.getByText("Key-event hits").first()).toBeVisible()
     await expect(page.getByRole("heading", { name: "Realtime custom events" }).first()).toBeVisible()
     await expect(page.getByRole("button", { name: "ECharts" })).toBeVisible()
     await expect(page.getByRole("button", { name: "Observable Plot" })).toBeVisible()
@@ -119,15 +115,5 @@ test.describe("hackathon editorial proof", () => {
 
     await assertNoHorizontalOverflow(page)
     await capturePage(page, `site-analytics-${testInfo.project.name}.png`)
-  })
-
-  test("redirects the placeholder dashboard route to a real reporting surface", async ({ page }) => {
-    await page.goto("/dashboard")
-    await dismissConsentIfPresent(page)
-
-    await expect(page).toHaveURL(/\/projects\/site-analytics$/)
-    await expect(
-      page.getByRole("heading", { name: "GA4 content and instrumentation dashboard" }),
-    ).toBeVisible()
   })
 })

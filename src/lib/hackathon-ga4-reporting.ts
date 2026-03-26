@@ -18,7 +18,6 @@ import type {
   HackathonGaReport,
 } from "@/lib/hackathon-ga4-reporting-types"
 import {
-  HACKATHON_BREAKDOWN_EVENT_NAMES,
   HACKATHON_EVENT_NAMES,
   MANAGER_EVENT_NAMES,
   RunReportResponse,
@@ -196,24 +195,15 @@ function buildDummyReport(): HackathonGaReport {
   )
   const consentSummary = dataset.experienceOverview.reduce<HackathonGaConsentSummary>(
     (acc, row) => {
-      const actionCount =
-        row.pageContextViews +
-        row.pageEngagementSummaries +
-        row.scoreboardSummaryOpened +
-        row.scoreboardSummaryClosed +
-        row.tableViewSwitches +
-        row.chartViewSwitches +
-        row.sectionViews
-
-      if (row.analyticsConsentState === "granted") acc.consentedActions += actionCount
-      else if (row.analyticsConsentState === "denied") acc.nonConsentedActions += actionCount
-      else acc.unknownActions += actionCount
+      if (row.analyticsConsentState === "granted") acc.acceptedUsers += row.uniqueUsers
+      else if (row.analyticsConsentState === "denied") acc.deniedUsers += row.uniqueUsers
+      else acc.unknownUsers += row.uniqueUsers
       return acc
     },
     {
-      consentedActions: 0,
-      nonConsentedActions: 0,
-      unknownActions: 0,
+      acceptedUsers: 0,
+      deniedUsers: 0,
+      unknownUsers: 0,
     },
   )
 
@@ -387,17 +377,17 @@ function mapEntrySurface(dialogResponse: RunReportResponse, submitResponse: RunR
 
 function mapConsentSummary(pageContextResponse: RunReportResponse): HackathonGaConsentSummary {
   const summary: HackathonGaConsentSummary = {
-    consentedActions: 0,
-    nonConsentedActions: 0,
-    unknownActions: 0,
+    acceptedUsers: 0,
+    deniedUsers: 0,
+    unknownUsers: 0,
   }
 
   for (const row of pageContextResponse.rows ?? []) {
     const state = normalizeState(dimensionValue(row, 0))
-    const actions = metricValue(row, 0)
-    if (state === "granted") summary.consentedActions += actions
-    else if (state === "denied") summary.nonConsentedActions += actions
-    else summary.unknownActions += actions
+    const users = metricValue(row, 1)
+    if (state === "granted") summary.acceptedUsers += users
+    else if (state === "denied") summary.deniedUsers += users
+    else summary.unknownUsers += users
   }
 
   return summary
@@ -491,8 +481,8 @@ export async function getHackathonGa4Report(): Promise<HackathonGaReport> {
       runHackathonGa4Report({
         dateRanges: [reportingDateRange],
         dimensions: [{ name: "customEvent:analytics_consent_state" }],
-        metrics: [{ name: "eventCount" }],
-        dimensionFilter: andFilter([hostFilter, inListFilter("eventName", HACKATHON_BREAKDOWN_EVENT_NAMES)]),
+        metrics: [{ name: "eventCount" }, { name: "totalUsers" }],
+        dimensionFilter: andFilter([hostFilter, exactStringFilter("eventName", "page_context")]),
         orderBys: [{ metric: { metricName: "eventCount" }, desc: true }],
         limit: 20,
       }),
@@ -561,9 +551,9 @@ export async function getHackathonGa4Report(): Promise<HackathonGaReport> {
       voteTruth: null,
       overview: emptyOverview(),
       consentSummary: {
-        consentedActions: 0,
-        nonConsentedActions: 0,
-        unknownActions: 0,
+        acceptedUsers: 0,
+        deniedUsers: 0,
+        unknownUsers: 0,
       },
       eventSurface: [],
       entrySurface: [],

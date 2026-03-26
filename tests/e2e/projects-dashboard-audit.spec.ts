@@ -291,7 +291,7 @@ test.describe("projects dashboard audit", () => {
             name: "hero",
             locator: page.locator('[data-analytics-reporting-shell="hero"]').first(),
           },
-          { name: "known-consent-action-mix", locator: page.getByRole("heading", { name: "Known-consent action mix" }).first() },
+          { name: "consent-and-measurement", locator: page.getByRole("heading", { name: "Consent and measurement" }).first() },
           { name: "top-tracked-events", locator: page.getByRole("heading", { name: "Top tracked events" }).first() },
           { name: "entry-by-entry-tracking", locator: page.getByRole("heading", { name: "Entry-by-entry tracking" }).first() },
           { name: "metric-and-field-definitions", locator: page.getByText("Metric and field definitions", { exact: true }).first() },

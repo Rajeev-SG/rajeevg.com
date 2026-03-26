@@ -264,9 +264,6 @@ function buildTopBlogChart(
   if (!rows.length) return null
 
   const topRows = rows.slice(0, 6)
-  const maxViews = Math.max(...topRows.map((row) => row.screenPageViews), 1)
-  const xDomainMax = Math.ceil(maxViews / 10) * 10 + 20
-  const xTicks = Array.from({ length: Math.max(1, Math.floor((xDomainMax - 10) / 10)) }, (_, index) => (index + 1) * 10)
 
   return renderer === "echarts" ? (
     <EChartSurface
@@ -311,26 +308,17 @@ function buildTopBlogChart(
           width,
           height: chartHeightForWidth(width),
           marginLeft: width < 640 ? 156 : 140,
-          marginRight: width < 640 ? 48 : 88,
+          marginRight: 32,
           style: { background: palette.plotBackground, color: palette.text },
-          x: {
-            label: null,
-            axis: null,
-            domain: [0, xDomainMax],
-          },
+          x: { label: null, grid: true },
           y: { label: null },
+          color: { legend: true, range: [palette.accent[0], palette.accent[1]] },
           marks: [
             Plot.ruleX([0], { stroke: palette.grid }),
-            Plot.gridX(xTicks, { stroke: palette.grid }),
-            Plot.axisX(xTicks, {
-              label: null,
-              color: palette.muted,
-              tickSize: 0,
-            }),
             Plot.barX(topRows, {
               x: "screenPageViews",
               y: (row) => formatChartPathLabel(row.pagePath),
-              fill: palette.accent[0],
+              fill: "screenPageViews",
               insetRight: 0.2,
             }),
             Plot.dot(topRows, {
@@ -635,13 +623,13 @@ export function SiteAnalyticsDashboard({ report }: { report: SiteAnalyticsDashbo
           icon={<RadioTower className="size-4" />}
         />
         <MetricCard
-          label="Avg engagement per user"
+          label="Avg engagement"
           value={formatDuration(averageEngagementSeconds)}
           detail="Average engaged time per active user, using GA4’s engagement-duration metric."
           icon={<Clock3 className="size-4" />}
         />
         <MetricCard
-          label="Blog share of page views"
+          label="Blog share"
           value={`${Math.round(
             report.overview.screenPageViews > 0
               ? (report.overview.blogScreenPageViews / report.overview.screenPageViews) * 100
@@ -715,7 +703,7 @@ export function SiteAnalyticsDashboard({ report }: { report: SiteAnalyticsDashbo
                   </div>
                   <div>
                     <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-                      Total engagement time
+                      Engagement
                     </p>
                     <p className="text-lg font-semibold">
                       {formatDuration(row.userEngagementDuration)}
@@ -784,12 +772,7 @@ export function SiteAnalyticsDashboard({ report }: { report: SiteAnalyticsDashbo
                         {formatInteger(row.eventCount)} total event hits in the retained window
                       </p>
                     </div>
-                    <div className="shrink-0 text-right">
-                      <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-                        Key-event hits
-                      </p>
-                      <p className="text-2xl font-semibold">{formatInteger(row.keyEvents)}</p>
-                    </div>
+                    <p className="shrink-0 text-2xl font-semibold">{formatInteger(row.keyEvents)}</p>
                   </div>
                 ))
               ) : (
@@ -828,7 +811,7 @@ export function SiteAnalyticsDashboard({ report }: { report: SiteAnalyticsDashbo
                     </div>
                     <div>
                       <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-                        Total engagement time
+                        Engagement
                       </p>
                       <p className="text-xl font-semibold">
                         {formatDuration(row.userEngagementDuration)}
@@ -869,7 +852,7 @@ export function SiteAnalyticsDashboard({ report }: { report: SiteAnalyticsDashbo
                   </div>
                   <div>
                     <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-                      Total engagement time
+                      Engagement
                     </p>
                     <p className="text-lg font-semibold">
                       {formatDuration(row.userEngagementDuration)}

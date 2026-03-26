@@ -34,67 +34,43 @@
   </g>
 
   <text x="110" y="150" fill="#E5E7EB" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="700" letter-spacing="0.28em">EVENT-DAY MEASUREMENT FRACTURE</text>
-  <text fill="#F8FAFC" font-family="Inter, Arial, sans-serif" font-size="52" font-weight="800">
-    <tspan x="110" y="206">One hackathon day,</tspan>
-    <tspan x="110" y="264">four conflicting answers</tspan>
-  </text>
-  <text x="110" y="316" fill="#94A3B8" font-family="Inter, Arial, sans-serif" font-size="25">March 25, 2026. Same competition. Same day. Very different numbers depending on where you look.</text>
+  <text x="110" y="206" fill="#F8FAFC" font-family="Inter, Arial, sans-serif" font-size="56" font-weight="800">One hackathon day, four conflicting answers</text>
+  <text x="110" y="258" fill="#94A3B8" font-family="Inter, Arial, sans-serif" font-size="25">March 25, 2026. Same competition. Same day. Very different numbers depending on where you look.</text>
 
-  <rect x="110" y="364" width="314" height="332" rx="28" fill="url(#good)" stroke="#99F6E4" stroke-opacity="0.35"/>
-  <text x="142" y="420" fill="#CCFBF1" font-family="Inter, Arial, sans-serif" font-size="19" font-weight="700" letter-spacing="0.18em">BACK-END LEDGER</text>
-  <text x="142" y="500" fill="#F8FAFC" font-family="Inter, Arial, sans-serif" font-size="88" font-weight="800">297</text>
-  <text x="142" y="552" fill="#ECFEFF" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700">Persisted votes</text>
-  <text fill="#CCFBF1" font-family="Inter, Arial, sans-serif" font-size="21">
-    <tspan x="142" y="598">System of record for</tspan>
-    <tspan x="142" y="626">completed votes</tspan>
-  </text>
-  <text x="142" y="660" fill="#CCFBF1" font-family="Inter, Arial, sans-serif" font-size="21">37 participating judges</text>
-  <text x="142" y="688" fill="#CCFBF1" font-family="Inter, Arial, sans-serif" font-size="21">9 real competition entries</text>
+  <rect x="110" y="318" width="320" height="360" rx="28" fill="url(#good)" stroke="#99F6E4" stroke-opacity="0.35"/>
+  <text x="142" y="380" fill="#CCFBF1" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="0.22em">BACK-END LEDGER</text>
+  <text x="142" y="462" fill="#F8FAFC" font-family="Inter, Arial, sans-serif" font-size="94" font-weight="800">297</text>
+  <text x="142" y="516" fill="#ECFEFF" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700">Persisted votes</text>
+  <text x="142" y="568" fill="#CCFBF1" font-family="Inter, Arial, sans-serif" font-size="23">System of record for completed votes</text>
+  <text x="142" y="618" fill="#CCFBF1" font-family="Inter, Arial, sans-serif" font-size="23">37 participating judges</text>
+  <text x="142" y="652" fill="#CCFBF1" font-family="Inter, Arial, sans-serif" font-size="23">9 real competition entries</text>
 
-  <rect x="444" y="364" width="314" height="332" rx="28" fill="url(#panel)" stroke="#60A5FA" stroke-opacity="0.28"/>
-  <text x="476" y="420" fill="#BFDBFE" font-family="Inter, Arial, sans-serif" font-size="19" font-weight="700" letter-spacing="0.18em">GA4 RAW TELEMETRY</text>
-  <text x="476" y="500" fill="#F8FAFC" font-family="Inter, Arial, sans-serif" font-size="88" font-weight="800">172</text>
-  <text fill="#E0F2FE" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700">
-    <tspan x="476" y="552">vote_submitted</tspan>
-    <tspan x="476" y="586">events</tspan>
-  </text>
-  <text x="476" y="624" fill="#BFDBFE" font-family="Inter, Arial, sans-serif" font-size="21">57.9% of stored votes</text>
-  <text x="476" y="658" fill="#BFDBFE" font-family="Inter, Arial, sans-serif" font-size="21">Includes malformed + test rows</text>
-  <text x="476" y="686" fill="#BFDBFE" font-family="Inter, Arial, sans-serif" font-size="21">Browser-observed, not business-final</text>
+  <rect x="452" y="318" width="320" height="360" rx="28" fill="url(#panel)" stroke="#60A5FA" stroke-opacity="0.28"/>
+  <text x="484" y="380" fill="#BFDBFE" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="0.22em">GA4 RAW TELEMETRY</text>
+  <text x="484" y="462" fill="#F8FAFC" font-family="Inter, Arial, sans-serif" font-size="94" font-weight="800">172</text>
+  <text x="484" y="516" fill="#E0F2FE" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700">vote_submitted events</text>
+  <text x="484" y="568" fill="#BFDBFE" font-family="Inter, Arial, sans-serif" font-size="23">57.9% of stored votes</text>
+  <text x="484" y="618" fill="#BFDBFE" font-family="Inter, Arial, sans-serif" font-size="23">Includes malformed + test rows</text>
+  <text x="484" y="652" fill="#BFDBFE" font-family="Inter, Arial, sans-serif" font-size="23">Browser-observed, not business-final</text>
 
-  <rect x="778" y="364" width="314" height="332" rx="28" fill="url(#warn)" stroke="#FCD34D" stroke-opacity="0.34"/>
-  <text x="810" y="420" fill="#FDE68A" font-family="Inter, Arial, sans-serif" font-size="19" font-weight="700" letter-spacing="0.18em">GA4 CLEANED</text>
-  <text x="810" y="500" fill="#F8FAFC" font-family="Inter, Arial, sans-serif" font-size="88" font-weight="800">163</text>
-  <text fill="#FEF3C7" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700">
-    <tspan x="810" y="552">Real-entry</tspan>
-    <tspan x="810" y="586">submits</tspan>
-  </text>
-  <text x="810" y="624" fill="#FDE68A" font-family="Inter, Arial, sans-serif" font-size="21">54.9% of stored votes</text>
-  <text x="810" y="658" fill="#FDE68A" font-family="Inter, Arial, sans-serif" font-size="21">4 test rows removed</text>
-  <text x="810" y="686" fill="#FDE68A" font-family="Inter, Arial, sans-serif" font-size="21">5 malformed rows isolated</text>
+  <rect x="794" y="318" width="320" height="360" rx="28" fill="url(#warn)" stroke="#FCD34D" stroke-opacity="0.34"/>
+  <text x="826" y="380" fill="#FDE68A" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="0.22em">GA4 CLEANED</text>
+  <text x="826" y="462" fill="#F8FAFC" font-family="Inter, Arial, sans-serif" font-size="94" font-weight="800">163</text>
+  <text x="826" y="516" fill="#FEF3C7" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700">Real-entry submits</text>
+  <text x="826" y="568" fill="#FDE68A" font-family="Inter, Arial, sans-serif" font-size="23">54.9% of stored votes</text>
+  <text x="826" y="618" fill="#FDE68A" font-family="Inter, Arial, sans-serif" font-size="23">4 test rows removed</text>
+  <text x="826" y="652" fill="#FDE68A" font-family="Inter, Arial, sans-serif" font-size="23">5 malformed rows isolated</text>
 
-  <rect x="1112" y="364" width="314" height="332" rx="28" fill="url(#bad)" stroke="#FDA4AF" stroke-opacity="0.3"/>
-  <text x="1144" y="420" fill="#FECDD3" font-family="Inter, Arial, sans-serif" font-size="19" font-weight="700" letter-spacing="0.18em">BIGQUERY EXPORT</text>
-  <text x="1144" y="500" fill="#F8FAFC" font-family="Inter, Arial, sans-serif" font-size="88" font-weight="800">0</text>
-  <text fill="#FFE4E6" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700">
-    <tspan x="1144" y="552">Raw export</tspan>
-    <tspan x="1144" y="586">tables</tspan>
-  </text>
-  <text x="1144" y="624" fill="#FECDD3" font-family="Inter, Arial, sans-serif" font-size="21">Daily export enabled</text>
-  <text x="1144" y="658" fill="#FECDD3" font-family="Inter, Arial, sans-serif" font-size="21">Streaming export enabled</text>
-  <text fill="#FECDD3" font-family="Inter, Arial, sans-serif" font-size="21">
-    <tspan x="1144" y="686">But nothing landed in</tspan>
-    <tspan x="1144" y="714">ga4_498363924</tspan>
-  </text>
+  <rect x="1136" y="318" width="320" height="360" rx="28" fill="url(#bad)" stroke="#FDA4AF" stroke-opacity="0.3"/>
+  <text x="1168" y="380" fill="#FECDD3" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="0.22em">BIGQUERY EXPORT</text>
+  <text x="1168" y="462" fill="#F8FAFC" font-family="Inter, Arial, sans-serif" font-size="94" font-weight="800">0</text>
+  <text x="1168" y="516" fill="#FFE4E6" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700">Raw export tables</text>
+  <text x="1168" y="568" fill="#FECDD3" font-family="Inter, Arial, sans-serif" font-size="23">Daily export enabled</text>
+  <text x="1168" y="618" fill="#FECDD3" font-family="Inter, Arial, sans-serif" font-size="23">Streaming export enabled</text>
+  <text x="1168" y="652" fill="#FECDD3" font-family="Inter, Arial, sans-serif" font-size="23">But nothing landed in ga4_498363924</text>
 
-  <line x1="270" y1="746" x2="1296" y2="746" stroke="#334155" stroke-width="2" stroke-dasharray="10 12"/>
-  <text x="110" y="792" fill="#94A3B8" font-family="Inter, Arial, sans-serif" font-size="21">Hard-quant takeaway</text>
-  <text fill="#F8FAFC" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700">
-    <tspan x="110" y="828">A browser dashboard can understate the actual</tspan>
-    <tspan x="110" y="856">completed outcome by 45.1%</tspan>
-  </text>
-  <text fill="#94A3B8" font-family="Inter, Arial, sans-serif" font-size="20">
-    <tspan x="110" y="876">unless it is calibrated against source-of-truth</tspan>
-    <tspan x="110" y="900">and post-event data.</tspan>
-  </text>
+  <line x1="270" y1="722" x2="1296" y2="722" stroke="#334155" stroke-width="2" stroke-dasharray="10 12"/>
+  <text x="110" y="778" fill="#94A3B8" font-family="Inter, Arial, sans-serif" font-size="24">Hard-quant takeaway:</text>
+  <text x="340" y="778" fill="#F8FAFC" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700">A browser dashboard can understate the actual completed outcome by 45.1%</text>
+  <text x="110" y="814" fill="#94A3B8" font-family="Inter, Arial, sans-serif" font-size="22">unless it is calibrated against source-of-truth and post-event data.</text>
 </svg>

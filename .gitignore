@@ -13,12 +13,10 @@
 # testing
 /coverage
 /.playwright-cli
-/test-results
 
 # next.js
 /.next/
 /out/
-/.next.preclean-*
 
 # velite output
 /.velite
@@ -29,10 +27,6 @@
 /output/playwright
 /output/acceptance/analytics-consent-*/
 /output/acceptance/article-analytics-stack-prod-*/
-/output/acceptance/article-visual-audit-*/
-/output/acceptance/measurement-article-*/
-/output/acceptance/projects-dashboard-audit-*/
-/output/acceptance/hackathon-post-*/
 
 # misc
 .DS_Store
