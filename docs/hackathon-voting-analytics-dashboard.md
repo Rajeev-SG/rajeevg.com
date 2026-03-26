@@ -48,7 +48,6 @@ The GA4 route stays telemetry-focused and event-day scoped.
 - It now shows only:
   - `Consent and measurement`
   - `Top tracked events`
-  - `Measurement quality checks`
   - `Entry-by-entry tracking`
 - It no longer shows:
   - `Dummy preview`
@@ -58,7 +57,9 @@ The GA4 route stays telemetry-focused and event-day scoped.
   - `Granted dialog share`
   - `Denied dialogs`
   - `competition_state_snapshot`
+  - `Measurement quality checks`
   - unmatched test-only entries in the visible entry cards
+  - the old “GA4 closeness” framing that implied sign-in counts, tracked users, and vote telemetry could be collapsed into one definitive quality panel
 
 ## Interaction and layout rules now enforced
 
@@ -66,7 +67,7 @@ The GA4 route stays telemetry-focused and event-day scoped.
 - The schema panel is collapsed by default.
 - The source-reconciliation panel is collapsed by default.
 - Individual schema cards are collapsed by default.
-- Visible metric labels now use inline tooltips instead of anchor links, so readers can get definitions without jumping around the page.
+- Visible metric labels now use tap-friendly inline popovers instead of anchor links, so readers can get definitions without jumping around the page on desktop or mobile.
 - Panels expose at most five visible cards at once.
 - Extra cards are moved behind a disclosure such as `More derived metrics`, `More schema fields`, `More event groups`, `More entries`, or `More modeled tables`.
 

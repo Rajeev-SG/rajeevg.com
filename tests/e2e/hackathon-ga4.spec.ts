@@ -38,6 +38,7 @@ test.describe("hackathon ga4 reporting surface", () => {
     await expect(page.getByRole("button", { name: "Dummy preview" })).toHaveCount(0)
     await expect(page.getByText("Consent and measurement")).toBeVisible()
     await expect(page.getByText("Top tracked events")).toBeVisible()
+    await expect(page.getByText("Measurement quality checks")).toHaveCount(0)
     await expect(page.getByText("Round snapshot surface")).toHaveCount(0)
     await expect(page.getByText("Manager operations")).toHaveCount(0)
 
@@ -53,6 +54,11 @@ test.describe("hackathon ga4 reporting surface", () => {
     await page.getByText("Metric and field definitions", { exact: true }).click()
     await page.getByText(/More derived metrics/).click()
     await expect(page.getByText("Consent rate", { exact: true }).last()).toBeVisible()
+
+    const recordedVotesExplain = page.getByRole("button", { name: "Explain Recorded votes" }).first()
+    await recordedVotesExplain.click()
+    await expect(page.getByText("Votes saved by the voting app itself. This is the source-of-truth total.")).toBeVisible()
+
     await page.getByText("What this page includes", { exact: true }).click()
     await expect(page.getByText(/Tracked analytics coverage/i).first()).toBeVisible()
 

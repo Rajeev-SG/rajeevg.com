@@ -7,7 +7,7 @@ import { BarChart3, ChevronDown, Database, Gauge, Info, RadioTower } from "lucid
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 
 export type HackathonReportingSurface = "bigquery" | "ga4"
@@ -86,25 +86,35 @@ export function DefinitionTooltipLabel({
   if (!tooltip) return <span className={className}>{label}</span>
 
   return (
-    <TooltipProvider delayDuration={120}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <button
-            type="button"
-            className={cn(
-              "inline-flex items-center gap-1 rounded-sm text-left transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/70",
-              className,
-            )}
-          >
-            <span>{label}</span>
-            <Info className="size-3 shrink-0 opacity-70" />
-          </button>
-        </TooltipTrigger>
-        <TooltipContent side="top" align="start" className="max-w-xs text-left leading-5">
-          {tooltip}
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className={cn(
+            "inline-flex items-center gap-1 rounded-sm text-left transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/70",
+            className,
+          )}
+          aria-label={`Explain ${label}`}
+        >
+          <span>{label}</span>
+          <Info className="size-3 shrink-0 opacity-70" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        side="bottom"
+        align="start"
+        sideOffset={10}
+        className="w-[min(20rem,calc(100vw-2rem))] rounded-2xl border-border/70 bg-background/98 p-4 text-sm leading-6 shadow-xl"
+      >
+        <div className="space-y-2">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+            Definition
+          </p>
+          <p className="text-sm font-semibold text-foreground">{label}</p>
+          <div className="text-muted-foreground">{tooltip}</div>
+        </div>
+      </PopoverContent>
+    </Popover>
   )
 }
 

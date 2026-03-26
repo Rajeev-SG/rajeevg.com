@@ -302,7 +302,6 @@ export function HackathonGa4Dashboard({
     report.consentSummary.pageContextGranted + report.consentSummary.pageContextDenied
   const consentRate =
     knownPageContexts > 0 ? report.consentSummary.pageContextGranted / knownPageContexts : null
-  const cleanDialogViews = entrySurface.reduce((sum, row) => sum + row.dialogViews, 0)
   const cleanTrackedSubmissions = entrySurface.reduce((sum, row) => sum + row.voteSubmissions, 0)
   const ga4Notes = [
     ...report.notes,
@@ -557,40 +556,6 @@ export function HackathonGa4Dashboard({
             </CardContent>
           </Card>
 
-          <Card className="border-border/70 bg-background/80">
-            <CardHeader>
-              <CardTitle>Measurement quality checks</CardTitle>
-              <CardDescription>
-                These are the four numbers that explain how close GA4 is to the real competition activity.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="grid gap-3 sm:grid-cols-2">
-              <SurfaceMetric
-                label="Successful judge sign-ins"
-                value={formatInteger(report.overview.judgeAuthCompletions)}
-                tooltip="judge_auth_completed events GA4 recorded on the live event day."
-              />
-              <SurfaceMetric
-                label="Vote modal opens"
-                value={formatInteger(cleanDialogViews)}
-                tooltip="vote_dialog_viewed events that matched the live competition entries."
-              />
-              <SurfaceMetric
-                label="Tracked vote submissions"
-                value={formatInteger(cleanTrackedSubmissions)}
-                tooltip="vote_submitted events that matched the live competition entries."
-              />
-              <SurfaceMetric
-                label="Recorded votes"
-                value={
-                  report.voteTruth
-                    ? formatInteger(report.voteTruth.totals.totalVotes)
-                    : "Unavailable"
-                }
-                tooltip="Votes saved by the app itself. This is the official total."
-              />
-            </CardContent>
-          </Card>
         </div>
 
         <Card className="border-border/70 bg-background/80">
