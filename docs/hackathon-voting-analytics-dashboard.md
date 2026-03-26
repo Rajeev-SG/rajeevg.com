@@ -49,11 +49,9 @@ The GA4 route stays telemetry-focused and event-day scoped.
   - `Consent and measurement`
   - `Top tracked events`
   - `Entry-by-entry tracking`
-- The consent summary is now based only on explicit `consent_state_updated` actions:
+- The consent summary now shows only two top-line percentages:
   - `% accepted`
   - `% denied`
-  - `Accepted actions`
-  - `Denied actions`
 - It no longer shows:
   - `Dummy preview`
   - `Experience`
@@ -122,10 +120,10 @@ Fresh direct GA4 event-day proof for `hostName = vote.rajeevg.com` on 2026-03-25
 - `consent_state_updated = 33`
 - `judge_auth_completed = 19`
 
-Fresh direct explicit consent-action proof for `consent_state_updated` on 2026-03-25:
+Fresh direct consent-state proof for `page_context` on 2026-03-25:
 
-- `accepted = 32`
-- `denied = 3`
+- `accepted = 43`
+- `denied = 172`
 
 Fresh direct consent-state proof for `vote_dialog_viewed` on 2026-03-25:
 
@@ -137,8 +135,7 @@ Important interpretation:
 
 - `unknown` or blank consent state is not a third user consent state.
 - It means the event row did not carry a populated `analytics_consent_state` custom dimension.
-- That is why the page no longer uses `page_context` as the consent summary proxy.
-- The consent card now reports only explicit accept and deny actions, plus their percentages, so the headline numbers all come from the same event family.
+- The consent card now keeps the UI simpler by showing only `% accepted` and `% denied`, both derived from the same `page_context` denominator.
 - The GA4 entry cards now exclude rows that do not match the live competition slate, so test entries such as `raj-test` or `test-2` do not appear in the visible entry analysis.
 
 ## Verified status on production

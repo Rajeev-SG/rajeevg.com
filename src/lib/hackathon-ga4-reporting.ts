@@ -193,11 +193,19 @@ function buildDummyReport(): HackathonGaReport {
       managerActions: 0,
     }
   )
-  const dummyAcceptedActions = dataset.overview.reduce((sum, row) => sum + row.consentGrants, 0)
-  const consentSummary: HackathonGaConsentSummary = {
-    acceptedActions: dummyAcceptedActions,
-    deniedActions: Math.max(Math.round(dummyAcceptedActions * 0.28), 1),
-  }
+  const consentSummary = dataset.experienceOverview.reduce<HackathonGaConsentSummary>(
+    (acc, row) => {
+      if (row.analyticsConsentState === "granted") acc.pageContextAccepted += row.pageContextViews
+      else if (row.analyticsConsentState === "denied") acc.pageContextDenied += row.pageContextViews
+      else acc.pageContextUnknown += row.pageContextViews
+      return acc
+    },
+    {
+      pageContextAccepted: 0,
+      pageContextDenied: 0,
+      pageContextUnknown: 0,
+    },
+  )
 
   const eventSurface = dataset.eventBreakdown
     .slice()
@@ -367,19 +375,19 @@ function mapEntrySurface(dialogResponse: RunReportResponse, submitResponse: RunR
   return Array.from(grouped.values()).sort((left, right) => right.voteSubmissions - left.voteSubmissions)
 }
 
-function mapConsentSummary(consentUpdateResponse: RunReportResponse): HackathonGaConsentSummary {
+function mapConsentSummary(pageContextResponse: RunReportResponse): HackathonGaConsentSummary {
   const summary: HackathonGaConsentSummary = {
-    acceptedActions: 0,
-    deniedActions: 0,
+    pageContextAccepted: 0,
+    pageContextDenied: 0,
+    pageContextUnknown: 0,
   }
 
-  for (const row of consentUpdateResponse.rows ?? []) {
-    const preference = normalizeState(dimensionValue(row, 0))
-    if (preference === "granted") {
-      summary.acceptedActions += metricValue(row, 0)
-    } else if (preference === "denied") {
-      summary.deniedActions += metricValue(row, 0)
-    }
+  for (const row of pageContextResponse.rows ?? []) {
+    const state = normalizeState(dimensionValue(row, 0))
+    const count = metricValue(row, 0)
+    if (state === "granted") summary.pageContextAccepted += count
+    else if (state === "denied") summary.pageContextDenied += count
+    else summary.pageContextUnknown += count
   }
 
   return summary
@@ -406,7 +414,7 @@ export async function getHackathonGa4Report(): Promise<HackathonGaReport> {
       eventResponse,
       entryDialogResponse,
       entrySubmitResponse,
-      consentUpdateResponse,
+      pageContextConsentResponse,
     ] = await Promise.all([
       runHackathonGa4Report({
         dateRanges: [reportingDateRange],
@@ -472,9 +480,9 @@ export async function getHackathonGa4Report(): Promise<HackathonGaReport> {
       }),
       runHackathonGa4Report({
         dateRanges: [reportingDateRange],
-        dimensions: [{ name: "customEvent:consent_preference" }],
+        dimensions: [{ name: "customEvent:analytics_consent_state" }],
         metrics: [{ name: "eventCount" }],
-        dimensionFilter: andFilter([hostFilter, exactStringFilter("eventName", "consent_state_updated")]),
+        dimensionFilter: andFilter([hostFilter, exactStringFilter("eventName", "page_context")]),
         orderBys: [{ metric: { metricName: "eventCount" }, desc: true }],
         limit: 20,
       }),
@@ -484,7 +492,7 @@ export async function getHackathonGa4Report(): Promise<HackathonGaReport> {
     const eventSurface = mapEventSurface(eventResponse)
     const entrySurface = mapEntrySurface(entryDialogResponse, entrySubmitResponse)
     const overview = mapOverview(overviewResponse, eventTotals)
-    const consentSummary = mapConsentSummary(consentUpdateResponse)
+    const consentSummary = mapConsentSummary(pageContextConsentResponse)
     const [modeledTableCounts, rawExportTableCount] = await Promise.all([
       getModeledTableRowCounts(),
       getRawExportTableCount(getHackathonPropertyId()),
@@ -543,8 +551,9 @@ export async function getHackathonGa4Report(): Promise<HackathonGaReport> {
       voteTruth: null,
       overview: emptyOverview(),
       consentSummary: {
-        acceptedActions: 0,
-        deniedActions: 0,
+        pageContextAccepted: 0,
+        pageContextDenied: 0,
+        pageContextUnknown: 0,
       },
       eventSurface: [],
       entrySurface: [],
