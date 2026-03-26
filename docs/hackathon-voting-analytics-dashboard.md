@@ -49,13 +49,19 @@ The GA4 route stays telemetry-focused and event-day scoped.
   - `Consent and measurement`
   - `Top tracked events`
   - `Entry-by-entry tracking`
+- The consent summary is now based only on explicit `consent_state_updated` actions:
+  - `% accepted`
+  - `% denied`
+  - `Accepted actions`
+  - `Denied actions`
 - It no longer shows:
   - `Dummy preview`
   - `Experience`
   - `Manager operations`
   - `Round snapshot surface`
-  - `Granted dialog share`
-  - `Denied dialogs`
+  - `Granted consent signals`
+  - `Denied consent signals`
+  - `Explicit accept actions`
   - `competition_state_snapshot`
   - `Measurement quality checks`
   - unmatched test-only entries in the visible entry cards
@@ -116,11 +122,10 @@ Fresh direct GA4 event-day proof for `hostName = vote.rajeevg.com` on 2026-03-25
 - `consent_state_updated = 33`
 - `judge_auth_completed = 19`
 
-Fresh direct consent-state proof for `page_context` on 2026-03-25:
+Fresh direct explicit consent-action proof for `consent_state_updated` on 2026-03-25:
 
-- `denied = 172`
-- `granted = 43`
-- no `unknown` row returned
+- `accepted = 32`
+- `denied = 3`
 
 Fresh direct consent-state proof for `vote_dialog_viewed` on 2026-03-25:
 
@@ -132,12 +137,24 @@ Important interpretation:
 
 - `unknown` or blank consent state is not a third user consent state.
 - It means the event row did not carry a populated `analytics_consent_state` custom dimension.
-- That is why the page now uses `page_context` as the consent-rate proxy and no longer surfaces `unknown dialog consent` as a topline UX concept.
+- That is why the page no longer uses `page_context` as the consent summary proxy.
+- The consent card now reports only explicit accept and deny actions, plus their percentages, so the headline numbers all come from the same event family.
 - The GA4 entry cards now exclude rows that do not match the live competition slate, so test entries such as `raj-test` or `test-2` do not appear in the visible entry analysis.
 
 ## Verified status on production
 
-The live production routes were redeployed on 2026-03-25 and then revalidated directly against `https://rajeevg.com`.
+The live production routes were redeployed on 2026-03-25 and again on 2026-03-26, then revalidated directly against `https://rajeevg.com`.
+
+Fresh consent-summary deploy validation on 2026-03-26:
+
+- `vercel deploy --prod --yes`
+  - deployment URL: `https://rajeevg-2w15uhum4-rajeevgills-projects.vercel.app`
+- `curl -I https://rajeevg.com/projects/hackathon-voting-analytics/google-analytics`
+  - result: `HTTP/2 200`
+- `curl -I https://rajeevg.com/projects/hackathon-voting-analytics`
+  - result: `HTTP/2 200`
+- `E2E_BASE_URL=https://rajeevg.com pnpm exec playwright test tests/e2e/hackathon-ga4.spec.ts --reporter=list --workers=1`
+  - result: `2 passed`
 
 Production validation passed:
 
@@ -172,6 +189,10 @@ Local validation also passed:
   - [/Users/rajeev/Code/rajeevg.com/output/acceptance/projects-dashboard-audit-20260325/prod/hackathon-ga4-desktop-light-event-day-event-surface.png](/Users/rajeev/Code/rajeevg.com/output/acceptance/projects-dashboard-audit-20260325/prod/hackathon-ga4-desktop-light-event-day-event-surface.png)
 - Production GA4 mobile entry-surface audit screenshot:
   - [/Users/rajeev/Code/rajeevg.com/output/acceptance/projects-dashboard-audit-20260325/prod/hackathon-ga4-mobile-dark-entry-surface.png](/Users/rajeev/Code/rajeevg.com/output/acceptance/projects-dashboard-audit-20260325/prod/hackathon-ga4-mobile-dark-entry-surface.png)
+- 2026-03-26 consent-summary local proof:
+  - [/Users/rajeev/Code/rajeevg.com/output/acceptance/hackathon-ga4-consent-summary-20260326/local-proof.md](/Users/rajeev/Code/rajeevg.com/output/acceptance/hackathon-ga4-consent-summary-20260326/local-proof.md)
+- 2026-03-26 consent-summary production proof:
+  - [/Users/rajeev/Code/rajeevg.com/output/acceptance/hackathon-ga4-consent-summary-20260326/prod-proof.md](/Users/rajeev/Code/rajeevg.com/output/acceptance/hackathon-ga4-consent-summary-20260326/prod-proof.md)
 - Admin-side investigation proof:
   - [/Users/rajeev/Code/rajeevg.com/output/acceptance/hackathon-bigquery-link-investigation-20260325/proof.md](/Users/rajeev/Code/rajeevg.com/output/acceptance/hackathon-bigquery-link-investigation-20260325/proof.md)
   - [/Users/rajeev/Code/rajeevg.com/output/acceptance/hackathon-bigquery-link-investigation-20260325/live-evidence.json](/Users/rajeev/Code/rajeevg.com/output/acceptance/hackathon-bigquery-link-investigation-20260325/live-evidence.json)

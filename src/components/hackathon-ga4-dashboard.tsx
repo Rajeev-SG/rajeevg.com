@@ -298,10 +298,12 @@ export function HackathonGa4Dashboard({
   const report = source === "live" ? live : dummy
   const entrySurfaceResult = useMemo(() => buildEntrySurface(report), [report])
   const entrySurface = entrySurfaceResult.rows
-  const knownPageContexts =
-    report.consentSummary.pageContextGranted + report.consentSummary.pageContextDenied
-  const consentRate =
-    knownPageContexts > 0 ? report.consentSummary.pageContextGranted / knownPageContexts : null
+  const totalConsentActions =
+    report.consentSummary.acceptedActions + report.consentSummary.deniedActions
+  const acceptedRate =
+    totalConsentActions > 0 ? report.consentSummary.acceptedActions / totalConsentActions : null
+  const deniedRate =
+    totalConsentActions > 0 ? report.consentSummary.deniedActions / totalConsentActions : null
   const cleanTrackedSubmissions = entrySurface.reduce((sum, row) => sum + row.voteSubmissions, 0)
   const ga4Notes = [
     ...report.notes,
@@ -373,24 +375,24 @@ export function HackathonGa4Dashboard({
       interpretation: "Read it as a signal from tracked votes only, not as the official scoreboard average.",
     },
     {
-      label: "Consent rate",
-      meaning: "The share of known page-context events that carried analytics_consent_state = granted.",
-      interpretation: "This is the clearest consent proxy on the page. It explains why analytics totals can diverge from the recorded vote ledger.",
+      label: "Accepted consent rate",
+      meaning: "The share of explicit consent actions that recorded an accepted preference.",
+      interpretation: "Use this as the top-line opt-in rate because it comes from the same explicit consent-change event as the denial count.",
     },
     {
-      label: "Granted consent signals",
-      meaning: "page_context events where GA4 received analytics_consent_state = granted.",
-      interpretation: "This is the numerator behind the consent rate.",
+      label: "Denied consent rate",
+      meaning: "The share of explicit consent actions that recorded a denied preference.",
+      interpretation: "This is the matching opt-out rate, based on the same explicit consent-change events as the accepted rate.",
     },
     {
-      label: "Denied consent signals",
-      meaning: "page_context events where GA4 received analytics_consent_state = denied.",
-      interpretation: "This is the comparison bucket behind the consent rate.",
-    },
-    {
-      label: "Explicit accept actions",
+      label: "Accepted actions",
       meaning: "consent_state_updated events where the tracked preference was granted.",
-      interpretation: "This shows deliberate opt-ins, separate from the broader consent-rate proxy above.",
+      interpretation: "Use this as the explicit accept count.",
+    },
+    {
+      label: "Denied actions",
+      meaning: "consent_state_updated events where the tracked preference was denied.",
+      interpretation: "Use this as the explicit decline count.",
     },
   ]
 
@@ -436,37 +438,39 @@ export function HackathonGa4Dashboard({
               <CardHeader>
                 <CardTitle>Consent and measurement</CardTitle>
                 <CardDescription>
-                  This section explains why analytics totals can be lower than the app’s recorded vote totals.
+                  This section summarises explicit accept and deny choices captured by the consent banner.
                 </CardDescription>
               </CardHeader>
               <CardContent className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 <SurfaceMetric
-                  label="Consent rate"
-                  value={formatShare(consentRate)}
-                  tooltip="The share of known page-context events that GA4 received with consent marked as granted."
+                  label="% accepted"
+                  value={formatShare(acceptedRate)}
+                  tooltip="Accepted consent_state_updated actions divided by all explicit accept or deny actions."
                 />
                 <SurfaceMetric
-                  label="Granted consent signals"
-                  value={formatInteger(report.consentSummary.pageContextGranted)}
-                  tooltip="page_context events where GA4 received analytics_consent_state = granted."
+                  label="% denied"
+                  value={formatShare(deniedRate)}
+                  tooltip="Denied consent_state_updated actions divided by all explicit accept or deny actions."
                 />
                 <SurfaceMetric
-                  label="Denied consent signals"
-                  value={formatInteger(report.consentSummary.pageContextDenied)}
-                  tooltip="page_context events where GA4 received analytics_consent_state = denied."
-                />
-                <SurfaceMetric
-                  label="Explicit accept actions"
-                  value={formatInteger(report.consentSummary.consentGrantedUpdates)}
+                  label="Accepted actions"
+                  value={formatInteger(report.consentSummary.acceptedActions)}
                   tooltip="consent_state_updated events where the tracked preference was granted."
+                />
+                <SurfaceMetric
+                  label="Denied actions"
+                  value={formatInteger(report.consentSummary.deniedActions)}
+                  tooltip="consent_state_updated events where the tracked preference was denied."
                 />
                 <div className="sm:col-span-2 xl:col-span-4 rounded-2xl border border-border/70 bg-muted/30 p-4">
                   <p className="text-sm leading-6 text-muted-foreground">
-                    {consentRate == null
-                      ? "Known granted-versus-denied page-context rows are not available yet, so this page cannot estimate consent impact with confidence."
-                      : `${formatShare(
-                          consentRate,
-                        )} of known consent-state page signals were granted. That is why this page is useful for measuring behavior, but not for replacing the app’s recorded vote ledger.`}
+                    {acceptedRate == null
+                      ? "Explicit accept or deny actions are not available yet, so this page cannot summarise consent choices with confidence."
+                      : `${formatShare(acceptedRate)} accepted and ${formatShare(
+                          deniedRate,
+                        )} denied across ${formatInteger(
+                          totalConsentActions,
+                        )} explicit consent actions. That is why this page is useful for measuring consent behavior without pretending those actions are the vote ledger.`}
                   </p>
                 </div>
               </CardContent>

@@ -193,20 +193,11 @@ function buildDummyReport(): HackathonGaReport {
       managerActions: 0,
     }
   )
-  const consentSummary = dataset.experienceOverview.reduce<HackathonGaConsentSummary>(
-    (acc, row) => {
-      if (row.analyticsConsentState === "granted") acc.pageContextGranted += row.pageContextViews
-      else if (row.analyticsConsentState === "denied") acc.pageContextDenied += row.pageContextViews
-      else acc.pageContextUnknown += row.pageContextViews
-      return acc
-    },
-    {
-      pageContextGranted: 0,
-      pageContextDenied: 0,
-      pageContextUnknown: 0,
-      consentGrantedUpdates: dataset.overview.reduce((sum, row) => sum + row.consentGrants, 0),
-    },
-  )
+  const dummyAcceptedActions = dataset.overview.reduce((sum, row) => sum + row.consentGrants, 0)
+  const consentSummary: HackathonGaConsentSummary = {
+    acceptedActions: dummyAcceptedActions,
+    deniedActions: Math.max(Math.round(dummyAcceptedActions * 0.28), 1),
+  }
 
   const eventSurface = dataset.eventBreakdown
     .slice()
@@ -376,29 +367,18 @@ function mapEntrySurface(dialogResponse: RunReportResponse, submitResponse: RunR
   return Array.from(grouped.values()).sort((left, right) => right.voteSubmissions - left.voteSubmissions)
 }
 
-function mapConsentSummary(
-  pageContextResponse: RunReportResponse,
-  consentUpdateResponse: RunReportResponse,
-): HackathonGaConsentSummary {
+function mapConsentSummary(consentUpdateResponse: RunReportResponse): HackathonGaConsentSummary {
   const summary: HackathonGaConsentSummary = {
-    pageContextGranted: 0,
-    pageContextDenied: 0,
-    pageContextUnknown: 0,
-    consentGrantedUpdates: 0,
-  }
-
-  for (const row of pageContextResponse.rows ?? []) {
-    const state = normalizeState(dimensionValue(row, 0))
-    const count = metricValue(row, 0)
-    if (state === "granted") summary.pageContextGranted += count
-    else if (state === "denied") summary.pageContextDenied += count
-    else summary.pageContextUnknown += count
+    acceptedActions: 0,
+    deniedActions: 0,
   }
 
   for (const row of consentUpdateResponse.rows ?? []) {
     const preference = normalizeState(dimensionValue(row, 0))
     if (preference === "granted") {
-      summary.consentGrantedUpdates += metricValue(row, 0)
+      summary.acceptedActions += metricValue(row, 0)
+    } else if (preference === "denied") {
+      summary.deniedActions += metricValue(row, 0)
     }
   }
 
@@ -426,7 +406,6 @@ export async function getHackathonGa4Report(): Promise<HackathonGaReport> {
       eventResponse,
       entryDialogResponse,
       entrySubmitResponse,
-      pageContextConsentResponse,
       consentUpdateResponse,
     ] = await Promise.all([
       runHackathonGa4Report({
@@ -493,14 +472,6 @@ export async function getHackathonGa4Report(): Promise<HackathonGaReport> {
       }),
       runHackathonGa4Report({
         dateRanges: [reportingDateRange],
-        dimensions: [{ name: "customEvent:analytics_consent_state" }],
-        metrics: [{ name: "eventCount" }],
-        dimensionFilter: andFilter([hostFilter, exactStringFilter("eventName", "page_context")]),
-        orderBys: [{ metric: { metricName: "eventCount" }, desc: true }],
-        limit: 20,
-      }),
-      runHackathonGa4Report({
-        dateRanges: [reportingDateRange],
         dimensions: [{ name: "customEvent:consent_preference" }],
         metrics: [{ name: "eventCount" }],
         dimensionFilter: andFilter([hostFilter, exactStringFilter("eventName", "consent_state_updated")]),
@@ -513,7 +484,7 @@ export async function getHackathonGa4Report(): Promise<HackathonGaReport> {
     const eventSurface = mapEventSurface(eventResponse)
     const entrySurface = mapEntrySurface(entryDialogResponse, entrySubmitResponse)
     const overview = mapOverview(overviewResponse, eventTotals)
-    const consentSummary = mapConsentSummary(pageContextConsentResponse, consentUpdateResponse)
+    const consentSummary = mapConsentSummary(consentUpdateResponse)
     const [modeledTableCounts, rawExportTableCount] = await Promise.all([
       getModeledTableRowCounts(),
       getRawExportTableCount(getHackathonPropertyId()),
@@ -572,10 +543,8 @@ export async function getHackathonGa4Report(): Promise<HackathonGaReport> {
       voteTruth: null,
       overview: emptyOverview(),
       consentSummary: {
-        pageContextGranted: 0,
-        pageContextDenied: 0,
-        pageContextUnknown: 0,
-        consentGrantedUpdates: 0,
+        acceptedActions: 0,
+        deniedActions: 0,
       },
       eventSurface: [],
       entrySurface: [],

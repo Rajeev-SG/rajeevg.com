@@ -33,10 +33,8 @@ export type HackathonGaEntryRow = {
 }
 
 export type HackathonGaConsentSummary = {
-  pageContextGranted: number
-  pageContextDenied: number
-  pageContextUnknown: number
-  consentGrantedUpdates: number
+  acceptedActions: number
+  deniedActions: number
 }
 
 export type HackathonGaDefinition = {
