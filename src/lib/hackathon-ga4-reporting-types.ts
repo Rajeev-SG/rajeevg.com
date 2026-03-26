@@ -33,9 +33,9 @@ export type HackathonGaEntryRow = {
 }
 
 export type HackathonGaConsentSummary = {
-  acceptedUsers: number
-  deniedUsers: number
-  unknownUsers: number
+  grantedPageLoads: number
+  deniedPageLoads: number
+  unknownPageLoads: number
 }
 
 export type HackathonGaDefinition = {

@@ -195,15 +195,15 @@ function buildDummyReport(): HackathonGaReport {
   )
   const consentSummary = dataset.experienceOverview.reduce<HackathonGaConsentSummary>(
     (acc, row) => {
-      if (row.analyticsConsentState === "granted") acc.acceptedUsers += row.uniqueUsers
-      else if (row.analyticsConsentState === "denied") acc.deniedUsers += row.uniqueUsers
-      else acc.unknownUsers += row.uniqueUsers
+      if (row.analyticsConsentState === "granted") acc.grantedPageLoads += row.pageContextViews
+      else if (row.analyticsConsentState === "denied") acc.deniedPageLoads += row.pageContextViews
+      else acc.unknownPageLoads += row.pageContextViews
       return acc
     },
     {
-      acceptedUsers: 0,
-      deniedUsers: 0,
-      unknownUsers: 0,
+      grantedPageLoads: 0,
+      deniedPageLoads: 0,
+      unknownPageLoads: 0,
     },
   )
 
@@ -377,17 +377,17 @@ function mapEntrySurface(dialogResponse: RunReportResponse, submitResponse: RunR
 
 function mapConsentSummary(pageContextResponse: RunReportResponse): HackathonGaConsentSummary {
   const summary: HackathonGaConsentSummary = {
-    acceptedUsers: 0,
-    deniedUsers: 0,
-    unknownUsers: 0,
+    grantedPageLoads: 0,
+    deniedPageLoads: 0,
+    unknownPageLoads: 0,
   }
 
   for (const row of pageContextResponse.rows ?? []) {
     const state = normalizeState(dimensionValue(row, 0))
-    const users = metricValue(row, 1)
-    if (state === "granted") summary.acceptedUsers += users
-    else if (state === "denied") summary.deniedUsers += users
-    else summary.unknownUsers += users
+    const pageLoads = metricValue(row, 0)
+    if (state === "granted") summary.grantedPageLoads += pageLoads
+    else if (state === "denied") summary.deniedPageLoads += pageLoads
+    else summary.unknownPageLoads += pageLoads
   }
 
   return summary
@@ -551,9 +551,9 @@ export async function getHackathonGa4Report(): Promise<HackathonGaReport> {
       voteTruth: null,
       overview: emptyOverview(),
       consentSummary: {
-        acceptedUsers: 0,
-        deniedUsers: 0,
-        unknownUsers: 0,
+        grantedPageLoads: 0,
+        deniedPageLoads: 0,
+        unknownPageLoads: 0,
       },
       eventSurface: [],
       entrySurface: [],

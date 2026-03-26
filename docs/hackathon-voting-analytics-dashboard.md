@@ -137,8 +137,8 @@ Important interpretation:
 
 - `unknown` or blank consent state is not a third user consent state.
 - It means the event row did not carry a populated `analytics_consent_state` custom dimension.
-- The consent card now keeps the UI simpler by showing only accepted and denied user counts.
-- Those buckets can overlap because the same tracked user may first load with denied consent and later appear again after accepting.
+- The consent card now counts tracked `page_context` rows with a granted versus denied analytics state.
+- Those counts describe telemetry state on tracked page loads, not people and not explicit accept-or-deny actions.
 - The GA4 entry cards now exclude rows that do not match the live competition slate, so test entries such as `raj-test` or `test-2` do not appear in the visible entry analysis.
 
 ## Verified status on production

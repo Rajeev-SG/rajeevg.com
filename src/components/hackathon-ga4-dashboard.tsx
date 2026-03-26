@@ -298,8 +298,8 @@ export function HackathonGa4Dashboard({
   const report = source === "live" ? live : dummy
   const entrySurfaceResult = useMemo(() => buildEntrySurface(report), [report])
   const entrySurface = entrySurfaceResult.rows
-  const knownConsentUsers =
-    report.consentSummary.acceptedUsers + report.consentSummary.deniedUsers
+  const knownConsentPageLoads =
+    report.consentSummary.grantedPageLoads + report.consentSummary.deniedPageLoads
   const cleanTrackedSubmissions = entrySurface.reduce((sum, row) => sum + row.voteSubmissions, 0)
   const ga4Notes = [
     ...report.notes,
@@ -371,14 +371,14 @@ export function HackathonGa4Dashboard({
       interpretation: "Read it as a signal from tracked votes only, not as the official scoreboard average.",
     },
     {
-      label: "Accepted users",
-      meaning: "Tracked users who appeared on page_context rows with consent marked as accepted.",
-      interpretation: "Use this as the plain accepted count, not as a unique daily audience total.",
+      label: "Granted page loads",
+      meaning: "Tracked page_context rows where analytics consent was stored as granted.",
+      interpretation: "Use this as a telemetry-state count for tracked page loads, not as a user count or explicit banner-choice total.",
     },
     {
-      label: "Denied users",
-      meaning: "Tracked users who appeared on page_context rows with consent marked as denied.",
-      interpretation: "Users can appear in both accepted and denied counts if they first loaded denied and later accepted.",
+      label: "Denied page loads",
+      meaning: "Tracked page_context rows where analytics consent was stored as denied.",
+      interpretation: "Use this as a telemetry-state count for tracked page loads, not as a user count or explicit banner-choice total.",
     },
   ]
 
@@ -424,31 +424,31 @@ export function HackathonGa4Dashboard({
               <CardHeader>
                 <CardTitle>Consent and measurement</CardTitle>
                 <CardDescription>
-                  A plain count of tracked users seen with accepted versus denied consent during the event day.
+                  Tracked page loads grouped by the analytics consent state recorded on page_context during the event day.
                 </CardDescription>
               </CardHeader>
               <CardContent className="grid gap-3 sm:grid-cols-2">
                 <SurfaceMetric
-                  label="Accepted"
-                  value={formatInteger(report.consentSummary.acceptedUsers)}
-                  tooltip="Tracked users seen on page_context rows where consent was marked accepted."
+                  label="Granted page loads"
+                  value={formatInteger(report.consentSummary.grantedPageLoads)}
+                  tooltip="Tracked page_context rows where analytics consent was stored as granted."
                 />
                 <SurfaceMetric
-                  label="Denied"
-                  value={formatInteger(report.consentSummary.deniedUsers)}
-                  tooltip="Tracked users seen on page_context rows where consent was marked denied."
+                  label="Denied page loads"
+                  value={formatInteger(report.consentSummary.deniedPageLoads)}
+                  tooltip="Tracked page_context rows where analytics consent was stored as denied."
                 />
                 <div className="sm:col-span-2 rounded-2xl border border-border/70 bg-muted/30 p-4">
                   <p className="text-sm leading-6 text-muted-foreground">
-                    {knownConsentUsers <= 0
-                      ? "Known accepted-versus-denied consent rows are not available yet."
+                    {knownConsentPageLoads <= 0
+                      ? "Known granted-versus-denied page_context rows are not available yet."
                       : `${formatInteger(
-                          report.consentSummary.acceptedUsers,
-                        )} tracked users were seen accepted and ${formatInteger(
-                          report.consentSummary.deniedUsers,
-                        )} were seen denied. The overall tracked-user total is ${formatInteger(
+                          report.consentSummary.grantedPageLoads,
+                        )} tracked page loads carried a granted analytics state and ${formatInteger(
+                          report.consentSummary.deniedPageLoads,
+                        )} carried a denied analytics state. This card is counting page_context rows, not people and not explicit accept-or-deny actions, so it should not be compared directly with the ${formatInteger(
                           report.overview.totalUsers,
-                        )}, so these consent buckets overlap when the same person first lands denied and later accepts.`}
+                        )} tracked users headline.`}
                   </p>
                 </div>
               </CardContent>

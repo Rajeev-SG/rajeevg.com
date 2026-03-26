@@ -48,12 +48,12 @@ test.describe("hackathon ga4 reporting surface", () => {
     await expect(liveNote).toBeVisible()
 
     await expect(
-      page.getByText(/tracked users were seen accepted and .* were seen denied|known accepted-versus-denied consent rows are not available yet/i).first(),
+      page.getByText(/tracked page loads carried a granted analytics state and .* carried a denied analytics state|known granted-versus-denied page_context rows are not available yet/i).first(),
     ).toBeVisible()
 
     await page.getByText("Metric and field definitions", { exact: true }).click()
     await page.getByText(/More derived metrics/).click()
-    await expect(page.getByText("Accepted users", { exact: true }).last()).toBeVisible()
+    await expect(page.getByText("Granted page loads", { exact: true }).last()).toBeVisible()
     await expect(page.getByText("% accepted", { exact: true })).toHaveCount(0)
     await expect(page.getByText("% denied", { exact: true })).toHaveCount(0)
 
