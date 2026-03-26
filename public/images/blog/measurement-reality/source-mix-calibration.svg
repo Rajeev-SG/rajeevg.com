@@ -93,12 +93,12 @@
     <tspan x="1166" y="828">windows, and CRM hygiene</tspan>
   </text>
 
-  <circle cx="800" cy="842" r="82" fill="url(#center)"/>
-  <text x="744" y="824" fill="#DBEAFE" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="0.14em">CALIBRATED</text>
-  <text x="741" y="858" fill="#F8FAFC" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="800">Effectiveness</text>
-  <text x="755" y="888" fill="#E0F2FE" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700">measurement</text>
+  <circle cx="800" cy="858" r="72" fill="url(#center)"/>
+  <text x="752" y="844" fill="#DBEAFE" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="700" letter-spacing="0.12em">CALIBRATED</text>
+  <text x="755" y="874" fill="#F8FAFC" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="800">Effectiveness</text>
+  <text x="769" y="900" fill="#E0F2FE" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="700">measurement</text>
 
   <path d="M470 566C550 566 560 566 620 566" stroke="#0284C7" stroke-width="8" stroke-linecap="round"/>
   <path d="M980 566C1050 566 1060 566 1130 566" stroke="#DB2777" stroke-width="8" stroke-linecap="round"/>
-  <path d="M800 758V724" stroke="#0F766E" stroke-width="8" stroke-linecap="round"/>
+  <path d="M800 786V730" stroke="#0F766E" stroke-width="8" stroke-linecap="round"/>
 </svg>
