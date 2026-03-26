@@ -2,7 +2,7 @@
 
 Date: 2026-03-26
 Surface: `/projects/hackathon-voting-analytics/google-analytics`
-Base URL: `http://127.0.0.1:3023`
+Base URL: `http://127.0.0.1:3027`
 
 ## Target flow
 
@@ -26,7 +26,7 @@ Open the hackathon GA4 dashboard, dismiss the consent banner if present, and ver
 ## Evidence
 
 - Playwright run:
-  - `E2E_BASE_URL=http://127.0.0.1:3026 pnpm exec playwright test tests/e2e/hackathon-ga4.spec.ts --reporter=list --workers=1`
+  - `E2E_BASE_URL=http://127.0.0.1:3027 pnpm exec playwright test tests/e2e/hackathon-ga4.spec.ts --reporter=list --workers=1`
 - Screenshots:
   - `/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-ga4-dashboard-20260325/desktop-light-top.png`
   - `/Users/rajeev/Code/rajeevg.com/output/playwright/hackathon-ga4-dashboard-20260325/mobile-dark-top.png`
