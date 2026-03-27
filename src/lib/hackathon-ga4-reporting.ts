@@ -3,6 +3,7 @@ import "server-only"
 import { unstable_noStore as noStore } from "next/cache"
 
 import {
+  ARCHIVED_HACKATHON_VOTE_TRUTH,
   ARCHIVED_HACKATHON_VOTE_TRUTH_DATE_LABEL,
   ARCHIVED_HACKATHON_VOTE_TRUTH_ISO_DATE,
 } from "@/lib/hackathon-vote-truth-archive"
@@ -11,6 +12,7 @@ import { getDummyHackathonAnalyticsDataset } from "@/lib/hackathon-reporting-dum
 import {
   describeHackathonVoteTruthReconciliation,
   type HackathonEventDay,
+  type HackathonVoteTruthResult,
   getHackathonEventDay,
   getHackathonVoteTruth,
 } from "@/lib/hackathon-vote-truth"
@@ -181,6 +183,17 @@ function getPinnedProductionEventDay(): HackathonEventDay | null {
   return {
     isoDate: ARCHIVED_HACKATHON_VOTE_TRUTH_ISO_DATE,
     label: ARCHIVED_HACKATHON_VOTE_TRUTH_DATE_LABEL,
+  }
+}
+
+function getPinnedProductionVoteTruthResult(
+  voteTruthResult: HackathonVoteTruthResult,
+): HackathonVoteTruthResult {
+  if (process.env.NODE_ENV !== "production") return voteTruthResult
+
+  return {
+    summary: ARCHIVED_HACKATHON_VOTE_TRUTH,
+    note: voteTruthResult.note,
   }
 }
 
@@ -413,7 +426,7 @@ export async function getHackathonGa4Report(): Promise<HackathonGaReport> {
   try {
     const hostname = getHackathonHostname()
     const hostFilter = exactStringFilter("hostName", hostname)
-    const voteTruthResult = await getHackathonVoteTruth()
+    const voteTruthResult = getPinnedProductionVoteTruthResult(await getHackathonVoteTruth())
     const eventDay = getPinnedProductionEventDay() ?? getHackathonEventDay(voteTruthResult.summary)
     const reportingDateRange = buildHackathonReportingDateRange(
       eventDay?.isoDate ?? new Date().toISOString().slice(0, 10),
