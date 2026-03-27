@@ -2,10 +2,15 @@ import "server-only"
 
 import { unstable_noStore as noStore } from "next/cache"
 
+import {
+  ARCHIVED_HACKATHON_VOTE_TRUTH_DATE_LABEL,
+  ARCHIVED_HACKATHON_VOTE_TRUTH_ISO_DATE,
+} from "@/lib/hackathon-vote-truth-archive"
 import { getModeledTableRowCounts, getRawExportTableCount } from "@/lib/hackathon-bigquery"
 import { getDummyHackathonAnalyticsDataset } from "@/lib/hackathon-reporting-dummy"
 import {
   describeHackathonVoteTruthReconciliation,
+  type HackathonEventDay,
   getHackathonEventDay,
   getHackathonVoteTruth,
 } from "@/lib/hackathon-vote-truth"
@@ -168,6 +173,15 @@ const DEFINITIONS: HackathonGaDefinition[] = [
 function normalizeState(value: string) {
   if (!value || value === "(not set)") return "unknown"
   return value
+}
+
+function getPinnedProductionEventDay(): HackathonEventDay | null {
+  if (process.env.NODE_ENV !== "production") return null
+
+  return {
+    isoDate: ARCHIVED_HACKATHON_VOTE_TRUTH_ISO_DATE,
+    label: ARCHIVED_HACKATHON_VOTE_TRUTH_DATE_LABEL,
+  }
 }
 
 function buildDummyReport(): HackathonGaReport {
@@ -400,7 +414,7 @@ export async function getHackathonGa4Report(): Promise<HackathonGaReport> {
     const hostname = getHackathonHostname()
     const hostFilter = exactStringFilter("hostName", hostname)
     const voteTruthResult = await getHackathonVoteTruth()
-    const eventDay = getHackathonEventDay(voteTruthResult.summary)
+    const eventDay = getPinnedProductionEventDay() ?? getHackathonEventDay(voteTruthResult.summary)
     const reportingDateRange = buildHackathonReportingDateRange(
       eventDay?.isoDate ?? new Date().toISOString().slice(0, 10),
     )
@@ -513,6 +527,11 @@ export async function getHackathonGa4Report(): Promise<HackathonGaReport> {
       voteTruth: voteTruthResult.summary,
       notes: hasLiveRows
         ? [
+            ...(process.env.NODE_ENV === "production"
+              ? [
+                  `Production is pinned to the archived hackathon event day (${ARCHIVED_HACKATHON_VOTE_TRUTH_DATE_LABEL}), so this GA4 page ignores newer vote.rajeevg.com resets or replay runs.`,
+                ]
+              : []),
             `Live mode is reading directly from the shared GA4 property through the official Google Analytics Data API client, scoped to ${reportingWindow}.`,
             `Warehouse reconciliation: the modeled BigQuery dataset currently has ${modeledRowCount} landed rows across ${modeledTableCounts.length} tables, and ga4_${getHackathonPropertyId()} currently has ${rawExportTableCount} landed raw export tables.`,
             "The route is filtered to vote.rajeevg.com so the hackathon app stays separated from rajeevg.com content analytics even though both live on the same property.",
@@ -523,6 +542,11 @@ export async function getHackathonGa4Report(): Promise<HackathonGaReport> {
             }),
           ]
         : [
+            ...(process.env.NODE_ENV === "production"
+              ? [
+                  `Production is pinned to the archived hackathon event day (${ARCHIVED_HACKATHON_VOTE_TRUTH_DATE_LABEL}), so this GA4 page ignores newer vote.rajeevg.com resets or replay runs.`,
+                ]
+              : []),
             `The GA4 property is reachable, but no hackathon-host rows were returned for ${reportingWindow}.`,
             "Use Dummy preview to review the GA reporting shell while the shared property starts collecting or retaining hackathon rows.",
             ...describeHackathonVoteTruthReconciliation({

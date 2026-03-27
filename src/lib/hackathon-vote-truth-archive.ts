@@ -1,5 +1,6 @@
 import type { HackathonVoteTruthSummary } from "@/lib/hackathon-vote-truth"
 
+export const ARCHIVED_HACKATHON_VOTE_TRUTH_ISO_DATE = "2026-03-25"
 export const ARCHIVED_HACKATHON_VOTE_TRUTH_DATE_LABEL = "25 March 2026"
 
 export const ARCHIVED_HACKATHON_VOTE_TRUTH: HackathonVoteTruthSummary = {
