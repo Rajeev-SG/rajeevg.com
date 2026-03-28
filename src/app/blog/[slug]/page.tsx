@@ -1,25 +1,29 @@
-import { notFound } from "next/navigation"
 import type { Metadata } from "next"
+import { notFound } from "next/navigation"
+
+import { ArticleNextSteps } from "@/components/content-ops/article-next-steps"
 import { MDXContent } from "@/components/mdx-content"
 import { mdxComponents } from "@/components/mdx-components"
-import { ReadingProgress } from "@/components/reading-progress"
-import { site } from "@/lib/site"
-import { MermaidTooltips } from "@/components/mermaid-tooltips"
 import MermaidInit from "@/components/mermaid-init"
+import { MermaidTooltips } from "@/components/mermaid-tooltips"
+import { ReadingProgress } from "@/components/reading-progress"
+import { getContentInventoryBySlug, getRelatedContent } from "@/lib/content-ops/data"
 import { getPostEffectiveDate, getSortedVisiblePosts, getVisiblePostBySlug } from "@/lib/posts"
+import { site } from "@/lib/site"
 
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const post = getVisiblePostBySlug(slug)
   if (!post) return notFound()
 
+  const strategyRecord = getContentInventoryBySlug(slug)
   const ogImage = post.image || site.defaultOgImage
   const postDisplayDate = getPostEffectiveDate(post)
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: post.title,
-    description: post.description || undefined,
+    description: post.description || strategyRecord?.notes || undefined,
     datePublished: new Date(post.date).toISOString(),
     dateModified: new Date(postDisplayDate).toISOString(),
     mainEntityOfPage: {
@@ -50,9 +54,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
       >
         <header className="mb-6 space-y-2">
           <h1 className="text-3xl font-bold tracking-tight">{post.title}</h1>
-          {post.description ? (
-            <p className="text-muted-foreground">{post.description}</p>
-          ) : null}
+          {post.description ? <p className="text-muted-foreground">{post.description}</p> : null}
           <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
             <p>
               {post.updated ? "Updated " : ""}
@@ -60,10 +62,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
             </p>
           </div>
         </header>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         <section
           id="article-content"
           className="relative prose-sm sm:prose-base prose-headings:scroll-mt-24 prose-pre:rounded-lg dark:prose-invert"
@@ -74,7 +73,9 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         >
           <MDXContent code={post.code} components={mdxComponents} />
         </section>
-        {/* Initialize client-side Mermaid rendering for pre.mermaid placeholders */}
+        {strategyRecord ? (
+          <ArticleNextSteps current={strategyRecord} related={getRelatedContent(strategyRecord)} />
+        ) : null}
         <MermaidInit />
         <MermaidTooltips />
       </article>
@@ -85,12 +86,13 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const post = getVisiblePostBySlug(slug)
+  const strategyRecord = getContentInventoryBySlug(slug)
   if (!post) return {}
   const ogImage = post.image || site.defaultOgImage
   const postDisplayDate = getPostEffectiveDate(post)
   return {
     title: post.title,
-    description: post.description,
+    description: post.description || strategyRecord?.notes,
     alternates: {
       canonical: `/blog/${post.slug}`,
     },
@@ -98,7 +100,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       type: "article",
       url: `/blog/${post.slug}`,
       title: post.title,
-      description: post.description || site.description,
+      description: post.description || strategyRecord?.notes || site.description,
       publishedTime: new Date(post.date).toISOString(),
       modifiedTime: new Date(postDisplayDate).toISOString(),
       authors: [site.name],
@@ -108,7 +110,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     twitter: {
       card: "summary_large_image",
       title: post.title,
-      description: post.description || site.description,
+      description: post.description || strategyRecord?.notes || site.description,
       images: [ogImage],
     },
   }

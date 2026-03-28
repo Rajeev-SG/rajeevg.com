@@ -1,18 +1,24 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 
+import { ContentLinkCard } from "@/components/content-ops/content-link-card"
 import { ProjectCard } from "@/components/project-card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { site } from "@/lib/site"
+import { getContentOpsData } from "@/lib/content-ops/data"
 import { getPortfolioProjects } from "@/lib/portfolio-projects"
+import { site } from "@/lib/site"
 
 export const revalidate = 3600
 
-export default function ProjectsPage() {
+export default async function ProjectsPage() {
   const projects = getPortfolioProjects()
   const categories = Array.from(new Set(projects.map((project) => project.category))).sort()
+  const contentOps = await getContentOpsData()
+  const proofLinks = contentOps.inventory
+    .filter((record) => record.kind === "hub" || record.pageClass.includes("Proof"))
+    .slice(0, 4)
 
   return (
     <section
@@ -26,17 +32,13 @@ export default function ProjectsPage() {
       data-analytics-page-project-categories={categories.join("|")}
     >
       <div className="space-y-4" data-analytics-section="projects_intro" data-analytics-item-type="page_intro">
-        <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground">
-          Portfolio
-        </p>
+        <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground">Portfolio</p>
         <div className="space-y-3">
           <h1 className="max-w-3xl text-3xl font-bold tracking-tight sm:text-4xl">
             Public projects with real repos and real live URLs
           </h1>
           <p className="max-w-3xl text-base text-muted-foreground sm:text-lg">
-            I wanted this to read more like a working index than a polished gallery. Everything
-            here links to a public GitHub repo and a live public URL, so you can inspect the code
-            and the product instead of taking my word for it.
+            I wanted this to read more like a working index than a polished gallery. Everything here links to a public GitHub repo and a live public URL, so you can inspect the code and the product instead of taking my word for it.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -50,13 +52,10 @@ export default function ProjectsPage() {
         <Card className="overflow-hidden border-border/70 bg-linear-to-br from-background via-background to-sky-500/5">
           <CardHeader className="gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-                Reporting route
-              </p>
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">Reporting route</p>
               <CardTitle className="text-2xl sm:text-3xl">Main site analytics dashboard</CardTitle>
               <CardDescription className="max-w-3xl text-sm leading-6 sm:text-base">
-                The live GA4 dashboard for <code>rajeevg.com</code>, filtered to the main hostname
-                and stream so blog pages, project routes, and custom site events stay readable.
+                The live GA4 dashboard for <code>rajeevg.com</code>, filtered to the main hostname and stream so blog pages, project routes, and custom site events stay readable.
               </CardDescription>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -64,9 +63,7 @@ export default function ProjectsPage() {
                 <Link href="/projects/site-analytics">Open main site dashboard</Link>
               </Button>
               <Button asChild variant="outline">
-                <Link href="/blog/how-we-finished-the-ga4-property-setup-on-rajeevg-com">
-                  Read GA4 buildout
-                </Link>
+                <Link href="/blog/how-we-finished-the-ga4-property-setup-on-rajeevg-com">Read GA4 buildout</Link>
               </Button>
             </div>
           </CardHeader>
@@ -82,16 +79,10 @@ export default function ProjectsPage() {
         <Card className="overflow-hidden border-border/70 bg-linear-to-br from-background via-background to-muted/40">
           <CardHeader className="gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-                Reporting route
-              </p>
-              <CardTitle className="text-2xl sm:text-3xl">
-                Hackathon voting analytics dashboard
-              </CardTitle>
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">Reporting route</p>
+              <CardTitle className="text-2xl sm:text-3xl">Hackathon voting analytics dashboard</CardTitle>
               <CardDescription className="max-w-3xl text-sm leading-6 sm:text-base">
-                A dedicated reporting surface for the voting app, built to replace the muddy Looker
-                Studio artifact with a cleaner BigQuery-backed dashboard and a fully reviewable dummy
-                preview mode.
+                A dedicated reporting surface for the voting app, built to replace the muddy Looker Studio artifact with a cleaner BigQuery-backed dashboard and a fully reviewable dummy preview mode.
               </CardDescription>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -118,6 +109,21 @@ export default function ProjectsPage() {
           <ProjectCard key={project.slug} project={project} />
         ))}
       </div>
+
+      <section className="space-y-4">
+        <div className="space-y-2">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">Strategic context</p>
+          <h2 className="text-2xl font-semibold tracking-tight">How these projects connect back into the content system</h2>
+          <p className="max-w-3xl text-muted-foreground">
+            The projects page now feeds the same graph as the blog and dashboards. Readers can move from a shipped system into the proof write-up, the analytics explanation, or the broader hub that explains why the project matters.
+          </p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {proofLinks.map((record) => (
+            <ContentLinkCard key={record.id} record={record} />
+          ))}
+        </div>
+      </section>
     </section>
   )
 }

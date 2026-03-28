@@ -1,52 +1,22 @@
-import { AppSidebar } from "@/components/app-sidebar"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { Separator } from "@/components/ui/separator"
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar"
+import { ContentOpsDashboard } from "@/components/content-ops/content-ops-dashboard"
+import { getContentOpsData } from "@/lib/content-ops/data"
 
-export default function Page() {
+export default async function DashboardPage() {
+  const data = await getContentOpsData()
+
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b">
-          <div className="flex items-center gap-2 px-3">
-            <SidebarTrigger />
-            <Separator orientation="vertical" className="mr-2 h-4" />
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#">
-                    Building Your Application
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Data Fetching</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-          </div>
-        </header>
-        <div className="flex flex-1 flex-col gap-4 p-4">
-          <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-            <div className="bg-muted/50 aspect-video rounded-xl" />
-            <div className="bg-muted/50 aspect-video rounded-xl" />
-            <div className="bg-muted/50 aspect-video rounded-xl" />
-          </div>
-          <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+    <section className="space-y-6">
+      <div className="space-y-2">
+        <p className="text-sm uppercase tracking-[0.22em] text-muted-foreground">Content operations</p>
+        <h1 className="text-3xl font-semibold tracking-tight">Workbook-backed content OS</h1>
+        <p className="max-w-3xl text-muted-foreground">
+          The spreadsheet is now the strategy seed, not the working surface. This dashboard mirrors each tab, adds
+          workflow state, research packs, editor access, and queues the next content opportunities derived from the
+          current site.
+        </p>
+      </div>
+
+      <ContentOpsDashboard tabs={data.tabs} summary={data.summary} providerOptions={data.providerOptions} />
+    </section>
   )
 }

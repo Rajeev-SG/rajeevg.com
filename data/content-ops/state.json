@@ -1,0 +1,26 @@
+{
+  "workflow": {
+    "E01": "live",
+    "E02": "live",
+    "E03": "live",
+    "E04": "live",
+    "E05": "live",
+    "E06": "live",
+    "E07": "live",
+    "H01": "approved",
+    "H02": "approved",
+    "H03": "approved",
+    "H04": "approved",
+    "G01": "approved",
+    "G02": "approved",
+    "G03": "approved",
+    "D01": "queued",
+    "D02": "queued",
+    "D03": "queued",
+    "D04": "queued",
+    "D05": "queued"
+  },
+  "derived": {},
+  "researchPacks": {},
+  "drafts": {}
+}

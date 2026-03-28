@@ -16,6 +16,9 @@ export type BlogListItem = {
   tags: string[]
   description?: string
   excerpt?: string
+  pageClass?: string
+  pillar?: string
+  cluster?: string
 }
 
 export function BlogIndexClient({
@@ -175,6 +178,10 @@ export function BlogIndexClient({
                 {post.description}
               </p>
             )}
+            <div className="mt-2 flex flex-wrap gap-2">
+              {post.pageClass ? <Badge variant="secondary">{post.pageClass}</Badge> : null}
+              {post.pillar ? <Badge variant="outline">{post.pillar}</Badge> : null}
+            </div>
             <p className="text-xs text-muted-foreground mt-2">
               {post.updated ? "Updated " : ""}
               {new Date(post.displayDate).toLocaleDateString()}

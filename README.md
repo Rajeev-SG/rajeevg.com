@@ -1,6 +1,6 @@
 ## Project overview
 
-A performant blog using Next.js 15 (App Router + Turbopack), Tailwind CSS v4, shadcn/ui, and Velite as a typed content layer with syntax‑highlighted code blocks.
+A Next.js 15 content site and content-ops workspace built around repo-backed MDX, a strategy-driven content graph, analytics dashboards, and a lightweight in-app CMS. The public site stays reader-facing while `/dashboard` operates as the editorial system for classification, research, drafting, workflow, and approval.
 
 ## Tech stack (why + how)
 
@@ -42,22 +42,58 @@ A performant blog using Next.js 15 (App Router + Turbopack), Tailwind CSS v4, sh
 # Generate content outputs once (optional; dev/build also runs Velite automatically)
 pnpm content
 
+# Rebuild the workbook-backed content strategy seed after editing the XLSX
+python3 scripts/generate_content_ops_workbook.py
+
 # Start dev server (Turbopack) with Velite watching content
 pnpm dev
 ```
 
 Open http://localhost:3000 and visit:
 
-- `/` — homepage renders the most recent published blog post (theme toggle is in the header)
-- `/blog` — blog index
+- `/` — homepage organised around strategic hubs, flagship essays, proof assets, and latest writing
+- `/blog` — blog index organised around pillars, proof, and playbooks
+- `/ai`, `/analytics`, `/playbooks`, `/proof` — public strategy hubs
+- `/glossary` — concept-node index for the topic graph
 - `/projects` — portfolio page driven by checked-in public project metadata
 - `/projects/hackathon-voting-analytics` — hackathon voting analytics dashboard with ECharts, Observable Plot, live BigQuery mode, and dummy preview mode
 - `/projects/hackathon-voting-analytics/google-analytics` — hackathon-specific GA4 Data API surface, filtered to `vote.rajeevg.com`
 - `/projects/site-analytics` — GA4 content and instrumentation dashboard for the main site, with ECharts and Observable Plot renderers
-- `/blog/hello-world` — sample post kept as a local draft example with highlighted code + copy button
+- `/dashboard` — workbook-backed content OS with strategy tabs, workflow state, research, and row detail sheets
+- `/dashboard/editor/[id]` — dual-mode MDX editor with Tiptap rich mode and raw MDX mode
 
 You can edit the home page at `src/app/page.tsx`. Blog content lives in `content/posts/*`. Velite config is at `velite.config.ts`.
-Environment variables for the app should be placed under `web/.env.local`.
+Environment variables for the app should be placed in `.env.local`.
+
+## Content OS
+
+The strategic source of truth lives in:
+
+- [docs/content-strat.md](/Users/rajeev/Code/rajeevg.com/docs/content-strat.md)
+- [docs/ppSEO.md](/Users/rajeev/Code/rajeevg.com/docs/ppSEO.md)
+- [docs/rajeevg_master_content_matrix_system_view.xlsx](/Users/rajeev/Code/rajeevg.com/docs/rajeevg_master_content_matrix_system_view.xlsx)
+
+The workbook is imported into typed app data through `scripts/generate_content_ops_workbook.py`, which writes [src/data/content-ops/workbook.json](/Users/rajeev/Code/rajeevg.com/src/data/content-ops/workbook.json). Existing site content is then audited and classified in [src/lib/content-ops/content-audit.ts](/Users/rajeev/Code/rajeevg.com/src/lib/content-ops/content-audit.ts), where current posts, projects, dashboards, hubs, glossary nodes, and derived ideas are mapped into the shared content graph.
+
+Operational state is intentionally lightweight:
+
+- Published content stays in repo-backed MDX under [content/posts](/Users/rajeev/Code/rajeevg.com/content/posts)
+- Dashboard workflow state, research packs, derived flags, and draft metadata live in [data/content-ops/state.json](/Users/rajeev/Code/rajeevg.com/data/content-ops/state.json) by default
+- Production durability can switch to Postgres through `CONTENT_OPS_DATABASE_URL`
+- The in-app editor preserves existing MDX features by offering both a Tiptap mode for common authoring and a raw MDX mode for advanced blocks
+
+The dashboard mirrors the workbook tabs:
+
+- `Dashboard`
+- `Master_Matrix`
+- `Existing_Content`
+- `Title_Decisions`
+- `Topic_Graph`
+- `Programmatic`
+- `Interactive_Assets`
+- `Sources`
+
+For architecture, workflow, providers, analytics wiring, and validation details, see [docs/content-ops.md](/Users/rajeev/Code/rajeevg.com/docs/content-ops.md).
 
 ## Reporting routes
 
@@ -92,44 +128,50 @@ The earlier Looker Studio path is not the source of truth.
 
 ## Project structure
 
-All paths below are relative to `web/`.
+All paths below are relative to the repository root.
 
 ```text
-web/
- ├─ src/
- │  ├─ app/
- │  │  ├─ layout.tsx, globals.css, head.tsx, page.tsx, not-found.tsx, sitemap.ts
- │  │  ├─ about/page.tsx
- │  │  ├─ blog/ (page.tsx, [slug]/page.tsx)
- │  │  ├─ dashboard/page.tsx
- │  │  └─ projects/page.tsx
- │  ├─ components/
- │  │  ├─ app-sidebar.tsx, blog-index-client.tsx, hover-scroll-text.tsx, mdx-components.tsx, mdx-content.tsx, mdx-pre.tsx, reading-progress.tsx, tag-combobox.tsx, theme-provider.tsx, theme-toggle.tsx
- │  │  └─ ui/ (sidebar.tsx, breadcrumb.tsx, button.tsx, input.tsx, badge.tsx, popover.tsx, scroll-area.tsx, separator.tsx, sheet.tsx, table.tsx, tooltip.tsx, alert.tsx, progress.tsx, skeleton.tsx, card.tsx, avatar.tsx)
- │  ├─ hooks/use-mobile.ts
- │  └─ lib/ (site.ts, utils.ts)
- ├─ content/posts/ (Markdown posts, e.g. hello-world.md)
- ├─ public/ (svg icons, images; Velite outputs assets to public/static/)
- ├─ next.config.ts, velite.config.ts, tailwind.config.ts, postcss.config.mjs, tsconfig.json, components.json
- ├─ package.json
- └─ .gitignore
+.
+├─ src/
+│  ├─ app/
+│  │  ├─ page.tsx, blog/, projects/, dashboard/
+│  │  ├─ ai/, analytics/, playbooks/, proof/, glossary/
+│  │  └─ api/content-ops/
+│  ├─ components/
+│  │  ├─ content-ops/
+│  │  ├─ blog-index-client.tsx, app-sidebar.tsx, mdx-*.tsx
+│  │  └─ ui/ (shadcn/ui primitives)
+│  ├─ data/content-ops/workbook.json
+│  └─ lib/
+│     ├─ content-ops/
+│     ├─ posts.ts, site.ts, portfolio-projects.ts
+│     └─ analytics/reporting helpers
+├─ content/posts/ (published and draft MD/MDX content)
+├─ data/content-ops/state.json
+├─ docs/
+├─ scripts/generate_content_ops_workbook.py
+├─ public/
+└─ config files
 ```
 
 - `src/app/` — App Router (pages, layouts, global styles)
   - `layout.tsx` — Root layout. Wraps app with `ThemeProvider`, `SidebarProvider`, renders `AppSidebar`, `SidebarInset`, a compact header with `SidebarTrigger` and `ThemeToggle`, plus a low-profile footer with privacy links and a reopen settings action. Mounts Google Tag Manager via `<GoogleTagManager />` when `NEXT_PUBLIC_GTM_ID` is present.
   - `globals.css` — Tailwind v4 setup with design tokens, class-based dark variant, and Shiki dual-theme base CSS (maps `--shiki-light/dark` tokens and styles the copy button).
-  - `page.tsx` — Homepage. Renders the most recent post inline using the article layout (ReadingProgress + MDX components).
+  - `page.tsx` — Homepage. Presents the site as a content graph with hub entry points, flagship essays, proof assets, and latest writing.
   - `not-found.tsx` — Global 404 boundary required when routes call `notFound()`.
   - `head.tsx` — Preconnect/dns‑prefetch GTM/GA endpoints for faster analytics.
-  - `sitemap.ts` — Dynamic sitemap including home, about, blog index, and all published posts with `lastModified`.
+  - `sitemap.ts` — Dynamic sitemap including home, hub routes, glossary routes, blog index, and all published posts with `lastModified`.
   - `public/robots.txt` — Static robots policy allowing all; sets canonical `Host` and `Sitemap` URLs.
   - `about/page.tsx` — About page with a profile image, focus areas, current projects, and contact links.
   - `projects/page.tsx` — Portfolio route for public projects with verified GitHub repos and live URLs.
   - `privacy/page.tsx` — Privacy policy route for consent, analytics, cookies, processors, and contact details.
+  - `ai/page.tsx`, `analytics/page.tsx`, `playbooks/page.tsx`, `proof/page.tsx` — public strategy hubs derived from the strategy system.
+  - `glossary/page.tsx`, `glossary/[slug]/page.tsx` — topic-graph glossary index and node pages.
   - `blog/`
-    - `page.tsx` — Blog index server component. Gathers posts from `#velite` and renders the client UI via `BlogIndexClient`.
-    - `[slug]/page.tsx` — Article page. Looks up a post by slug, renders title/description/date and HTML content from Velite. Next 15 uses Promise-based route params, so both the page and `generateMetadata` accept `{ params: Promise<{ slug: string }> }` and `await` it. Uses Tailwind `prose` with dual-theme Shiki CSS.
-  - `dashboard/page.tsx` — Sample route demonstrating sidebar primitives (breadcrumbs, header, content grid).
+    - `page.tsx` — Blog index server component. Organises posts into flagships, playbooks, and the archive while still preserving current post URLs.
+    - `[slug]/page.tsx` — Article page. Looks up a post by slug, renders title/description/date and HTML content from Velite, and adds next-step graph modules into related hubs, proof, and glossary content.
+  - `dashboard/page.tsx` — Content operations dashboard using shadcn blocks and TanStack Table.
+  - `dashboard/editor/[id]/page.tsx` — Asset editor that loads repo-backed MDX or a queued idea starter.
 
  - `src/components/` — Reusable components
   - `app-sidebar.tsx` — Application sidebar built on shadcn/ui sidebar primitives. Renders core site links and a dynamic “Posts” section from `#velite`, while keeping “Projects” as a single page-level destination instead of a nested project list.
@@ -151,9 +193,10 @@ web/
   - `use-mobile.ts` — `useIsMobile()` hook returning a boolean based on a 768px breakpoint.
 
 - `src/lib/`
-  - `site.ts` — Site-wide constants (`name`, `description`, `siteUrl`, `defaultOgImage`, `homeCanonicalStrategy`).
+ - `site.ts` — Site-wide constants (`name`, `description`, `siteUrl`, `defaultOgImage`, `homeCanonicalStrategy`).
   - `posts.ts` — Shared helpers for visible post filtering, effective updated-or-published dates, and post ordering.
   - `portfolio-projects.ts` — Checked-in public project metadata, including audited screenshot paths and alt text, used by the portfolio route and related MDX content.
+  - `content-ops/` — content inventory, workbook integration, workflow state adapters, research providers, editor persistence, and optional Search Console sync.
   - `utils.ts` — `cn(...classValues)` utility combining `clsx` with `tailwind-merge`.
 
 - `content/` — Source Markdown content
@@ -372,7 +415,7 @@ web/
   - [`src/components/analytics-data-layer.tsx`](/Users/rajeev/Code/rajeevg.com/src/components/analytics-data-layer.tsx) adds page context, scroll depth, article progress, engaged-time milestones, section views, click metadata, and page engagement summary pushes.
   - [`src/components/consent-manager.tsx`](/Users/rajeev/Code/rajeevg.com/src/components/consent-manager.tsx) persists the visitor choice, updates Google Consent Mode, exposes reopenable privacy controls, gates Vercel Analytics, and emits consent events into the shared `dataLayer`.
   - [`src/app/privacy/page.tsx`](/Users/rajeev/Code/rajeevg.com/src/app/privacy/page.tsx) provides the public privacy policy linked from the consent banner, footer, and article header.
-  - The current live stack uses web container `GTM-K2VRQS47`, server container `GTM-W4GKTR3H`, measurement ID `G-675W3V0C78`, and BigQuery dataset `personal-gws-1:ga4_498363924`.
+  - The current live stack uses web container `GTM-K2VRQS47`, server container `GTM-W4GKTR3H`, measurement ID `G-675W3V0C78`, and raw BigQuery export dataset `personal-gws-1:analytics_498363924`.
 
 - **Automatically attached dimensions**:
   - Every event now includes shared runtime context such as `browser_session_id`, `page_view_id`, `page_view_sequence`, viewport and screen size, device pixel ratio, language, timezone, theme, color scheme, and reduced-motion preference.

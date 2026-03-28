@@ -35,6 +35,11 @@ const data = {
       url: "/",
       items: [
         { title: "About", url: "/about" },
+        { title: "AI hub", url: "/ai" },
+        { title: "Analytics hub", url: "/analytics" },
+        { title: "Playbooks", url: "/playbooks" },
+        { title: "Proof", url: "/proof" },
+        { title: "Glossary", url: "/glossary" },
       ],
     },
     {
@@ -51,6 +56,13 @@ const data = {
       url: "/blog",
       items: postsList,
     },
+    {
+      title: "Content OS",
+      url: "/dashboard",
+      items: [
+        { title: "Dashboard", url: "/dashboard" },
+      ],
+    },
   ],
 }
 
@@ -66,6 +78,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       if (url === "/") return pathname === "/"
       if (url === "/projects") return pathname.startsWith("/projects")
       if (url === "/blog") return pathname.startsWith("/blog")
+      if (url === "/dashboard") return pathname.startsWith("/dashboard")
       return pathname === url
     },
     [pathname]
