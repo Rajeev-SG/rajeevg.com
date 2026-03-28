@@ -35,7 +35,9 @@ export function TiptapEditor({ value, onChange, placeholder }: TiptapEditorProps
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        link: false,
+      }),
       Link.configure({ openOnClick: false }),
       Placeholder.configure({ placeholder: placeholder || "Start writing…" }),
       Table.configure({ resizable: true }),
