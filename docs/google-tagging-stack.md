@@ -16,7 +16,7 @@ Last updated: 2026-03-25
 - Live sGTM service: `https://sgtm-live-6tmqixdp3a-nw.a.run.app`
 - Preview sGTM service: `https://sgtm-preview-6tmqixdp3a-nw.a.run.app`
 - GCP project: `personal-gws-1`
-- BigQuery dataset: `personal-gws-1:ga4_498363924`
+- BigQuery dataset: `personal-gws-1:analytics_498363924`
 - Dedicated MCP service account: `ga4-mcp@personal-gws-1.iam.gserviceaccount.com`
 - Hackathon warehouse-aware reporting route: `https://rajeevg.com/projects/hackathon-voting-analytics`
 - Hackathon GA4 API surface: `https://rajeevg.com/projects/hackathon-voting-analytics/google-analytics`
@@ -80,9 +80,10 @@ Last updated: 2026-03-25
     - `properties/498363924/dataStreams/11542983613`
     - `properties/498363924/dataStreams/14214480224`
   - excluded events: none returned by the live Admin API response
-- The BigQuery dataset `ga4_498363924` exists in `personal-gws-1`.
+- The BigQuery dataset `analytics_498363924` exists in `personal-gws-1`.
 - Project billing is enabled on `personal-gws-1`.
-- The export link is attached to the live web stream, but as of 2026-03-25 no `events_*` or `events_intraday_*` tables had landed yet. The route-level reconciliation proof now confirms that this lag is real rather than a dashboard-query bug, because direct GA4 report queries return hackathon rows while raw export still has zero landed tables.
+- The export link is attached to the live web stream and lands raw `events_*`, `events_intraday_*`, and `pseudonymous_users_*` tables in `analytics_498363924`.
+- Earlier dashboard and warehouse checks were wrong because they were pointed at `ga4_498363924`, a different empty dataset that is not the active GA4 export target.
 
 ### GTM and consent
 
@@ -209,21 +210,21 @@ Last updated: 2026-03-25
 
 ### BigQuery landing data
 
-- Setup is complete, service-account access is fixed, and the dashboard can now report the discrepancy honestly.
+- Setup is complete, service-account access is fixed, and the dashboard now reads the live reporting warehouse.
 - The BigQuery link exists and is correctly attached to the live web stream.
 - The dedicated reporting dataset for the hackathon dashboard is `personal-gws-1:hackathon_reporting`.
-- On 2026-03-25, the reporting tables still had zero rows:
-  - `auth_funnel_daily`
-  - `daily_overview`
-  - `entry_performance`
-  - `event_breakdown`
-  - `experience_overview_daily`
-  - `manager_operations_daily`
-  - `round_snapshots`
-  - `voting_funnel_daily`
-- The raw export dataset `personal-gws-1:ga4_498363924` also still had `0` landed tables.
-- Because of that, the BigQuery route now uses a GA4-derived modeled fallback instead of pretending the warehouse has landed data.
- - Because of that, the BigQuery route now stays warehouse-only in live mode and exposes the warehouse evidence directly instead of showing GA4-derived summary metrics there.
+- The raw export dataset `personal-gws-1:analytics_498363924` contains the live GA4 export tables.
+- The modeled warehouse was empty until the refresh procedure and raw-status checks were repointed from `ga4_498363924` to the real export dataset.
+- After the fix on 2026-03-28, `hackathon_reporting` contained `647` modeled rows:
+  - `auth_funnel_daily`: `10`
+  - `daily_overview`: `5`
+  - `entry_performance`: `33`
+  - `event_breakdown`: `328`
+  - `experience_overview_daily`: `98`
+  - `manager_operations_daily`: `4`
+  - `round_snapshots`: `5`
+  - `voting_funnel_daily`: `164`
+- The BigQuery route now stays warehouse-only in live mode and exposes the warehouse evidence directly instead of showing GA4-derived summary metrics there.
 
 ### Hackathon reporting route
 

@@ -4,6 +4,7 @@ import { unstable_noStore as noStore } from "next/cache"
 
 import {
   MODELED_TABLES,
+  getHackathonRawExportDatasetId,
   getModeledTableRowCounts,
   getRawExportTableCount,
   hackathonDatasetPath,
@@ -57,6 +58,7 @@ export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalytics
       getRawExportTableCount(getHackathonPropertyId()),
       getHackathonVoteTruth(),
     ])
+    const rawExportDatasetId = getHackathonRawExportDatasetId(getHackathonPropertyId())
     const eventDay = getHackathonEventDay(voteTruthResult.summary)
     const eventDateClause = whereEventDate(eventDay?.isoDate ?? null)
 
@@ -242,7 +244,7 @@ export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalytics
         hasLiveRows,
         notes: [
           `Live mode is reading directly from the dedicated hackathon_reporting dataset in BigQuery, scoped to ${eventDay?.label ?? "the live event day"}.`,
-          `Warehouse reconciliation: ${modeledRowCount} rows are currently landed across ${MODELED_TABLES.length} modeled tables, while the raw export dataset ga4_${getHackathonPropertyId()} has ${rawExportTableCount} landed tables.`,
+          `Warehouse reconciliation: ${modeledRowCount} rows are currently landed across ${MODELED_TABLES.length} modeled tables, while the raw export dataset ${rawExportDatasetId} has ${rawExportTableCount} landed tables.`,
           "This route never reads the main rajeevg.com page analytics tables, which avoids the mixed-data problem from the old Looker shell.",
           ...(voteTruthResult.summary
             ? [
@@ -263,7 +265,7 @@ export async function getHackathonAnalyticsDataset(): Promise<HackathonAnalytics
       hasLiveRows: false,
       notes: [
         "BigQuery modeled tables are still empty, so this route is currently showing warehouse status only.",
-        `Warehouse reconciliation: 0 rows are landed across ${MODELED_TABLES.length} modeled tables, and the raw export dataset ga4_${getHackathonPropertyId()} currently has ${rawExportTableCount} landed tables.`,
+        `Warehouse reconciliation: 0 rows are landed across ${MODELED_TABLES.length} modeled tables, and the raw export dataset ${rawExportDatasetId} currently has ${rawExportTableCount} landed tables.`,
         "No GA4-derived fallback metrics are rendered on this route anymore, so the BigQuery page stays strictly warehouse-scoped.",
       ],
       voteTruth: voteTruthResult.summary,

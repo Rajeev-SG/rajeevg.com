@@ -514,9 +514,9 @@ export function HackathonAnalyticsDashboard({ live, dummy, status }: DashboardPr
         {
           label: "Raw GA4 export tables",
           value: formatCount(status.rawExportTableCount),
-          detail: "How many raw GA4 export tables currently exist in ga4_498363924.",
+          detail: "How many raw GA4 export tables currently exist in analytics_498363924.",
           icon: <RadioTower className="size-4" />,
-          tooltip: "How many raw GA4 export tables exist in ga4_498363924 right now.",
+          tooltip: "How many raw GA4 export tables exist in analytics_498363924 right now.",
         },
         {
           label: "Daily BigQuery export",
@@ -584,7 +584,7 @@ export function HackathonAnalyticsDashboard({ live, dummy, status }: DashboardPr
     },
     {
       label: "Raw GA4 export tables",
-      meaning: "How many raw GA4 export tables currently exist in the ga4_498363924 dataset.",
+      meaning: "How many raw GA4 export tables currently exist in the analytics_498363924 dataset.",
       interpretation: "If this is zero, the break is upstream of modeling and the raw export has not landed at all.",
     },
     {

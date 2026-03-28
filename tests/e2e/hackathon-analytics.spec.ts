@@ -37,11 +37,15 @@ test.describe("hackathon analytics dashboard", () => {
     await expect(page.getByRole("link", { name: "GA4 property", exact: true })).toHaveCount(0)
     await expect(page.getByText("Metric and field definitions")).toBeVisible()
     await expect(page.getByText("What this page includes")).toBeVisible()
-    await expect(page.getByRole("heading", { name: "Warehouse status" })).toBeVisible()
+    await expect(
+      page
+        .getByRole("heading", { name: "Daily volume" })
+        .or(page.getByRole("heading", { name: "Warehouse status" })),
+    ).toBeVisible()
 
     await page.getByText("What this page includes", { exact: true }).click()
     await expect(
-      page.getByText(/No GA4-derived fallback metrics are rendered on this route anymore/i).first(),
+      page.getByText(/No GA4-derived fallback metrics are rendered on this route anymore|Live mode is reading directly from the dedicated hackathon_reporting dataset/i).first(),
     ).toBeVisible()
     await page.getByText("What this page includes", { exact: true }).click()
 
@@ -91,7 +95,11 @@ test.describe("hackathon analytics dashboard", () => {
           /Live mode is reading directly from the dedicated hackathon_reporting dataset|BigQuery modeled tables are still empty, so this route is currently showing warehouse status only|Live mode could not reach the reporting dataset from this runtime/i,
         ).first(),
       ).toBeVisible()
-      await expect(page.getByRole("heading", { name: "Warehouse status" })).toBeVisible()
+      await expect(
+        page
+          .getByRole("heading", { name: "Daily volume" })
+          .or(page.getByRole("heading", { name: "Warehouse status" })),
+      ).toBeVisible()
     } else {
       await expect(liveButton).toBeDisabled()
     }

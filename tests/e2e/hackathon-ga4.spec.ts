@@ -42,11 +42,6 @@ test.describe("hackathon ga4 reporting surface", () => {
     await expect(page.getByText("Round snapshot surface")).toHaveCount(0)
     await expect(page.getByText("Manager operations")).toHaveCount(0)
 
-    const liveNote = page.getByText(
-      /Live mode is reading directly from the shared GA4 property|The GA4 property is reachable, but no hackathon-host rows were returned|Live GA mode could not complete the report request/i,
-    ).first()
-    await expect(liveNote).toBeVisible()
-
     await expect(
       page.getByText(/tracked page loads carried a granted analytics state and .* carried a denied analytics state|known granted-versus-denied page_context rows are not available yet/i).first(),
     ).toBeVisible()
@@ -62,8 +57,16 @@ test.describe("hackathon ga4 reporting surface", () => {
     await expect(page.getByText("Votes saved by the voting app itself. This is the source-of-truth total.")).toBeVisible()
 
     await page.getByText("What this page includes", { exact: true }).click()
+    const liveNote = page
+      .locator("li:visible")
+      .filter({
+        hasText:
+          /Live mode is reading directly from the shared GA4 property|The GA4 property is reachable, but no hackathon-host rows were returned|Live GA mode could not complete the report request/i,
+      })
+      .first()
+    await expect(liveNote).toBeVisible()
     await expect(
-      page.getByText(/archived 25 March 2026 hackathon snapshot/i).first(),
+      page.getByText(/archived 25 March 2026 hackathon snapshot|Source of truth: the hackathon snapshot reports/i).first(),
     ).toBeVisible()
     await expect(
       page.getByText(/297 persisted votes across 9 entries and 37 judges/i).first(),

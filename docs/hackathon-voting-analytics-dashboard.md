@@ -93,13 +93,13 @@ Fresh admin-side evidence on 2026-03-25 confirmed the following for GA4 property
 
 Fresh BigQuery checks at the same time showed:
 
-- raw export dataset `personal-gws-1:ga4_498363924`
-  - landed table count: `0`
+- raw export dataset `personal-gws-1:analytics_498363924`
+  - landed table count: active `events_*`, `events_intraday_*`, and `pseudonymous_users_*` tables are present
 - modeled dataset `personal-gws-1:hackathon_reporting`
   - landed tables: `8`
   - total landed modeled rows: `0`
 
-That means the export failure is not in the dashboard query logic and not in the modeled warehouse SQL. GA4 collection is live, the BigQuery link exists, daily export is enabled, streaming export is enabled, and both streams are selected, but no raw export tables have landed.
+That means the export path itself is live. The real break was that the dashboard and warehouse SQL were querying `ga4_498363924`, while Google was exporting into `analytics_498363924`.
 
 ## Event-day truth and telemetry
 

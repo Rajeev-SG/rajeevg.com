@@ -39,6 +39,10 @@ export function getHackathonBigQueryDatasetId() {
   return cleanEnvValue(process.env.BIGQUERY_DATASET_ID) || DEFAULT_DATASET_ID
 }
 
+export function getHackathonRawExportDatasetId(propertyId: string) {
+  return `analytics_${propertyId}`
+}
+
 export function getHackathonBigQueryClient() {
   const projectId = getHackathonBigQueryProjectId()
   const inlineCredentials =
@@ -93,6 +97,6 @@ export async function getModeledTableRowCounts() {
 
 export async function getRawExportTableCount(propertyId: string) {
   const client = getHackathonBigQueryClient()
-  const [tables] = await client.dataset(`ga4_${propertyId}`).getTables()
+  const [tables] = await client.dataset(getHackathonRawExportDatasetId(propertyId)).getTables()
   return tables.length
 }

@@ -231,8 +231,11 @@ test.describe("projects dashboard audit", () => {
         )
         await captureViewport(
           page,
-          `hackathon-bigquery-${viewport.key}-warehouse-status`,
-          page.getByRole("heading", { name: "Warehouse status" }).first(),
+          `hackathon-bigquery-${viewport.key}-primary-surface`,
+          page
+            .getByRole("heading", { name: "Daily volume" })
+            .or(page.getByRole("heading", { name: "Warehouse status" }))
+            .first(),
         )
 
         await page.getByRole("button", { name: "Dummy preview" }).click()
