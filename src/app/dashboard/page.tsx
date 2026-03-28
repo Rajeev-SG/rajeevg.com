@@ -16,7 +16,12 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      <ContentOpsDashboard tabs={data.tabs} summary={data.summary} providerOptions={data.providerOptions} />
+      <ContentOpsDashboard
+        tabs={data.tabs}
+        summary={data.summary}
+        providerOptions={data.providerOptions}
+        capabilities={data.capabilities}
+      />
     </section>
   )
 }

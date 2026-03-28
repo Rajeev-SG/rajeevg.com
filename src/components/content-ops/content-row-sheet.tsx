@@ -15,7 +15,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import type { ContentOpsRow, ResearchPack } from "@/lib/content-ops/types"
+import type { ContentOpsCapabilities, ContentOpsRow, ResearchPack } from "@/lib/content-ops/types"
 
 type ProviderOption = {
   provider: "fallback" | "brave" | "openrouter" | "minimax"
@@ -26,6 +26,7 @@ type ProviderOption = {
 type ContentRowSheetProps = {
   row: ContentOpsRow
   providerOptions: ProviderOption[]
+  capabilities: ContentOpsCapabilities
 }
 
 function TimelineBadge({ label, active }: { label: string; active: boolean }) {
@@ -39,7 +40,7 @@ function TimelineBadge({ label, active }: { label: string; active: boolean }) {
   )
 }
 
-export function ContentRowSheet({ row, providerOptions }: ContentRowSheetProps) {
+export function ContentRowSheet({ row, providerOptions, capabilities }: ContentRowSheetProps) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [pack, setPack] = useState<ResearchPack | null>(null)
@@ -47,7 +48,7 @@ export function ContentRowSheet({ row, providerOptions }: ContentRowSheetProps) 
     "fallback" | "brave" | "openrouter" | "minimax"
   >("fallback")
   const [pending, startTransition] = useTransition()
-  const canMutate = row.sourceType !== "workbook"
+  const canMutate = row.sourceType !== "workbook" && capabilities.workflowWritesEnabled
 
   const timeline = useMemo(
     () => [
@@ -247,6 +248,10 @@ export function ContentRowSheet({ row, providerOptions }: ContentRowSheetProps) 
                   </Button>
                 ))}
               </div>
+            </div>
+          ) : row.sourceType !== "workbook" && capabilities.reason ? (
+            <div className="rounded-xl border border-amber-500/40 bg-amber-500/5 p-4 text-sm text-muted-foreground">
+              {capabilities.reason}
             </div>
           ) : null}
 

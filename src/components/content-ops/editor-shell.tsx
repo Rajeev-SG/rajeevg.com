@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
-import type { ContentInventoryRecord, ResearchPack } from "@/lib/content-ops/types"
+import type { ContentInventoryRecord, ContentOpsCapabilities, ResearchPack } from "@/lib/content-ops/types"
 
 type EditorShellProps = {
   asset: ContentInventoryRecord
@@ -21,6 +21,8 @@ type EditorShellProps = {
   richModeSafe: boolean
   unsupportedPatterns: string[]
   researchPack: ResearchPack | null
+  capabilities: ContentOpsCapabilities
+  sourceAccessNote: string | null
 }
 
 function normalizeTags(value: string | string[] | undefined) {
@@ -40,6 +42,8 @@ export function EditorShell({
   richModeSafe,
   unsupportedPatterns,
   researchPack,
+  capabilities,
+  sourceAccessNote,
 }: EditorShellProps) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
@@ -189,15 +193,39 @@ export function EditorShell({
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button className="w-full justify-start" onClick={saveDraft} disabled={pending}>
+            {sourceAccessNote ? (
+              <div className="rounded-xl border border-amber-500/40 bg-amber-500/5 p-3 text-sm text-muted-foreground">
+                {sourceAccessNote}
+              </div>
+            ) : null}
+            {capabilities.reason ? (
+              <div className="rounded-xl border border-amber-500/40 bg-amber-500/5 p-3 text-sm text-muted-foreground">
+                {capabilities.reason}
+              </div>
+            ) : null}
+            <Button
+              className="w-full justify-start"
+              onClick={saveDraft}
+              disabled={pending || !capabilities.draftFileEditingEnabled}
+            >
               <Save className="mr-2 size-4" />
               Save draft
             </Button>
-            <Button className="w-full justify-start" variant="outline" onClick={requestResearch} disabled={pending}>
+            <Button
+              className="w-full justify-start"
+              variant="outline"
+              onClick={requestResearch}
+              disabled={pending || !capabilities.workflowWritesEnabled}
+            >
               <Sparkles className="mr-2 size-4" />
               Request SEO suggestions
             </Button>
-            <Button className="w-full justify-start" variant="outline" onClick={markApproved} disabled={pending}>
+            <Button
+              className="w-full justify-start"
+              variant="outline"
+              onClick={markApproved}
+              disabled={pending || !capabilities.workflowWritesEnabled}
+            >
               <ShieldCheck className="mr-2 size-4" />
               Approve publication
             </Button>

@@ -27,16 +27,22 @@ export default async function ContentEditorPage({ params }: { params: Promise<{ 
   let initialBody = buildStarterBody(detail.asset.title, detail.asset.notes, detail.asset.nextSteps)
   let richModeSafe = true
   let unsupportedPatterns: string[] = []
+  let sourceAccessNote: string | null = null
 
   const editablePath = detail.asset.sourcePath || detail.draft?.path
 
   if (editablePath) {
-    const document = await loadEditorDocument(editablePath)
-    sourcePath = editablePath
-    initialFrontmatter = document.frontmatter
-    initialBody = document.body
-    richModeSafe = document.richModeSafe
-    unsupportedPatterns = document.unsupportedPatterns
+    try {
+      const document = await loadEditorDocument(editablePath)
+      sourcePath = editablePath
+      initialFrontmatter = document.frontmatter
+      initialBody = document.body
+      richModeSafe = document.richModeSafe
+      unsupportedPatterns = document.unsupportedPatterns
+    } catch {
+      sourceAccessNote =
+        "This hosted environment can render the editor UI, but the raw MDX source file is not bundled for direct filesystem editing here. Preview opens with a safe starter draft instead."
+    }
   }
 
   return (
@@ -57,6 +63,8 @@ export default async function ContentEditorPage({ params }: { params: Promise<{ 
         richModeSafe={richModeSafe}
         unsupportedPatterns={unsupportedPatterns}
         researchPack={detail.researchPack}
+        capabilities={detail.capabilities}
+        sourceAccessNote={sourceAccessNote}
       />
     </section>
   )

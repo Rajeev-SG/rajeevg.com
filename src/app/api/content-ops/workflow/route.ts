@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 
-import { markAssetDerived, saveAssetWorkflow } from "@/lib/content-ops/data"
+import { getContentOpsCapabilities, markAssetDerived, saveAssetWorkflow } from "@/lib/content-ops/data"
 import type { ContentWorkflowStatus } from "@/lib/content-ops/types"
 
 export async function POST(request: Request) {
@@ -12,6 +12,11 @@ export async function POST(request: Request) {
 
   if (!body.assetId) {
     return NextResponse.json({ error: "assetId is required" }, { status: 400 })
+  }
+
+  const capabilities = getContentOpsCapabilities()
+  if (!capabilities.workflowWritesEnabled) {
+    return NextResponse.json({ error: capabilities.reason || "Workflow writes are disabled in this environment." }, { status: 503 })
   }
 
   if (body.action === "mark-derived") {

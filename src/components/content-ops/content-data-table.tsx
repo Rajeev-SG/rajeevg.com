@@ -25,7 +25,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import type { ContentOpsRow } from "@/lib/content-ops/types"
+import type { ContentOpsCapabilities, ContentOpsRow } from "@/lib/content-ops/types"
 
 type ProviderOption = {
   provider: "fallback" | "brave" | "openrouter" | "minimax"
@@ -36,6 +36,7 @@ type ProviderOption = {
 type ContentDataTableProps = {
   rows: ContentOpsRow[]
   providerOptions: ProviderOption[]
+  capabilities: ContentOpsCapabilities
 }
 
 const DEFAULT_COLUMN_VISIBILITY = {
@@ -43,7 +44,7 @@ const DEFAULT_COLUMN_VISIBILITY = {
   sourceType: false,
 }
 
-export function ContentDataTable({ rows, providerOptions }: ContentDataTableProps) {
+export function ContentDataTable({ rows, providerOptions, capabilities }: ContentDataTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [globalFilter, setGlobalFilter] = React.useState("")
   const [columnVisibility, setColumnVisibility] =
@@ -54,7 +55,9 @@ export function ContentDataTable({ rows, providerOptions }: ContentDataTableProp
       {
         accessorKey: "title",
         header: "Title",
-        cell: ({ row }) => <ContentRowSheet row={row.original} providerOptions={providerOptions} />,
+        cell: ({ row }) => (
+          <ContentRowSheet row={row.original} providerOptions={providerOptions} capabilities={capabilities} />
+        ),
       },
       {
         accessorKey: "workflowStatus",
@@ -93,7 +96,7 @@ export function ContentDataTable({ rows, providerOptions }: ContentDataTableProp
         header: "Source",
       },
     ],
-    [providerOptions]
+    [capabilities, providerOptions]
   )
 
   const table = useReactTable({

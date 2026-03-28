@@ -5,6 +5,7 @@ import { getExistingContentInventory } from "@/lib/content-ops/content-audit"
 import { generateResearchPack, getResearchProviderOptions } from "@/lib/content-ops/research"
 import { readContentOpsState, updateContentOpsState } from "@/lib/content-ops/state-store"
 import type {
+  ContentOpsCapabilities,
   ContentInventoryRecord,
   ContentOpsMetrics,
   ContentOpsRow,
@@ -16,6 +17,28 @@ import { getGa4SiteAnalyticsDashboard } from "@/lib/ga4-site-reporting"
 import { getSearchConsoleMetricsByPage } from "@/lib/content-ops/search-console"
 
 const workbook = workbookData as WorkbookDataset
+
+export function getContentOpsCapabilities(): ContentOpsCapabilities {
+  const hosted = Boolean(process.env.VERCEL)
+  const hasDatabase = Boolean(process.env.CONTENT_OPS_DATABASE_URL)
+
+  if (!hosted) {
+    return {
+      workflowWritesEnabled: true,
+      draftFileEditingEnabled: true,
+      deploymentMode: "local",
+    }
+  }
+
+  return {
+    workflowWritesEnabled: hasDatabase,
+    draftFileEditingEnabled: false,
+    deploymentMode: "hosted",
+    reason: hasDatabase
+      ? "Hosted dashboard can persist workflow state, but repo-backed file editing is disabled in preview and production."
+      : "Hosted preview is running in read-only mode because durable content-ops storage is not configured.",
+  }
+}
 
 function splitList(value: unknown) {
   if (typeof value !== "string" || !value.trim()) return []
@@ -168,6 +191,7 @@ export async function getContentOpsData() {
     interactiveAssets: inventory.filter(
       (record) => record.kind === "dashboard" || record.pageClass === "Interactive asset"
     ),
+    capabilities: getContentOpsCapabilities(),
     providerOptions: getResearchProviderOptions(),
     summary: {
       totalStrategyAssets: workbook.sheets.Master_Matrix.length,
@@ -195,6 +219,7 @@ export async function getContentOpsAsset(assetId: string) {
     derived: Boolean(state.derived[asset.id]),
     researchPack: state.researchPacks[asset.id] || null,
     draft: state.drafts[asset.id] || null,
+    capabilities: data.capabilities,
     providerOptions: getResearchProviderOptions(),
   }
 }

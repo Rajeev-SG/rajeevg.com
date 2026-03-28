@@ -6,7 +6,7 @@ import { ContentDataTable } from "@/components/content-ops/content-data-table"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import type { ContentOpsRow } from "@/lib/content-ops/types"
+import type { ContentOpsCapabilities, ContentOpsRow } from "@/lib/content-ops/types"
 
 type ProviderOption = {
   provider: "fallback" | "brave" | "openrouter" | "minimax"
@@ -27,9 +27,10 @@ type ContentOpsDashboardProps = {
   tabs: Record<string, ContentOpsRow[]>
   summary: DashboardSummary
   providerOptions: ProviderOption[]
+  capabilities: ContentOpsCapabilities
 }
 
-export function ContentOpsDashboard({ tabs, summary, providerOptions }: ContentOpsDashboardProps) {
+export function ContentOpsDashboard({ tabs, summary, providerOptions, capabilities }: ContentOpsDashboardProps) {
   const orderedTabs = [
     "Dashboard",
     "Master_Matrix",
@@ -52,6 +53,17 @@ export function ContentOpsDashboard({ tabs, summary, providerOptions }: ContentO
       </TabsList>
 
       <TabsContent value="Dashboard" className="space-y-6">
+        {capabilities.deploymentMode === "hosted" ? (
+          <Card className="border-amber-500/40 bg-amber-500/5">
+            <CardHeader>
+              <CardTitle className="text-lg">Hosted preview mode</CardTitle>
+              <CardDescription>
+                {capabilities.reason}
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        ) : null}
+
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <Card>
             <CardHeader className="pb-3">
@@ -147,7 +159,11 @@ export function ContentOpsDashboard({ tabs, summary, providerOptions }: ContentO
             <CardDescription>Start here to move existing proof into a cleaner content graph.</CardDescription>
           </CardHeader>
           <CardContent>
-            <ContentDataTable rows={tabs.Existing_Content.slice(0, 12)} providerOptions={providerOptions} />
+            <ContentDataTable
+              rows={tabs.Existing_Content.slice(0, 12)}
+              providerOptions={providerOptions}
+              capabilities={capabilities}
+            />
           </CardContent>
         </Card>
       </TabsContent>
@@ -166,7 +182,11 @@ export function ContentOpsDashboard({ tabs, summary, providerOptions }: ContentO
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ContentDataTable rows={tabs[tab] || []} providerOptions={providerOptions} />
+                <ContentDataTable
+                  rows={tabs[tab] || []}
+                  providerOptions={providerOptions}
+                  capabilities={capabilities}
+                />
               </CardContent>
             </Card>
           </TabsContent>

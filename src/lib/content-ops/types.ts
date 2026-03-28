@@ -151,3 +151,10 @@ export type ContentOpsState = {
     }
   >
 }
+
+export type ContentOpsCapabilities = {
+  workflowWritesEnabled: boolean
+  draftFileEditingEnabled: boolean
+  deploymentMode: "local" | "hosted"
+  reason?: string
+}
