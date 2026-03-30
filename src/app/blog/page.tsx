@@ -1,17 +1,20 @@
 import Link from "next/link"
 import type { Metadata } from "next"
+import { unstable_noStore as noStore } from "next/cache"
 
 import { BlogIndexClient } from "@/components/blog-index-client"
 import { ContentLinkCard } from "@/components/content-ops/content-link-card"
 import { Button } from "@/components/ui/button"
 import { getContentInventoryBySlug, getContentOpsData } from "@/lib/content-ops/data"
-import { getPostEffectiveDate, getSortedVisiblePosts } from "@/lib/posts"
+import { getPostEffectiveDate } from "@/lib/posts"
+import { getSortedVisiblePostsLive, isLocalRuntimeOverlayEnabled } from "@/lib/server-posts"
 import { site } from "@/lib/site"
 
 export const revalidate = 3600
 
 export default async function BlogIndex() {
-  const docs = getSortedVisiblePosts()
+  if (isLocalRuntimeOverlayEnabled()) noStore()
+  const docs = getSortedVisiblePostsLive()
   const contentOps = await getContentOpsData()
 
   const allPosts = docs.map((p) => {

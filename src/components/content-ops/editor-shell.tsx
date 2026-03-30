@@ -29,6 +29,9 @@ type EditorShellProps = {
   initialBody: string
   baselineBody: string
   sourcePath?: string
+  derived: boolean
+  editingMode: "rich" | "raw_only"
+  editingModeReason: string | null
   richModeSafe: boolean
   unsupportedPatterns: string[]
   researchPack: ResearchPack | null
@@ -69,6 +72,9 @@ export function EditorShell({
   initialBody,
   baselineBody,
   sourcePath,
+  derived,
+  editingMode,
+  editingModeReason,
   richModeSafe,
   unsupportedPatterns,
   researchPack,
@@ -81,16 +87,14 @@ export function EditorShell({
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [previewPending, startPreviewTransition] = useTransition()
-  const [activeTab, setActiveTab] = useState("editor")
+  const [activeTab, setActiveTab] = useState(editingMode === "raw_only" ? "raw" : "editor")
   const [body, setBody] = useState(initialBody)
   const [pack, setPack] = useState(researchPack)
   const [previewCode, setPreviewCode] = useState<string | null>(null)
   const [previewError, setPreviewError] = useState<string | null>(null)
   const [assistantResult, setAssistantResult] = useState<{ title: string; markdown: string; apply: "replace" | "append" | "insert-top" } | null>(null)
   const [frontmatter, setFrontmatter] = useState<EditorFrontmatter>(initialFrontmatter)
-  const requiresRawEditing = unsupportedPatterns.some(
-    (pattern) => pattern === "MDX imports" || pattern === "MDX exports"
-  )
+  const requiresRawEditing = editingMode === "raw_only"
 
   const publishStateLabel = useMemo(() => {
     if (capabilities.publishMode === "github_contents") return "Repo-backed publish via GitHub"
@@ -246,6 +250,7 @@ export function EditorShell({
               <Badge variant="outline">{publishStateLabel}</Badge>
               <Badge variant="outline">{asset.workflowStatus}</Badge>
               <Badge variant="outline">{asset.cluster}</Badge>
+              {derived ? <Badge variant="outline">Derived from existing content</Badge> : null}
             </div>
             <CardTitle className="text-3xl">{asset.title}</CardTitle>
             <CardDescription>
@@ -325,11 +330,11 @@ export function EditorShell({
                 <AlertDescription>{capabilities.reason}</AlertDescription>
               </Alert>
             ) : null}
-            {!richModeSafe && unsupportedPatterns.length ? (
+            {!richModeSafe && (editingModeReason || unsupportedPatterns.length) ? (
               <Alert>
                 <AlertDescription>
-                  This document has advanced MDX features. Rich editing stays available where possible, but use the raw
-                  tab for exact source edits.
+                  {editingModeReason ||
+                    `This document stays in raw MDX mode because it includes ${unsupportedPatterns.join(", ").toLowerCase()}.`}
                 </AlertDescription>
               </Alert>
             ) : null}
@@ -379,9 +384,9 @@ export function EditorShell({
                 className="inline-flex h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground"
               >
                 {[
-                  { value: "editor", label: "Editor" },
+                  { value: "editor", label: "Editor", disabled: requiresRawEditing },
                   { value: "preview", label: "Preview" },
-                  { value: "raw", label: "Raw MDX" },
+                  { value: "raw", label: requiresRawEditing ? "Raw MDX (required)" : "Raw MDX" },
                 ].map((tab) => (
                   <Button
                     key={tab.value}
@@ -392,6 +397,7 @@ export function EditorShell({
                     aria-selected={activeTab === tab.value}
                     aria-controls={`editor-panel-${tab.value}`}
                     className="h-7 px-3"
+                    disabled={tab.disabled}
                     onClick={() => {
                       setActiveTab(tab.value)
                       if (tab.value === "preview" && !previewCode) requestPreview()
@@ -406,8 +412,8 @@ export function EditorShell({
                 {requiresRawEditing ? (
                   <Alert>
                     <AlertDescription>
-                      This document contains MDX import or export syntax, so exact source editing is the safe path for
-                      this draft.
+                      Rich editing is disabled for this document. Use raw MDX mode for exact source edits and preview
+                      to validate the rendered result.
                     </AlertDescription>
                   </Alert>
                 ) : (

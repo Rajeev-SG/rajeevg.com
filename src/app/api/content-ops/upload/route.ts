@@ -47,7 +47,7 @@ export async function POST(request: Request) {
           message:
             upload.provider === "vercel_blob"
               ? "Uploaded asset to Vercel Blob."
-              : "Saved asset into the local public uploads directory.",
+              : "Saved asset into the local content-ops upload store and exposed it through the upload route.",
           details: {
             url: upload.url,
             filename: upload.filename,

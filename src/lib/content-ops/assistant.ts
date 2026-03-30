@@ -17,6 +17,28 @@ type AssistResult = {
   title: string
 }
 
+function normalizeFaqMarkdown(markdown: string) {
+  const trimmed = markdown.trim()
+
+  if (/^##\s+Frequently asked questions\b/im.test(trimmed)) {
+    return trimmed.replace(/^##\s+Frequently asked questions\b/im, "## Frequently asked questions")
+  }
+
+  if (/^##\s+FAQ\b/im.test(trimmed)) {
+    return trimmed.replace(/^##\s+FAQ\b/im, "## Frequently asked questions")
+  }
+
+  return `## Frequently asked questions\n\n${trimmed}`
+}
+
+function normalizeAssistMarkdown(action: ContentAssistAction, markdown: string) {
+  if (action === "add-faq") {
+    return normalizeFaqMarkdown(markdown)
+  }
+
+  return markdown.trim()
+}
+
 function buildFallbackResult(
   action: ContentAssistAction,
   asset: ContentInventoryRecord,
@@ -88,7 +110,7 @@ If this page is doing its job, the reader should now know when to use this appro
         action,
         provider: "fallback",
         title: "FAQ section",
-        markdown: `## FAQ
+        markdown: `## Frequently asked questions
 
 ${faqItems
   .map(
@@ -194,14 +216,22 @@ export async function generateContentAssist(params: {
       const markdown = await runOpenRouterAssist(action, asset, frontmatter, researchPack, body)
       return {
         action,
-        markdown,
+        markdown: normalizeAssistMarkdown(action, markdown),
         provider: "openrouter",
         title: action.replace(/-/g, " "),
       }
     } catch {
-      return buildFallbackResult(action, asset, frontmatter, researchPack, body)
+      const result = buildFallbackResult(action, asset, frontmatter, researchPack, body)
+      return {
+        ...result,
+        markdown: normalizeAssistMarkdown(action, result.markdown),
+      }
     }
   }
 
-  return buildFallbackResult(action, asset, frontmatter, researchPack, body)
+  const result = buildFallbackResult(action, asset, frontmatter, researchPack, body)
+  return {
+    ...result,
+    markdown: normalizeAssistMarkdown(action, result.markdown),
+  }
 }

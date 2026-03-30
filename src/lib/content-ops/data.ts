@@ -83,13 +83,18 @@ function splitList(value: unknown) {
     .filter(Boolean)
 }
 
-function toInventoryRow(record: ContentInventoryRecord, workflowState: Record<string, ContentWorkflowStatus>): ContentOpsRow {
+function toInventoryRow(
+  record: ContentInventoryRecord,
+  workflowState: Record<string, ContentWorkflowStatus>,
+  derivedState: Record<string, boolean>
+): ContentOpsRow {
   return {
     id: record.id,
     title: record.title,
     tab: "Existing_Content",
     kind: record.kind,
     workflowStatus: workflowState[record.id] || record.workflowStatus,
+    derived: Boolean(derivedState[record.id]),
     status: record.status,
     pageClass: record.pageClass,
     pillar: record.pillar,
@@ -191,7 +196,7 @@ async function getAnalyticsMetrics(): Promise<Record<string, ContentOpsMetrics>>
 export async function getContentOpsData() {
   const state = await readContentOpsState()
   const inventory = getExistingContentInventory()
-  const inventoryRows = inventory.map((record) => toInventoryRow(record, state.workflow))
+  const inventoryRows = inventory.map((record) => toInventoryRow(record, state.workflow, state.derived))
   const masterRows = toMasterMatrixRows(state.workflow)
 
   const tabs: Record<string, ContentOpsRow[]> = {

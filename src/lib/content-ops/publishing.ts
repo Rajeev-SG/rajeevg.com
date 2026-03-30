@@ -23,7 +23,14 @@ type GitHubFileResponse = {
 export type PublishResult = {
   articlePath: string
   workflowStatus: "merged" | "deployed"
+  deliveryState: "local_runtime_live" | "repo_committed_waiting_for_deploy" | "deployed_live"
   event: PublishEvent
+}
+
+const LOCAL_UPLOAD_DIRECTORY = path.join(process.cwd(), "data/content-ops/uploads")
+
+function sanitizeUploadFilename(name: string) {
+  return name.replace(/[^a-zA-Z0-9._-]+/g, "-").replace(/-+/g, "-")
 }
 
 function getGithubRepo() {
@@ -112,6 +119,7 @@ export async function publishEditorDocument(input: SaveDraftInput): Promise<Publ
     return {
       articlePath: published.articlePath,
       workflowStatus: "merged",
+      deliveryState: "repo_committed_waiting_for_deploy",
       event: {
         id: randomUUID(),
         assetId: "",
@@ -132,6 +140,7 @@ export async function publishEditorDocument(input: SaveDraftInput): Promise<Publ
   return {
     articlePath: published.articlePath,
     workflowStatus: "deployed",
+    deliveryState: "local_runtime_live",
     event: {
       id: randomUUID(),
       assetId: "",
@@ -165,6 +174,8 @@ export async function uploadContentAsset({
       filename: file.name,
       contentType: file.type || "application/octet-stream",
       provider: "vercel_blob",
+      storageKind: "blob",
+      storageKey: blob.pathname,
       pathname: blob.pathname,
       url: blob.url,
       size: file.size,
@@ -173,10 +184,10 @@ export async function uploadContentAsset({
   }
 
   const bytes = Buffer.from(await file.arrayBuffer())
-  const uploadDirectory = path.join(process.cwd(), "public/uploads/content-ops", assetId)
+  const uploadDirectory = path.join(LOCAL_UPLOAD_DIRECTORY, assetId)
   await fs.mkdir(uploadDirectory, { recursive: true })
 
-  const filename = `${Date.now()}-${file.name.replace(/\s+/g, "-")}`
+  const filename = `${Date.now()}-${sanitizeUploadFilename(file.name)}`
   const absolutePath = path.join(uploadDirectory, filename)
   await fs.writeFile(absolutePath, bytes)
 
@@ -185,10 +196,16 @@ export async function uploadContentAsset({
     assetId,
     filename: file.name,
     contentType: file.type || "application/octet-stream",
-    provider: "local",
+    provider: "local_route",
+    storageKind: "local_file",
+    storageKey: path.join(assetId, filename),
     pathname: `/uploads/content-ops/${assetId}/${filename}`,
     url: `/uploads/content-ops/${assetId}/${filename}`,
     size: file.size,
     createdAt: new Date().toISOString(),
   }
+}
+
+export function resolveLocalUploadPath(assetId: string, filename: string) {
+  return path.join(LOCAL_UPLOAD_DIRECTORY, assetId, filename)
 }

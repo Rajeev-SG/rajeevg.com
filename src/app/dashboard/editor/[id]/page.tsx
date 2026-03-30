@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation"
 
 import { EditorShell } from "@/components/content-ops/editor-shell"
-import { buildArticlePath } from "@/lib/content-ops/editor"
-import { loadEditorDocument } from "@/lib/content-ops/editor"
+import { buildArticlePath, buildEditorDocumentFromDraft, loadEditorDocument } from "@/lib/content-ops/editor"
 import { getContentOpsAsset } from "@/lib/content-ops/data"
 import type { EditorFrontmatter } from "@/lib/content-ops/types"
 
@@ -29,12 +28,22 @@ export default async function ContentEditorPage({ params }: { params: Promise<{ 
   let initialBody = detail.draftDocument?.body || buildStarterBody(detail.asset.title, detail.asset.notes, detail.asset.nextSteps)
   let baselineBody = initialBody
   let richModeSafe = true
+  let editingMode: "rich" | "raw_only" = "rich"
+  let editingModeReason: string | null = null
   let unsupportedPatterns: string[] = []
   let sourceAccessNote: string | null = null
 
   if (detail.draftDocument) {
     initialFrontmatter = detail.draftDocument.frontmatter
-    richModeSafe = true
+    const draftDocument = buildEditorDocumentFromDraft({
+      frontmatter: detail.draftDocument.frontmatter,
+      body: detail.draftDocument.body,
+      sourcePath: detail.draftDocument.sourcePath,
+    })
+    editingMode = draftDocument.editingMode
+    editingModeReason = draftDocument.editingModeReason
+    richModeSafe = draftDocument.richModeSafe
+    unsupportedPatterns = draftDocument.unsupportedPatterns
   }
 
   const editablePath = detail.asset.sourcePath || detail.draft?.path || buildArticlePath(initialFrontmatter.slug, sourcePath)
@@ -46,6 +55,8 @@ export default async function ContentEditorPage({ params }: { params: Promise<{ 
       initialFrontmatter = document.frontmatter
       initialBody = document.body
       baselineBody = document.body
+      editingMode = document.editingMode
+      editingModeReason = document.editingModeReason
       richModeSafe = document.richModeSafe
       unsupportedPatterns = document.unsupportedPatterns
     } catch {
@@ -70,6 +81,9 @@ export default async function ContentEditorPage({ params }: { params: Promise<{ 
         initialBody={initialBody}
         baselineBody={baselineBody}
         sourcePath={sourcePath}
+        derived={detail.derived}
+        editingMode={editingMode}
+        editingModeReason={editingModeReason}
         richModeSafe={richModeSafe}
         unsupportedPatterns={unsupportedPatterns}
         researchPack={detail.researchPack}

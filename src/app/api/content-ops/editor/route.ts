@@ -60,6 +60,7 @@ export async function POST(request: Request) {
     body: markdown,
     sourcePath: body.sourcePath,
   })
+  const normalizedFrontmatter = draftDocument.frontmatter
 
   if (!draftDocument.richModeSafe && draftDocument.unsupportedPatterns.some((pattern) => pattern.startsWith("Unknown JSX components:"))) {
     return NextResponse.json(
@@ -78,7 +79,7 @@ export async function POST(request: Request) {
 
   if (capabilities.draftFileEditingEnabled) {
     const localResult = await saveDraftDocumentLocally({
-      frontmatter,
+      frontmatter: normalizedFrontmatter,
       body: markdown,
       sourcePath: body.sourcePath,
     })
@@ -112,7 +113,7 @@ export async function POST(request: Request) {
         slug: result.slug,
         articlePath: result.articlePath,
         sourcePath: body.sourcePath,
-        frontmatter,
+        frontmatter: normalizedFrontmatter,
         body: markdown.trim(),
         componentUsages: draftDocument.componentUsages,
         updatedAt: new Date().toISOString(),

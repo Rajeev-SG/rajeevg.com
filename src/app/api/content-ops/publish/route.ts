@@ -44,6 +44,7 @@ export async function POST(request: Request) {
     body: markdown,
     sourcePath: body.sourcePath || detail.asset.sourcePath || undefined,
   })
+  const normalizedFrontmatter = draftDocument.frontmatter
 
   if (!draftDocument.richModeSafe && draftDocument.unsupportedPatterns.some((pattern) => pattern.startsWith("Unknown JSX components:"))) {
     return NextResponse.json(
@@ -57,7 +58,7 @@ export async function POST(request: Request) {
   try {
     const published = await publishEditorDocument({
       frontmatter: {
-        ...body.frontmatter,
+        ...normalizedFrontmatter,
         draft: false,
       },
       body: markdown,
@@ -66,7 +67,7 @@ export async function POST(request: Request) {
 
     revalidatePath("/")
     revalidatePath("/blog")
-    revalidatePath(`/blog/${body.frontmatter.slug}`)
+    revalidatePath(`/blog/${normalizedFrontmatter.slug}`)
     revalidatePath("/dashboard")
     revalidatePath(`/dashboard/editor/${body.assetId}`)
 
@@ -80,7 +81,7 @@ export async function POST(request: Request) {
         ...state.drafts,
         [body.assetId!]: {
           assetId: body.assetId!,
-          slug: body.frontmatter!.slug,
+          slug: normalizedFrontmatter.slug,
           path: published.articlePath,
           updatedAt: new Date().toISOString(),
         },
@@ -89,11 +90,11 @@ export async function POST(request: Request) {
         ...state.draftDocuments,
         [body.assetId!]: {
           assetId: body.assetId!,
-          slug: body.frontmatter!.slug,
+          slug: normalizedFrontmatter.slug,
           articlePath: published.articlePath,
           sourcePath: body.sourcePath || detail.asset.sourcePath || undefined,
           frontmatter: {
-            ...body.frontmatter!,
+            ...normalizedFrontmatter,
             draft: false,
           },
           body: markdown.trim(),
@@ -125,15 +126,18 @@ export async function POST(request: Request) {
           {
             id: randomUUID(),
             assetId: body.assetId!,
-            type: published.workflowStatus === "deployed" ? "live" : "deploy_pending",
+            type: published.deliveryState === "local_runtime_live" ? "live" : "deploy_pending",
             status: "success",
             createdAt: new Date().toISOString(),
             message:
-              published.workflowStatus === "deployed"
-                ? "The local build can now render the updated article immediately."
-                : "GitHub publish succeeded. The connected deployment should pick up the new commit next.",
+              published.deliveryState === "local_runtime_live"
+                ? "The local runtime overlay can render the updated article immediately."
+                : published.deliveryState === "deployed_live"
+                  ? "The published article is now live on the deployed site."
+                  : "GitHub publish succeeded and the repo is updated. Wait for deployment to complete before treating the page as live.",
             details: {
               articlePath: published.articlePath,
+              deliveryState: published.deliveryState,
             },
           },
         ],
@@ -144,6 +148,7 @@ export async function POST(request: Request) {
       published: {
         articlePath: published.articlePath,
         workflowStatus: published.workflowStatus,
+        deliveryState: published.deliveryState,
       },
     })
   } catch (error) {

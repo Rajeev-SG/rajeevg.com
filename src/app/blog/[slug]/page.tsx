@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { unstable_noStore as noStore } from "next/cache"
 import { notFound } from "next/navigation"
 
 import { ArticleNextSteps } from "@/components/content-ops/article-next-steps"
@@ -8,12 +9,21 @@ import MermaidInit from "@/components/mermaid-init"
 import { MermaidTooltips } from "@/components/mermaid-tooltips"
 import { ReadingProgress } from "@/components/reading-progress"
 import { getContentInventoryBySlug, getRelatedContent } from "@/lib/content-ops/data"
-import { getPostEffectiveDate, getSortedVisiblePosts, getVisiblePostBySlug } from "@/lib/posts"
+import { getPostEffectiveDate } from "@/lib/posts"
+import {
+  getRenderablePostBySlug,
+  getSortedVisiblePostsLive,
+  getVisiblePostSummaryBySlug,
+  isLocalRuntimeOverlayEnabled,
+} from "@/lib/server-posts"
 import { site } from "@/lib/site"
 
+export const dynamicParams = true
+
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
+  if (isLocalRuntimeOverlayEnabled()) noStore()
   const { slug } = await params
-  const post = getVisiblePostBySlug(slug)
+  const post = await getRenderablePostBySlug(slug)
   if (!post) return notFound()
 
   const strategyRecord = getContentInventoryBySlug(slug)
@@ -85,7 +95,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
-  const post = getVisiblePostBySlug(slug)
+  const post = getVisiblePostSummaryBySlug(slug)
   const strategyRecord = getContentInventoryBySlug(slug)
   if (!post) return {}
   const ogImage = post.image || site.defaultOgImage
@@ -117,5 +127,5 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export function generateStaticParams() {
-  return getSortedVisiblePosts().map((post) => ({ slug: post.slug }))
+  return getSortedVisiblePostsLive().map((post) => ({ slug: post.slug }))
 }

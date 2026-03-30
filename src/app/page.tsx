@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { unstable_noStore as noStore } from "next/cache"
 import { ArrowRight, Layers3, LibraryBig, LineChart, Workflow } from "lucide-react"
 
 import { ContentLinkCard } from "@/components/content-ops/content-link-card"
@@ -7,13 +8,14 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { getContentOpsData } from "@/lib/content-ops/data"
-import { getSortedVisiblePosts } from "@/lib/posts"
+import { getSortedVisiblePostsLive, isLocalRuntimeOverlayEnabled } from "@/lib/server-posts"
 import { site } from "@/lib/site"
 
 export const revalidate = 3600
 
 export default async function Home() {
-  const latestPosts = getSortedVisiblePosts().slice(0, 4)
+  if (isLocalRuntimeOverlayEnabled()) noStore()
+  const latestPosts = getSortedVisiblePostsLive().slice(0, 4)
   const contentOps = await getContentOpsData()
   const flagships = contentOps.inventory.filter((record) => record.pageClass === "Flagship").slice(0, 3)
   const proofAssets = contentOps.inventory

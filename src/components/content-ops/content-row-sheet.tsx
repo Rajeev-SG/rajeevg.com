@@ -44,6 +44,7 @@ export function ContentRowSheet({ row, providerOptions, capabilities }: ContentR
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [pack, setPack] = useState<ResearchPack | null>(null)
+  const [derived, setDerived] = useState(Boolean(row.derived))
   const [selectedProvider, setSelectedProvider] = useState<
     "fallback" | "brave" | "openrouter" | "minimax"
   >("fallback")
@@ -105,6 +106,7 @@ export function ContentRowSheet({ row, providerOptions, capabilities }: ContentR
             <Badge variant="secondary">{row.tab}</Badge>
             <Badge variant="outline">{row.workflowStatus}</Badge>
             {row.pageClass ? <Badge variant="outline">{row.pageClass}</Badge> : null}
+            {derived ? <Badge variant="outline">Derived</Badge> : null}
           </div>
           <SheetTitle className="pr-12 text-2xl">{row.title}</SheetTitle>
           <SheetDescription>
@@ -214,12 +216,15 @@ export function ContentRowSheet({ row, providerOptions, capabilities }: ContentR
                 <Button
                   size="sm"
                   variant="outline"
+                  disabled={derived}
                   onClick={() =>
-                    runAction("/api/content-ops/workflow", { assetId: row.id, action: "mark-derived" })
+                    runAction("/api/content-ops/workflow", { assetId: row.id, action: "mark-derived" }, () =>
+                      setDerived(true)
+                    )
                   }
                 >
                   <Rocket className="mr-2 size-4" />
-                  Mark as derived
+                  {derived ? "Marked derived" : "Mark as derived"}
                 </Button>
                 <Button asChild size="sm" variant="outline">
                   <Link href={`/dashboard/editor/${row.id}`}>

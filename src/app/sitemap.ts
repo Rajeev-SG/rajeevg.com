@@ -1,10 +1,12 @@
 import type { MetadataRoute } from "next"
 import { getGlossaryRoutes, getHubRoutes } from "@/lib/content-ops/data"
+import { getPostEffectiveDate } from "@/lib/posts"
+import { getVisiblePostsLive } from "@/lib/server-posts"
 import { site } from "@/lib/site"
-import { getPostEffectiveDate, getVisiblePosts } from "@/lib/posts"
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = site.siteUrl.replace(/\/$/, "")
+  const posts = getVisiblePostsLive()
   const items: MetadataRoute.Sitemap = [
     { url: `${base}/`, lastModified: new Date() },
     { url: `${base}/about`, lastModified: new Date() },
@@ -21,7 +23,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
     })),
     { url: `${base}/privacy`, lastModified: new Date() },
-    ...getVisiblePosts().map((p) => ({
+    ...posts.map((p) => ({
       url: `${base}/blog/${p.slug}`,
       lastModified: new Date(getPostEffectiveDate(p)),
     })),

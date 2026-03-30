@@ -88,6 +88,7 @@ export type ContentOpsRow = {
   tab: WorkbookSheetName | "Existing_Content"
   kind: ContentInventoryKind | "workbook"
   workflowStatus: ContentWorkflowStatus
+  derived?: boolean
   status: string
   pageClass?: string
   pillar?: string
@@ -184,7 +185,9 @@ export type ContentAssetUpload = {
   assetId: string
   filename: string
   contentType: string
-  provider: "vercel_blob" | "local"
+  provider: "vercel_blob" | "local_route"
+  storageKind: "blob" | "local_file"
+  storageKey?: string
   pathname?: string
   url: string
   size?: number
