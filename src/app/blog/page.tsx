@@ -47,14 +47,14 @@ export default async function BlogIndex() {
         <p className="max-w-3xl text-muted-foreground">
           The archive still contains every public post, but it now lives inside a clearer graph: flagships define the thesis, proof pages show what shipped, and workflow nodes route readers toward action.
         </p>
-        <div className="flex flex-wrap gap-2">
-          <Button asChild variant="outline">
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+          <Button asChild variant="outline" className="justify-start sm:w-auto">
             <Link href="/ai">AI hub</Link>
           </Button>
-          <Button asChild variant="outline">
+          <Button asChild variant="outline" className="justify-start sm:w-auto">
             <Link href="/analytics">Analytics hub</Link>
           </Button>
-          <Button asChild variant="outline">
+          <Button asChild variant="outline" className="justify-start sm:w-auto">
             <Link href="/proof">Proof hub</Link>
           </Button>
         </div>

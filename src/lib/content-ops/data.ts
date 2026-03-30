@@ -21,21 +21,56 @@ const workbook = workbookData as WorkbookDataset
 export function getContentOpsCapabilities(): ContentOpsCapabilities {
   const hosted = Boolean(process.env.VERCEL)
   const hasDatabase = Boolean(process.env.CONTENT_OPS_DATABASE_URL)
+  const hasGitHubState = Boolean(process.env.CONTENT_OPS_GITHUB_TOKEN)
+  const hasGithubPublish =
+    Boolean(process.env.CONTENT_OPS_GITHUB_TOKEN) &&
+    Boolean(process.env.CONTENT_OPS_GITHUB_REPO || "Rajeev-SG/rajeevg.com")
+  const hasBlobUploads = Boolean(process.env.BLOB_READ_WRITE_TOKEN)
 
   if (!hosted) {
     return {
       workflowWritesEnabled: true,
+      draftPersistenceEnabled: true,
       draftFileEditingEnabled: true,
+      publishEnabled: true,
+      uploadEnabled: true,
       deploymentMode: "local",
+      publishMode: "local_fs",
+      uploadMode: "local_fs",
+    }
+  }
+
+  if ((hasDatabase || hasGitHubState) && hasGithubPublish) {
+    return {
+      workflowWritesEnabled: true,
+      draftPersistenceEnabled: true,
+      draftFileEditingEnabled: false,
+      publishEnabled: true,
+      uploadEnabled: hasBlobUploads,
+      deploymentMode: "hosted",
+      publishMode: "github_contents",
+      uploadMode: hasBlobUploads ? "vercel_blob" : "disabled",
+      reason: hasBlobUploads
+        ? hasDatabase
+          ? "Hosted mode can save drafts in durable database state, publish repo-backed MDX through GitHub, and upload assets to Vercel Blob."
+          : "Hosted mode can save drafts in the dedicated GitHub-backed content-ops state branch, publish repo-backed MDX through GitHub, and upload assets to Vercel Blob."
+        : hasDatabase
+          ? "Hosted mode can save drafts in durable database state and publish repo-backed MDX through GitHub. Configure BLOB_READ_WRITE_TOKEN to enable durable media uploads."
+          : "Hosted mode can save drafts in the dedicated GitHub-backed content-ops state branch and publish repo-backed MDX through GitHub. Configure BLOB_READ_WRITE_TOKEN to enable durable media uploads.",
     }
   }
 
   return {
-    workflowWritesEnabled: hasDatabase,
+    workflowWritesEnabled: hasDatabase || hasGitHubState,
+    draftPersistenceEnabled: hasDatabase || hasGitHubState,
     draftFileEditingEnabled: false,
+    publishEnabled: false,
+    uploadEnabled: false,
     deploymentMode: "hosted",
-    reason: hasDatabase
-      ? "Hosted dashboard can persist workflow state, but repo-backed file editing is disabled in preview and production."
+    publishMode: "disabled",
+    uploadMode: "disabled",
+    reason: hasDatabase || hasGitHubState
+      ? "Hosted dashboard can persist editorial state, but repo-backed publishing is disabled until GitHub publishing credentials are configured."
       : "Hosted preview is running in read-only mode because durable content-ops storage is not configured.",
   }
 }
@@ -219,6 +254,9 @@ export async function getContentOpsAsset(assetId: string) {
     derived: Boolean(state.derived[asset.id]),
     researchPack: state.researchPacks[asset.id] || null,
     draft: state.drafts[asset.id] || null,
+    draftDocument: state.draftDocuments[asset.id] || null,
+    publishEvents: state.publishEvents[asset.id] || [],
+    uploads: state.uploads[asset.id] || [],
     capabilities: data.capabilities,
     providerOptions: getResearchProviderOptions(),
   }

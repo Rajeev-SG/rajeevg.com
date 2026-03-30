@@ -2,28 +2,51 @@
 
 import { useMemo, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { Sparkles, Save, ShieldCheck } from "lucide-react"
+import { Loader2, Save, ShieldCheck, Sparkles, Upload, WandSparkles } from "lucide-react"
 
-import { TiptapEditor } from "@/components/content-ops/tiptap-editor"
+import { ContentMdxEditor } from "@/components/content-ops/mdx-editor"
+import { PreviewRenderer } from "@/components/content-ops/preview-renderer"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
-import type { ContentInventoryRecord, ContentOpsCapabilities, ResearchPack } from "@/lib/content-ops/types"
+import type {
+  ContentAssetUpload,
+  ContentEditorDraft,
+  ContentInventoryRecord,
+  ContentOpsCapabilities,
+  EditorFrontmatter,
+  PublishEvent,
+  ResearchPack,
+} from "@/lib/content-ops/types"
+import type { ContentAssistAction } from "@/lib/content-ops/assistant"
 
 type EditorShellProps = {
   asset: ContentInventoryRecord
-  initialFrontmatter: Record<string, unknown>
+  initialFrontmatter: EditorFrontmatter
   initialBody: string
+  baselineBody: string
   sourcePath?: string
   richModeSafe: boolean
   unsupportedPatterns: string[]
   researchPack: ResearchPack | null
+  draftDocument: ContentEditorDraft | null
+  publishEvents: PublishEvent[]
+  uploads: ContentAssetUpload[]
   capabilities: ContentOpsCapabilities
   sourceAccessNote: string | null
 }
+
+const AI_ACTIONS: Array<{ action: ContentAssistAction; label: string; apply: "replace" | "append" | "insert-top" }> = [
+  { action: "generate-draft", label: "Generate first draft", apply: "replace" },
+  { action: "improve-intro", label: "Improve intro", apply: "insert-top" },
+  { action: "improve-conclusion", label: "Add conclusion", apply: "append" },
+  { action: "add-faq", label: "Add FAQ", apply: "append" },
+  { action: "add-comparison-table", label: "Add comparison table", apply: "append" },
+  { action: "tighten-copy", label: "Tighten draft", apply: "replace" },
+]
 
 function normalizeTags(value: string | string[] | undefined) {
   if (Array.isArray(value)) return value
@@ -34,38 +57,46 @@ function normalizeTags(value: string | string[] | undefined) {
     .filter(Boolean)
 }
 
+function applyAssistantMarkdown(currentBody: string, nextMarkdown: string, mode: "replace" | "append" | "insert-top") {
+  if (mode === "replace") return nextMarkdown.trim()
+  if (mode === "insert-top") return `${nextMarkdown.trim()}\n\n${currentBody.trim()}`.trim()
+  return `${currentBody.trim()}\n\n${nextMarkdown.trim()}`.trim()
+}
+
 export function EditorShell({
   asset,
   initialFrontmatter,
   initialBody,
+  baselineBody,
   sourcePath,
   richModeSafe,
   unsupportedPatterns,
   researchPack,
+  draftDocument,
+  publishEvents,
+  uploads,
   capabilities,
   sourceAccessNote,
 }: EditorShellProps) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
-  const [mode, setMode] = useState(richModeSafe ? "rich" : "raw")
+  const [previewPending, startPreviewTransition] = useTransition()
+  const [activeTab, setActiveTab] = useState("editor")
   const [body, setBody] = useState(initialBody)
   const [pack, setPack] = useState(researchPack)
-  const [frontmatter, setFrontmatter] = useState({
-    title: String(initialFrontmatter.title || asset.title),
-    slug: String(initialFrontmatter.slug || asset.url.split("/").filter(Boolean).pop() || asset.id.toLowerCase()),
-    date: String(initialFrontmatter.date || new Date().toISOString().slice(0, 10)),
-    updated: String(initialFrontmatter.updated || ""),
-    description: String(initialFrontmatter.description || asset.notes || ""),
-    excerpt: String(initialFrontmatter.excerpt || asset.notes || ""),
-    tags: normalizeTags(initialFrontmatter.tags as string[] | string | undefined).join(", "),
-    image: String(initialFrontmatter.image || ""),
-    draft: initialFrontmatter.draft !== false,
-  })
+  const [previewCode, setPreviewCode] = useState<string | null>(null)
+  const [previewError, setPreviewError] = useState<string | null>(null)
+  const [assistantResult, setAssistantResult] = useState<{ title: string; markdown: string; apply: "replace" | "append" | "insert-top" } | null>(null)
+  const [frontmatter, setFrontmatter] = useState<EditorFrontmatter>(initialFrontmatter)
+  const requiresRawEditing = unsupportedPatterns.some(
+    (pattern) => pattern === "MDX imports" || pattern === "MDX exports"
+  )
 
   const publishStateLabel = useMemo(() => {
+    if (capabilities.publishMode === "github_contents") return "Repo-backed publish via GitHub"
     if (sourcePath) return "Repo-backed MDX"
     return "Draft starter"
-  }, [sourcePath])
+  }, [capabilities.publishMode, sourcePath])
 
   const saveDraft = () => {
     startTransition(async () => {
@@ -75,6 +106,7 @@ export function EditorShell({
         body: JSON.stringify({
           assetId: asset.id,
           sourcePath,
+          frontmatter,
           slug: frontmatter.slug,
           title: frontmatter.title,
           date: frontmatter.date,
@@ -83,14 +115,41 @@ export function EditorShell({
           excerpt: frontmatter.excerpt || undefined,
           image: frontmatter.image || undefined,
           draft: frontmatter.draft,
-          tags: normalizeTags(frontmatter.tags),
+          tags: frontmatter.tags,
           body,
         }),
       })
 
       if (response.ok) {
         router.refresh()
+        return
       }
+
+      const result = await response.json().catch(() => null)
+      setPreviewError(result?.error || "Draft save failed.")
+    })
+  }
+
+  const publishDocument = () => {
+    startTransition(async () => {
+      const response = await fetch("/api/content-ops/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          assetId: asset.id,
+          sourcePath,
+          frontmatter,
+          markdown: body,
+        }),
+      })
+
+      if (response.ok) {
+        router.refresh()
+        return
+      }
+
+      const result = await response.json().catch(() => null)
+      setPreviewError(result?.error || "Publish failed.")
     })
   }
 
@@ -109,26 +168,84 @@ export function EditorShell({
     })
   }
 
-  const markApproved = () => {
-    startTransition(async () => {
-      await fetch("/api/content-ops/workflow", {
+  const requestPreview = () => {
+    startPreviewTransition(async () => {
+      setPreviewError(null)
+      const response = await fetch("/api/content-ops/preview", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ assetId: asset.id, workflowStatus: "approved" }),
+        body: JSON.stringify({ markdown: body }),
       })
-      router.refresh()
+
+      const result = await response.json().catch(() => null)
+
+      if (response.ok) {
+        setPreviewCode(result.code)
+      } else {
+        setPreviewError(result?.error || "Preview compilation failed.")
+      }
+    })
+  }
+
+  const runAssistant = (action: ContentAssistAction, applyMode: "replace" | "append" | "insert-top") => {
+    startTransition(async () => {
+      const response = await fetch("/api/content-ops/assist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          assetId: asset.id,
+          action,
+          frontmatter,
+          markdown: body,
+        }),
+      })
+
+      if (!response.ok) return
+      const result = await response.json()
+      if (!result.result?.markdown) return
+      setAssistantResult({
+        title: result.result.title || action,
+        markdown: result.result.markdown,
+        apply: applyMode,
+      })
+    })
+  }
+
+  const uploadAsset = (file: File) => {
+    startTransition(async () => {
+      const formData = new FormData()
+      formData.append("assetId", asset.id)
+      formData.append("file", file)
+
+      const response = await fetch("/api/content-ops/upload", {
+        method: "POST",
+        body: formData,
+      })
+
+      if (!response.ok) {
+        const result = await response.json().catch(() => null)
+        setPreviewError(result?.error || "Upload failed.")
+        return
+      }
+
+      const result = await response.json()
+      if (result.upload?.url) {
+        setBody((current) => `${current.trim()}\n\n![${result.upload.filename}](${result.upload.url})\n`)
+        router.refresh()
+      }
     })
   }
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 lg:grid-cols-[1.3fr_0.7fr]">
+      <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
         <Card>
           <CardHeader>
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="secondary">{asset.pageClass}</Badge>
               <Badge variant="outline">{publishStateLabel}</Badge>
               <Badge variant="outline">{asset.workflowStatus}</Badge>
+              <Badge variant="outline">{asset.cluster}</Badge>
             </div>
             <CardTitle className="text-3xl">{asset.title}</CardTitle>
             <CardDescription>
@@ -139,7 +256,7 @@ export function EditorShell({
             <Input
               value={frontmatter.title}
               onChange={(event) => setFrontmatter((current) => ({ ...current, title: event.target.value }))}
-              placeholder="Title"
+              placeholder="Article title"
             />
             <Input
               value={frontmatter.slug}
@@ -153,32 +270,36 @@ export function EditorShell({
             />
             <Input
               type="date"
-              value={frontmatter.updated}
-              onChange={(event) => setFrontmatter((current) => ({ ...current, updated: event.target.value }))}
+              value={frontmatter.updated || ""}
+              onChange={(event) => setFrontmatter((current) => ({ ...current, updated: event.target.value || undefined }))}
             />
             <Input
-              value={frontmatter.tags}
-              onChange={(event) => setFrontmatter((current) => ({ ...current, tags: event.target.value }))}
+              value={frontmatter.tags.join(", ")}
+              onChange={(event) =>
+                setFrontmatter((current) => ({ ...current, tags: normalizeTags(event.target.value) }))
+              }
               placeholder="tag-1, tag-2"
             />
             <Input
-              value={frontmatter.image}
-              onChange={(event) => setFrontmatter((current) => ({ ...current, image: event.target.value }))}
+              value={frontmatter.image || ""}
+              onChange={(event) => setFrontmatter((current) => ({ ...current, image: event.target.value || undefined }))}
               placeholder="/images/..."
             />
             <div className="md:col-span-2">
               <Textarea
-                value={frontmatter.description}
+                value={frontmatter.description || ""}
                 onChange={(event) =>
-                  setFrontmatter((current) => ({ ...current, description: event.target.value }))
+                  setFrontmatter((current) => ({ ...current, description: event.target.value || undefined }))
                 }
                 placeholder="Description"
               />
             </div>
             <div className="md:col-span-2">
               <Textarea
-                value={frontmatter.excerpt}
-                onChange={(event) => setFrontmatter((current) => ({ ...current, excerpt: event.target.value }))}
+                value={frontmatter.excerpt || ""}
+                onChange={(event) =>
+                  setFrontmatter((current) => ({ ...current, excerpt: event.target.value || undefined }))
+                }
                 placeholder="Excerpt"
               />
             </div>
@@ -189,26 +310,31 @@ export function EditorShell({
           <CardHeader>
             <CardTitle>Workflow and publishing</CardTitle>
             <CardDescription>
-              Drafts stay repo-backed MDX. Production publishing should flow through GitHub and deploy status from this same asset ID.
+              Drafts persist durably. Publication writes the canonical MDX source to the repo path that the live site
+              builds from.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {sourceAccessNote ? (
-              <div className="rounded-xl border border-amber-500/40 bg-amber-500/5 p-3 text-sm text-muted-foreground">
-                {sourceAccessNote}
-              </div>
+              <Alert>
+                <AlertDescription>{sourceAccessNote}</AlertDescription>
+              </Alert>
             ) : null}
             {capabilities.reason ? (
-              <div className="rounded-xl border border-amber-500/40 bg-amber-500/5 p-3 text-sm text-muted-foreground">
-                {capabilities.reason}
-              </div>
+              <Alert>
+                <AlertDescription>{capabilities.reason}</AlertDescription>
+              </Alert>
             ) : null}
-            <Button
-              className="w-full justify-start"
-              onClick={saveDraft}
-              disabled={pending || !capabilities.draftFileEditingEnabled}
-            >
-              <Save className="mr-2 size-4" />
+            {!richModeSafe && unsupportedPatterns.length ? (
+              <Alert>
+                <AlertDescription>
+                  This document has advanced MDX features. Rich editing stays available where possible, but use the raw
+                  tab for exact source edits.
+                </AlertDescription>
+              </Alert>
+            ) : null}
+            <Button className="w-full justify-start" onClick={saveDraft} disabled={pending || !capabilities.draftPersistenceEnabled}>
+              {pending ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Save className="mr-2 size-4" />}
               Save draft
             </Button>
             <Button
@@ -218,130 +344,252 @@ export function EditorShell({
               disabled={pending || !capabilities.workflowWritesEnabled}
             >
               <Sparkles className="mr-2 size-4" />
-              Request SEO suggestions
+              Generate research pack
             </Button>
             <Button
               className="w-full justify-start"
               variant="outline"
-              onClick={markApproved}
-              disabled={pending || !capabilities.workflowWritesEnabled}
+              onClick={publishDocument}
+              disabled={pending || !capabilities.publishEnabled}
             >
               <ShieldCheck className="mr-2 size-4" />
-              Approve publication
+              Publish or republish
             </Button>
             <div className="rounded-xl border p-3 text-sm text-muted-foreground">
-              Publish status: repo draft saved to PR open to merged to deployed to live.
+              Canonical article path: {draftDocument?.articlePath || sourcePath || `content/posts/${frontmatter.slug}.mdx`}
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
+      <div className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
         <Card>
           <CardHeader>
-            <CardTitle>Article editor</CardTitle>
+            <CardTitle>Editorial workspace</CardTitle>
             <CardDescription>
-              Use rich mode for common authoring. Switch to raw mode when the file contains advanced MDX blocks or custom components.
+              MDXEditor is the primary editor because it edits markdown and MDX directly instead of round-tripping
+              through HTML. The raw tab stays available for exact source control.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs value={mode} onValueChange={setMode} className="space-y-4">
-              <TabsList>
-                <TabsTrigger value="rich">Rich editor</TabsTrigger>
-                <TabsTrigger value="raw">Raw MDX</TabsTrigger>
-              </TabsList>
-              <TabsContent value="rich" className="space-y-4">
-                {richModeSafe ? (
-                  <TiptapEditor
-                    value={body}
-                    onChange={setBody}
-                    placeholder="Use the research pack to turn this asset into a proof-backed article."
-                  />
+            <div className="space-y-4">
+              <div
+                role="tablist"
+                aria-label="Editorial workspace views"
+                className="inline-flex h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground"
+              >
+                {[
+                  { value: "editor", label: "Editor" },
+                  { value: "preview", label: "Preview" },
+                  { value: "raw", label: "Raw MDX" },
+                ].map((tab) => (
+                  <Button
+                    key={tab.value}
+                    type="button"
+                    role="tab"
+                    size="sm"
+                    variant={activeTab === tab.value ? "secondary" : "ghost"}
+                    aria-selected={activeTab === tab.value}
+                    aria-controls={`editor-panel-${tab.value}`}
+                    className="h-7 px-3"
+                    onClick={() => {
+                      setActiveTab(tab.value)
+                      if (tab.value === "preview" && !previewCode) requestPreview()
+                    }}
+                  >
+                    {tab.label}
+                  </Button>
+                ))}
+              </div>
+              {activeTab === "editor" ? (
+                <div id="editor-panel-editor" role="tabpanel" aria-label="Editor" className="space-y-4">
+                {requiresRawEditing ? (
+                  <Alert>
+                    <AlertDescription>
+                      This document contains MDX import or export syntax, so exact source editing is the safe path for
+                      this draft.
+                    </AlertDescription>
+                  </Alert>
                 ) : (
-                  <Card className="border-amber-500/40 bg-amber-500/5">
-                    <CardHeader>
-                      <CardTitle className="text-lg">Rich mode locked for safety</CardTitle>
-                      <CardDescription>
-                        This source contains advanced MDX patterns that should stay in raw mode to avoid losing custom blocks or Mermaid diagrams.
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-2 text-sm text-muted-foreground">
-                      {unsupportedPatterns.map((pattern) => (
-                        <div key={pattern}>{pattern}</div>
-                      ))}
-                    </CardContent>
-                  </Card>
+                  <ContentMdxEditor value={body} onChange={setBody} diffMarkdown={baselineBody} />
                 )}
-              </TabsContent>
-              <TabsContent value="raw">
+                </div>
+              ) : null}
+              {activeTab === "preview" ? (
+                <div id="editor-panel-preview" role="tabpanel" aria-label="Preview" className="space-y-4">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm text-muted-foreground">
+                    Preview uses the same MDX component mapping as the published article route.
+                  </p>
+                  <Button variant="outline" size="sm" onClick={requestPreview} disabled={previewPending}>
+                    {previewPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+                    Refresh preview
+                  </Button>
+                </div>
+                {previewError ? (
+                  <Alert>
+                    <AlertDescription>{previewError}</AlertDescription>
+                  </Alert>
+                ) : null}
+                {previewCode ? (
+                  <PreviewRenderer code={previewCode} />
+                ) : (
+                  <Alert>
+                    <AlertDescription>Generate a preview to validate MDX serialization and component rendering.</AlertDescription>
+                  </Alert>
+                )}
+                </div>
+              ) : null}
+              {activeTab === "raw" ? (
+                <div id="editor-panel-raw" role="tabpanel" aria-label="Raw MDX">
                 <Textarea
+                  aria-label="Raw MDX source"
+                  className="min-h-[520px] font-mono text-sm"
                   value={body}
                   onChange={(event) => setBody(event.target.value)}
-                  className="min-h-[520px] font-mono text-sm"
                 />
-              </TabsContent>
-            </Tabs>
+                </div>
+              ) : null}
+            </div>
           </CardContent>
         </Card>
 
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Research pack</CardTitle>
+              <CardTitle>AI assist</CardTitle>
               <CardDescription>
-                Provider-backed when configured, otherwise synthesized locally from the workbook and current content graph.
+                Explicit editorial actions only. Nothing mutates the draft until you apply the result.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4 text-sm">
+            <CardContent className="space-y-3">
+              <div className="flex flex-wrap gap-2">
+                {AI_ACTIONS.map((item) => (
+                  <Button
+                    key={item.action}
+                    size="sm"
+                    variant="outline"
+                    onClick={() => runAssistant(item.action, item.apply)}
+                    disabled={pending}
+                  >
+                    <WandSparkles className="mr-2 size-4" />
+                    {item.label}
+                  </Button>
+                ))}
+              </div>
+              {assistantResult ? (
+                <div className="space-y-3 rounded-xl border p-3">
+                  <p className="text-sm font-medium">{assistantResult.title}</p>
+                  <Textarea readOnly className="min-h-[220px] font-mono text-sm" value={assistantResult.markdown} />
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() =>
+                        setBody((current) =>
+                          applyAssistantMarkdown(current, assistantResult.markdown, assistantResult.apply)
+                        )
+                      }
+                    >
+                      Apply to draft
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => setAssistantResult(null)}>
+                      Dismiss
+                    </Button>
+                  </div>
+                </div>
+              ) : null}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Research pack</CardTitle>
+              <CardDescription>Keep strategy inputs, query clusters, risks, and link opportunities alongside the draft.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
               {pack ? (
                 <>
                   <div>
-                    <p className="font-medium">Query cluster</p>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {pack.queryCluster.map((query) => (
-                        <Badge key={query} variant="outline">
-                          {query}
-                        </Badge>
-                      ))}
-                    </div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">Query cluster</p>
+                    <p className="mt-2 text-sm text-muted-foreground">{pack.queryCluster.join(" • ")}</p>
                   </div>
                   <div>
-                    <p className="font-medium">Suggested structure</p>
-                    <ul className="mt-2 space-y-2 text-muted-foreground">
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">Recommended structure</p>
+                    <ul className="mt-2 list-disc space-y-2 pl-4 text-sm text-muted-foreground">
                       {pack.recommendedStructure.map((item) => (
                         <li key={item}>{item}</li>
                       ))}
                     </ul>
                   </div>
                   <div>
-                    <p className="font-medium">Recommended internal links</p>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {pack.recommendedInternalLinks.map((link) => (
-                        <Badge key={link} variant="secondary">
-                          {link}
-                        </Badge>
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">Internal links</p>
+                    <ul className="mt-2 list-disc space-y-2 pl-4 text-sm text-muted-foreground">
+                      {pack.recommendedInternalLinks.map((item) => (
+                        <li key={item}>{item}</li>
                       ))}
-                    </div>
+                    </ul>
                   </div>
                 </>
               ) : (
-                <div className="rounded-xl border border-dashed p-4 text-muted-foreground">
-                  Generate a research pack from the row sheet or from this editor to populate internal links, search angles, and proof-backed structure.
-                </div>
+                <Alert>
+                  <AlertDescription>Generate a research pack to bring SEO and internal-link guidance into the editor.</AlertDescription>
+                </Alert>
               )}
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>Deployment timeline</CardTitle>
-              <CardDescription>Shows how this asset is expected to move through GitHub and Vercel once wired to the repo workflow.</CardDescription>
+              <CardTitle>Uploads and release history</CardTitle>
+              <CardDescription>
+                Media uploads go to durable object storage when configured. Publish events stay attached to the same content asset.
+              </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3 text-sm text-muted-foreground">
-              <div className="rounded-xl border p-3">1. Draft saved in repo-compatible MDX.</div>
-              <div className="rounded-xl border p-3">2. Workflow state moves to review and approval.</div>
-              <div className="rounded-xl border p-3">3. GitHub branch / PR status attaches to the same asset record.</div>
-              <div className="rounded-xl border p-3">4. Preview and production deployment status flow back into the dashboard.</div>
+            <CardContent className="space-y-4">
+              <div className="flex items-center gap-3">
+                <Input
+                  type="file"
+                  disabled={!capabilities.uploadEnabled || pending}
+                  onChange={(event) => {
+                    const file = event.target.files?.[0]
+                    if (file) uploadAsset(file)
+                  }}
+                />
+                <Button type="button" variant="outline" disabled={!capabilities.uploadEnabled || pending}>
+                  <Upload className="mr-2 size-4" />
+                  Upload
+                </Button>
+              </div>
+              {uploads.length ? (
+                <div className="space-y-2">
+                  {uploads.slice().reverse().map((upload) => (
+                    <div key={upload.id} className="rounded-xl border p-3 text-sm">
+                      <p className="font-medium">{upload.filename}</p>
+                      <p className="text-muted-foreground">{upload.url}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+              <div className="space-y-2">
+                {publishEvents.length ? (
+                  publishEvents
+                    .slice()
+                    .reverse()
+                    .map((event) => (
+                      <div key={event.id} className="rounded-xl border p-3 text-sm">
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="font-medium">{event.message}</p>
+                          <Badge variant={event.status === "failed" ? "destructive" : "outline"}>{event.type}</Badge>
+                        </div>
+                        <p className="mt-1 text-muted-foreground">{new Date(event.createdAt).toLocaleString()}</p>
+                      </div>
+                    ))
+                ) : (
+                  <Alert>
+                    <AlertDescription>No release events yet. Save a draft or publish to start the timeline.</AlertDescription>
+                  </Alert>
+                )}
+              </div>
             </CardContent>
           </Card>
         </div>

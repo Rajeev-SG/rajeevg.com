@@ -99,6 +99,9 @@ The state layer stores:
 - derived-content flags
 - research packs
 - draft metadata
+- full draft documents
+- publish events
+- upload references
 
 This split keeps repo history authoritative for what ships, while the app can still hold operational editorial state that should not depend on a writable production filesystem.
 
@@ -135,20 +138,26 @@ The editor route is:
 The editor is implemented with:
 
 - [editor-shell.tsx](/Users/rajeev/Code/rajeevg.com/src/components/content-ops/editor-shell.tsx)
-- [tiptap-editor.tsx](/Users/rajeev/Code/rajeevg.com/src/components/content-ops/tiptap-editor.tsx)
+- [mdx-editor.tsx](/Users/rajeev/Code/rajeevg.com/src/components/content-ops/mdx-editor.tsx)
 - [editor.ts](/Users/rajeev/Code/rajeevg.com/src/lib/content-ops/editor.ts)
+- [component-registry.ts](/Users/rajeev/Code/rajeevg.com/src/lib/content-ops/component-registry.ts)
+- [publishing.ts](/Users/rajeev/Code/rajeevg.com/src/lib/content-ops/publishing.ts)
 
 Design choices:
 
-- Tiptap handles common rich-text authoring
-- raw MDX mode is always available for advanced authoring
-- files containing JSX components, Mermaid, or MDX import/export are forced into raw mode to avoid unsafe round-tripping
+- MDXEditor is now the primary editor because it accepts and emits markdown directly, supports MDX JSX descriptors, and keeps source mode inside the same authoring surface
+- the justified hybrid is `MDXEditor rich mode + source mode + explicit raw textarea fallback` for documents that contain MDX import/export syntax
+- Tiptap is no longer the active authoring path because HTML round-tripping was too fragile for production MDX content
+- a controlled component registry defines which JSX components are allowed and insertable from the editor
+- preview compilation uses the same MDX component map as the public article route
 - existing frontmatter fields are preserved: `title`, `slug`, `date`, `updated`, `description`, `draft`, `tags`, `excerpt`, `image`, and MDX body content
 
 Draft saving behavior:
 
-- existing repo files save in place when opened through a source path
-- new queued ideas save to `content/posts/drafts/<slug>.mdx`
+- existing repo files still save in place in local development when direct filesystem access is available
+- hosted draft state is durable in the content-ops state store
+- local standalone drafts save to `data/content-ops/drafts/<slug>.mdx`
+- drafts no longer save under `content/posts/**/*` because that created duplicate-slug collisions once a draft and published article shared the same slug
 
 ## Workflow model
 
@@ -227,17 +236,57 @@ The content data layer merges those metrics in:
 Current implementation split:
 
 - published articles remain repo-backed MDX through Velite
-- workflow state and release-timeline visibility live in the dashboard UI
-- editor and row sheet surfaces expose approval and timeline status so each asset can move toward a GitHub-based publishing flow
+- workflow state and release-timeline visibility live in the dashboard UI and content-ops state store
+- draft documents, publish events, and upload references are now durable records on the same asset
+- editor and row sheet surfaces expose approval and timeline status from that shared asset record
 
-The intended durable production model is:
+Implemented production-minded model:
 
-1. Draft and approve inside the dashboard.
-2. Persist operational state in Postgres.
-3. Publish by creating or updating repo-backed MDX through GitHub PR flow.
-4. Reflect PR, merge, deploy, and live states back onto the same asset record.
+1. Draft and enrich inside the dashboard editor.
+2. Persist operational state in the content-ops state adapter.
+3. Save draft state durably even when the deployed filesystem is read-only.
+4. Publish by creating or updating repo-backed MDX through:
+   - local filesystem writes in development
+   - GitHub Contents API in hosted mode when `CONTENT_OPS_GITHUB_TOKEN` is configured
+5. Revalidate local routes immediately after publish and record publish events against the asset.
+6. Let the connected GitHub-to-Vercel path handle the next deployment when hosted publish is enabled.
 
-The current codebase implements the workflow rails and status surfaces needed for that flow, while keeping the shipped content source of truth in the repository.
+This keeps the shipped content source of truth in the repository while making the editing workflow genuinely usable in hosted environments.
+
+## Durable storage split
+
+Published, auditable content:
+
+- `content/posts/**/*.{md,mdx}` remains the canonical published source
+- frontmatter and componentized MDX live with the article source for diffable review
+
+Operational/editorial state:
+
+- `data/content-ops/state.json` locally
+- Postgres via `CONTENT_OPS_DATABASE_URL` in hosted mode
+- GitHub-backed state persistence via `CONTENT_OPS_GITHUB_TOKEN` and `CONTENT_OPS_STATE_BRANCH` when hosted and no database is configured
+- stores workflow, research packs, durable draft documents, publish events, and upload references
+
+Binary/media assets:
+
+- local development fallback: `public/uploads/content-ops/*`
+- hosted durable storage: Vercel Blob via `BLOB_READ_WRITE_TOKEN`
+
+## Auth model
+
+The dashboard is now access-gated.
+
+- middleware is configured in [middleware.ts](/Users/rajeev/Code/rajeevg.com/middleware.ts)
+- dashboard pages are gated again in [src/app/dashboard/layout.tsx](/Users/rajeev/Code/rajeevg.com/src/app/dashboard/layout.tsx)
+- API routes under `/api/content-ops/*` check the same access helper
+- Clerk is the intended production auth layer
+- only `rajeev.sgill@gmail.com` is allowlisted by default
+- a local-only cookie/env shim exists so acceptance testing can prove allow and deny behavior without weakening production auth
+
+Public auth/access surfaces:
+
+- [dashboard-access/page.tsx](/Users/rajeev/Code/rajeevg.com/src/app/dashboard-access/page.tsx)
+- [dashboard-access-denied/page.tsx](/Users/rajeev/Code/rajeevg.com/src/app/dashboard-access-denied/page.tsx)
 
 ## Environment variables
 
@@ -253,6 +302,21 @@ Content ops durability:
 
 ```bash
 CONTENT_OPS_DATABASE_URL=postgres://...
+CONTENT_OPS_STATE_BRANCH=content-ops-state
+```
+
+Dashboard auth:
+
+```bash
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=...
+CLERK_SECRET_KEY=...
+CONTENT_OPS_ALLOWED_EMAILS=rajeev.sgill@gmail.com
+```
+
+Optional local acceptance-proof auth shim:
+
+```bash
+CONTENT_OPS_DEV_AUTH_EMAIL=rajeev.sgill@gmail.com
 ```
 
 Research providers:
@@ -285,6 +349,16 @@ GA4_SERVICE_ACCOUNT_PATH=/absolute/path/to/service-account.json
 
 Alternative GA4 auth is also supported with `GA4_SERVICE_ACCOUNT_JSON` or `GOOGLE_APPLICATION_CREDENTIALS_JSON`.
 
+Repo-backed publishing and media:
+
+```bash
+CONTENT_OPS_GITHUB_TOKEN=...
+CONTENT_OPS_GITHUB_REPO=Rajeev-SG/rajeevg.com
+CONTENT_OPS_GITHUB_BRANCH=main
+CONTENT_OPS_STATE_BRANCH=content-ops-state
+BLOB_READ_WRITE_TOKEN=...
+```
+
 ## Validation
 
 Recommended validation commands:
@@ -292,12 +366,13 @@ Recommended validation commands:
 ```bash
 pnpm exec tsc --noEmit
 pnpm build
-pnpm exec playwright test tests/e2e/content-ops-ia.spec.ts
+CONTENT_OPS_DEV_AUTH_EMAIL=rajeev.sgill@gmail.com pnpm exec playwright test tests/e2e/content-ops-ia.spec.ts tests/e2e/content-ops-cms.spec.ts --workers=1
 ```
 
 The focused Playwright proof writes fresh screenshots under:
 
 - `output/acceptance/content-ops-ia-20260328/local-playwright`
+- `output/acceptance/content-ops-cms-20260330/local-playwright`
 
 That spec validates:
 
@@ -305,5 +380,11 @@ That spec validates:
 - blog organisation
 - article next-step modules
 - dashboard tabs and row actions
+- dashboard allow and deny gating in local proof mode
 - editor availability
+- editor preview and AI drafting flow
 - desktop and mobile overflow safety
+
+The API publish proof is stored in:
+
+- `output/acceptance/content-ops-cms-20260330/api-proof.md`

@@ -1,9 +1,15 @@
 import { NextResponse } from "next/server"
 
+import { getDashboardAccess } from "@/lib/content-ops/auth"
 import { getContentOpsCapabilities, markAssetDerived, saveAssetWorkflow } from "@/lib/content-ops/data"
 import type { ContentWorkflowStatus } from "@/lib/content-ops/types"
 
 export async function POST(request: Request) {
+  const access = await getDashboardAccess()
+  if (access.status !== "authorized") {
+    return NextResponse.json({ error: access.reason }, { status: access.status === "signed_out" ? 401 : 403 })
+  }
+
   const body = (await request.json()) as {
     assetId?: string
     action?: "queue" | "mark-derived" | "set-status"

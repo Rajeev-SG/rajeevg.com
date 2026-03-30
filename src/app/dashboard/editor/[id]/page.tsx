@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation"
 
 import { EditorShell } from "@/components/content-ops/editor-shell"
+import { buildArticlePath } from "@/lib/content-ops/editor"
 import { loadEditorDocument } from "@/lib/content-ops/editor"
 import { getContentOpsAsset } from "@/lib/content-ops/data"
+import type { EditorFrontmatter } from "@/lib/content-ops/types"
 
 function buildStarterBody(title: string, notes: string, nextSteps: string[]) {
   return `## Why this page exists\n\n${notes}\n\n## What the reader needs to understand\n\n- \n- \n- \n\n## Recommended next steps\n\n${nextSteps.map((step) => `- ${step}`).join("\n")}\n`
@@ -14,34 +16,41 @@ export default async function ContentEditorPage({ params }: { params: Promise<{ 
 
   if (!detail) return notFound()
 
-  let sourcePath = detail.draft?.path
-  let initialFrontmatter: Record<string, unknown> = {
+  let sourcePath = detail.draftDocument?.sourcePath || detail.asset.sourcePath || detail.draft?.path
+  let initialFrontmatter: EditorFrontmatter = {
     title: detail.asset.title,
     slug: detail.asset.url.split("/").filter(Boolean).pop() || detail.asset.id.toLowerCase(),
     date: new Date().toISOString().slice(0, 10),
     draft: true,
     tags: detail.asset.tags,
-    description: detail.asset.notes,
-    excerpt: detail.asset.notes,
+    description: detail.asset.notes || undefined,
+    excerpt: detail.asset.notes || undefined,
   }
-  let initialBody = buildStarterBody(detail.asset.title, detail.asset.notes, detail.asset.nextSteps)
+  let initialBody = detail.draftDocument?.body || buildStarterBody(detail.asset.title, detail.asset.notes, detail.asset.nextSteps)
+  let baselineBody = initialBody
   let richModeSafe = true
   let unsupportedPatterns: string[] = []
   let sourceAccessNote: string | null = null
 
-  const editablePath = detail.asset.sourcePath || detail.draft?.path
+  if (detail.draftDocument) {
+    initialFrontmatter = detail.draftDocument.frontmatter
+    richModeSafe = true
+  }
 
-  if (editablePath) {
+  const editablePath = detail.asset.sourcePath || detail.draft?.path || buildArticlePath(initialFrontmatter.slug, sourcePath)
+
+  if (!detail.draftDocument && editablePath) {
     try {
       const document = await loadEditorDocument(editablePath)
-      sourcePath = editablePath
+      sourcePath = document.sourcePath || editablePath
       initialFrontmatter = document.frontmatter
       initialBody = document.body
+      baselineBody = document.body
       richModeSafe = document.richModeSafe
       unsupportedPatterns = document.unsupportedPatterns
     } catch {
       sourceAccessNote =
-        "This hosted environment can render the editor UI, but the raw MDX source file is not bundled for direct filesystem editing here. Preview opens with a safe starter draft instead."
+        "This environment could not read the canonical MDX source directly, so the editor opened with the latest durable draft state instead."
     }
   }
 
@@ -59,10 +68,14 @@ export default async function ContentEditorPage({ params }: { params: Promise<{ 
         asset={detail.asset}
         initialFrontmatter={initialFrontmatter}
         initialBody={initialBody}
+        baselineBody={baselineBody}
         sourcePath={sourcePath}
         richModeSafe={richModeSafe}
         unsupportedPatterns={unsupportedPatterns}
         researchPack={detail.researchPack}
+        draftDocument={detail.draftDocument}
+        publishEvents={detail.publishEvents}
+        uploads={detail.uploads}
         capabilities={detail.capabilities}
         sourceAccessNote={sourceAccessNote}
       />

@@ -14,7 +14,6 @@
     "G01": "approved",
     "G02": "approved",
     "G03": "approved",
-    "D01": "queued",
     "D02": "queued",
     "D03": "queued",
     "D04": "queued",
@@ -22,5 +21,8 @@
   },
   "derived": {},
   "researchPacks": {},
-  "drafts": {}
+  "drafts": {},
+  "draftDocuments": {},
+  "publishEvents": {},
+  "uploads": {}
 }

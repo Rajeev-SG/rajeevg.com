@@ -36,8 +36,17 @@ export function ConsentManager() {
   const [isArticleFooterVisible, setIsArticleFooterVisible] = useState(false)
   const [canLoadVercelAnalytics, setCanLoadVercelAnalytics] = useState(false)
   const isArticlePage = pathname?.startsWith("/blog/") ?? false
+  const isContentOpsRoute =
+    pathname?.startsWith("/dashboard") ||
+    pathname?.startsWith("/dashboard-access") ||
+    pathname?.startsWith("/dashboard-access-denied")
 
   useEffect(() => {
+    if (isContentOpsRoute) {
+      setIsBannerOpen(false)
+      return
+    }
+
     const storedConsentState = readStoredConsentState()
 
     if (storedConsentState) {
@@ -54,7 +63,7 @@ export function ConsentManager() {
     applyGoogleConsentState(defaultState)
     setConsentState(defaultState)
     setIsBannerOpen(true)
-  }, [])
+  }, [isContentOpsRoute])
 
   const updateConsent = (analyticsStorage: ConsentChoice, source: ConsentSource) => {
     const nextConsentState = createConsentState({ analyticsStorage, source })
@@ -143,7 +152,7 @@ export function ConsentManager() {
     }
   }, [consentState, isArticlePage])
 
-  const shouldLoadAnalytics = hasAnalyticsConsent(consentState)
+  const shouldLoadAnalytics = !isContentOpsRoute && hasAnalyticsConsent(consentState)
 
   return (
     <>

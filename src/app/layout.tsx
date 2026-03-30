@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ClerkProvider } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -52,12 +53,68 @@ export const metadata: Metadata = {
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
 const GTM_SCRIPT_ORIGIN =
   process.env.NEXT_PUBLIC_GTM_SCRIPT_ORIGIN || "https://www.googletagmanager.com";
+const CLERK_ENABLED = Boolean(
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && process.env.CLERK_SECRET_KEY
+);
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const appShell = (
+    <>
+      {GTM_ID ? <TagManagerScript gtmId={GTM_ID} scriptOrigin={GTM_SCRIPT_ORIGIN} /> : null}
+      <ThemeProvider>
+        <SidebarProvider>
+          <AppSidebar />
+          <SidebarInset>
+            <header className="border-b border-border bg-background sticky top-0 z-30">
+              <div className="mx-auto xl:mx-0 xl:mr-auto w-full max-w-screen-xl px-4 sm:px-6 md:px-8 2xl:max-w-[1400px]">
+                <div className="flex h-12 items-center gap-2">
+                  <SidebarTrigger />
+                  <div className="ml-auto">
+                    <ThemeToggle />
+                  </div>
+                </div>
+              </div>
+            </header>
+            <main className="min-w-0">
+              <div className="mx-auto xl:mx-0 xl:mr-auto w-full max-w-screen-xl px-4 sm:px-6 md:px-8 2xl:max-w-[1400px]">
+                <div className="py-8 md:py-10">{children}</div>
+              </div>
+            </main>
+            <footer className="border-t border-border/70">
+              <div className="mx-auto xl:mx-0 xl:mr-auto flex w-full max-w-screen-xl flex-col gap-3 px-4 py-4 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6 md:px-8 2xl:max-w-[1400px]">
+                <p>Consented analytics only. Advertising-related consent stays denied.</p>
+                <div className="flex flex-wrap items-center gap-3">
+                  <Link
+                    href="/privacy"
+                    className="transition-colors hover:text-foreground"
+                    data-analytics-event="navigation_click"
+                    data-analytics-section="footer"
+                    data-analytics-item-type="privacy_policy_link"
+                    data-analytics-item-name="Privacy policy"
+                  >
+                    Privacy policy
+                  </Link>
+                  <ConsentPreferencesButton
+                    className="h-auto px-0 text-sm text-muted-foreground hover:text-foreground"
+                    label="Privacy settings"
+                    variant="link"
+                    size="sm"
+                  />
+                </div>
+              </div>
+            </footer>
+          </SidebarInset>
+        </SidebarProvider>
+      </ThemeProvider>
+      <AnalyticsDataLayer />
+      <ConsentManager />
+    </>
+  )
+
   return (
     <html lang="en" suppressHydrationWarning>
       <Script id="google-consent-default" strategy="beforeInteractive">
@@ -79,54 +136,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {GTM_ID ? <TagManagerScript gtmId={GTM_ID} scriptOrigin={GTM_SCRIPT_ORIGIN} /> : null}
-        <ThemeProvider>
-          <SidebarProvider>
-            <AppSidebar />
-            <SidebarInset>
-              <header className="border-b border-border bg-background sticky top-0 z-30">
-                <div className="mx-auto xl:mx-0 xl:mr-auto w-full max-w-screen-xl px-4 sm:px-6 md:px-8 2xl:max-w-[1400px]">
-                  <div className="flex h-12 items-center gap-2">
-                    <SidebarTrigger />
-                    <div className="ml-auto">
-                      <ThemeToggle />
-                    </div>
-                  </div>
-                </div>
-              </header>
-              <main className="min-w-0">
-                <div className="mx-auto xl:mx-0 xl:mr-auto w-full max-w-screen-xl px-4 sm:px-6 md:px-8 2xl:max-w-[1400px]">
-                  <div className="py-8 md:py-10">{children}</div>
-                </div>
-              </main>
-              <footer className="border-t border-border/70">
-                <div className="mx-auto xl:mx-0 xl:mr-auto flex w-full max-w-screen-xl flex-col gap-3 px-4 py-4 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6 md:px-8 2xl:max-w-[1400px]">
-                  <p>Consented analytics only. Advertising-related consent stays denied.</p>
-                  <div className="flex flex-wrap items-center gap-3">
-                    <Link
-                      href="/privacy"
-                      className="transition-colors hover:text-foreground"
-                      data-analytics-event="navigation_click"
-                      data-analytics-section="footer"
-                      data-analytics-item-type="privacy_policy_link"
-                      data-analytics-item-name="Privacy policy"
-                    >
-                      Privacy policy
-                    </Link>
-                    <ConsentPreferencesButton
-                      className="h-auto px-0 text-sm text-muted-foreground hover:text-foreground"
-                      label="Privacy settings"
-                      variant="link"
-                      size="sm"
-                    />
-                  </div>
-                </div>
-              </footer>
-            </SidebarInset>
-          </SidebarProvider>
-        </ThemeProvider>
-        <AnalyticsDataLayer />
-        <ConsentManager />
+        {CLERK_ENABLED ? <ClerkProvider>{appShell}</ClerkProvider> : appShell}
       </body>
     </html>
   );

@@ -137,6 +137,60 @@ export type ResearchPack = {
   seoSuggestions: string[]
 }
 
+export type EditorFrontmatter = {
+  title: string
+  slug: string
+  date: string
+  updated?: string
+  description?: string
+  excerpt?: string
+  tags: string[]
+  draft: boolean
+  image?: string
+}
+
+export type ContentEditorDraft = {
+  assetId: string
+  slug: string
+  articlePath: string
+  sourcePath?: string
+  frontmatter: EditorFrontmatter
+  body: string
+  componentUsages: string[]
+  updatedAt: string
+}
+
+export type PublishEvent = {
+  id: string
+  assetId: string
+  type:
+    | "draft_saved"
+    | "publish_requested"
+    | "published"
+    | "deploy_pending"
+    | "deployed"
+    | "live"
+    | "revalidated"
+    | "failed"
+    | "upload_added"
+  status: "pending" | "success" | "failed"
+  createdAt: string
+  message: string
+  details?: Record<string, string | number | boolean | null | undefined>
+}
+
+export type ContentAssetUpload = {
+  id: string
+  assetId: string
+  filename: string
+  contentType: string
+  provider: "vercel_blob" | "local"
+  pathname?: string
+  url: string
+  size?: number
+  createdAt: string
+}
+
 export type ContentOpsState = {
   workflow: Record<string, ContentWorkflowStatus>
   derived: Record<string, boolean>
@@ -150,11 +204,19 @@ export type ContentOpsState = {
       updatedAt: string
     }
   >
+  draftDocuments: Record<string, ContentEditorDraft>
+  publishEvents: Record<string, PublishEvent[]>
+  uploads: Record<string, ContentAssetUpload[]>
 }
 
 export type ContentOpsCapabilities = {
   workflowWritesEnabled: boolean
+  draftPersistenceEnabled: boolean
   draftFileEditingEnabled: boolean
+  publishEnabled: boolean
+  uploadEnabled: boolean
   deploymentMode: "local" | "hosted"
+  publishMode: "local_fs" | "github_contents" | "disabled"
+  uploadMode: "local_fs" | "vercel_blob" | "disabled"
   reason?: string
 }

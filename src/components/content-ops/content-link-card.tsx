@@ -13,30 +13,34 @@ export function ContentLinkCard({ record }: ContentLinkCardProps) {
   const external = href.startsWith("http")
 
   return (
-    <Card className="h-full border-border/70">
+    <Card className="h-full min-w-0 border-border/70">
       <CardHeader className="space-y-3">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="secondary">{record.pageClass}</Badge>
-          <Badge variant="outline">{record.workflowStatus}</Badge>
+          <Badge variant="secondary" className="max-w-full whitespace-normal break-words text-left">
+            {record.pageClass}
+          </Badge>
+          <Badge variant="outline" className="max-w-full whitespace-normal break-words text-left">
+            {record.workflowStatus}
+          </Badge>
         </div>
-        <CardTitle className="text-xl">
+        <CardTitle className="min-w-0 break-words text-xl">
           {external ? (
-            <a href={href} target="_blank" rel="noreferrer" className="hover:underline">
+            <a href={href} target="_blank" rel="noreferrer" className="break-words hover:underline">
               {record.title}
             </a>
           ) : (
-            <Link href={href} className="hover:underline">
+            <Link href={href} className="break-words hover:underline">
               {record.title}
             </Link>
           )}
         </CardTitle>
-        <CardDescription>{record.pillar}</CardDescription>
+        <CardDescription className="break-words">{record.pillar}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
-        <p className="text-sm text-muted-foreground">{record.notes}</p>
+        <p className="break-words text-sm text-muted-foreground">{record.notes}</p>
         <div className="flex flex-wrap gap-2">
           {record.tags.slice(0, 4).map((tag) => (
-            <Badge key={tag} variant="outline">
+            <Badge key={tag} variant="outline" className="max-w-full whitespace-normal break-words text-left">
               {tag}
             </Badge>
           ))}

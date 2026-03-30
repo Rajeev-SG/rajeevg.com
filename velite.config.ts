@@ -1,9 +1,9 @@
-import rehypePrettyCode from 'rehype-pretty-code'
-import remarkGfm from 'remark-gfm'
-import rehypeSlug from 'rehype-slug'
-import rehypeAutolinkHeadings from 'rehype-autolink-headings'
-import rehypeMermaid from 'rehype-mermaid'
 import { defineCollection, defineConfig, s } from 'velite'
+import {
+  sharedMarkdownRehypePlugins,
+  sharedMdxRehypePlugins,
+  sharedMdxRemarkPlugins,
+} from './src/lib/mdx-pipeline'
 
 const posts = defineCollection({
   name: 'Post',
@@ -38,42 +38,11 @@ export default defineConfig({
   },
   collections: { posts },
   markdown: {
-    rehypePlugins: [
-      [
-        rehypeMermaid as any,
-        {
-          strategy: 'pre-mermaid',
-        },
-      ] as any,
-      [
-        rehypePrettyCode,
-        {
-          theme: { light: 'github-light', dark: 'github-dark' },
-        },
-      ],
-    ],
+    rehypePlugins: sharedMarkdownRehypePlugins as any,
   },
   mdx: {
-    remarkPlugins: [remarkGfm],
-    rehypePlugins: [
-      rehypeSlug,
-      [
-        rehypeAutolinkHeadings as any,
-        { behavior: 'wrap', properties: { className: ['heading-anchor'] } },
-      ] as any,
-      [
-        rehypeMermaid as any,
-        {
-          strategy: 'pre-mermaid'
-        }
-      ] as any,
-      [
-        rehypePrettyCode,
-        {
-          theme: { light: 'github-light', dark: 'github-dark' },
-        },
-      ],
-    ],
+    remarkPlugins: sharedMdxRemarkPlugins as any,
+    rehypePlugins: sharedMdxRehypePlugins as any,
   },
   prepare: ({ posts }) => {
     // Filter out drafts in production

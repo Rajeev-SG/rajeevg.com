@@ -60,7 +60,9 @@ Open http://localhost:3000 and visit:
 - `/projects/hackathon-voting-analytics/google-analytics` — hackathon-specific GA4 Data API surface, filtered to `vote.rajeevg.com`
 - `/projects/site-analytics` — GA4 content and instrumentation dashboard for the main site, with ECharts and Observable Plot renderers
 - `/dashboard` — workbook-backed content OS with strategy tabs, workflow state, research, and row detail sheets
-- `/dashboard/editor/[id]` — dual-mode MDX editor with Tiptap rich mode and raw MDX mode
+- `/dashboard/editor/[id]` — MDX-first editor with MDXEditor, preview, AI actions, uploads, and repo-backed publish controls
+- `/dashboard-access` — public access page for the private content dashboard
+- `/dashboard-access-denied` — allowlist failure or auth-unavailable surface
 
 You can edit the home page at `src/app/page.tsx`. Blog content lives in `content/posts/*`. Velite config is at `velite.config.ts`.
 Environment variables for the app should be placed in `.env.local`.
@@ -79,8 +81,14 @@ Operational state is intentionally lightweight:
 
 - Published content stays in repo-backed MDX under [content/posts](/Users/rajeev/Code/rajeevg.com/content/posts)
 - Dashboard workflow state, research packs, derived flags, and draft metadata live in [data/content-ops/state.json](/Users/rajeev/Code/rajeevg.com/data/content-ops/state.json) by default
-- Production durability can switch to Postgres through `CONTENT_OPS_DATABASE_URL`
-- The in-app editor preserves existing MDX features by offering both a Tiptap mode for common authoring and a raw MDX mode for advanced blocks
+- Hosted durability can use either Postgres through `CONTENT_OPS_DATABASE_URL` or a dedicated GitHub-backed state branch through `CONTENT_OPS_GITHUB_TOKEN`
+- Draft documents, publish events, and upload references now live in that same state layer
+- The in-app editor is MDX-first via MDXEditor, with a justified hybrid fallback to raw source editing for import/export-heavy MDX
+- Local drafts save outside the published content tree under `data/content-ops/drafts/` so draft and published slugs do not collide in Velite
+- Hosted repo-backed publishing can use the GitHub Contents API when `CONTENT_OPS_GITHUB_TOKEN` is configured
+- Hosted draft/workflow state defaults to the `content-ops-state` branch when GitHub publishing is configured and no database is present
+- Hosted media can use Vercel Blob when `BLOB_READ_WRITE_TOKEN` is configured
+- `/dashboard` and `/api/content-ops/*` are access-gated; only `rajeev.sgill@gmail.com` is allowlisted by default
 
 The dashboard mirrors the workbook tabs:
 

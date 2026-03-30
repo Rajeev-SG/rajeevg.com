@@ -10,8 +10,11 @@
     "content": "velite --clean"
   },
   "dependencies": {
+    "@clerk/nextjs": "^7.0.7",
     "@google-analytics/data": "5.2.1",
     "@google-cloud/bigquery": "^8.1.1",
+    "@mdx-js/mdx": "^3.1.1",
+    "@mdxeditor/editor": "^3.53.1",
     "@next/third-parties": "^15.4.10",
     "@observablehq/plot": "^0.6.17",
     "@radix-ui/react-avatar": "^1.1.10",
@@ -34,6 +37,7 @@
     "@tiptap/react": "^3.21.0",
     "@tiptap/starter-kit": "^3.21.0",
     "@vercel/analytics": "^1.5.0",
+    "@vercel/blob": "^2.3.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "echarts": "^6.0.0",

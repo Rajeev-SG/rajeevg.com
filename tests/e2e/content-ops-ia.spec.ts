@@ -1,7 +1,7 @@
 import fs from "node:fs/promises"
 import path from "node:path"
 
-import { expect, test, type Page } from "@playwright/test"
+import { expect, test, type Page, type TestInfo } from "@playwright/test"
 
 const artifactRoot = path.resolve(
   process.cwd(),
@@ -10,6 +10,17 @@ const artifactRoot = path.resolve(
 
 async function ensureArtifactRoot() {
   await fs.mkdir(artifactRoot, { recursive: true })
+}
+
+async function authorizeDashboard(page: Page, testInfo: TestInfo, email = "rajeev.sgill@gmail.com") {
+  const baseURL = (testInfo.project.use.baseURL as string | undefined) || "http://127.0.0.1:3018"
+  await page.context().addCookies([
+    {
+      name: "content_ops_dev_email",
+      value: email,
+      url: baseURL,
+    },
+  ])
 }
 
 async function dismissConsentIfPresent(page: Page) {
@@ -81,6 +92,7 @@ test.describe("content ops IA", () => {
       fullPage: false,
     })
 
+    await authorizeDashboard(page, testInfo)
     await page.goto("/dashboard")
     await dismissConsentIfPresent(page)
     await expect(page.getByRole("heading", { name: "Workbook-backed content OS" })).toBeVisible()
@@ -97,7 +109,7 @@ test.describe("content ops IA", () => {
 
     await page.getByRole("link", { name: "Open in editor" }).click()
     await expect(page.getByRole("heading", { name: "From AI Pilots to Clear Business Value" })).toBeVisible()
-    await expect(page.getByRole("tab", { name: "Rich editor" })).toBeVisible()
+    await expect(page.getByRole("tab", { name: "Editor" })).toBeVisible()
     await expect(page.getByRole("button", { name: "Save draft" })).toBeVisible()
     await page.screenshot({
       path: path.join(artifactRoot, `editor-${testInfo.project.name}.png`),
