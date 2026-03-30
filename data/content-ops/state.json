@@ -27,7 +27,7 @@
       "assetId": "D01",
       "slug": "live-audit-proof-20260330",
       "path": "content/posts/live-audit-proof-20260330.mdx",
-      "updatedAt": "2026-03-30T12:31:48.477Z"
+      "updatedAt": "2026-03-30T12:32:39.889Z"
     }
   },
   "draftDocuments": {
@@ -35,22 +35,24 @@
       "assetId": "D01",
       "slug": "live-audit-proof-20260330",
       "articlePath": "content/posts/live-audit-proof-20260330.mdx",
+      "sourcePath": "content/posts/live-audit-proof-20260330.mdx",
       "frontmatter": {
         "title": "Live Audit Proof 2026-03-30",
         "slug": "live-audit-proof-20260330",
         "date": "2026-03-30",
-        "description": "Seed this as a queue-ready draft starter in the editor.",
+        "description": "Temporary production proof article used to verify content-ops publish, upload, and republish.",
         "excerpt": "Temporary production proof article for content-ops verification.",
         "tags": [
           "ai",
           "playbook",
-          "workflow"
+          "workflow",
+          "proof"
         ],
         "draft": false
       },
-      "body": "## Why this page exists\n\nSeed this as a queue-ready draft starter in the editor.\n\n## What the reader needs to understand\n\n*\n*\n*\n\n## Recommended next steps\n\n* /blog/from-ai-pilots-to-business-value\n\n![live-upload-proof.txt](https://ynw8x58vsod1zoj5.public.blob.vercel-storage.com/content-ops/D01/1774873852246-live-upload-proof.txt)",
+      "body": "## Production proof\n\nThis temporary article proves that the content-ops publish path is working on production.\n\n- First marker: LIVE_PROOF_MARKER_ONE\n- Uploaded asset: [live upload proof](https://ynw8x58vsod1zoj5.public.blob.vercel-storage.com/content-ops/D01/1774873852246-live-upload-proof.txt)\n\n## Why this matters\n\nThe dashboard can now publish repo-backed MDX and serve the result on the live site.",
       "componentUsages": [],
-      "updatedAt": "2026-03-30T12:31:48.477Z"
+      "updatedAt": "2026-03-30T12:32:39.889Z"
     }
   },
   "publishEvents": {
@@ -98,6 +100,43 @@
         "type": "deploy_pending",
         "status": "success",
         "createdAt": "2026-03-30T12:31:48.477Z",
+        "message": "GitHub publish succeeded and the repo is updated. Wait for deployment to complete before treating the page as live.",
+        "details": {
+          "articlePath": "content/posts/live-audit-proof-20260330.mdx",
+          "deliveryState": "repo_committed_waiting_for_deploy"
+        }
+      },
+      {
+        "id": "9f5a358a-2538-49df-8853-1b056172035b",
+        "assetId": "D01",
+        "type": "publish_requested",
+        "status": "success",
+        "createdAt": "2026-03-30T12:32:39.889Z",
+        "message": "Publish action requested from the dashboard editor.",
+        "details": {
+          "articlePath": "content/posts/live-audit-proof-20260330.mdx",
+          "publishMode": "github_contents"
+        }
+      },
+      {
+        "id": "59fb3cde-9726-4611-a355-491191779a26",
+        "assetId": "D01",
+        "type": "published",
+        "status": "success",
+        "createdAt": "2026-03-30T12:32:35.641Z",
+        "message": "Published repo-backed MDX through the GitHub contents API.",
+        "details": {
+          "articlePath": "content/posts/live-audit-proof-20260330.mdx",
+          "commitSha": "e919572906b7a81b91d990beebebf4df22434624",
+          "commitUrl": "https://github.com/Rajeev-SG/rajeevg.com/commit/e919572906b7a81b91d990beebebf4df22434624"
+        }
+      },
+      {
+        "id": "cfd203bc-0d64-4113-9561-33f6513c6b8d",
+        "assetId": "D01",
+        "type": "deploy_pending",
+        "status": "success",
+        "createdAt": "2026-03-30T12:32:39.889Z",
         "message": "GitHub publish succeeded and the repo is updated. Wait for deployment to complete before treating the page as live.",
         "details": {
           "articlePath": "content/posts/live-audit-proof-20260330.mdx",
