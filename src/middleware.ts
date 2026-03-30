@@ -2,7 +2,7 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
 import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
 
-const isDashboardRoute = createRouteMatcher(["/dashboard(.*)"])
+const isDashboardRoute = createRouteMatcher(["/dashboard", "/dashboard/(.*)"])
 const isDashboardApiRoute = createRouteMatcher(["/api/content-ops(.*)"])
 
 function isClerkConfigured() {
