@@ -23,6 +23,37 @@
   "researchPacks": {},
   "drafts": {},
   "draftDocuments": {},
-  "publishEvents": {},
-  "uploads": {}
+  "publishEvents": {
+    "D01": [
+      {
+        "id": "71320a0a-18d3-44f5-8fa5-68564fb6f441",
+        "assetId": "D01",
+        "type": "upload_added",
+        "status": "success",
+        "createdAt": "2026-03-30T12:30:52.702Z",
+        "message": "Uploaded asset to Vercel Blob.",
+        "details": {
+          "url": "https://ynw8x58vsod1zoj5.public.blob.vercel-storage.com/content-ops/D01/1774873852246-live-upload-proof.txt",
+          "filename": "live-upload-proof.txt"
+        }
+      }
+    ]
+  },
+  "uploads": {
+    "D01": [
+      {
+        "id": "163cbe98-43be-454b-951d-f977c2d21b6a",
+        "assetId": "D01",
+        "filename": "live-upload-proof.txt",
+        "contentType": "text/plain",
+        "provider": "vercel_blob",
+        "storageKind": "blob",
+        "storageKey": "content-ops/D01/1774873852246-live-upload-proof.txt",
+        "pathname": "content-ops/D01/1774873852246-live-upload-proof.txt",
+        "url": "https://ynw8x58vsod1zoj5.public.blob.vercel-storage.com/content-ops/D01/1774873852246-live-upload-proof.txt",
+        "size": 51,
+        "createdAt": "2026-03-30T12:30:52.451Z"
+      }
+    ]
+  }
 }
