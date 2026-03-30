@@ -24,6 +24,24 @@ type StoreAdapter = {
   write(state: ContentOpsState): Promise<void>
 }
 
+type StateUpdater = (state: ContentOpsState) => ContentOpsState | Promise<ContentOpsState>
+
+type StateUpdateAttempt = {
+  ok: true
+  state: ContentOpsState
+} | {
+  ok: false
+  error: Error
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+function shouldRetryGitHubStatus(status: number) {
+  return status === 429 || status >= 500
+}
+
 class FileStateStore implements StoreAdapter {
   async read() {
     try {
@@ -97,36 +115,83 @@ class GitHubStateStore implements StoreAdapter {
   private stateBranch = process.env.CONTENT_OPS_STATE_BRANCH || "content-ops-state"
   private token = process.env.CONTENT_OPS_GITHUB_TOKEN || ""
 
-  private async request<T>(input: string, init?: RequestInit) {
-    const response = await fetch(`https://api.github.com${input}`, {
-      ...init,
-      headers: {
-        Accept: "application/vnd.github+json",
-        Authorization: `Bearer ${this.token}`,
-        "Content-Type": "application/json",
-        ...(init?.headers || {}),
-      },
-      cache: "no-store",
-    })
+  private async fetchJson<T>(input: string, init?: RequestInit) {
+    let lastError: Error | null = null
 
-    if (!response.ok) {
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const response = await fetch(`https://api.github.com${input}`, {
+        ...init,
+        headers: {
+          Accept: "application/vnd.github+json",
+          Authorization: `Bearer ${this.token}`,
+          "Content-Type": "application/json",
+          ...(init?.headers || {}),
+        },
+        cache: "no-store",
+      })
+
+      if (response.ok) {
+        return (await response.json()) as T
+      }
+
       const body = await response.text().catch(() => "")
-      throw new Error(`GitHub state request failed with ${response.status}${body ? `: ${body}` : ""}`)
+      lastError = new Error(`GitHub state request failed with ${response.status}${body ? `: ${body}` : ""}`)
+
+      if (!shouldRetryGitHubStatus(response.status) || attempt === 2) {
+        throw lastError
+      }
+
+      await sleep(250 * (attempt + 1))
     }
 
-    return (await response.json()) as T
+    throw lastError || new Error("GitHub state request failed")
+  }
+
+  private async fetchResponse(input: string, init?: RequestInit) {
+    let lastError: Error | null = null
+
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const response = await fetch(`https://api.github.com${input}`, {
+        ...init,
+        headers: {
+          Accept: "application/vnd.github+json",
+          Authorization: `Bearer ${this.token}`,
+          "Content-Type": "application/json",
+          ...(init?.headers || {}),
+        },
+        cache: "no-store",
+      })
+
+      if (response.ok || response.status === 404) {
+        return response
+      }
+
+      const body = await response.text().catch(() => "")
+      lastError = new Error(`GitHub state request failed with ${response.status}${body ? `: ${body}` : ""}`)
+
+      if (!shouldRetryGitHubStatus(response.status) || attempt === 2) {
+        throw lastError
+      }
+
+      await sleep(250 * (attempt + 1))
+    }
+
+    throw lastError || new Error("GitHub state request failed")
+  }
+
+  private async request<T>(input: string, init?: RequestInit) {
+    return this.fetchJson<T>(input, init)
   }
 
   private async ensureBranch() {
     const refPath = `/repos/${this.repo}/git/ref/heads/${this.stateBranch}`
     const baseRefPath = `/repos/${this.repo}/git/ref/heads/${this.sourceBranch}`
 
-    const branchResponse = await fetch(`https://api.github.com${refPath}`, {
+    const branchResponse = await this.fetchResponse(refPath, {
       headers: {
         Accept: "application/vnd.github+json",
         Authorization: `Bearer ${this.token}`,
       },
-      cache: "no-store",
     })
 
     if (branchResponse.ok) return
@@ -152,14 +217,13 @@ class GitHubStateStore implements StoreAdapter {
   private async readFile() {
     await this.ensureBranch()
 
-    const response = await fetch(
-      `https://api.github.com/repos/${this.repo}/contents/${encodeURIComponent(GITHUB_STATE_PATH)}?ref=${this.stateBranch}`,
+    const response = await this.fetchResponse(
+      `/repos/${this.repo}/contents/${encodeURIComponent(GITHUB_STATE_PATH)}?ref=${this.stateBranch}`,
       {
         headers: {
           Accept: "application/vnd.github+json",
           Authorization: `Bearer ${this.token}`,
         },
-        cache: "no-store",
       }
     )
 
@@ -224,10 +288,22 @@ export async function writeContentOpsState(state: ContentOpsState) {
 }
 
 export async function updateContentOpsState(
-  updater: (state: ContentOpsState) => ContentOpsState | Promise<ContentOpsState>
+  updater: StateUpdater
 ) {
   const current = await readContentOpsState()
   const next = await updater(current)
   await writeContentOpsState(next)
   return next
+}
+
+export async function tryUpdateContentOpsState(updater: StateUpdater): Promise<StateUpdateAttempt> {
+  try {
+    const state = await updateContentOpsState(updater)
+    return { ok: true, state }
+  } catch (error) {
+    return {
+      ok: false,
+      error: error instanceof Error ? error : new Error("Content ops state update failed"),
+    }
+  }
 }

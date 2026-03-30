@@ -5,7 +5,7 @@ import { NextResponse } from "next/server"
 import { getDashboardAccess } from "@/lib/content-ops/auth"
 import { getContentOpsCapabilities } from "@/lib/content-ops/data"
 import { uploadContentAsset } from "@/lib/content-ops/publishing"
-import { updateContentOpsState } from "@/lib/content-ops/state-store"
+import { tryUpdateContentOpsState } from "@/lib/content-ops/state-store"
 
 export async function POST(request: Request) {
   const access = await getDashboardAccess()
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
 
   const upload = await uploadContentAsset({ assetId, file })
 
-  await updateContentOpsState((state) => ({
+  const stateUpdate = await tryUpdateContentOpsState((state) => ({
     ...state,
     uploads: {
       ...state.uploads,
@@ -57,5 +57,8 @@ export async function POST(request: Request) {
     },
   }))
 
-  return NextResponse.json({ upload })
+  return NextResponse.json({
+    upload,
+    warning: stateUpdate.ok ? null : stateUpdate.error.message,
+  })
 }

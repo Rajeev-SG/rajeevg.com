@@ -8,7 +8,7 @@ import { getContentOpsAsset, getContentOpsCapabilities } from "@/lib/content-ops
 import type { EditorFrontmatter } from "@/lib/content-ops/types"
 import { buildEditorDocumentFromDraft } from "@/lib/content-ops/editor"
 import { publishEditorDocument } from "@/lib/content-ops/publishing"
-import { updateContentOpsState } from "@/lib/content-ops/state-store"
+import { tryUpdateContentOpsState } from "@/lib/content-ops/state-store"
 
 export async function POST(request: Request) {
   const access = await getDashboardAccess()
@@ -71,7 +71,7 @@ export async function POST(request: Request) {
     revalidatePath("/dashboard")
     revalidatePath(`/dashboard/editor/${body.assetId}`)
 
-    await updateContentOpsState((state) => ({
+    const stateUpdate = await tryUpdateContentOpsState((state) => ({
       ...state,
       workflow: {
         ...state.workflow,
@@ -150,9 +150,10 @@ export async function POST(request: Request) {
         workflowStatus: published.workflowStatus,
         deliveryState: published.deliveryState,
       },
+      warning: stateUpdate.ok ? null : stateUpdate.error.message,
     })
   } catch (error) {
-    await updateContentOpsState((state) => ({
+    await tryUpdateContentOpsState((state) => ({
       ...state,
       publishEvents: {
         ...state.publishEvents,

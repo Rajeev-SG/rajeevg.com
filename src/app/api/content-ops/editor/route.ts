@@ -5,7 +5,7 @@ import { NextResponse } from "next/server"
 import { getDashboardAccess } from "@/lib/content-ops/auth"
 import { getContentOpsCapabilities } from "@/lib/content-ops/data"
 import { buildEditorDocumentFromDraft, saveDraftDocumentLocally } from "@/lib/content-ops/editor"
-import { updateContentOpsState } from "@/lib/content-ops/state-store"
+import { tryUpdateContentOpsState } from "@/lib/content-ops/state-store"
 import type { EditorFrontmatter } from "@/lib/content-ops/types"
 
 export async function POST(request: Request) {
@@ -91,7 +91,7 @@ export async function POST(request: Request) {
     }
   }
 
-  await updateContentOpsState((state) => ({
+  const stateUpdate = await tryUpdateContentOpsState((state) => ({
     ...state,
     workflow: {
       ...state.workflow,
@@ -141,5 +141,9 @@ export async function POST(request: Request) {
     },
   }))
 
-  return NextResponse.json({ draft: result, draftDocument })
+  return NextResponse.json({
+    draft: result,
+    draftDocument,
+    warning: stateUpdate.ok ? null : stateUpdate.error.message,
+  })
 }
