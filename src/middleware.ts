@@ -1,4 +1,5 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
+import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
 
 const isDashboardRoute = createRouteMatcher(["/dashboard(.*)"])
@@ -12,8 +13,11 @@ function hasDevelopmentBypass() {
   return Boolean(process.env.CONTENT_OPS_DEV_AUTH_EMAIL)
 }
 
-export default clerkMiddleware(async (auth, req) => {
-  if (!isClerkConfigured() || hasDevelopmentBypass()) {
+async function handleProtectedRoutes(
+  auth: () => Promise<{ userId: string | null }>,
+  req: NextRequest,
+) {
+  if (hasDevelopmentBypass()) {
     return NextResponse.next()
   }
 
@@ -35,7 +39,18 @@ export default clerkMiddleware(async (auth, req) => {
   }
 
   return NextResponse.next()
-})
+}
+
+const developmentFallbackMiddleware = (request: NextRequest) => {
+  void request.nextUrl
+  return NextResponse.next()
+}
+
+const middleware = isClerkConfigured()
+  ? clerkMiddleware(handleProtectedRoutes)
+  : developmentFallbackMiddleware
+
+export default middleware
 
 export const config = {
   matcher: [
