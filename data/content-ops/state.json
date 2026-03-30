@@ -142,6 +142,14 @@
           "articlePath": "content/posts/live-audit-proof-20260330.mdx",
           "deliveryState": "repo_committed_waiting_for_deploy"
         }
+      },
+      {
+        "id": "41ec9b43-50ed-4f25-b531-ceed612c2972",
+        "assetId": "D01",
+        "type": "failed",
+        "status": "failed",
+        "createdAt": "2026-03-30T12:32:56.669Z",
+        "message": "GitHub state request failed with 502: {\n  \"message\": \"Server Error\"\n}\n"
       }
     ]
   },
