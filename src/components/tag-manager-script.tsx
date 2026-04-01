@@ -1,17 +1,9 @@
 import Script from "next/script"
 
-type TagManagerScriptProps = {
-  gtmId: string
-  scriptOrigin: string
-}
+const GTM_SCRIPT_ORIGIN = "https://www.googletagmanager.com"
 
-function normalizeScriptOrigin(scriptOrigin: string) {
-  return scriptOrigin.endsWith("/") ? scriptOrigin.slice(0, -1) : scriptOrigin
-}
-
-export function TagManagerScript({ gtmId, scriptOrigin }: TagManagerScriptProps) {
-  const normalizedOrigin = normalizeScriptOrigin(scriptOrigin)
-  const noscriptUrl = `${normalizedOrigin}/ns.html?id=${gtmId}`
+export function TagManagerScript({ gtmId }: { gtmId: string }) {
+  const noscriptUrl = `${GTM_SCRIPT_ORIGIN}/ns.html?id=${gtmId}`
 
   return (
     <>
@@ -26,7 +18,7 @@ export function TagManagerScript({ gtmId, scriptOrigin }: TagManagerScriptProps)
             j.async=true;
             j.src=u + '/gtm.js?id=' + i + dl;
             f.parentNode.insertBefore(j,f);
-          })(window,document,'script','dataLayer',${JSON.stringify(gtmId)},${JSON.stringify(normalizedOrigin)});
+          })(window,document,'script','dataLayer',${JSON.stringify(gtmId)},${JSON.stringify(GTM_SCRIPT_ORIGIN)});
         `}
       </Script>
       <noscript>

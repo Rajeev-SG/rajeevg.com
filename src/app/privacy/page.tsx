@@ -96,10 +96,10 @@ export default function PrivacyPage() {
         <div className="space-y-2">
           <h2 className="text-xl font-semibold text-foreground">3. Analytics stack</h2>
           <p>
-            This site uses Google Tag Manager, Google Analytics 4, a server-side GTM endpoint, and
-            Vercel-hosted infrastructure to collect consented interaction data. Reporting and
-            warehouse analysis may also flow through Google Cloud services including BigQuery and
-            Looker Studio.
+            This site uses client-side Google Tag Manager and Google Analytics 4 to collect
+            consented interaction data. Google Cloud services including BigQuery may still power
+            downstream reporting, but production browser events are no longer routed through a
+            server-side GTM endpoint or Cloud Run tagging service.
           </p>
         </div>
 

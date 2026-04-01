@@ -3,7 +3,7 @@ title: How We Built A Consented First-Party Analytics Stack On rajeevg.com
 slug: how-we-built-a-consented-first-party-analytics-stack
 date: 2026-03-23
 updated: 2026-03-24
-description: An exhaustive walkthrough of how rajeevg.com moved from basic tagging to a consent-aware, first-party, server-side Google analytics stack with GTM, sGTM, BigQuery, and Looker Studio.
+description: A historical walkthrough of the March 2026 server-side analytics build on rajeevg.com, before the live site was simplified back to client-side GTM and GA4 only.
 tags: [analytics, ga4, gtm, bigquery, looker, consent, infrastructure, ai-workflows]
 draft: false
 image: /images/blog/analytics-stack/consent-banner-card.png
@@ -21,7 +21,9 @@ image: /images/blog/analytics-stack/consent-banner-card.png
 
 This started as a deceptively simple request: install the right Google analytics tooling, audit the existing implementation, make the `dataLayer` genuinely rich, make consent behave properly, and then push the whole stack all the way through to warehousing and reporting.
 
-The final result is not just "GA4 installed." It is a complete measurement system:
+> Editor's note, 1 April 2026: this post documents the server-side tagging architecture that was live in March 2026. The current production site has since been simplified back to client-side GTM and GA4 only, and the Cloud Run tagging services have been retired.
+
+The historical result described here is not just "GA4 installed." It is a complete measurement system:
 
 - a site-owned, typed analytics contract
 - a persistent consent manager
@@ -55,7 +57,7 @@ This post is the long version of how that was done.
   </div>
   <div className="rounded-2xl border bg-card p-4 shadow-sm">
     <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">Warehouse</p>
-    <p className="mt-2 text-lg font-semibold">`personal-gws-1:ga4_498363924`</p>
+    <p className="mt-2 text-lg font-semibold">`personal-gws-1:analytics_498363924`</p>
     <p className="mt-2 text-sm leading-6 text-muted-foreground">BigQuery export linked to the live stream, ready for warehouse-side analysis and QA.</p>
   </div>
 </div>
@@ -98,7 +100,7 @@ flowchart TB
   WebGTM --> Metrics["First-party transport<br/>/metrics"]
   Metrics --> SGTM["Server-side GTM<br/>GTM-W4GKTR3H"]
   SGTM --> GA4["GA4 property<br/>498363924"]
-  GA4 --> BQ["BigQuery export<br/>ga4_498363924"]
+  GA4 --> BQ["BigQuery export<br/>analytics_498363924"]
   GA4 --> Looker["Looker Studio report"]
 ```
 
@@ -587,7 +589,7 @@ The export link can be fully correct before any warehouse tables appear. That la
 | First-party path | `https://rajeevg.com/metrics` |
 | Live sGTM service | `https://sgtm-live-6tmqixdp3a-nw.a.run.app` |
 | GCP project | `personal-gws-1` |
-| BigQuery dataset | `personal-gws-1:ga4_498363924` |
+| BigQuery dataset | `personal-gws-1:analytics_498363924` |
 | Looker Studio report | `b599834d-939c-4f4d-8b93-b5e3ccab699f` |
 
 The Codex-side MCP config that supported this work currently resolves to:

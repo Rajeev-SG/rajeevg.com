@@ -1,6 +1,6 @@
 # Analytics Contract
 
-This site uses Google Tag Manager as the transport layer, but the app itself owns a structured `dataLayer` contract so GA4, server-side GTM, BigQuery, and Looker can all map against the same event vocabulary.
+This site uses Google Tag Manager as the transport layer, but the app itself owns a structured `dataLayer` contract so GTM, GA4, BigQuery, and downstream reporting surfaces can all map against the same event vocabulary.
 
 Consent is controlled in-app via [`src/components/consent-manager.tsx`](/Users/rajeev/Code/rajeevg.com/src/components/consent-manager.tsx). GTM still loads with Google Consent Mode defaults set to denied, advertising-related consent remains denied, and analytics storage is only granted after an explicit visitor choice.
 
@@ -84,10 +84,10 @@ Those fields are automatically added to every event on that page.
 
 ## Production Transport
 
-- The site loads GTM from the first-party `/metrics` path instead of directly using Google-hosted GTM as the primary script origin.
-- [`src/components/tag-manager-script.tsx`](/Users/rajeev/Code/rajeevg.com/src/components/tag-manager-script.tsx) injects `gtm.js` from `NEXT_PUBLIC_GTM_SCRIPT_ORIGIN`.
-- [`next.config.ts`](/Users/rajeev/Code/rajeevg.com/next.config.ts) rewrites `/metrics/:path*` to the live server-side GTM service when `SGTM_UPSTREAM_ORIGIN` is set.
-- GA4 collection is therefore expected on `https://rajeevg.com/metrics/g/collect`.
+- The site now loads GTM directly from `https://www.googletagmanager.com`.
+- [`src/components/tag-manager-script.tsx`](/Users/rajeev/Code/rajeevg.com/src/components/tag-manager-script.tsx) injects the standard client-side `gtm.js` and `ns.html` endpoints.
+- [`next.config.ts`](/Users/rajeev/Code/rajeevg.com/next.config.ts) no longer rewrites `/metrics/:path*`.
+- GA4 collection is therefore expected on the standard Google endpoint, typically `https://www.google-analytics.com/g/collect`.
 - The web GTM container now forwards the app-owned event families directly into GA4:
   - page context
   - click interactions
@@ -95,7 +95,7 @@ Those fields are automatically added to every event on that page.
   - engagement milestones
   - page engagement summaries
 - GA4 enhanced measurement was intentionally trimmed so the property keeps its default page views and SPA page changes, but does not double-count the site's richer custom `scroll_depth` and `outbound_click` style events with generic Google `scroll` and `click` events.
-- A Google-hosted `gtm.js?...&gtg_health=1` request may still appear as a health or fallback probe even when the primary delivery path is first-party.
+- The retired `/metrics` path should no longer appear in production measurement traffic.
 
 ## GA4 Reporting Promotion
 

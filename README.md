@@ -404,26 +404,25 @@ All paths below are relative to the repository root.
 
 ## Analytics (Google Tag Manager)
 
-- **Summary**: The app mounts GTM at the root and now maintains a first-class app-side `dataLayer` contract in [`src/lib/analytics.ts`](/Users/rajeev/Code/rajeevg.com/src/lib/analytics.ts) and [`src/components/analytics-data-layer.tsx`](/Users/rajeev/Code/rajeevg.com/src/components/analytics-data-layer.tsx). GTM still owns delivery to GA4, but the site now pushes structured page, content, navigation, filter, scroll, article, code-copy, consent, and engagement summary events instead of relying on thin generic clicks. In production, GTM is served first-party from `/metrics` and forwarded to a live server-side GTM container.
+- **Summary**: The app mounts GTM at the root and maintains a first-class app-side `dataLayer` contract in [`src/lib/analytics.ts`](/Users/rajeev/Code/rajeevg.com/src/lib/analytics.ts) and [`src/components/analytics-data-layer.tsx`](/Users/rajeev/Code/rajeevg.com/src/components/analytics-data-layer.tsx). GTM still owns delivery to GA4, but the site now pushes structured page, content, navigation, filter, scroll, article, code-copy, consent, and engagement summary events instead of relying on thin generic clicks. Production transport is now client-side only.
 
 - **Env vars**:
 
   ```bash
   NEXT_PUBLIC_GTM_ID=GTM-K2VRQS47
-  NEXT_PUBLIC_GTM_SCRIPT_ORIGIN=/metrics
-  SGTM_UPSTREAM_ORIGIN=https://sgtm-live-6tmqixdp3a-nw.a.run.app
   NEXT_PUBLIC_SITE_URL=https://rajeevg.com
   ```
 
 - **Root integration**:
   - [`src/app/layout.tsx`](/Users/rajeev/Code/rajeevg.com/src/app/layout.tsx) mounts GTM when `NEXT_PUBLIC_GTM_ID` is present and seeds Google Consent Mode before GTM loads.
-  - [`src/components/tag-manager-script.tsx`](/Users/rajeev/Code/rajeevg.com/src/components/tag-manager-script.tsx) injects `gtm.js` and `ns.html` from the configured script origin.
-  - [`next.config.ts`](/Users/rajeev/Code/rajeevg.com/next.config.ts) rewrites `/metrics/:path*` to the live server-side GTM service when `SGTM_UPSTREAM_ORIGIN` is present.
+  - [`src/components/tag-manager-script.tsx`](/Users/rajeev/Code/rajeevg.com/src/components/tag-manager-script.tsx) injects the standard client-side GTM loader from `https://www.googletagmanager.com`.
+  - [`src/app/head.tsx`](/Users/rajeev/Code/rajeevg.com/src/app/head.tsx) preconnects to Google Tag Manager and Google Analytics.
+  - [`next.config.ts`](/Users/rajeev/Code/rajeevg.com/next.config.ts) no longer rewrites `/metrics/:path*`; the retired server-side tagging path is intentionally unused.
   - The layout pushes a Google consent-mode default before GTM loads so analytics/ad storage stay denied until the site consent manager updates consent.
   - [`src/components/analytics-data-layer.tsx`](/Users/rajeev/Code/rajeevg.com/src/components/analytics-data-layer.tsx) adds page context, scroll depth, article progress, engaged-time milestones, section views, click metadata, and page engagement summary pushes.
   - [`src/components/consent-manager.tsx`](/Users/rajeev/Code/rajeevg.com/src/components/consent-manager.tsx) persists the visitor choice, updates Google Consent Mode, exposes reopenable privacy controls, gates Vercel Analytics, and emits consent events into the shared `dataLayer`.
   - [`src/app/privacy/page.tsx`](/Users/rajeev/Code/rajeevg.com/src/app/privacy/page.tsx) provides the public privacy policy linked from the consent banner, footer, and article header.
-  - The current live stack uses web container `GTM-K2VRQS47`, server container `GTM-W4GKTR3H`, measurement ID `G-675W3V0C78`, and raw BigQuery export dataset `personal-gws-1:analytics_498363924`.
+  - The current live stack uses web container `GTM-K2VRQS47`, measurement ID `G-675W3V0C78`, and raw BigQuery export dataset `personal-gws-1:analytics_498363924`.
 
 - **Automatically attached dimensions**:
   - Every event now includes shared runtime context such as `browser_session_id`, `page_view_id`, `page_view_sequence`, viewport and screen size, device pixel ratio, language, timezone, theme, color scheme, and reduced-motion preference.
@@ -455,12 +454,13 @@ All paths below are relative to the repository root.
   ```
 
 - **Verification tips**:
-  - In DevTools, confirm `dataLayer` exists and that first-party `https://rajeevg.com/metrics/gtm.js?id=GTM-K2VRQS47` loads.
+  - In DevTools, confirm `dataLayer` exists and that `https://www.googletagmanager.com/gtm.js?id=GTM-K2VRQS47` loads.
   - Inspect `window.dataLayer` after navigation and interactions to confirm shared dimensions are present on each event object.
   - Use GTM Preview to map the richer custom events to GA4 event tags and parameters.
-  - Watch requests to `https://rajeevg.com/metrics/g/collect` for the primary GA4 transport path. A Google-hosted `gtm.js?...&gtg_health=1` probe may still appear as a health/fallback request.
+  - Watch requests to `https://www.google-analytics.com/g/collect` for the primary GA4 transport path.
+  - Confirm there are no live requests to `https://rajeevg.com/metrics/*` during the measured session.
   - See [`docs/analytics.md`](/Users/rajeev/Code/rajeevg.com/docs/analytics.md) for the current event contract.
-  - See [`docs/google-tagging-stack.md`](/Users/rajeev/Code/rajeevg.com/docs/google-tagging-stack.md) for the full GA4, GTM, sGTM, BigQuery, and Looker stack audit.
+  - See [`docs/google-tagging-stack.md`](/Users/rajeev/Code/rajeevg.com/docs/google-tagging-stack.md) for the current GA4, GTM, BigQuery, and decommission audit.
 
 ## Build issues and prevention
 

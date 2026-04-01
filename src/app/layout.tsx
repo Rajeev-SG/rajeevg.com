@@ -51,8 +51,6 @@ export const metadata: Metadata = {
 };
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
-const GTM_SCRIPT_ORIGIN =
-  process.env.NEXT_PUBLIC_GTM_SCRIPT_ORIGIN || "https://www.googletagmanager.com";
 const CLERK_ENABLED = Boolean(
   process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && process.env.CLERK_SECRET_KEY
 );
@@ -64,7 +62,7 @@ export default function RootLayout({
 }>) {
   const appShell = (
     <>
-      {GTM_ID ? <TagManagerScript gtmId={GTM_ID} scriptOrigin={GTM_SCRIPT_ORIGIN} /> : null}
+      {GTM_ID ? <TagManagerScript gtmId={GTM_ID} /> : null}
       <ThemeProvider>
         <SidebarProvider>
           <AppSidebar />

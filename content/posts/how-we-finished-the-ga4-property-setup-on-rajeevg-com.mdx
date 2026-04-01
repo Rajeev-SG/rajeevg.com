@@ -3,7 +3,7 @@ title: How We Finished The GA4 Property Setup On rajeevg.com
 slug: how-we-finished-the-ga4-property-setup-on-rajeevg-com
 date: 2026-03-24
 updated: 2026-03-24
-description: A granular walkthrough of the rajeevg.com GA4 property setup, the exact reporting choices that mattered, the live screenshots captured during the work, and the agent toolchain used to get it done.
+description: A granular walkthrough of the rajeevg.com GA4 property setup, captured during the March 2026 server-side stack pass and kept as a historical property-configuration record.
 tags: [analytics, ga4, reporting, gtm, debugview, ai-workflows, documentation]
 draft: false
 image: /images/blog/ga4-property-setup/ga4-realtime-overview.png
@@ -19,6 +19,8 @@ image: /images/blog/ga4-property-setup/ga4-realtime-overview.png
 </div>
 
 The first analytics post on this site covered the whole stack: consent, `dataLayer`, web GTM, server-side GTM, BigQuery, Looker Studio, and the repo surfaces that made it durable.
+
+> Editor's note, 1 April 2026: the screenshots and transport details in this post reflect the March 2026 documentation pass. The GA4 property settings remain relevant, but the live site now uses client-side GTM and GA4 only rather than the former `/metrics` server-side transport.
 
 This post is narrower and more operational. It zooms in on the GA4 property itself:
 
@@ -57,7 +59,7 @@ For `rajeevg.com`, “finished” did not mean "every GA4 toggle in the UI was t
   <div className="rounded-2xl border bg-card p-4 shadow-sm">
     <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">Web stream</p>
     <p className="mt-2 text-lg font-semibold">`G-675W3V0C78`</p>
-    <p className="mt-2 text-sm leading-6 text-muted-foreground">Receives browser-side events through the first-party `/metrics` collection path rather than a thin client-only setup.</p>
+    <p className="mt-2 text-sm leading-6 text-muted-foreground">Receives browser-side events for the main site. At the time of capture this flowed through `/metrics`; the live site now uses direct client-side collection.</p>
   </div>
   <div className="rounded-2xl border bg-card p-4 shadow-sm">
     <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">Reporting model</p>
@@ -83,10 +85,9 @@ The finished property state I cared about looked like this:
 | Service level | `Google Analytics Standard` |
 | Measurement ID | `G-675W3V0C78` |
 | Reporting identity | `Blended` |
-| First-party collection path | `https://rajeevg.com/metrics` |
+| Current transport mode | `Client-side GTM + GA4 only` |
 | Web GTM container | `GTM-K2VRQS47` |
-| Server GTM container | `GTM-W4GKTR3H` |
-| BigQuery dataset | `personal-gws-1:ga4_498363924` |
+| BigQuery dataset | `personal-gws-1:analytics_498363924` |
 
 ## The property screens that actually mattered
 
