@@ -1,0 +1,17 @@
+HTTP/2 200 
+accept-ranges: bytes
+access-control-allow-origin: *
+age: 23
+cache-control: public, max-age=0, must-revalidate
+content-disposition: inline; filename="site-analytics-dashboard-top.png"
+content-type: image/png
+date: Wed, 01 Apr 2026 17:57:03 GMT
+etag: "e910bf8c772d7afede52247c6466160e"
+last-modified: Wed, 01 Apr 2026 17:56:40 GMT
+server: Vercel
+strict-transport-security: max-age=63072000
+x-matched-path: /images/blog/when-not-to-use-server-side-tagging/site-analytics-dashboard-top.png
+x-vercel-cache: HIT
+x-vercel-id: lhr1::gsxlj-1775066223087-2f732bebcb51
+content-length: 256990
+
