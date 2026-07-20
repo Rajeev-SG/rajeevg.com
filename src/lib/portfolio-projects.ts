@@ -16,6 +16,23 @@ export type PortfolioProject = {
 
 export const portfolioProjects: PortfolioProject[] = [
   {
+    slug: "open-gtm-index",
+    title: "Open GTM Index",
+    category: "Research product",
+    tagline: "A transparent guide to open-source sales and marketing software.",
+    summary:
+      "Open GTM Index helps people compare open-source alternatives to common sales, marketing, analytics, automation, and support tools. The rankings use public project facts and a documented scoring method, so each result can be checked instead of taken on trust.",
+    howItWorks:
+      "The responsive site is built with TanStack Start, React, TypeScript, Vite, and Nitro. It presents category leaders, sortable rankings, licence details, replacement suggestions, and the score weights used in the research. The public repository also includes the source workbook and project metadata collected on 20 July 2026.",
+    imagePath: "/images/projects/open-gtm-index.png",
+    imageAlt: "Open GTM Index desktop interface showing category leaders, ranked tools, and the public scoring method.",
+    liveUrl: "https://open-gtm-index.vercel.app",
+    githubUrl: "https://github.com/Rajeev-SG/open-gtm-index",
+    tech: ["TanStack Start", "React 19", "TypeScript", "Vite", "Nitro", "Playwright", "Vercel"],
+    repoVisibility: "PUBLIC",
+    inclusionReason: "Public GitHub repository with a live research and ranking site.",
+  },
+  {
     slug: "hackathon-voting-app",
     title: "Hackathon Voting App",
     category: "Operations product",
