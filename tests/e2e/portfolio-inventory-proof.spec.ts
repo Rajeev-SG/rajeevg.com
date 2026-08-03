@@ -108,9 +108,15 @@ test("proves the complete ranked public project inventory", async ({ browser }) 
   const mobile = await browser.newContext({ viewport: { width: 390, height: 844 }, colorScheme: "dark", isMobile: true })
   const mobilePage = await mobile.newPage()
   await preparePage(mobilePage)
-  await mobilePage.getByRole("heading", { name: "OpenReview Deployment" }).scrollIntoViewIfNeeded()
+  const mobileCards = mobilePage.locator("[data-analytics-item-type='project']")
+  for (let index = 0; index < await mobileCards.count(); index += 1) {
+    const image = mobileCards.nth(index).locator("img")
+    await image.scrollIntoViewIfNeeded()
+    await expect.poll(() => image.evaluate((element) => (element as HTMLImageElement).naturalWidth)).toBeGreaterThan(0)
+  }
   await expect(mobilePage.getByRole("heading", { name: "GitHub Canvas Monitor" })).toBeVisible()
   await expect(mobilePage.getByRole("heading", { name: "OpenReview Deployment" })).toBeVisible()
+  await mobilePage.evaluate(() => scrollTo(0, 0))
   await mobilePage.screenshot({ path: path.join(artifactRoot, "mobile-390-projects.png"), fullPage: true })
   await mobile.close()
 
