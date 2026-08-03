@@ -397,6 +397,73 @@ pre:hover button.rehype-pretty-copy { opacity: 1; }
   background: var(--card);
 }
 .dark .prose svg[aria-roledescription] { background: var(--card); }
+
+/*
+ * Mermaid renders concrete light-theme colors into each SVG. Keep the SVG in
+ * place when the site theme changes, then override those generated colors with
+ * the site's dark-mode tokens. This avoids a costly diagram re-render and also
+ * makes a light-to-dark toggle update immediately.
+ */
+.dark pre.mermaid > svg[aria-roledescription] text,
+.dark pre.mermaid > svg[aria-roledescription] tspan {
+  fill: var(--foreground) !important;
+}
+.dark pre.mermaid > svg[aria-roledescription] foreignObject div,
+.dark pre.mermaid > svg[aria-roledescription] foreignObject span,
+.dark pre.mermaid > svg[aria-roledescription] foreignObject p {
+  color: var(--foreground) !important;
+}
+
+/* Flowcharts */
+.dark pre.mermaid > svg[aria-roledescription="flowchart-v2"] .node .label-container,
+.dark pre.mermaid > svg[aria-roledescription="flowchart-v2"] .node > rect,
+.dark pre.mermaid > svg[aria-roledescription="flowchart-v2"] .node > polygon,
+.dark pre.mermaid > svg[aria-roledescription="flowchart-v2"] .node > circle {
+  fill: var(--muted) !important;
+  stroke: var(--border) !important;
+}
+.dark pre.mermaid > svg[aria-roledescription="flowchart-v2"] .edgeLabel,
+.dark pre.mermaid > svg[aria-roledescription="flowchart-v2"] .edgeLabel p {
+  background-color: var(--card) !important;
+  color: var(--foreground) !important;
+}
+.dark pre.mermaid > svg[aria-roledescription="flowchart-v2"] .edgeLabel rect {
+  fill: var(--card) !important;
+  opacity: 1 !important;
+}
+.dark pre.mermaid > svg[aria-roledescription="flowchart-v2"] .flowchart-link {
+  stroke: var(--muted-foreground) !important;
+}
+.dark pre.mermaid > svg[aria-roledescription="flowchart-v2"] marker path,
+.dark pre.mermaid > svg[aria-roledescription="flowchart-v2"] .arrowMarkerPath {
+  fill: var(--muted-foreground) !important;
+  stroke: var(--muted-foreground) !important;
+}
+
+/* Sequence diagrams */
+.dark pre.mermaid > svg[aria-roledescription="sequence"] rect.actor,
+.dark pre.mermaid > svg[aria-roledescription="sequence"] .note,
+.dark pre.mermaid > svg[aria-roledescription="sequence"] .labelBox {
+  fill: var(--muted) !important;
+  stroke: var(--border) !important;
+}
+.dark pre.mermaid > svg[aria-roledescription="sequence"] line[id^="actor"],
+.dark pre.mermaid > svg[aria-roledescription="sequence"] .messageLine0,
+.dark pre.mermaid > svg[aria-roledescription="sequence"] .messageLine1,
+.dark pre.mermaid > svg[aria-roledescription="sequence"] .loopLine {
+  stroke: var(--muted-foreground) !important;
+}
+.dark pre.mermaid > svg[aria-roledescription="sequence"] marker path,
+.dark pre.mermaid > svg[aria-roledescription="sequence"] marker polygon {
+  fill: var(--muted-foreground) !important;
+  stroke: var(--muted-foreground) !important;
+}
+.dark pre.mermaid > svg[aria-roledescription="sequence"] .activation0,
+.dark pre.mermaid > svg[aria-roledescription="sequence"] .activation1,
+.dark pre.mermaid > svg[aria-roledescription="sequence"] .activation2 {
+  fill: var(--secondary) !important;
+  stroke: var(--border) !important;
+}
 /* Native SVG anchors: show pointer for discoverability */
 .prose svg[aria-roledescription] a { cursor: pointer; }
 /* Fallback rounding for node rectangles (JS also enforces rx/ry) */
