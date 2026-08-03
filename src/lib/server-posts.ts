@@ -44,19 +44,25 @@ function walkMarkdownFiles(directory: string): string[] {
   })
 }
 
+function normalizeFrontmatterDate(value: unknown) {
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    return value.toISOString().slice(0, 10)
+  }
+
+  if (typeof value === "string" && value.trim()) {
+    return value.slice(0, 10)
+  }
+
+  return undefined
+}
+
 function parseLocalPostSummary(absolutePath: string): PostSummary | null {
   const raw = fs.readFileSync(absolutePath, "utf-8")
   const parsed = matter(raw)
   const fallbackSlug = path.basename(absolutePath, path.extname(absolutePath))
   const slug = String(parsed.data.slug || fallbackSlug)
-  const date =
-    typeof parsed.data.date === "string" && parsed.data.date.trim()
-      ? parsed.data.date.slice(0, 10)
-      : new Date().toISOString().slice(0, 10)
-  const updated =
-    typeof parsed.data.updated === "string" && parsed.data.updated.trim()
-      ? parsed.data.updated.slice(0, 10)
-      : undefined
+  const date = normalizeFrontmatterDate(parsed.data.date) ?? new Date().toISOString().slice(0, 10)
+  const updated = normalizeFrontmatterDate(parsed.data.updated)
   const draft = parsed.data.draft === true
 
   if (!includeDrafts && draft) return null

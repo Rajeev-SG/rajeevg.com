@@ -13,55 +13,18 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { HoverScrollText } from "@/components/hover-scroll-text"
-import { getSortedVisiblePosts } from "@/lib/posts"
-
-// Build nav from site links and Velite posts
-const postsList = getSortedVisiblePosts().map((post) => ({
-  title: post.title,
-  url: `/blog/${post.slug}`,
-}))
-
 const data = {
   navMain: [
     {
-      title: "Home",
-      url: "/",
-      items: [
-        { title: "About", url: "/about" },
-        { title: "AI hub", url: "/ai" },
-        { title: "Analytics hub", url: "/analytics" },
-        { title: "Playbooks", url: "/playbooks" },
-        { title: "Proof", url: "/proof" },
-        { title: "Glossary", url: "/glossary" },
-      ],
-    },
-    {
-      title: "Projects",
-      url: "/projects",
-      items: [
-        { title: "Site analytics", url: "/projects/site-analytics" },
-        { title: "Hackathon analytics", url: "/projects/hackathon-voting-analytics" },
-        { title: "Hackathon GA4", url: "/projects/hackathon-voting-analytics/google-analytics" },
-      ],
-    },
-    {
-      title: "Posts",
-      url: "/blog",
-      items: postsList,
-    },
-    {
-      title: "Content OS",
+      title: "Dashboard",
       url: "/dashboard",
-      items: [
-        { title: "Dashboard", url: "/dashboard" },
-      ],
+    },
+    {
+      title: "View public site",
+      url: "/",
     },
   ],
 }
@@ -76,16 +39,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const isMainItemActive = React.useCallback(
     (url: string) => {
       if (url === "/") return pathname === "/"
-      if (url === "/projects") return pathname.startsWith("/projects")
-      if (url === "/blog") return pathname.startsWith("/blog")
       if (url === "/dashboard") return pathname.startsWith("/dashboard")
-      return pathname === url
-    },
-    [pathname]
-  )
-
-  const isSubItemActive = React.useCallback(
-    (url: string) => {
       return pathname === url
     },
     [pathname]
@@ -136,29 +90,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     {item.title}
                   </Link>
                 </SidebarMenuButton>
-                {item.items?.length ? (
-                  <SidebarMenuSub>
-                    {item.items.map((sub) => (
-                      <SidebarMenuSubItem key={sub.title}>
-                        <SidebarMenuSubButton asChild isActive={isSubItemActive(sub.url)}>
-                          <Link
-                            href={sub.url}
-                            prefetch={false}
-                            onClick={handleNav}
-                            className="min-w-0 w-full"
-                            data-analytics-event={sub.url.startsWith("/blog/") ? "post_click" : "navigation_click"}
-                            data-analytics-section="sidebar_subnav"
-                            data-analytics-item-type={sub.url.startsWith("/blog/") ? "post_link" : "navigation_link"}
-                            data-analytics-item-name={sub.title}
-                            data-analytics-item-id={sub.url.replace(/^\/blog\//, "").replace(/^\/projects#/, "")}
-                          >
-                            <HoverScrollText text={sub.title} />
-                          </Link>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    ))}
-                  </SidebarMenuSub>
-                ) : null}
               </SidebarMenuItem>
             ))}
           </SidebarMenu>

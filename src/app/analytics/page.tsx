@@ -1,26 +1,20 @@
 import type { Metadata } from "next"
 
-import { HubPage } from "@/components/content-ops/hub-page"
-import { getHubBySlug, getRelatedContent } from "@/lib/content-ops/data"
+import { WritingCollection } from "@/components/writing-collection"
 
-export default function AnalyticsHubPage() {
-  const hub = getHubBySlug("analytics")
-  if (!hub) return null
-
-  const related = getRelatedContent(hub)
-
+export default function AnalyticsPage() {
   return (
-    <HubPage
-      hub={hub}
-      spotlight={related.filter((record) => record.pageClass === "Flagship").slice(0, 3)}
-      proof={related.filter((record) => record.pageClass.includes("Proof") || record.kind === "dashboard").slice(0, 4)}
-      glossary={related.filter((record) => record.kind === "glossary").slice(0, 3)}
+    <WritingCollection
+      eyebrow="Analytics"
+      title="Measurement that reflects the real system"
+      description="Writing about consent, GA4, data quality, reporting, and the gaps between browser-visible activity and the records a business actually relies on."
+      matchingTags={["analytics", "ga4", "measurement", "consent", "bigquery", "gtm", "privacy"]}
     />
   )
 }
 
 export const metadata: Metadata = {
-  title: "Analytics hub",
-  description: "Measurement systems, privacy-aware analytics, proof dashboards, and concept nodes.",
+  title: "Analytics writing",
+  description: "Writing by Rajeev Gill about analytics, consent, GA4, reporting, and measurement quality.",
   alternates: { canonical: "/analytics" },
 }

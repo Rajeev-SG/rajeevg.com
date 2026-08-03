@@ -1,102 +1,22 @@
-import fs from "node:fs/promises"
-import path from "node:path"
-
-import { expect, test, type Locator, type Page } from "@playwright/test"
-
-const artifactRoot = path.resolve(
-  process.cwd(),
-  "output/playwright/hackathon-ga4-dashboard-20260325",
-)
-
-async function capture(locator: Locator, filename: string) {
-  await fs.mkdir(artifactRoot, { recursive: true })
-  await locator.screenshot({ path: path.join(artifactRoot, filename) })
-}
+import { expect, test, type Page } from "@playwright/test"
 
 async function dismissConsentIfPresent(page: Page) {
-  const necessaryOnly = page.getByRole("button", { name: "Necessary only" })
   try {
-    await necessaryOnly.click({ timeout: 8_000 })
-    await page.waitForTimeout(300)
-  } catch {
-    // already handled or not present
-  }
+    await page.getByRole("button", { name: "Necessary only" }).click({ timeout: 2_000 })
+  } catch {}
 }
 
-test.describe("hackathon ga4 reporting surface", () => {
-  test("shows reconciled GA reporting without the broken fallback controls", async ({ page }, testInfo) => {
-    await page.goto("/projects/hackathon-voting-analytics/google-analytics")
-    await dismissConsentIfPresent(page)
+test("shows the fixed hackathon event-day report", async ({ page }) => {
+  await page.goto("/projects/hackathon-voting-analytics/google-analytics")
+  await dismissConsentIfPresent(page)
 
-    await expect(
-      page.getByRole("heading", { name: "Hackathon reporting dashboard" }),
-    ).toBeVisible()
-
-    await expect(page.getByRole("link", { name: "BigQuery analysis", exact: true })).toHaveCount(0)
-    await expect(page.getByRole("link", { name: "GA4 property", exact: true })).toHaveCount(0)
-    await expect(page.getByText("Host vote.rajeevg.com")).toBeVisible()
-    await expect(page.getByRole("button", { name: "Dummy preview" })).toHaveCount(0)
-    await expect(page.getByText("Consent and measurement")).toBeVisible()
-    await expect(page.getByText("Top tracked events")).toBeVisible()
-    await expect(page.getByText("Measurement quality checks")).toHaveCount(0)
-    await expect(page.getByText("Round snapshot surface")).toHaveCount(0)
-    await expect(page.getByText("Manager operations")).toHaveCount(0)
-
-    await expect(
-      page.getByText(/tracked page loads carried a granted analytics state and .* carried a denied analytics state|known granted-versus-denied page_context rows are not available yet/i).first(),
-    ).toBeVisible()
-
-    await page.getByText("Metric and field definitions", { exact: true }).click()
-    await page.getByText(/More derived metrics/).click()
-    await expect(page.getByText("Granted page loads", { exact: true }).last()).toBeVisible()
-    await expect(page.getByText("% accepted", { exact: true })).toHaveCount(0)
-    await expect(page.getByText("% denied", { exact: true })).toHaveCount(0)
-
-    const recordedVotesExplain = page.getByRole("button", { name: "Explain Recorded votes" }).first()
-    await recordedVotesExplain.click()
-    await expect(page.getByText("Votes saved by the voting app itself. This is the source-of-truth total.")).toBeVisible()
-
-    await page.getByText("What this page includes", { exact: true }).click()
-    const liveNote = page
-      .locator("li:visible")
-      .filter({
-        hasText:
-          /Live mode is reading directly from the shared GA4 property|The GA4 property is reachable, but no hackathon-host rows were returned|Live GA mode could not complete the report request/i,
-      })
-      .first()
-    await expect(liveNote).toBeVisible()
-    await expect(
-      page.getByText(/archived 25 March 2026 hackathon snapshot|Source of truth: the hackathon snapshot reports/i).first(),
-    ).toBeVisible()
-    await expect(
-      page.getByText(/297 persisted votes across 9 entries and 37 judges/i).first(),
-    ).toBeVisible()
-    await expect(page.getByText(/Tracked analytics coverage/i).first()).toBeVisible()
-
-    await capture(
-      testInfo.project.name === "desktop-light"
-        ? page.getByRole("main").last()
-        : page.locator("section").first(),
-      `${testInfo.project.name}-top.png`,
-    )
-
-    await expect(page.getByText("AVG AGGREGATE")).toHaveCount(0)
-    await expect(page.getByText("Granted dialog share")).toHaveCount(0)
-    await expect(page.getByText("Denied dialogs")).toHaveCount(0)
-    await expect(page.getByText(/unknown consent state/i)).toHaveCount(0)
-    await expect(page.getByText("Raj test")).toHaveCount(0)
-    await expect(page.getByText("test-2")).toHaveCount(0)
-    await expect(page.getByText("test-3")).toHaveCount(0)
-    await expect(page.getByText("test 1")).toHaveCount(0)
-
-    const overflow = await page.evaluate(
-      () => document.documentElement.scrollWidth - window.innerWidth,
-    )
-    expect(overflow).toBeLessThanOrEqual(1)
-
-    if (testInfo.project.name === "desktop-light") {
-      await page.goto("/projects")
-      await expect(page.getByRole("link", { name: "Open GA4 surface" })).toBeVisible()
-    }
-  })
+  await expect(page.getByRole("heading", { name: "Hackathon event-day analytics" })).toBeVisible()
+  await expect(page.getByText("25 March 2026")).toBeVisible()
+  await expect(page.getByRole("heading", { name: "297", exact: true })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "172", exact: true })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "58%", exact: true })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Entry comparison" })).toBeVisible()
+  await expect(page.getByRole("columnheader", { name: "Official votes" })).toBeVisible()
+  await expect(page.getByText("Dummy preview")).toHaveCount(0)
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(1)
 })
