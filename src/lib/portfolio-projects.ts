@@ -79,6 +79,54 @@ export const portfolioProjects: PortfolioProject[] = [
     ],
   },
   {
+    slug: "singulyr",
+    title: "Singulyr",
+    category: "Property platform",
+    tagline: "A Singapore property workflow platform with a production lead and content stack.",
+    summary:
+      "Singulyr presents a clear product vision for verified identities, structured agreements, maintenance records, and deposit accountability across the rental lifecycle. The public launch site is backed by a real lead-capture, analytics, and publishing system rather than a static landing page.",
+    howItWorks:
+      "The Astro application combines a responsive public site with server-side lead handling, Neon-backed deduplication, HubSpot contact updates, BigQuery event writes, consent-aware analytics, and a protected content editor that publishes through GitHub and Vercel.",
+    imagePath: "/images/projects/singulyr.png",
+    imageAlt: "Singulyr launch site showing the Singapore property platform positioning and early-access call to action.",
+    liveUrl: "https://singulyr-phase1.vercel.app",
+    tech: ["Astro", "React 19", "Neon", "HubSpot", "BigQuery", "Vercel"],
+    repoVisibility: "PRIVATE",
+    inclusionReason: "Public production launch site with a complete visitor journey; source remains private.",
+  },
+  {
+    slug: "creative-observatory",
+    title: "Creative Observatory",
+    category: "Ad intelligence product",
+    tagline: "A source-aware workbench for reviewing public ad-library evidence.",
+    summary:
+      "Creative Observatory brings brand coverage, creative inspection, trust cues, competitor context, and briefing exports into one analyst workflow. The interface is designed to keep source evidence and the next decision together instead of reducing the work to a generic dashboard.",
+    howItWorks:
+      "The Next.js application uses a typed research pipeline, Prisma-backed data contracts, seeded evidence states, interactive tables and charts, and Playwright proof flows. Its review model separates stored evidence, live refreshes, and demo data so users can see what each conclusion is based on.",
+    imagePath: "/images/projects/creative-observatory.png",
+    imageAlt: "Creative Observatory evidence workbench showing brand controls, trust status, and the review workflow.",
+    liveUrl: "https://creative-observatory.vercel.app",
+    tech: ["Next.js 15", "React 19", "Prisma", "Recharts", "Playwright", "Vercel"],
+    repoVisibility: "PRIVATE",
+    inclusionReason: "Public production workbench with a complete visitor-facing interface; source remains private.",
+  },
+  {
+    slug: "github-canvas-monitor",
+    title: "GitHub Canvas Monitor",
+    category: "Developer tool",
+    tagline: "A spatial monitoring wall for active GitHub repositories.",
+    summary:
+      "GitHub Canvas Monitor replaces a linear repository list with a zoomable wall of movable project tiles. Each tile surfaces recent commits, pull requests, issues, activity signals, and README context so a large body of work can be scanned and arranged visually.",
+    howItWorks:
+      "The React application uses tldraw for the infinite canvas, TanStack Query for refresh and caching, and a TypeScript and Express service for GitHub data. Public repositories load without sign-in, while the canvas layout and selected repositories persist locally in the browser.",
+    imagePath: "/images/projects/github-canvas-monitor.png",
+    imageAlt: "GitHub Canvas Monitor showing a wall of repository tiles with live activity and attention signals.",
+    liveUrl: "https://github-canvas-monitor.vercel.app",
+    tech: ["React 19", "TypeScript", "tldraw", "TanStack Query", "Express", "Vercel"],
+    repoVisibility: "PRIVATE",
+    inclusionReason: "Public production developer tool with a live GitHub data service; source remains private.",
+  },
+  {
     slug: "workflow-garden",
     title: "Workflow Garden",
     category: "Education product",
@@ -145,6 +193,22 @@ export const portfolioProjects: PortfolioProject[] = [
     inclusionReason: "Public production application with web, desktop, and mobile implementations; source remains private.",
   },
   {
+    slug: "singulyr-pact",
+    title: "Singulyr PACT",
+    category: "Product prototype",
+    tagline: "An end-to-end rental operating-system prototype for Singapore.",
+    summary:
+      "Singulyr PACT models the rental relationship after a tenant and landlord have matched. Its navigable prototype covers role-based dashboards, property workspaces, payments, compliance tracking, maintenance, onboarding, and messages for landlords, tenants, agents, and service providers.",
+    howItWorks:
+      "The Next.js prototype uses a shared route model for four user roles, Prisma and Postgres schema work, simulated Singpass and banking steps, and explicit feedback wherever a transaction is not yet persistent. The live product is intentionally presented as a working prototype rather than a finished financial service.",
+    imagePath: "/images/projects/singulyr-pact.png",
+    imageAlt: "Singulyr PACT landlord dashboard showing rental totals, active tenancies, compliance, and maintenance status.",
+    liveUrl: "https://singulyr-pact-lp.vercel.app",
+    tech: ["Next.js 14", "TypeScript", "Prisma", "Postgres", "NextAuth", "Vercel"],
+    repoVisibility: "PRIVATE",
+    inclusionReason: "Public, navigable product prototype with a complete critical path; source remains private.",
+  },
+  {
     slug: "choice-compass",
     title: "Choice Compass",
     category: "Decision tool",
@@ -179,6 +243,23 @@ export const portfolioProjects: PortfolioProject[] = [
     inclusionReason: "Public GitHub repo with a public homepage URL.",
   },
   {
+    slug: "openreview",
+    title: "OpenReview Deployment",
+    category: "Adapted AI deployment",
+    tagline: "A self-hosted pull-request review service configured for model routing.",
+    summary:
+      "This is my deployed fork of Vercel Labs' OpenReview project. It can respond to pull-request comments, inspect a repository in an isolated workspace, run project checks, and return line-level review suggestions through GitHub.",
+    howItWorks:
+      "The deployment combines Next.js route handlers, GitHub webhooks, resumable workflows, isolated execution, the AI SDK, and a configurable model provider. The original product comes from Vercel Labs; my public fork and deployment preserve that attribution.",
+    imagePath: "/images/projects/openreview.png",
+    imageAlt: "OpenReview deployment documentation explaining the pull-request review workflow and setup.",
+    liveUrl: "https://openreview-openrouter.vercel.app",
+    githubUrl: "https://github.com/Rajeev-SG/openreview",
+    tech: ["Next.js 16", "AI SDK", "GitHub", "Vercel Workflow", "Vercel Sandbox", "OpenRouter"],
+    repoVisibility: "PUBLIC",
+    inclusionReason: "Public attributed fork with a live self-hosted deployment.",
+  },
+  {
     slug: "rajeevg-com",
     title: "rajeevg.com",
     category: "Personal site",
@@ -198,10 +279,30 @@ export const portfolioProjects: PortfolioProject[] = [
   },
 ]
 
-export function getPortfolioProjects() {
-  return portfolioProjects
-}
-
 export function getPortfolioProject(slug: string) {
   return portfolioProjects.find((project) => project.slug === slug)
+}
+
+const publicProjectOrder = [
+  "open-gtm-index",
+  "local-llm-lab",
+  "hackathon-voting-app",
+  "singulyr",
+  "creative-observatory",
+  "github-canvas-monitor",
+  "agent-orchestra",
+  "mark-notes",
+  "model-intelligence-maintainer",
+  "workflow-garden",
+  "singulyr-pact",
+  "proof-pack",
+  "choice-compass",
+  "openreview",
+  "rajeevg-com",
+] as const
+
+export function getPortfolioProjects() {
+  return publicProjectOrder
+    .map((slug) => getPortfolioProject(slug))
+    .filter((project): project is PortfolioProject => Boolean(project))
 }
