@@ -52,6 +52,8 @@ image: /images/blog/local-qwen-codex/model-selector.png
 
 The finished setup works. Qwen appears beside the hosted models in Codex, it can read an attached screenshot, it can ask Codex to use web search and other tools, and its automatic context compression starts at a limit chosen for this local runtime.
 
+If you want to build it rather than read the explanation first, jump to [Build it yourself from a clean Mac](#build-it-yourself-from-a-clean-mac). That section now includes every install command, configuration file, checkpoint, and removal step. The matching [public example kit](https://github.com/Rajeev-SG/rajeevg.com/tree/main/examples/codex-local-qwen) contains the adapter and scripts with no private paths or credentials.
+
 I also managed to break the ChatGPT desktop installation along the way by editing the application bundle. That was the wrong approach. The supported solution is much cleaner: use Codex's user configuration and a custom model catalog.
 
 <ArticleFigure
@@ -212,19 +214,19 @@ The working user configuration is conceptually this:
 
 ```toml
 model = "qwen3.6-35b-a3b-mlx"
-model_provider = "cliproxyapi"
-model_catalog_json = "/Users/you/.local/share/codex-mlx-qwen/config/merged-model-catalog.json"
+model_provider = "local_qwen_router"
+model_catalog_json = "/Users/you/path/to/codex-local-qwen/config/merged-model-catalog.json"
 
-[model_providers.cliproxyapi]
+[model_providers.local_qwen_router]
 name = "OpenAI + Local Qwen"
 base_url = "http://127.0.0.1:8080/v1"
 wire_api = "responses"
 experimental_bearer_token = "replace-with-a-local-only-key"
-requires_openai_auth = true
+requires_openai_auth = false
 supports_websockets = false
 ```
 
-Replace `/Users/you` with the actual home directory, and use the same local-only key in the router. `wire_api = "responses"` tells Codex which request format the provider accepts.
+Replace `/Users/you` with the actual home directory, and use the same local-only key in the router. `wire_api = "responses"` tells Codex which request format the provider accepts. CLIProxyAPI owns the hosted-model sign-in, so Codex only authenticates to the local router here.
 
 The model catalog contains the entry Codex displays:
 
@@ -418,21 +420,373 @@ The model itself uses about 19 GB of memory. On my 48 GB machine, macOS still ha
   caption="This is one observed moment, not a universal requirement. Memory use changes with context length, cache settings, other applications, and model version."
 />
 
-## If you wanted to reproduce the pattern
+## Build it yourself from a clean Mac
 
-This is the order I would use now:
+The earlier version of this article explained the pieces but left too much assembly to the reader. This is the complete route I would follow on a clean Apple Silicon Mac.
 
-1. **Confirm the Mac can run the model.** Apple Silicon is required for MLX. Check available unified memory and disk space before downloading a 19 GB model.
-2. **Run the model directly first.** If Qwen cannot answer through MLX-VLM on its own, adding Codex will only hide the real problem behind another layer.
-3. **Expose a Responses-compatible local endpoint.** Codex needs the Responses protocol for its conversation and tool loop.
-4. **Add the translation adapter.** Flatten tool namespaces for Qwen, restore them for Codex, and preserve image blocks as images.
-5. **Add CLIProxyAPI if hosted models must share the same provider.** If you only want Qwen, the architecture can be simpler.
-6. **Create the user-level provider in `~/.codex/config.toml`.** Keep the base URL on localhost and use `wire_api = "responses"`.
-7. **Create a merged model catalog.** Add the Qwen entry while preserving the hosted entries you still want in the selector.
-8. **Choose context limits from measured memory use.** Do not copy my 163,840-token limit onto a smaller Mac without testing it.
-9. **Restart Codex and test each ability separately.** Text, direct image input, tool calling, image-valued tool output, web search, hosted model routing, and long-context compaction are different tests.
+The commands below use the exact 4-bit Qwen snapshot I tested. At publication, the current packaged releases were MLX-VLM 0.6.8 and CLIProxyAPI 7.2.115. My original acceptance proof used MLX-VLM 0.6.5 and CLIProxyAPI 7.2.112, so I keep those tested versions visible rather than pretending the numbers are interchangeable.
 
-I would not publish a one-command installer for this exact setup yet. It has machine-specific paths, a pinned model revision, an open upstream image fix, and assumptions about existing Codex authentication. The architecture is reusable. The literal files need to be adapted to the machine.
+### Before downloading 19 GB
+
+The exact settings in this article were tested on an Apple M5 Pro with 48 GB of unified memory and about 283 GB of free disk space. I would treat 48 GB as the comfortable target for this model and its 163,840-token cache. A Mac with less memory may still run the weights, but I have not verified this context setting there. Start with a smaller model or a much smaller `--max-kv-size` instead of forcing the same number.
+
+Check the machine:
+
+```bash
+uname -m
+system_profiler SPHardwareDataType | grep -E "Chip|Memory"
+df -h "$HOME"
+```
+
+The first command should print `arm64`. Leave at least 25 GB free for the model, plus working room for logs, downloads, macOS, Codex, and the model's cache.
+
+<WorkflowFrame eyebrow="Checkpoint 0" title="The Mac is suitable for this exact guide" tone="forest" footer="If the machine has less memory, reduce the model size or context before continuing.">
+  <div className="grid gap-3 text-sm sm:grid-cols-3">
+    <TerminalNote>Architecture: arm64</TerminalNote>
+    <TerminalNote>Unified memory: 48 GB tested</TerminalNote>
+    <TerminalNote>Free disk: 25 GB minimum</TerminalNote>
+  </div>
+</WorkflowFrame>
+
+### 1. Install the basic command-line tools
+
+Apple's command-line developer tools provide Git and the compiler support some packages expect:
+
+```bash
+xcode-select --install
+```
+
+If `brew --version` fails, install [Homebrew](https://brew.sh/):
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+Then install `uv`, `jq`, and CLIProxyAPI:
+
+```bash
+brew install uv jq cliproxyapi
+```
+
+`uv` installs and isolates Python command-line tools. `jq` reads the small JSON configuration files used by the start script. Homebrew's `cliproxyapi` package supplies the hosted-model gateway.
+
+Install MLX-VLM and the Hugging Face download command in isolated Python environments:
+
+```bash
+uv tool install --python 3.13 mlx-vlm
+uv tool install --python 3.13 huggingface_hub
+uv tool update-shell
+```
+
+Open a new Terminal window, then verify the commands instead of assuming the shell found them:
+
+```bash
+uv --version
+jq --version
+mlx_vlm.server --help
+hf --help
+cliproxyapi --help
+codex --version
+```
+
+If `mlx_vlm.server` or `hf` is missing, `~/.local/bin` is probably not on `PATH` yet. Opening a new Terminal after `uv tool update-shell` normally fixes that.
+
+### 2. Download and verify Qwen
+
+Create a predictable model directory, then pin the download to the revision used for this article:
+
+```bash
+mkdir -p "$HOME/Models/Qwen3.6-35B-A3B-4bit"
+
+hf download mlx-community/Qwen3.6-35B-A3B-4bit \
+  --revision 38740b847e4cb78f352aba30aa41c76e08e6eb46 \
+  --local-dir "$HOME/Models/Qwen3.6-35B-A3B-4bit"
+```
+
+The repository is public and is not gated. The download can be restarted with the same command if it is interrupted.
+
+Check the files and size:
+
+```bash
+test -f "$HOME/Models/Qwen3.6-35B-A3B-4bit/config.json"
+test -f "$HOME/Models/Qwen3.6-35B-A3B-4bit/model.safetensors.index.json"
+du -sh "$HOME/Models/Qwen3.6-35B-A3B-4bit"
+```
+
+The directory should be roughly 19 GB and contain four `.safetensors` weight files. If `config.json` is missing, the model download is not complete.
+
+### 3. Prove Qwen works without Codex
+
+This isolates model problems from every routing and Codex problem that follows:
+
+```bash
+mlx_vlm.generate \
+  --model "$HOME/Models/Qwen3.6-35B-A3B-4bit" \
+  --prompt "Reply with exactly QWEN_DIRECT_OK" \
+  --max-tokens 32 \
+  --temperature 0
+```
+
+Do not continue until the answer contains `QWEN_DIRECT_OK`. The first run may spend time loading about 19 GB of weights into unified memory.
+
+You can also prove vision before involving Codex:
+
+```bash
+mlx_vlm.generate \
+  --model "$HOME/Models/Qwen3.6-35B-A3B-4bit" \
+  --image /absolute/path/to/a-small-image.png \
+  --prompt "Describe one visible detail in this image." \
+  --max-tokens 100 \
+  --temperature 0
+```
+
+### 4. Start MLX-VLM as an API and test it directly
+
+Run this in its own Terminal window:
+
+```bash
+mlx_vlm.server \
+  --model "$HOME/Models/Qwen3.6-35B-A3B-4bit" \
+  --host 127.0.0.1 \
+  --port 8081 \
+  --max-tokens 4096 \
+  --max-kv-size 163840 \
+  --kv-bits 8 \
+  --kv-quant-scheme uniform \
+  --vision-cache-size 8 \
+  --log-level INFO
+```
+
+In a second Terminal, wait for the model list to respond:
+
+```bash
+curl -fsS http://127.0.0.1:8081/v1/models | jq .
+```
+
+Then make a direct Responses request:
+
+```bash
+curl -fsS http://127.0.0.1:8081/v1/responses \
+  -H 'Content-Type: application/json' \
+  -d "$(jq -n \
+    --arg model "$HOME/Models/Qwen3.6-35B-A3B-4bit" \
+    '{model:$model,input:"Reply with exactly QWEN_SERVER_OK",stream:false}')" \
+  | jq .
+```
+
+At this point there is still no Codex, no adapter, and no CLIProxyAPI. A failure here belongs to the model or MLX-VLM layer.
+
+### 5. Install the public adapter kit
+
+The small adapter is real source code, not pseudocode. I published the path-neutral copy with the article:
+
+```bash
+git clone https://github.com/Rajeev-SG/rajeevg.com.git
+cd rajeevg.com/examples/codex-local-qwen
+
+cp config/settings.example.json config/settings.json
+cp config/cliproxyapi.example.yaml config/cliproxyapi.yaml
+chmod +x scripts/*.sh
+```
+
+Open `config/settings.json` and replace the example model path:
+
+```json
+{
+  "model_path": "/Users/your-name/Models/Qwen3.6-35B-A3B-4bit",
+  "model_alias": "qwen3.6-35b-a3b-mlx",
+  "context_length": 163840,
+  "max_output_tokens": 4096
+}
+```
+
+Check that the JSON is valid and points at the model:
+
+```bash
+jq . config/settings.json
+MODEL_PATH="$(jq -r '.model_path' config/settings.json)"
+test -f "$MODEL_PATH/config.json"
+```
+
+The adapter itself is [`app/adapter.py`](https://github.com/Rajeev-SG/rajeevg.com/blob/main/examples/codex-local-qwen/app/adapter.py). It uses only Python's standard library. Its two important jobs are flattening Codex's namespaced tool definitions for Qwen and keeping an image returned by a tool as visual input.
+
+### 6. Configure and sign in to CLIProxyAPI
+
+The included `config/cliproxyapi.yaml` is deliberately small:
+
+```yaml
+host: "127.0.0.1"
+port: 8319
+auth-dir: "~/.cli-proxy-api"
+api-keys:
+  - "sk-local-codex"
+debug: false
+logging-to-file: true
+request-retry: 1
+routing:
+  strategy: "fill-first"
+```
+
+The value `sk-local-codex` is a local password shared by CLIProxyAPI, the adapter, and Codex. It is not an OpenAI API key. You can change it, but the same value must be used in all three places.
+
+Sign CLIProxyAPI into the hosted Codex models:
+
+```bash
+cliproxyapi \
+  --config "$PWD/config/cliproxyapi.yaml" \
+  --codex-login
+```
+
+Finish the normal browser sign-in. The account file is stored under `~/.cli-proxy-api`. This is why the Codex provider shown later uses the local bearer key and `requires_openai_auth = false`: CLIProxyAPI already owns the hosted-provider sign-in.
+
+Start CLIProxyAPI temporarily in another Terminal:
+
+```bash
+cliproxyapi --config "$PWD/config/cliproxyapi.yaml"
+```
+
+Check it from a second Terminal:
+
+```bash
+curl -fsS http://127.0.0.1:8319/v1/models \
+  -H 'Authorization: Bearer sk-local-codex' \
+  | jq '.data[] | .id'
+```
+
+You should see hosted model IDs. If the list is empty or authentication fails, repeat `--codex-login` with the same configuration file.
+
+### 7. Start the complete local route
+
+Stop the two temporary foreground servers with Control-C. From the example-kit directory, start all three services in the correct order:
+
+```bash
+./scripts/start.sh
+./scripts/status.sh
+```
+
+The start script checks the three ports, starts MLX-VLM, waits for it, starts CLIProxyAPI, waits again, and finally starts the adapter. Its final response should look like this:
+
+```json
+{"status":"ok","mlx_vlm":true,"cliproxyapi":true}
+```
+
+Logs live in the kit's `logs/` directory. Stop the route with:
+
+```bash
+./scripts/stop.sh
+```
+
+I use macOS LaunchAgents on my own machine, but they are optional. The included scripts are easier to inspect, debug, move, and remove on a first installation. Once the manual route is reliable, wrapping those same three commands in LaunchAgents is an operational convenience rather than a new part of the architecture.
+
+### 8. Build a model catalog without losing hosted models
+
+`model_catalog_json` replaces the catalog Codex reads at startup. A file containing only Qwen would therefore hide the hosted entries. The kit solves that by asking the installed Codex binary for its bundled catalog and appending Qwen:
+
+```bash
+uv run --python 3.13 --no-project \
+  python scripts/merge_model_catalog.py
+
+jq '.models[] | {slug, display_name}' \
+  config/merged-model-catalog.json
+```
+
+The output should include `qwen3.6-35b-a3b-mlx` and the hosted models. Rerun this merge after updating Codex so a stale copied catalog does not hide newer hosted entries.
+
+The Qwen entry alone contains:
+
+```json
+"context_window": 163840,
+"auto_compact_token_limit": 150000,
+"truncation_policy": {"mode": "tokens", "limit": 156000}
+```
+
+That is how the compression threshold applies only when Qwen is selected.
+
+### 9. Add the provider to Codex
+
+Back up the current configuration:
+
+```bash
+cp "$HOME/.codex/config.toml" \
+  "$HOME/.codex/config.toml.before-local-qwen"
+```
+
+Merge the following into `~/.codex/config.toml`. Use the actual absolute path to the example kit; TOML should not contain the literal `/Users/you` placeholder.
+
+```toml
+model = "qwen3.6-35b-a3b-mlx"
+model_provider = "local_qwen_router"
+model_catalog_json = "/Users/your-name/Code/rajeevg.com/examples/codex-local-qwen/config/merged-model-catalog.json"
+
+[model_providers.local_qwen_router]
+name = "Hosted models + local Qwen"
+base_url = "http://127.0.0.1:8080/v1"
+wire_api = "responses"
+experimental_bearer_token = "sk-local-codex"
+requires_openai_auth = false
+supports_websockets = false
+```
+
+Preserve unrelated settings already in the file. Never edit anything inside `ChatGPT.app`.
+
+Quit Codex completely and reopen it. The desktop app and CLI read the catalog at startup, so changing the JSON while Codex remains open will not rebuild the selector.
+
+### 10. Test each layer separately inside Codex
+
+Do these as separate checks. A single successful chat does not prove the whole setup.
+
+<div className="not-prose my-8 grid gap-4 md:grid-cols-2">
+  {[
+    ["Text", "Select Qwen and ask it to reply with exactly QWEN_CODEX_OK."],
+    ["Direct image", "Attach a small screenshot and ask for one visible detail."],
+    ["Repository tool", "Ask Codex to inspect a harmless file in a test repository."],
+    ["Web search", "Ask a current factual question and explicitly request web search."],
+    ["Image-valued tool result", "Use a tool that returns an image, then ask Qwen to read it."],
+    ["Hosted route", "Select a hosted model and confirm that it still answers."],
+  ].map(([title, body]) => (
+    <div key={title} className="rounded-[22px] border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-950/50">
+      <div className="text-sm font-semibold text-slate-950 dark:text-white">{title}</div>
+      <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{body}</div>
+    </div>
+  ))}
+</div>
+
+After each test, inspect `logs/adapter.log`. Qwen requests should say `route=mlx_vlm`; hosted selections should say `route=cliproxyapi`.
+
+Web search, connected services, and image generation remain Codex tools. Qwen can request those tools because the adapter presents their definitions in a form it can use. Qwen's own visual ability is image understanding, not image generation.
+
+### Troubleshooting by symptom
+
+| Symptom | Check |
+| --- | --- |
+| `mlx_vlm.server` is missing | Open a new Terminal after `uv tool update-shell`, then check that `~/.local/bin` is on `PATH`. |
+| Model loading fails | Rerun the pinned `hf download`, confirm `config.json`, and inspect `logs/mlx-vlm.log`. |
+| A port is already used | Run `lsof -nP -iTCP:8080 -iTCP:8081 -iTCP:8319 -sTCP:LISTEN`, then stop only the process you recognise. |
+| CLIProxyAPI shows no hosted models | Repeat `--codex-login` with the same config and inspect `logs/cliproxyapi.log`. |
+| Qwen is absent from the selector | Rebuild the merged catalog, check the absolute `model_catalog_json` path, then quit and reopen Codex. |
+| Qwen appears but requests fail | Confirm `./scripts/status.sh` reports all three services and that the local key matches in both configs. |
+| An image returned by a tool explodes the context | Keep the adapter normalisation until MLX-VLM PR #1761 is released and verified locally. |
+| Memory pressure rises sharply | Stop the route, lower `context_length` and `--max-kv-size`, or use a smaller model. |
+
+### Updating, stopping, and removing it
+
+Update the installed programs with:
+
+```bash
+uv tool upgrade mlx-vlm
+brew upgrade cliproxyapi
+```
+
+After a Codex update, rebuild `merged-model-catalog.json`. After an MLX-VLM update, repeat direct text, image, and image-valued tool-result tests before removing the adapter workaround.
+
+To remove the setup:
+
+1. Run `./scripts/stop.sh`.
+2. Restore the backed-up `~/.codex/config.toml`, or remove only the provider, model, and catalog lines added above.
+3. Delete the example-kit directory if you no longer need it.
+4. Delete `$HOME/Models/Qwen3.6-35B-A3B-4bit` only if you also want to recover the model's 19 GB of disk space.
+
+The [public example kit](https://github.com/Rajeev-SG/rajeevg.com/tree/main/examples/codex-local-qwen) is the source of truth for the adapter and helper scripts. It contains placeholders and local-only example keys, not my paths, authentication files, or private screenshots.
 
 ## What was actually verified
 
@@ -485,8 +839,11 @@ That separation would have saved a lot of time, and one desktop-app reinstall.
 - [Apple MLX repository](https://github.com/ml-explore/mlx)
 - [MLX-VLM repository](https://github.com/Blaizzy/mlx-vlm)
 - [CLIProxyAPI repository](https://github.com/router-for-me/CLIProxyAPI)
+- [CLIProxyAPI macOS quick start](https://help.router-for.me/introduction/quick-start)
+- [CLIProxyAPI Codex sign-in](https://help.router-for.me/configuration/provider/codex)
 - [Qwen3.6-35B-A3B model card](https://huggingface.co/Qwen/Qwen3.6-35B-A3B)
 - [4-bit MLX conversion used here](https://huggingface.co/mlx-community/Qwen3.6-35B-A3B-4bit)
+- [Public adapter and configuration kit](https://github.com/Rajeev-SG/rajeevg.com/tree/main/examples/codex-local-qwen)
 - [Codex configuration reference](https://learn.chatgpt.com/docs/config-file/config-reference)
 - [Codex advanced configuration](https://learn.chatgpt.com/docs/config-file/config-advanced)
 - [Codex models guide](https://learn.chatgpt.com/docs/models)
@@ -495,4 +852,4 @@ That separation would have saved a lot of time, and one desktop-app reinstall.
 - [MLX-VLM issue #1760](https://github.com/Blaizzy/mlx-vlm/issues/1760)
 - [MLX-VLM pull request #1761](https://github.com/Blaizzy/mlx-vlm/pull/1761)
 
-All local measurements and screenshots in this article come from the Apple M5 Pro, 48 GB setup described above. Software versions at the time of testing were MLX 0.32.0, MLX-VLM 0.6.5, CLIProxyAPI 7.2.112, and Codex CLI 0.146.0-alpha.9.2.
+All local measurements and screenshots in this article come from the Apple M5 Pro, 48 GB setup described above. Software versions in the original acceptance proof were MLX 0.32.0, MLX-VLM 0.6.5, CLIProxyAPI 7.2.112, and Codex CLI 0.146.0-alpha.9.2. The clean-Mac walkthrough was checked against the current packaged releases available on 3 August 2026: MLX-VLM 0.6.8 and CLIProxyAPI 7.2.115.

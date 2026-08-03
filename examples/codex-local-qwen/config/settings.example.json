@@ -1,0 +1,6 @@
+{
+  "model_path": "/Users/you/Models/Qwen3.6-35B-A3B-4bit",
+  "model_alias": "qwen3.6-35b-a3b-mlx",
+  "context_length": 163840,
+  "max_output_tokens": 4096
+}
