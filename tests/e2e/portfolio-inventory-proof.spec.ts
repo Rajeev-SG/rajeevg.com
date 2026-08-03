@@ -1,0 +1,87 @@
+import fs from "node:fs/promises"
+import path from "node:path"
+
+import { expect, test, type Page } from "@playwright/test"
+
+const artifactRoot = path.resolve(
+  process.cwd(),
+  process.env.PORTFOLIO_INVENTORY_ARTIFACT_ROOT || "output/acceptance/portfolio-inventory-latest",
+)
+
+const consoleErrors: string[] = []
+
+async function preparePage(page: Page) {
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(`${page.url()}: ${message.text()}`)
+  })
+  page.on("pageerror", (error) => consoleErrors.push(`${page.url()}: ${error.message}`))
+  await page.goto("/projects")
+  try {
+    await page.getByRole("button", { name: "Necessary only" }).click({ timeout: 2_000 })
+  } catch {
+    // Consent was already set for this context.
+  }
+  await expect(page.getByRole("heading", { name: "Software built for real work" })).toBeVisible()
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1)
+}
+
+test("proves the expanded public project inventory", async ({ browser }) => {
+  test.setTimeout(90_000)
+  await fs.mkdir(artifactRoot, { recursive: true })
+
+  const desktop = await browser.newContext({ viewport: { width: 1440, height: 1000 }, colorScheme: "light" })
+  const page = await desktop.newPage()
+  await preparePage(page)
+
+  const localLab = page.locator("article, [data-analytics-item-id='local-llm-lab']").filter({ hasText: "Local LLM Lab" }).first()
+  await expect(localLab.getByRole("heading", { name: "Local LLM Lab" })).toBeVisible()
+  await expect(localLab.getByRole("link", { name: "GitHub" })).toHaveAttribute("href", "https://github.com/Rajeev-SG/local-llm-lab")
+  await expect(localLab.getByRole("link", { name: "Live site" })).toHaveAttribute("href", "https://local-llm-lab.vercel.app")
+  const localLabImage = localLab.locator("img")
+  await expect(localLabImage).toBeVisible()
+  expect(await localLabImage.evaluate((image) => (image as HTMLImageElement).naturalWidth)).toBeGreaterThan(0)
+
+  const agentOrchestra = page.locator("article").filter({ hasText: "Agent Orchestra" })
+  const markNotes = page.locator("article").filter({ hasText: "Mark Notes" })
+  await expect(agentOrchestra.getByRole("link", { name: "Live site" })).toHaveAttribute("href", "https://multi-agent-orchestration-demo.vercel.app")
+  await expect(agentOrchestra.getByRole("link", { name: "GitHub" })).toHaveCount(0)
+  await expect(markNotes.getByRole("link", { name: "Live site" })).toHaveAttribute("href", "https://mark-notes-tau.vercel.app")
+  await expect(markNotes.getByRole("link", { name: "GitHub" })).toHaveCount(0)
+
+  await page.screenshot({ path: path.join(artifactRoot, "desktop-1440-projects.png"), fullPage: true })
+  await agentOrchestra.screenshot({ path: path.join(artifactRoot, "desktop-agent-orchestra-row.png") })
+
+  const [localLabPage] = await Promise.all([
+    desktop.waitForEvent("page"),
+    localLab.getByRole("link", { name: "Live site" }).click(),
+  ])
+  await localLabPage.waitForLoadState("domcontentloaded")
+  await expect(localLabPage).toHaveURL(/^https:\/\/local-llm-lab\.vercel\.app\/?/)
+  await expect(localLabPage.getByText("Every local model on this Mac, in one guide.")).toBeVisible()
+  await localLabPage.close()
+  await desktop.close()
+
+  const wide = await browser.newContext({ viewport: { width: 1575, height: 1000 }, colorScheme: "light" })
+  const widePage = await wide.newPage()
+  await preparePage(widePage)
+  await widePage.screenshot({ path: path.join(artifactRoot, "wide-1575-projects.png"), fullPage: true })
+  await wide.close()
+
+  const tablet = await browser.newContext({ viewport: { width: 820, height: 1180 }, colorScheme: "light" })
+  const tabletPage = await tablet.newPage()
+  await preparePage(tabletPage)
+  await tabletPage.screenshot({ path: path.join(artifactRoot, "tablet-820-projects.png"), fullPage: true })
+  await tablet.close()
+
+  const mobile = await browser.newContext({ viewport: { width: 390, height: 844 }, colorScheme: "dark", isMobile: true })
+  const mobilePage = await mobile.newPage()
+  await preparePage(mobilePage)
+  await mobilePage.getByRole("heading", { name: "Mark Notes" }).scrollIntoViewIfNeeded()
+  await expect(mobilePage.getByRole("heading", { name: "Agent Orchestra" })).toBeVisible()
+  await expect(mobilePage.getByRole("heading", { name: "Mark Notes" })).toBeVisible()
+  await mobilePage.screenshot({ path: path.join(artifactRoot, "mobile-390-projects.png"), fullPage: true })
+  await mobile.close()
+
+  await fs.writeFile(path.join(artifactRoot, "console-errors.json"), JSON.stringify(consoleErrors, null, 2))
+  expect(consoleErrors).toEqual([])
+})

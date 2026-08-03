@@ -79,23 +79,25 @@ export function ProjectCard({ project, compact = false }: ProjectCardProps) {
               </Link>
             </Button>
           ))}
-          <Button asChild variant="outline" size="sm">
-            <Link
-              href={project.githubUrl}
-              target="_blank"
-              rel="noreferrer noopener"
-              data-analytics-event="project_click"
-              data-analytics-section="project_card"
-              data-analytics-item-type="project_repo"
-              data-analytics-item-id={project.slug}
-              data-analytics-item-name={project.title}
-              data-analytics-item-category={project.category}
-              data-analytics-destination="github"
-            >
-              <Github className="size-4" />
-              GitHub
-            </Link>
-          </Button>
+          {project.githubUrl ? (
+            <Button asChild variant="outline" size="sm">
+              <Link
+                href={project.githubUrl}
+                target="_blank"
+                rel="noreferrer noopener"
+                data-analytics-event="project_click"
+                data-analytics-section="project_card"
+                data-analytics-item-type="project_repo"
+                data-analytics-item-id={project.slug}
+                data-analytics-item-name={project.title}
+                data-analytics-item-category={project.category}
+                data-analytics-destination="github"
+              >
+                <Github className="size-4" />
+                GitHub
+              </Link>
+            </Button>
+          ) : null}
           <Button asChild size="sm">
             <Link
               href={project.liveUrl}
