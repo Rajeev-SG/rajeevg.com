@@ -1,6 +1,6 @@
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowUpRight, Github } from "lucide-react"
+import { ArrowRight, ArrowUpRight, Github } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -25,8 +25,8 @@ type ProjectCardProps = {
 export function ProjectCard({ project, compact = false }: ProjectCardProps) {
   return (
     <Card
-      id={compact ? undefined : project.slug}
-      className="group scroll-mt-24 overflow-hidden border-border/70 bg-card/60 backdrop-blur-sm"
+      id={project.slug}
+      className="group flex h-full scroll-mt-24 flex-col overflow-hidden border-border/70 bg-card/60 backdrop-blur-sm"
       data-analytics-section={compact ? "project_spotlight" : "project_card"}
       data-analytics-item-type="project"
       data-analytics-item-id={project.slug}
@@ -45,16 +45,10 @@ export function ProjectCard({ project, compact = false }: ProjectCardProps) {
             priority={false}
           />
           <div className="absolute inset-0 bg-linear-to-t from-background/22 via-background/4 to-transparent" />
-          <div className="absolute right-3 bottom-3 rounded-full border border-white/35 bg-background/82 px-3 py-1 text-[11px] font-medium tracking-[0.16em] text-foreground/80 backdrop-blur-sm">
-            Live product
-          </div>
         </div>
       </div>
       <CardHeader className="space-y-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="outline">{project.category}</Badge>
-          <Badge variant="secondary">{project.repoVisibility.toLowerCase()}</Badge>
-        </div>
+        <Badge variant="outline" className="w-fit">{project.category}</Badge>
         <div className="space-y-2">
           <CardTitle className="text-xl sm:text-2xl">{project.title}</CardTitle>
           <CardDescription className="text-sm sm:text-base">
@@ -63,30 +57,28 @@ export function ProjectCard({ project, compact = false }: ProjectCardProps) {
         </div>
       </CardHeader>
       <CardContent className="space-y-5">
-        <p className="text-sm leading-7 text-foreground/90 sm:text-base">
-          {project.summary}
-        </p>
         {!compact ? (
-          <div className="space-y-2 rounded-lg border border-border/70 bg-background/70 p-4">
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-              How it works
-            </p>
-            <p className="text-sm leading-7 text-muted-foreground sm:text-[15px]">
-              {project.howItWorks}
-            </p>
-          </div>
+          <p className="text-sm leading-7 text-foreground/90 sm:text-base">
+            {project.summary}
+          </p>
         ) : null}
         <div className="flex flex-wrap gap-2">
-          {project.tech.map((item) => (
-            <Badge key={item} variant="outline" data-analytics-event="project_tech_click" data-analytics-section="project_card" data-analytics-item-type="project_tech" data-analytics-item-name={item}>
+          {project.tech.slice(0, 3).map((item) => (
+            <Badge key={item} variant="secondary">
               {item}
             </Badge>
           ))}
         </div>
       </CardContent>
-      <CardFooter className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-xs text-muted-foreground">{project.inclusionReason}</p>
-        <div className="flex flex-wrap gap-2">
+      <CardFooter className="mt-auto flex flex-wrap gap-2">
+          {project.detailLinks?.slice(0, compact ? 1 : 2).map((detail) => (
+            <Button key={detail.href} asChild variant="ghost" size="sm">
+              <Link href={detail.href}>
+                {detail.label}
+                <ArrowRight className="size-4" />
+              </Link>
+            </Button>
+          ))}
           <Button asChild variant="outline" size="sm">
             <Link
               href={project.githubUrl}
@@ -121,7 +113,6 @@ export function ProjectCard({ project, compact = false }: ProjectCardProps) {
               Live site
             </Link>
           </Button>
-        </div>
       </CardFooter>
     </Card>
   )

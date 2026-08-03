@@ -12,6 +12,7 @@ export type PortfolioProject = {
   tech: string[]
   repoVisibility: "PUBLIC"
   inclusionReason: string
+  detailLinks?: { label: string; href: string }[]
 }
 
 export const portfolioProjects: PortfolioProject[] = [
@@ -48,6 +49,16 @@ export const portfolioProjects: PortfolioProject[] = [
     tech: ["Next.js 14", "TypeScript", "Clerk", "Prisma", "Postgres", "Playwright", "GA4"],
     repoVisibility: "PUBLIC",
     inclusionReason: "Public GitHub repo with a live production judging surface.",
+    detailLinks: [
+      {
+        label: "Event-day analytics",
+        href: "/projects/hackathon-voting-analytics/google-analytics",
+      },
+      {
+        label: "Build write-up",
+        href: "/blog/how-we-built-the-hackathon-voting-app",
+      },
+    ],
   },
   {
     slug: "workflow-garden",
@@ -120,8 +131,8 @@ export const portfolioProjects: PortfolioProject[] = [
   {
     slug: "rajeevg-com",
     title: "rajeevg.com",
-    category: "Publishing system",
-    tagline: "The personal site and publishing system behind this portfolio.",
+    category: "Personal site",
+    tagline: "This portfolio and writing site, built for clear technical storytelling.",
     summary:
       "This site is both a public homepage and a small publishing system. It is where I publish writing, explain projects, and turn technical work into something readable for people who were not in the terminal with me.",
     howItWorks:
@@ -133,6 +144,7 @@ export const portfolioProjects: PortfolioProject[] = [
     tech: ["Next.js", "React 19", "Velite", "MDX", "shadcn/ui", "Tailwind CSS", "Vercel"],
     repoVisibility: "PUBLIC",
     inclusionReason: "Public GitHub repo with a public homepage URL.",
+    detailLinks: [{ label: "Site analytics", href: "/projects/site-analytics" }],
   },
 ]
 

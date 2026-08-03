@@ -1,17 +1,13 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import { AppSidebar } from "@/components/app-sidebar";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { site } from "@/lib/site";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { AnalyticsDataLayer } from "@/components/analytics-data-layer";
 import { ConsentManager } from "@/components/consent-manager";
 import { TagManagerScript } from "@/components/tag-manager-script";
-import { ConsentPreferencesButton } from "@/components/consent-preferences-button";
+import { SiteChrome } from "@/components/site-chrome";
 import Script from "next/script";
 
 const geistSans = Geist({
@@ -64,49 +60,7 @@ export default function RootLayout({
     <>
       {GTM_ID ? <TagManagerScript gtmId={GTM_ID} /> : null}
       <ThemeProvider>
-        <SidebarProvider>
-          <AppSidebar />
-          <SidebarInset>
-            <header className="border-b border-border bg-background sticky top-0 z-30">
-              <div className="mx-auto xl:mx-0 xl:mr-auto w-full max-w-screen-xl px-4 sm:px-6 md:px-8 2xl:max-w-[1400px]">
-                <div className="flex h-12 items-center gap-2">
-                  <SidebarTrigger />
-                  <div className="ml-auto">
-                    <ThemeToggle />
-                  </div>
-                </div>
-              </div>
-            </header>
-            <main className="min-w-0">
-              <div className="mx-auto xl:mx-0 xl:mr-auto w-full max-w-screen-xl px-4 sm:px-6 md:px-8 2xl:max-w-[1400px]">
-                <div className="py-8 md:py-10">{children}</div>
-              </div>
-            </main>
-            <footer className="border-t border-border/70">
-              <div className="mx-auto xl:mx-0 xl:mr-auto flex w-full max-w-screen-xl flex-col gap-3 px-4 py-4 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6 md:px-8 2xl:max-w-[1400px]">
-                <p>Consented analytics only. Advertising-related consent stays denied.</p>
-                <div className="flex flex-wrap items-center gap-3">
-                  <Link
-                    href="/privacy"
-                    className="transition-colors hover:text-foreground"
-                    data-analytics-event="navigation_click"
-                    data-analytics-section="footer"
-                    data-analytics-item-type="privacy_policy_link"
-                    data-analytics-item-name="Privacy policy"
-                  >
-                    Privacy policy
-                  </Link>
-                  <ConsentPreferencesButton
-                    className="h-auto px-0 text-sm text-muted-foreground hover:text-foreground"
-                    label="Privacy settings"
-                    variant="link"
-                    size="sm"
-                  />
-                </div>
-              </div>
-            </footer>
-          </SidebarInset>
-        </SidebarProvider>
+        <SiteChrome>{children}</SiteChrome>
       </ThemeProvider>
       <AnalyticsDataLayer />
       <ConsentManager />

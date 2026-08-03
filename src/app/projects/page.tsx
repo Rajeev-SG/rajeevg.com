@@ -1,126 +1,63 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { ArrowRight, ArrowUpRight, Github } from "lucide-react"
 
-import { ContentLinkCard } from "@/components/content-ops/content-link-card"
 import { ProjectCard } from "@/components/project-card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { getContentOpsData } from "@/lib/content-ops/data"
 import { getPortfolioProjects } from "@/lib/portfolio-projects"
 import { site } from "@/lib/site"
 
 export const revalidate = 3600
 
-export default async function ProjectsPage() {
+export default function ProjectsPage() {
   const projects = getPortfolioProjects()
-  const categories = Array.from(new Set(projects.map((project) => project.category))).sort()
-  const contentOps = await getContentOpsData()
-  const proofLinks = contentOps.inventory
-    .filter((record) => record.kind === "hub" || record.pageClass.includes("Proof"))
-    .slice(0, 4)
+  const featuredSlugs = new Set(["open-gtm-index", "hackathon-voting-app", "model-intelligence-maintainer"])
+  const featured = projects.filter((project) => featuredSlugs.has(project.slug))
+  const more = projects.filter((project) => !featuredSlugs.has(project.slug))
 
   return (
-    <section
-      className="space-y-10"
-      data-analytics-section="projects_page"
-      data-analytics-item-type="page_section"
-      data-analytics-page-context="primary"
-      data-analytics-page-content-group="projects"
-      data-analytics-page-content-type="project_index"
-      data-analytics-page-project-count={projects.length}
-      data-analytics-page-project-categories={categories.join("|")}
-    >
-      <div className="space-y-4" data-analytics-section="projects_intro" data-analytics-item-type="page_intro">
-        <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground">Portfolio</p>
-        <div className="space-y-3">
-          <h1 className="max-w-3xl text-3xl font-bold tracking-tight sm:text-4xl">
-            Public projects with real repos and real live URLs
-          </h1>
-          <p className="max-w-3xl text-base text-muted-foreground sm:text-lg">
-            I wanted this to read more like a working index than a polished gallery. Everything here links to a public GitHub repo and a live public URL, so you can inspect the code and the product instead of taking my word for it.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Badge variant="outline">{projects.length} live projects</Badge>
-          <Badge variant="outline">GitHub visibility checked</Badge>
-          <Badge variant="outline">Homepage URLs verified from repo metadata</Badge>
-        </div>
+    <section className="space-y-16" data-analytics-section="projects_page" data-analytics-item-type="project_index">
+      <header className="max-w-3xl space-y-4">
+        <p className="text-sm font-medium uppercase tracking-[0.2em] text-muted-foreground">Projects</p>
+        <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">Software built for real work</h1>
+        <p className="text-lg leading-8 text-muted-foreground">
+          A selection of products, research tools, and operational systems I have designed and built. Each project links to the working product and its source code.
+        </p>
+      </header>
+
+      <div className="grid gap-6 lg:grid-cols-3" aria-label="Selected projects">
+        {featured.map((project) => <ProjectCard key={project.slug} project={project} compact />)}
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-2">
-        <Card className="overflow-hidden border-border/70 bg-linear-to-br from-background via-background to-sky-500/5">
-          <CardHeader className="gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">Reporting route</p>
-              <CardTitle className="text-2xl sm:text-3xl">Main site analytics dashboard</CardTitle>
-              <CardDescription className="max-w-3xl text-sm leading-6 sm:text-base">
-                The live GA4 dashboard for <code>rajeevg.com</code>, filtered to the main hostname and stream so blog pages, project routes, and custom site events stay readable.
-              </CardDescription>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Button asChild>
-                <Link href="/projects/site-analytics">Open main site dashboard</Link>
-              </Button>
-              <Button asChild variant="outline">
-                <Link href="/blog/how-we-finished-the-ga4-property-setup-on-rajeevg-com">Read GA4 buildout</Link>
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="flex flex-wrap gap-2">
-            <Badge variant="outline">ECharts and Observable Plot</Badge>
-            <Badge variant="outline">Live GA4 Data API</Badge>
-            <Badge variant="outline">Main-site stream filter</Badge>
-            <Badge variant="outline">Custom event schema front and center</Badge>
-            <Badge variant="outline">Blog and project content reporting</Badge>
-          </CardContent>
-        </Card>
-
-        <Card className="overflow-hidden border-border/70 bg-linear-to-br from-background via-background to-muted/40">
-          <CardHeader className="gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">Reporting route</p>
-              <CardTitle className="text-2xl sm:text-3xl">Hackathon voting analytics dashboard</CardTitle>
-              <CardDescription className="max-w-3xl text-sm leading-6 sm:text-base">
-                A dedicated reporting surface for the voting app, built to replace the muddy Looker Studio artifact with a cleaner BigQuery-backed dashboard and a fully reviewable dummy preview mode.
-              </CardDescription>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Button asChild>
-                <Link href="/projects/hackathon-voting-analytics">Open BigQuery dashboard</Link>
-              </Button>
-              <Button asChild variant="outline">
-                <Link href="/projects/hackathon-voting-analytics/google-analytics">Open GA4 surface</Link>
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="flex flex-wrap gap-2">
-            <Badge variant="outline">ECharts and Observable Plot</Badge>
-            <Badge variant="outline">Live BigQuery mode</Badge>
-            <Badge variant="outline">Dummy preview mode</Badge>
-            <Badge variant="outline">Hackathon-only reporting dataset</Badge>
-            <Badge variant="outline">GA Data API surface</Badge>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid gap-6">
-        {projects.map((project) => (
-          <ProjectCard key={project.slug} project={project} />
-        ))}
-      </div>
-
-      <section className="space-y-4">
-        <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">Strategic context</p>
-          <h2 className="text-2xl font-semibold tracking-tight">How these projects connect back into the content system</h2>
-          <p className="max-w-3xl text-muted-foreground">
-            The projects page now feeds the same graph as the blog and dashboards. Readers can move from a shipped system into the proof write-up, the analytics explanation, or the broader hub that explains why the project matters.
-          </p>
-        </div>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {proofLinks.map((record) => (
-            <ContentLinkCard key={record.id} record={record} />
+      <section className="space-y-5" aria-labelledby="more-projects">
+        <h2 id="more-projects" className="text-2xl font-semibold tracking-tight">More projects</h2>
+        <div className="divide-y divide-border border-y border-border">
+          {more.map((project) => (
+            <article id={project.slug} key={project.slug} className="scroll-mt-24 py-7">
+              <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+                <div className="space-y-3">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <h3 className="text-xl font-semibold tracking-tight sm:text-2xl">{project.title}</h3>
+                    <Badge variant="outline">{project.category}</Badge>
+                  </div>
+                  <p className="max-w-3xl leading-7 text-muted-foreground">{project.tagline}</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {project.detailLinks?.map((detail) => (
+                    <Button key={detail.href} asChild variant="ghost" size="sm">
+                      <Link href={detail.href}>{detail.label}<ArrowRight className="size-4" /></Link>
+                    </Button>
+                  ))}
+                  <Button asChild variant="outline" size="sm">
+                    <Link href={project.githubUrl} target="_blank" rel="noreferrer noopener"><Github className="size-4" />GitHub</Link>
+                  </Button>
+                  <Button asChild size="sm">
+                    <Link href={project.liveUrl} target="_blank" rel="noreferrer noopener">Live site<ArrowUpRight className="size-4" /></Link>
+                  </Button>
+                </div>
+              </div>
+            </article>
           ))}
         </div>
       </section>
@@ -128,15 +65,14 @@ export default async function ProjectsPage() {
   )
 }
 
-export async function generateMetadata(): Promise<Metadata> {
+export function generateMetadata(): Metadata {
   return {
     title: "Projects",
-    description: "A portfolio of public projects with live URLs and GitHub repositories.",
+    description: "Products, research tools, and operational software built by Rajeev Gill.",
     alternates: { canonical: "/projects" },
     openGraph: {
       title: `Projects • ${site.name}`,
-      description:
-        "A portfolio of public projects with live URLs, GitHub repositories, and implementation notes.",
+      description: "Products, research tools, and operational software built by Rajeev Gill.",
       url: `${site.siteUrl}/projects`,
     },
   }

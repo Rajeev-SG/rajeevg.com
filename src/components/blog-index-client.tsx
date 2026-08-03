@@ -1,197 +1,104 @@
 "use client"
 
 import Link from "next/link"
+import { Search } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
+
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { TagCombobox } from "@/components/tag-combobox"
 import { pushDataLayerEvent } from "@/lib/analytics"
 
 export type BlogListItem = {
   title: string
   slug: string
-  date: string
   displayDate: string
   updated?: string
   tags: string[]
   description?: string
   excerpt?: string
-  pageClass?: string
-  pillar?: string
-  cluster?: string
 }
 
-export function BlogIndexClient({
-  allPosts,
-  allTags,
-}: {
-  allPosts: BlogListItem[]
-  allTags: string[]
-}) {
-  const [q, setQ] = useState("")
-  const [selectedTags, setSelectedTags] = useState<string[]>([])
+const dateFormatter = new Intl.DateTimeFormat("en-GB", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+})
+
+export function BlogIndexClient({ allPosts }: { allPosts: BlogListItem[] }) {
+  const [query, setQuery] = useState("")
   const previousQuery = useRef("")
-  const hasFocusedSearch = useRef(false)
 
   const filtered = useMemo(() => {
-    const query = q.trim().toLowerCase()
-    return allPosts.filter((p) => {
-      const hay = `${p.title} ${(p.description ?? "")} ${(p.excerpt ?? "")}`.toLowerCase()
-      const textOk = !query || hay.includes(query)
-      const tagsOk =
-        selectedTags.length === 0 || selectedTags.every((t) => p.tags.includes(t))
-      return textOk && tagsOk
-    })
-  }, [q, selectedTags, allPosts])
+    const normalized = query.trim().toLowerCase()
+    if (!normalized) return allPosts
 
-  const trackTagToggle = (tag: string, nextTags: string[]) => {
-    setSelectedTags(nextTags)
-    pushDataLayerEvent("tag_click", {
-      analytics_section: "blog_filters",
-      filter_tag: tag,
-      selected_tag_count: nextTags.length,
-      selected_tags: nextTags.join("|") || undefined,
-      filter_state: nextTags.includes(tag) ? "selected" : "cleared",
-    })
-  }
-
-  const toggleTag = (tag: string) => {
-    const nextTags = selectedTags.includes(tag)
-      ? selectedTags.filter((x) => x !== tag)
-      : [...selectedTags, tag]
-
-    trackTagToggle(tag, nextTags)
-  }
+    return allPosts.filter((post) =>
+      `${post.title} ${post.description ?? ""} ${post.excerpt ?? ""} ${post.tags.join(" ")}`
+        .toLowerCase()
+        .includes(normalized)
+    )
+  }, [allPosts, query])
 
   useEffect(() => {
-    const query = q.trim()
-    if (query === previousQuery.current) return
+    const normalized = query.trim()
+    if (normalized === previousQuery.current) return
 
     const timeout = window.setTimeout(() => {
       pushDataLayerEvent("blog_search", {
-        analytics_section: "blog_filters",
-        search_term: query || undefined,
-        search_term_length: query.length,
-        selected_tag_count: selectedTags.length,
-        selected_tags: selectedTags.join("|") || undefined,
+        analytics_section: "writing_search",
+        search_term: normalized || undefined,
         result_count: filtered.length,
       })
-      previousQuery.current = query
+      previousQuery.current = normalized
     }, 350)
 
     return () => window.clearTimeout(timeout)
-  }, [filtered.length, q, selectedTags])
+  }, [filtered.length, query])
 
   return (
-    <section
-      className="space-y-6"
-      data-analytics-section="blog_index"
-      data-analytics-item-type="listing"
-      data-analytics-page-context="primary"
-      data-analytics-page-content-group="blog"
-      data-analytics-page-content-type="blog_index"
-      data-analytics-page-total-post-count={allPosts.length}
-      data-analytics-page-total-tag-count={allTags.length}
-    >
-      <h1 className="text-3xl font-bold tracking-tight">Blog</h1>
-
-      <div className="flex flex-col gap-3">
+    <section className="space-y-7" data-analytics-section="blog_index" data-analytics-item-type="listing">
+      <div className="relative max-w-xl">
+        <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          placeholder="Search articles…"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          onFocus={() => {
-            if (hasFocusedSearch.current) return
-            hasFocusedSearch.current = true
-            pushDataLayerEvent("blog_search_focus", {
-              analytics_section: "blog_filters",
-              selected_tag_count: selectedTags.length,
-            })
-          }}
-          data-analytics-section="blog_filters"
-          data-analytics-item-type="search_input"
+          aria-label="Search writing"
+          placeholder="Search writing"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          className="pl-10"
         />
-        {/* Mobile: combobox for tag selection */}
-        <div className="md:hidden">
-          <TagCombobox
-            allTags={allTags}
-            selected={selectedTags}
-            onChange={() => undefined}
-            onToggleTag={trackTagToggle}
-            buttonLabel="Filter tags"
-          />
-        </div>
-        {/* Desktop: clickable badges */}
-        <div className="hidden md:flex md:flex-wrap gap-2">
-          {allTags.map((t) => (
-            <Badge
-              key={t}
-              variant={selectedTags.includes(t) ? "default" : "outline"}
-              onClick={() => toggleTag(t)}
-              className="cursor-pointer select-none"
-              title={selectedTags.includes(t) ? "Remove tag" : "Add tag"}
-              data-analytics-section="blog_filters"
-              data-analytics-item-type="tag_filter"
-              data-analytics-item-name={t}
-            >
-              {t}
-            </Badge>
-          ))}
-        </div>
-        {/* Show active tags, if any */}
-        {selectedTags.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {selectedTags.map((t) => (
-              <Badge
-                key={t}
-                variant="secondary"
-                onClick={() => toggleTag(t)}
-                className="cursor-pointer select-none"
-                data-analytics-section="blog_filters_active"
-                data-analytics-item-type="tag_filter"
-                data-analytics-item-name={t}
-              >
-                {t}
-              </Badge>
-            ))}
-          </div>
-        )}
       </div>
 
-      <ul className="space-y-4">
+      <p className="text-sm text-muted-foreground" aria-live="polite">
+        {filtered.length} {filtered.length === 1 ? "article" : "articles"}
+      </p>
+
+      <div className="divide-y divide-border border-y border-border">
         {filtered.map((post) => (
-          <li key={post.slug} className="border-b border-border pb-4">
-            <Link
-              href={`/blog/${post.slug}`}
-              prefetch={false}
-              className="text-lg font-semibold hover:underline"
-              data-analytics-event="post_click"
-              data-analytics-section="blog_index_results"
-              data-analytics-item-type="post_link"
-              data-analytics-item-id={post.slug}
-              data-analytics-item-name={post.title}
-            >
-              {post.title}
-            </Link>
-            {post.description && (
-              <p className="text-sm text-muted-foreground mt-1">
-                {post.description}
-              </p>
-            )}
-            <div className="mt-2 flex flex-wrap gap-2">
-              {post.pageClass ? <Badge variant="secondary">{post.pageClass}</Badge> : null}
-              {post.pillar ? <Badge variant="outline">{post.pillar}</Badge> : null}
+          <article key={post.slug} className="grid gap-4 py-7 sm:grid-cols-[1fr_auto] sm:items-start">
+            <div className="space-y-3">
+              <h2 className="text-xl font-semibold tracking-tight sm:text-2xl">
+                <Link
+                  href={`/blog/${post.slug}`}
+                  className="hover:underline"
+                  data-analytics-event="post_click"
+                  data-analytics-section="blog_index_results"
+                  data-analytics-item-id={post.slug}
+                  data-analytics-item-name={post.title}
+                >
+                  {post.title}
+                </Link>
+              </h2>
+              {post.description ? <p className="max-w-3xl leading-7 text-muted-foreground">{post.description}</p> : null}
+              <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                {post.tags.slice(0, 2).map((tag) => <span key={tag}>{tag}</span>)}
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              {post.updated ? "Updated " : ""}
-              {new Date(post.displayDate).toLocaleDateString()}
-            </p>
-          </li>
+            <time className="text-sm text-muted-foreground" dateTime={post.displayDate}>
+              {post.updated ? "Updated " : ""}{dateFormatter.format(new Date(post.displayDate))}
+            </time>
+          </article>
         ))}
-        {filtered.length === 0 && (
-          <li className="text-sm text-muted-foreground">No matching posts.</li>
-        )}
-      </ul>
+        {filtered.length === 0 ? <p className="py-8 text-sm text-muted-foreground">No writing matches that search.</p> : null}
+      </div>
     </section>
   )
 }

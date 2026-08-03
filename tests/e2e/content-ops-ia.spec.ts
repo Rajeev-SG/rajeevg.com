@@ -1,120 +1,79 @@
-import fs from "node:fs/promises"
-import path from "node:path"
-
 import { expect, test, type Page, type TestInfo } from "@playwright/test"
 
-const artifactRoot = path.resolve(
-  process.cwd(),
-  process.env.CONTENT_OPS_ARTIFACT_ROOT || "output/acceptance/content-ops-ia-20260328/local-playwright",
-)
-
-async function ensureArtifactRoot() {
-  await fs.mkdir(artifactRoot, { recursive: true })
-}
-
-async function authorizeDashboard(page: Page, testInfo: TestInfo, email = "rajeev.sgill@gmail.com") {
-  const baseURL = (testInfo.project.use.baseURL as string | undefined) || "http://127.0.0.1:3018"
-  await page.context().addCookies([
-    {
-      name: "content_ops_dev_email",
-      value: email,
-      url: baseURL,
-    },
-  ])
-}
-
 async function dismissConsentIfPresent(page: Page) {
-  const allowAnalytics = page.getByRole("button", { name: "Allow analytics" })
-  const necessaryOnly = page.getByRole("button", { name: "Necessary only" })
-
   try {
-    if (await allowAnalytics.isVisible({ timeout: 2_000 })) {
-      await allowAnalytics.click()
-      await page.waitForTimeout(300)
-      return
-    }
+    await page.getByRole("button", { name: "Necessary only" }).click({ timeout: 2_000 })
   } catch {
-    // Banner not visible in this run.
-  }
-
-  try {
-    await necessaryOnly.click({ timeout: 2_000 })
-    await page.waitForTimeout(300)
-  } catch {
-    // Banner not visible in this run.
+    // Consent has already been set in this context.
   }
 }
 
-async function assertNoHorizontalOverflow(page: Page) {
-  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
-  expect(overflow).toBeLessThanOrEqual(1)
+async function authorizeDashboard(page: Page, testInfo: TestInfo) {
+  const baseURL = (testInfo.project.use.baseURL as string | undefined) || "http://127.0.0.1:3018"
+  await page.context().addCookies([{ name: "content_ops_dev_email", value: "rajeev.sgill@gmail.com", url: baseURL }])
 }
 
-test.describe("content ops IA", () => {
-  test("homepage, blog, article, dashboard, and editor all reflect the new content system", async ({
-    page,
-  }, testInfo) => {
-    await ensureArtifactRoot()
+async function expectNoOverflow(page: Page) {
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(1)
+}
 
+test.describe("audience-ready public site", () => {
+  test("keeps public navigation and content focused on visitors", async ({ page }, testInfo) => {
     await page.goto("/")
     await dismissConsentIfPresent(page)
 
-    await expect(
-      page.getByRole("heading", {
-        name: "Practical AI, analytics, and delivery systems that survive contact with real work.",
-      }),
-    ).toBeVisible()
-    await expect(page.getByRole("link", { name: "Explore AI hub" })).toBeVisible()
-    await expect(page.getByText("Flagships that define the system")).toBeVisible()
-    await page.screenshot({
-      path: path.join(artifactRoot, `home-${testInfo.project.name}.png`),
-      fullPage: true,
-    })
-    await assertNoHorizontalOverflow(page)
+    await expect(page.getByRole("heading", { name: /I build practical software around AI, data, analytics, and adtech/i })).toBeVisible()
+    await expect(page.getByRole("link", { name: "View selected projects" })).toBeVisible()
+    await expect(page.getByRole("link", { name: "Read my writing" })).toBeVisible()
+
+    if (testInfo.project.name === "desktop-light") {
+      const primary = page.getByRole("navigation", { name: "Primary navigation" })
+      await expect(primary.getByRole("link")).toHaveText(["Home", "Projects", "Writing", "About"])
+    } else {
+      await page.getByRole("button", { name: "Open navigation" }).click()
+      const mobile = page.getByRole("navigation", { name: "Mobile navigation" })
+      await expect(mobile.getByRole("link")).toHaveText(["Home", "Projects", "Writing", "About"])
+      await mobile.getByRole("link", { name: "Projects" }).click()
+      await expect(page).toHaveURL(/\/projects$/)
+    }
+
+    await expect(page.getByRole("link", { name: /dashboard/i })).toHaveCount(0)
+    const publicText = (await page.locator("body").innerText()).toLowerCase()
+    for (const phrase of ["content graph", "concept nodes", "public ia", "queued next content", "workflow status"]) {
+      expect(publicText).not.toContain(phrase)
+    }
+    await expectNoOverflow(page)
 
     await page.goto("/blog")
     await dismissConsentIfPresent(page)
-    await expect(page.getByRole("heading", { name: "Writing organised around pillars, proof, and playbooks" })).toBeVisible()
-    await expect(page.getByText("Core opinion and operating models")).toBeVisible()
-    await expect(page.getByPlaceholder("Search articles…")).toBeVisible()
-    await page.screenshot({
-      path: path.join(artifactRoot, `blog-${testInfo.project.name}.png`),
-      fullPage: true,
-    })
-    await assertNoHorizontalOverflow(page)
+    await expect(page.getByRole("heading", { name: "Useful notes on AI, analytics, and building software" })).toBeVisible()
+    await expect(page.getByRole("textbox", { name: "Search writing" })).toBeVisible()
+    await expectNoOverflow(page)
 
     await page.goto("/blog/how-we-built-the-hackathon-voting-app")
     await dismissConsentIfPresent(page)
-    await expect(page.getByText("Move from proof / build log into the rest of the system")).toBeVisible()
-    await page.getByText("Move from proof / build log into the rest of the system").scrollIntoViewIfNeeded()
-    await page.screenshot({
-      path: path.join(artifactRoot, `article-next-steps-${testInfo.project.name}.png`),
-      fullPage: false,
-    })
+    await expect(page.getByRole("heading", { name: "Related reading" })).toBeVisible()
+    await expectNoOverflow(page)
 
     await authorizeDashboard(page, testInfo)
     await page.goto("/dashboard")
-    await dismissConsentIfPresent(page)
     await expect(page.getByRole("heading", { name: "Workbook-backed content OS" })).toBeVisible()
-    await expect(page.getByRole("tab", { name: "Master Matrix" })).toBeVisible()
-    await page.getByRole("tab", { name: "Existing Content" }).click()
-    await page.getByRole("button", { name: "From AI Pilots to Clear Business Value" }).click()
-    await expect(page.getByText("Generate research pack")).toBeVisible()
-    await expect(page.getByText("View SEO/programmatic suggestions")).toBeVisible()
-    await expect(page.getByText("View deployment timeline/status")).toBeVisible()
-    await page.screenshot({
-      path: path.join(artifactRoot, `dashboard-sheet-${testInfo.project.name}.png`),
-      fullPage: false,
-    })
+    if (testInfo.project.name === "desktop-light") {
+      await expect(page.getByRole("link", { name: "View public site" })).toBeVisible()
+    }
+  })
 
-    await page.getByRole("link", { name: "Open in editor" }).click()
-    await expect(page.getByRole("heading", { name: "From AI Pilots to Clear Business Value" })).toBeVisible()
-    await expect(page.getByRole("tab", { name: "Editor" })).toBeVisible()
-    await expect(page.getByRole("button", { name: "Save draft" })).toBeVisible()
-    await page.screenshot({
-      path: path.join(artifactRoot, `editor-${testInfo.project.name}.png`),
-      fullPage: true,
-    })
-    await assertNoHorizontalOverflow(page)
+  test("redirects retired public routes", async ({ page }) => {
+    await page.goto("/proof")
+    await expect(page).toHaveURL(/\/projects$/)
+
+    await page.goto("/playbooks")
+    await expect(page).toHaveURL(/\/blog$/)
+
+    await page.goto("/glossary/agentic-engineering")
+    await expect(page).toHaveURL(/\/blog\/from-ai-pilots-to-business-value$/)
+
+    await page.goto("/projects/hackathon-voting-analytics")
+    await expect(page).toHaveURL(/\/projects#hackathon-voting-app$/)
   })
 })

@@ -62,14 +62,13 @@ async function capturePage(page: Page, filename: string) {
 }
 
 test.describe("hackathon editorial proof", () => {
-  test("exposes both analytics dashboards from the projects index", async ({ page }, testInfo) => {
+  test("links the hackathon project to the fixed event-day report", async ({ page }, testInfo) => {
     await page.goto("/projects")
     await dismissConsentIfPresent(page)
 
-    await expect(page.getByRole("heading", { name: "Main site analytics dashboard" })).toBeVisible()
-    await expect(page.getByRole("link", { name: "Open main site dashboard" })).toBeVisible()
-    await expect(page.getByRole("heading", { name: "Hackathon voting analytics dashboard" })).toBeVisible()
-    await expect(page.getByRole("link", { name: "Open BigQuery dashboard" })).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Software built for real work" })).toBeVisible()
+    await expect(page.getByRole("link", { name: "Event-day analytics" })).toBeVisible()
+    await expect(page.getByRole("link", { name: "Open BigQuery dashboard" })).toHaveCount(0)
 
     await assertNoHorizontalOverflow(page)
     await capturePage(page, `projects-index-${testInfo.project.name}.png`)

@@ -1,0 +1,92 @@
+[
+  {
+    "route": "/",
+    "status": 200,
+    "finalUrl": "http://127.0.0.1:3018/"
+  },
+  {
+    "route": "/about",
+    "status": 200,
+    "finalUrl": "http://127.0.0.1:3018/about"
+  },
+  {
+    "route": "/ai",
+    "status": 200,
+    "finalUrl": "http://127.0.0.1:3018/ai"
+  },
+  {
+    "route": "/analytics",
+    "status": 200,
+    "finalUrl": "http://127.0.0.1:3018/analytics"
+  },
+  {
+    "route": "/blog",
+    "status": 200,
+    "finalUrl": "http://127.0.0.1:3018/blog"
+  },
+  {
+    "route": "/blog/from-ai-pilots-to-business-value",
+    "status": 200,
+    "finalUrl": "http://127.0.0.1:3018/blog/from-ai-pilots-to-business-value"
+  },
+  {
+    "route": "/blog/git-workflow-for-beginners",
+    "status": 200,
+    "finalUrl": "http://127.0.0.1:3018/blog/git-workflow-for-beginners"
+  },
+  {
+    "route": "/blog/how-i-ran-qwen-locally-inside-codex",
+    "status": 200,
+    "finalUrl": "http://127.0.0.1:3018/blog/how-i-ran-qwen-locally-inside-codex"
+  },
+  {
+    "route": "/blog/how-we-built-a-consented-first-party-analytics-stack",
+    "status": 200,
+    "finalUrl": "http://127.0.0.1:3018/blog/how-we-built-a-consented-first-party-analytics-stack"
+  },
+  {
+    "route": "/blog/how-we-built-the-hackathon-voting-app",
+    "status": 200,
+    "finalUrl": "http://127.0.0.1:3018/blog/how-we-built-the-hackathon-voting-app"
+  },
+  {
+    "route": "/blog/how-we-finished-the-ga4-property-setup-on-rajeevg-com",
+    "status": 200,
+    "finalUrl": "http://127.0.0.1:3018/blog/how-we-finished-the-ga4-property-setup-on-rajeevg-com"
+  },
+  {
+    "route": "/blog/the-projects-behind-this-portfolio",
+    "status": 200,
+    "finalUrl": "http://127.0.0.1:3018/blog/the-projects-behind-this-portfolio"
+  },
+  {
+    "route": "/blog/when-not-to-use-server-side-tagging",
+    "status": 200,
+    "finalUrl": "http://127.0.0.1:3018/blog/when-not-to-use-server-side-tagging"
+  },
+  {
+    "route": "/blog/why-browser-consent-and-source-blending-make-marketing-measurement-harder",
+    "status": 200,
+    "finalUrl": "http://127.0.0.1:3018/blog/why-browser-consent-and-source-blending-make-marketing-measurement-harder"
+  },
+  {
+    "route": "/privacy",
+    "status": 200,
+    "finalUrl": "http://127.0.0.1:3018/privacy"
+  },
+  {
+    "route": "/projects",
+    "status": 200,
+    "finalUrl": "http://127.0.0.1:3018/projects"
+  },
+  {
+    "route": "/projects/hackathon-voting-analytics/google-analytics",
+    "status": 200,
+    "finalUrl": "http://127.0.0.1:3018/projects/hackathon-voting-analytics/google-analytics"
+  },
+  {
+    "route": "/projects/site-analytics",
+    "status": 200,
+    "finalUrl": "http://127.0.0.1:3018/projects/site-analytics"
+  }
+]

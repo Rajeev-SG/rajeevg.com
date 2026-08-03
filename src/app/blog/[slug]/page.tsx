@@ -2,13 +2,12 @@ import type { Metadata } from "next"
 import { unstable_noStore as noStore } from "next/cache"
 import { notFound } from "next/navigation"
 
-import { ArticleNextSteps } from "@/components/content-ops/article-next-steps"
 import { MDXContent } from "@/components/mdx-content"
 import { mdxComponents } from "@/components/mdx-components"
 import MermaidInit from "@/components/mermaid-init"
 import { MermaidTooltips } from "@/components/mermaid-tooltips"
 import { ReadingProgress } from "@/components/reading-progress"
-import { getContentInventoryBySlug, getRelatedContent } from "@/lib/content-ops/data"
+import { RelatedReading } from "@/components/related-reading"
 import { getPostEffectiveDate } from "@/lib/posts"
 import {
   getRenderablePostBySlug,
@@ -26,14 +25,21 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   const post = await getRenderablePostBySlug(slug)
   if (!post) return notFound()
 
-  const strategyRecord = getContentInventoryBySlug(slug)
   const ogImage = post.image || site.defaultOgImage
   const postDisplayDate = getPostEffectiveDate(post)
+  const relatedPosts = getSortedVisiblePostsLive()
+    .filter((candidate) => candidate.slug !== post.slug)
+    .map((candidate) => ({
+      ...candidate,
+      sharedTags: candidate.tags.filter((tag) => post.tags.includes(tag)).length,
+    }))
+    .sort((a, b) => b.sharedTags - a.sharedTags || new Date(b.updated || b.date).getTime() - new Date(a.updated || a.date).getTime())
+    .slice(0, 3)
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: post.title,
-    description: post.description || strategyRecord?.notes || undefined,
+    description: post.description || undefined,
     datePublished: new Date(post.date).toISOString(),
     dateModified: new Date(postDisplayDate).toISOString(),
     mainEntityOfPage: {
@@ -83,9 +89,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         >
           <MDXContent code={post.code} components={mdxComponents} />
         </section>
-        {strategyRecord ? (
-          <ArticleNextSteps current={strategyRecord} related={getRelatedContent(strategyRecord)} />
-        ) : null}
+        <RelatedReading posts={relatedPosts} />
         <MermaidInit />
         <MermaidTooltips />
       </article>
@@ -96,13 +100,12 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const post = getVisiblePostSummaryBySlug(slug)
-  const strategyRecord = getContentInventoryBySlug(slug)
   if (!post) return {}
   const ogImage = post.image || site.defaultOgImage
   const postDisplayDate = getPostEffectiveDate(post)
   return {
     title: post.title,
-    description: post.description || strategyRecord?.notes,
+    description: post.description,
     alternates: {
       canonical: `/blog/${post.slug}`,
     },
@@ -110,7 +113,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       type: "article",
       url: `/blog/${post.slug}`,
       title: post.title,
-      description: post.description || strategyRecord?.notes || site.description,
+      description: post.description || site.description,
       publishedTime: new Date(post.date).toISOString(),
       modifiedTime: new Date(postDisplayDate).toISOString(),
       authors: [site.name],
@@ -120,7 +123,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     twitter: {
       card: "summary_large_image",
       title: post.title,
-      description: post.description || strategyRecord?.notes || site.description,
+      description: post.description || site.description,
       images: [ogImage],
     },
   }

@@ -157,15 +157,13 @@ export function ConsentManager() {
   return (
     <>
       {isBannerOpen ? (
-        <div className="pointer-events-none fixed inset-x-0 bottom-4 z-50 px-4">
+        <div className="pointer-events-none fixed inset-x-0 bottom-4 z-50 px-4 sm:left-auto sm:right-4 sm:w-[430px] sm:px-0">
           <Card className="pointer-events-auto mx-auto max-w-2xl border-border/80 bg-background/95 shadow-lg backdrop-blur">
             <CardContent className="flex flex-col gap-4 p-5 sm:p-6">
               <div className="space-y-2">
                 <CardTitle className="text-base sm:text-lg">Analytics preferences</CardTitle>
                 <CardDescription className="max-w-xl text-sm leading-6">
-                  This site uses Google Tag Manager and GA4 to understand what people read,
-                  click, search, and engage with. We always keep advertising-related consent
-                  denied, and only enable analytics storage if you explicitly allow it.
+                  Optional analytics helps me understand which writing people use. Advertising tracking stays off.
                 </CardDescription>
                 <Link
                   href="/privacy"
