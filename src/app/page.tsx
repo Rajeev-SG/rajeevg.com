@@ -21,7 +21,7 @@ const dateFormatter = new Intl.DateTimeFormat("en-GB", {
 export default function Home() {
   if (isLocalRuntimeOverlayEnabled()) noStore()
 
-  const selectedSlugs = new Set(["open-gtm-index", "hackathon-voting-app", "model-intelligence-maintainer"])
+  const selectedSlugs = new Set(["open-gtm-index", "local-llm-lab", "hackathon-voting-app"])
   const selectedProjects = getPortfolioProjects().filter((project) => selectedSlugs.has(project.slug))
   const latestPosts = getSortedVisiblePostsLive().slice(0, 3)
 

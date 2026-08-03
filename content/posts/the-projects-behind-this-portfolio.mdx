@@ -2,6 +2,7 @@
 title: The Projects Behind This Portfolio
 slug: the-projects-behind-this-portfolio
 date: 2026-03-22
+updated: 2026-08-03
 description: A closer look at the public projects on rajeevg.com, what each one does, how each one works, and the stack choices behind them.
 tags: [projects, portfolio, engineering, products, workflows]
 draft: false
@@ -35,8 +36,13 @@ Here is the short version of what is now on the portfolio page.
 
 | Project | What it is | Main stack | Links |
 | --- | --- | --- | --- |
+| [Open GTM Index](/projects#open-gtm-index) | Transparent rankings for open-source sales and marketing tools | TanStack Start, React, TypeScript, Vite | [Live](https://open-gtm-index.vercel.app) · [GitHub](https://github.com/Rajeev-SG/open-gtm-index) |
+| [Local LLM Lab](/projects#local-llm-lab) | Current installed-model guide backed by local benchmark evidence | Python, React, Vite, MLX, Ollama | [Live](https://local-llm-lab.vercel.app) · [GitHub](https://github.com/Rajeev-SG/local-llm-lab) |
+| [Hackathon Voting App](/projects#hackathon-voting-app) | Live judging and scoreboard system for a real hackathon | Next.js, Clerk, Prisma, Postgres | [Live](https://vote.rajeevg.com) · [GitHub](https://github.com/Rajeev-SG/hackathon-voting-prototype) |
 | [Workflow Garden](/projects#workflow-garden) | Educational site for issue-driven AI development workflows | Next.js, Velite, React, Pagefind | [Live](https://workflow-garden.vercel.app) · [GitHub](https://github.com/Rajeev-SG/workflow-garden) |
 | [Proof Pack](/projects#proof-pack) | Launch-review app for public webpages | Next.js, React, Tailwind | [Live](https://proof-pack.vercel.app) · [GitHub](https://github.com/Rajeev-SG/proof-pack) |
+| [Agent Orchestra](/projects#agent-orchestra) | Live demonstrator for coordinated specialist AI workers | Next.js, AI SDK, OpenRouter, Zod | [Live](https://multi-agent-orchestration-demo.vercel.app) |
+| [Mark Notes](/projects#mark-notes) | Local-first notes product with web, desktop, and mobile shells | React, Electron, Expo, Postgres | [Live](https://mark-notes-tau.vercel.app) |
 | [Choice Compass](/projects#choice-compass) | Weighted decision helper | React, TypeScript, Vite | [Live](https://choice-compass-pi.vercel.app) · [GitHub](https://github.com/Rajeev-SG/choice-compass) |
 | [Model Intelligence Maintainer](/projects#model-intelligence-maintainer) | Workbook plus static guide for model comparison | Python, uv, OpenRouter, Vercel | [Live](https://openrouter-model-workbook-maintaine.vercel.app) · [GitHub](https://github.com/Rajeev-SG/openrouter-model-workbook-maintainer-v2) |
 | [rajeevg.com](/projects#rajeevg-com) | Personal publishing system and portfolio site | Next.js, Velite, MDX, shadcn/ui | [Live](https://rajeevg.com) · [GitHub](https://github.com/Rajeev-SG/rajeevg.com) |
@@ -57,7 +63,25 @@ A good portfolio page should answer practical questions quickly:
 - is the code public?
 - what is the actual implementation shape?
 
-That is why the new `/projects` route is driven by one checked-in data source. Each card only appears if there is a public repo and a public live URL. In other words, this is not a wish list, and it is not a private backlog dressed up as shipped work.
+That is why the new `/projects` route is driven by one checked-in data source. Each entry needs a working public product and enough evidence to explain what it does. Source code is linked when it is public; private-source products only appear when the visitor-facing product is complete and understandable on its own. In other words, this is not a wish list, and it is not a private backlog dressed up as shipped work.
+
+## Local LLM Lab
+
+<ProjectSpotlight slug="local-llm-lab" />
+
+Local LLM Lab started as a collection of benchmark notes and became a current field guide to the models actually installed on my Apple Silicon workstation.
+
+The important distinction is between a model family and an exact local build. Quantisation, runtime, and file format can change memory use, speed, tool support, and output quality enough that two builds with the same model name should not be treated as interchangeable.
+
+The public guide brings together:
+
+- the exact builds currently installed through MLX, Ollama, and Apple system tooling
+- measured task quality, response speed, and peak memory use
+- text, image, audio, tool-use, reasoning, and code-completion support
+- tuned local aliases that reuse the same underlying model weights
+- historical results for models that were tested and later removed
+
+Python scripts refresh the machine inventory and join it to checked-in benchmark evidence. The generated React site then presents the result as a guide a person can use without reopening raw JSON, shell logs, and benchmark folders.
 
 ## Workflow Garden
 

@@ -8,9 +8,9 @@ export type PortfolioProject = {
   imagePath: string
   imageAlt: string
   liveUrl: string
-  githubUrl: string
+  githubUrl?: string
   tech: string[]
-  repoVisibility: "PUBLIC"
+  repoVisibility: "PUBLIC" | "PRIVATE"
   inclusionReason: string
   detailLinks?: { label: string; href: string }[]
 }
@@ -32,6 +32,24 @@ export const portfolioProjects: PortfolioProject[] = [
     tech: ["TanStack Start", "React 19", "TypeScript", "Vite", "Nitro", "Playwright", "Vercel"],
     repoVisibility: "PUBLIC",
     inclusionReason: "Public GitHub repository with a live research and ranking site.",
+  },
+  {
+    slug: "local-llm-lab",
+    title: "Local LLM Lab",
+    category: "AI research product",
+    tagline: "A measured guide to every local AI model installed on my Apple Silicon workstation.",
+    summary:
+      "Local LLM Lab turns a large collection of local model builds and benchmark evidence into a practical field guide. It shows what is installed now, what each build is good at, which input types and tool features it supports, and how quality, speed, memory use, and context length compare on the same machine.",
+    howItWorks:
+      "Python scripts inspect the live Hugging Face, Ollama, MLX, and Apple model inventories, join them to checked-in benchmark results, and generate a static React guide. Exact model revisions stay separate because the runtime and quantisation can materially change speed, memory use, and output quality.",
+    imagePath: "/images/projects/local-llm-lab.png",
+    imageAlt: "Local LLM Lab field guide showing the current installed-model inventory and measured comparison totals.",
+    liveUrl: "https://local-llm-lab.vercel.app",
+    githubUrl: "https://github.com/Rajeev-SG/local-llm-lab",
+    tech: ["Python", "React", "Vite", "MLX", "Ollama", "Playwright", "Vercel"],
+    repoVisibility: "PUBLIC",
+    inclusionReason: "Public GitHub repository with a current production guide and checked-in benchmark evidence.",
+    detailLinks: [{ label: "Build write-up", href: "/blog/how-i-ran-qwen-locally-inside-codex" }],
   },
   {
     slug: "hackathon-voting-app",
@@ -93,6 +111,38 @@ export const portfolioProjects: PortfolioProject[] = [
     tech: ["Next.js", "React 19", "Tailwind CSS", "Vitest", "Vercel"],
     repoVisibility: "PUBLIC",
     inclusionReason: "Public GitHub repo with a public homepage URL.",
+  },
+  {
+    slug: "agent-orchestra",
+    title: "Agent Orchestra",
+    category: "AI demonstrator",
+    tagline: "A live comparison of one general AI workflow against a coordinator using specialist workers.",
+    summary:
+      "Agent Orchestra makes a multi-step AI workflow visible. A coordinator plans the job, assigns focused research tasks, gathers evidence, and produces a final brief while a single-pass baseline runs alongside it for comparison.",
+    howItWorks:
+      "The Next.js app uses structured model responses, bounded stage times, fallback models, web research tools, and partial-failure handling so a live demonstration can still complete when one worker or provider is slow. The interface exposes the plan, worker progress, evidence, and final synthesis as one connected run.",
+    imagePath: "/images/projects/agent-orchestra.png",
+    imageAlt: "Agent Orchestra interface showing the mission brief, worker status, evidence count, and orchestration controls.",
+    liveUrl: "https://multi-agent-orchestration-demo.vercel.app",
+    tech: ["Next.js 16", "React 19", "AI SDK", "OpenRouter", "Zod", "Motion", "Vercel"],
+    repoVisibility: "PRIVATE",
+    inclusionReason: "Public production demonstrator with a complete visitor-facing workflow; source remains private.",
+  },
+  {
+    slug: "mark-notes",
+    title: "Mark Notes",
+    category: "Productivity product",
+    tagline: "A calm, local-first notes workspace with web, desktop, and mobile shells.",
+    summary:
+      "Mark Notes combines a fast note library with a focused writing surface, folders, search, attachments, diagrams, and optional AI writing help. The product is designed to feel closer to a quiet personal archive than a busy team workspace.",
+    howItWorks:
+      "A shared TypeScript note model supports the React web app, Electron desktop shell, and Expo mobile shell. Notes remain usable locally, with an API-backed sync layer for moving between devices and Markdown-compatible storage for portability.",
+    imagePath: "/images/projects/mark-notes.png",
+    imageAlt: "Mark Notes interface showing folders, a note list, and a calm long-form editor with task and diagram content.",
+    liveUrl: "https://mark-notes-tau.vercel.app",
+    tech: ["React", "TypeScript", "Electron", "Expo", "Markdown", "Postgres", "Vercel"],
+    repoVisibility: "PRIVATE",
+    inclusionReason: "Public production application with web, desktop, and mobile implementations; source remains private.",
   },
   {
     slug: "choice-compass",

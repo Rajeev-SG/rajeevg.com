@@ -12,7 +12,7 @@ export const revalidate = 3600
 
 export default function ProjectsPage() {
   const projects = getPortfolioProjects()
-  const featuredSlugs = new Set(["open-gtm-index", "hackathon-voting-app", "model-intelligence-maintainer"])
+  const featuredSlugs = new Set(["open-gtm-index", "local-llm-lab", "hackathon-voting-app"])
   const featured = projects.filter((project) => featuredSlugs.has(project.slug))
   const more = projects.filter((project) => !featuredSlugs.has(project.slug))
 
@@ -22,7 +22,7 @@ export default function ProjectsPage() {
         <p className="text-sm font-medium uppercase tracking-[0.2em] text-muted-foreground">Projects</p>
         <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">Software built for real work</h1>
         <p className="text-lg leading-8 text-muted-foreground">
-          A selection of products, research tools, and operational systems I have designed and built. Each project links to the working product and its source code.
+          A selection of products, research tools, and operational systems I have designed and built. Each entry links to the working product, with source code where it is public.
         </p>
       </header>
 
@@ -49,9 +49,11 @@ export default function ProjectsPage() {
                       <Link href={detail.href}>{detail.label}<ArrowRight className="size-4" /></Link>
                     </Button>
                   ))}
-                  <Button asChild variant="outline" size="sm">
-                    <Link href={project.githubUrl} target="_blank" rel="noreferrer noopener"><Github className="size-4" />GitHub</Link>
-                  </Button>
+                  {project.githubUrl ? (
+                    <Button asChild variant="outline" size="sm">
+                      <Link href={project.githubUrl} target="_blank" rel="noreferrer noopener"><Github className="size-4" />GitHub</Link>
+                    </Button>
+                  ) : null}
                   <Button asChild size="sm">
                     <Link href={project.liveUrl} target="_blank" rel="noreferrer noopener">Live site<ArrowUpRight className="size-4" /></Link>
                   </Button>
