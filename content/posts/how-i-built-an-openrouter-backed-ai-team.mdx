@@ -1,0 +1,257 @@
+---
+title: I Gave My AI a Team. Here Is What Happened to the Expensive Work.
+slug: how-i-built-an-openrouter-backed-ai-team
+date: 2026-08-04
+description: A plain-English look at how I split Codex work between an OpenAI lead and lower-cost OpenRouter specialists, what the evidence shows, and what it does not.
+tags: [ai, codex, openrouter, multi-agent, automation, costs, workflow]
+draft: false
+image: /images/blog/multi-agent/openrouter-multi-agent-hero.png
+---
+
+<div className="flex flex-wrap gap-2">
+  <span className="inline-flex items-center rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-800 dark:border-sky-500/25 dark:bg-sky-500/10 dark:text-sky-200">One lead, specialist workers</span>
+  <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-800 dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-200">OpenRouter-backed</span>
+  <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-800 dark:border-amber-500/25 dark:bg-amber-500/10 dark:text-amber-200">Measured where possible</span>
+</div>
+
+<ArticleFigure
+  src="/images/blog/multi-agent/openrouter-multi-agent-hero.png"
+  alt="A central decision desk connected to specialist workstations that turn large piles of information into small evidence packets"
+  eyebrow="The new shape of the work"
+  title="The expensive model leads. The specialists carry the bulk."
+  caption="Raw files, test output and visual checks are handled outside the lead model. Small, useful findings come back for a final decision."
+/>
+
+I had built an increasingly capable Codex setup, but I had also created an expensive habit.
+
+The best OpenAI model was reading almost everything: source files, long logs, screenshots, repeated searches, build output and the full history of earlier decisions. It was acting as strategist, researcher, developer, tester and proofreader at the same time.
+
+That works. It is also a poor use of the most expensive attention in the system.
+
+So I changed the job. The OpenAI model now leads the work. It decides what needs doing, divides the task into bounded assignments, checks the returned evidence and makes the final call. Lower-cost models reached through OpenRouter do much of the reading, implementation and testing.
+
+The simple version is this:
+
+> I stopped paying the lead to sit through every page of supporting material. It now receives the brief, the important evidence and the decision it needs to make.
+
+## The short version
+
+<div className="not-prose my-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+  <div className="border-t-4 border-sky-500 bg-slate-50 p-5 dark:bg-slate-900">
+    <div className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Lead</div>
+    <div className="mt-2 text-3xl font-semibold text-slate-950 dark:text-white">GPT-5.6</div>
+    <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Understands the request, assigns work, checks evidence and answers me.</div>
+  </div>
+  <div className="border-t-4 border-emerald-500 bg-slate-50 p-5 dark:bg-slate-900">
+    <div className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Text workers</div>
+    <div className="mt-2 text-3xl font-semibold text-slate-950 dark:text-white">DeepSeek</div>
+    <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Reads files, drafts, implements, researches and runs tests.</div>
+  </div>
+  <div className="border-t-4 border-rose-500 bg-slate-50 p-5 dark:bg-slate-900">
+    <div className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Visual worker</div>
+    <div className="mt-2 text-3xl font-semibold text-slate-950 dark:text-white">Qwen</div>
+    <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Inspects screenshots, interfaces, diagrams and other visual evidence.</div>
+  </div>
+  <div className="border-t-4 border-amber-500 bg-slate-50 p-5 dark:bg-slate-900">
+    <div className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Working limit</div>
+    <div className="mt-2 text-3xl font-semibold text-slate-950 dark:text-white">3 slots</div>
+    <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">A small queue prevents a crowd of agents duplicating the same work.</div>
+  </div>
+</div>
+
+All four roles use high reasoning effort. That matters to me: delegation should change who does the work, not quietly lower the standard of thought.
+
+## Why tokens become a cost problem
+
+AI systems do not read text as pages or words. They read **tokens**, small pieces of text. A short word may be one token; a longer word may be several. Code, data and tool output count too.
+
+Every time the lead model needs the growing conversation again, much of that material can be processed again. A large result early in a long task can therefore keep affecting later turns.
+
+<div className="flex flex-wrap gap-2">
+  <ArticleExplain term="Token">A small piece of text read or written by a model. Model usage is commonly measured in tokens.</ArticleExplain>
+  <ArticleExplain term="Context">The working material the model receives for a turn: instructions, conversation, files and tool results.</ArticleExplain>
+  <ArticleExplain term="Compaction">A summary made when a conversation becomes too large to keep in full.</ArticleExplain>
+  <ArticleExplain term="OpenRouter">A service that lets one application send work to models from different providers through one interface.</ArticleExplain>
+</div>
+
+The expensive part was not only the final answer. It was repeatedly carrying raw working material inside the OpenAI lead's context.
+
+## The old flow and the new flow
+
+<div className="not-prose my-8 grid gap-5 lg:grid-cols-2">
+  <div className="border border-rose-200 bg-rose-50/70 p-6 dark:border-rose-500/20 dark:bg-rose-500/10">
+    <div className="text-xs font-semibold uppercase text-rose-800 dark:text-rose-300">Before</div>
+    <h3 className="mt-3 text-xl font-semibold text-rose-950 dark:text-rose-50">Everything passed through the lead</h3>
+    <div className="mt-5 space-y-3 text-sm text-rose-950 dark:text-rose-100">
+      <div className="border-l-2 border-rose-400 pl-4">Read many source files</div>
+      <div className="border-l-2 border-rose-400 pl-4">Run tools and absorb their full output</div>
+      <div className="border-l-2 border-rose-400 pl-4">Implement the change</div>
+      <div className="border-l-2 border-rose-400 pl-4">Run and interpret every test</div>
+      <div className="border-l-2 border-rose-400 pl-4">Remember all of it while answering</div>
+    </div>
+    <div className="mt-6 border-t border-rose-200 pt-4 text-sm font-medium text-rose-900 dark:border-rose-500/20 dark:text-rose-200">Result: the premium model carries both the decision and the bulk material.</div>
+  </div>
+  <div className="border border-emerald-200 bg-emerald-50/70 p-6 dark:border-emerald-500/20 dark:bg-emerald-500/10">
+    <div className="text-xs font-semibold uppercase text-emerald-800 dark:text-emerald-300">Now</div>
+    <h3 className="mt-3 text-xl font-semibold text-emerald-950 dark:text-emerald-50">Specialists return compact evidence</h3>
+    <div className="mt-5 space-y-3 text-sm text-emerald-950 dark:text-emerald-100">
+      <div className="border-l-2 border-emerald-400 pl-4">Lead defines one exact assignment</div>
+      <div className="border-l-2 border-emerald-400 pl-4">Worker receives only the files it needs</div>
+      <div className="border-l-2 border-emerald-400 pl-4">Worker reads, changes or tests them</div>
+      <div className="border-l-2 border-emerald-400 pl-4">Worker returns findings and proof</div>
+      <div className="border-l-2 border-emerald-400 pl-4">Lead checks the result and decides</div>
+    </div>
+    <div className="mt-6 border-t border-emerald-200 pt-4 text-sm font-medium text-emerald-900 dark:border-emerald-500/20 dark:text-emerald-200">Result: OpenAI sees the decision material, while OpenRouter handles more of the supporting work.</div>
+  </div>
+</div>
+
+```mermaid
+flowchart LR
+  U["My request"] --> L["GPT-5.6 lead"]
+  L -->|"Exact text task"| D["DeepSeek worker"]
+  L -->|"Exact visual task"| Q["Qwen worker"]
+  D -->|"Compact findings + proof"| L
+  Q -->|"Visual findings + proof"| L
+  L --> V["Validated result"]
+```
+
+The workers do not receive the whole conversation by default. They get the smallest complete package: the goal, the relevant files and the evidence they need. Credentials and unrelated private material stay out of those packages.
+
+## How this changes the bill
+
+There is no magic removal of cost. The cost moves and, when the system behaves properly, shrinks at the expensive end.
+
+<div className="not-prose my-8 overflow-hidden border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
+  <div className="grid md:grid-cols-[1fr_auto_1fr] md:items-stretch">
+    <div className="p-6">
+      <div className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">OpenRouter workers receive</div>
+      <div className="mt-3 text-xl font-semibold text-slate-950 dark:text-white">The bulky working material</div>
+      <ul className="mt-4 space-y-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+        <li>Relevant files and documentation</li>
+        <li>Test commands and their output</li>
+        <li>Search results and comparisons</li>
+        <li>Screenshots for visual review</li>
+      </ul>
+    </div>
+    <div className="hidden w-px bg-slate-200 dark:bg-slate-800 md:block" />
+    <div className="bg-slate-950 p-6 text-white">
+      <div className="text-xs font-semibold uppercase text-slate-400">OpenAI lead receives</div>
+      <div className="mt-3 text-xl font-semibold">The smaller decision package</div>
+      <ul className="mt-4 space-y-2 text-sm leading-6 text-slate-300">
+        <li>What the worker changed or found</li>
+        <li>The evidence that it works</li>
+        <li>Risks, failures and open questions</li>
+        <li>Enough detail to verify the result</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+Each model request is charged according to how much text it processes and produces. Keeping bulky working material away from the lead therefore reduces the amount OpenAI has to process. Large intermediate outputs are handled elsewhere and returned as shorter reports.
+
+The OpenRouter calls have their own bill, so the honest comparison is not “paid versus free.” It is **work moved from the more expensive lead to lower-cost specialists**, plus a smaller lead-model review.
+
+The exact saving will vary by task. A short question may not benefit at all. A long task involving dozens of files, test logs or screenshots can benefit much more.
+
+## What the historical evidence says
+
+I built a usage-reporting tool and froze a real, unusually large TradeHero session so the numbers could be reproduced. An independent checker then calculated the totals again with a separate parser.
+
+<div className="not-prose my-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+  <div className="border border-slate-200 p-5 dark:border-slate-800">
+    <div className="text-3xl font-semibold text-slate-950 dark:text-white">257.5m</div>
+    <div className="mt-2 text-sm font-medium text-slate-700 dark:text-slate-200">Measured parent workload</div>
+    <div className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">Tokens processed across the recorded context windows. This is workload evidence, not an invoice total.</div>
+  </div>
+  <div className="border border-slate-200 p-5 dark:border-slate-800">
+    <div className="text-3xl font-semibold text-slate-950 dark:text-white">13</div>
+    <div className="mt-2 text-sm font-medium text-slate-700 dark:text-slate-200">Context windows</div>
+    <div className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">The conversation was compacted 12 times as it grew.</div>
+  </div>
+  <div className="border border-slate-200 p-5 dark:border-slate-800">
+    <div className="text-3xl font-semibold text-slate-950 dark:text-white">1,581</div>
+    <div className="mt-2 text-sm font-medium text-slate-700 dark:text-slate-200">Parent worker-level calls</div>
+    <div className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">File, shell and other supporting work carried out in the main conversation.</div>
+  </div>
+  <div className="border border-slate-200 p-5 dark:border-slate-800">
+    <div className="text-3xl font-semibold text-slate-950 dark:text-white">5.67 MB</div>
+    <div className="mt-2 text-sm font-medium text-slate-700 dark:text-slate-200">Tool-output text</div>
+    <div className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">The raw output returned by tools during the session.</div>
+  </div>
+  <div className="border border-slate-200 p-5 dark:border-slate-800">
+    <div className="text-3xl font-semibold text-slate-950 dark:text-white">~1.41m</div>
+    <div className="mt-2 text-sm font-medium text-slate-700 dark:text-slate-200">Tool-output token proxy</div>
+    <div className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">An approximation, not a provider billing figure.</div>
+  </div>
+  <div className="border border-slate-200 p-5 dark:border-slate-800">
+    <div className="text-3xl font-semibold text-slate-950 dark:text-white">25,945</div>
+    <div className="mt-2 text-sm font-medium text-slate-700 dark:text-slate-200">Recorded worker tokens</div>
+    <div className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">Prompt and completion tokens reported by three delegated worker calls.</div>
+  </div>
+</div>
+
+The strongest signal is not a promised percentage saving. It is the amount of supporting material that could have been kept out of the OpenAI lead's working memory if more of the session had been delegated properly.
+
+In other words: the old workflow gives us clear evidence of the problem. The new workflow gives us a credible mechanism for reducing it. More comparable sessions are needed before I publish a reliable percentage or cash figure.
+
+## Reliability matters more than a clever diagram
+
+Delegation only saves money if it does not create a second bill for correcting bad work.
+
+The operating rules therefore make the lead responsible for quality:
+
+1. The lead may inspect just enough to define the assignment.
+2. A worker receives one bounded task and the exact material it needs.
+3. The worker returns evidence, not merely “done.”
+4. The lead checks that evidence before reporting completion.
+5. A stalled worker is stopped and replaced with a narrower assignment.
+6. Completed workers are closed immediately so work does not quietly duplicate.
+
+<div className="not-prose my-8 border-l-4 border-emerald-500 bg-emerald-50 p-6 dark:bg-emerald-500/10">
+  <div className="text-xs font-semibold uppercase text-emerald-800 dark:text-emerald-300">Acceptance result</div>
+  <div className="mt-2 text-4xl font-semibold text-emerald-950 dark:text-emerald-50">108 / 108 tests passed</div>
+  <div className="mt-3 max-w-3xl text-sm leading-6 text-emerald-900 dark:text-emerald-100">The checks covered routing, high reasoning settings, duplicate watcher prevention, idle exit, stale process recovery, credential isolation, final delegation checks and reproducible usage totals.</div>
+</div>
+
+The audit is session-scoped. It starts for significant work, watches only that Codex session and exits after 15 minutes without activity. There is no machine-wide job waking up every ten minutes when Codex is not in use.
+
+## What this proves, and what it does not
+
+<div className="not-prose my-8 grid gap-5 md:grid-cols-2">
+  <div className="border-t-4 border-emerald-500 bg-slate-50 p-6 dark:bg-slate-900">
+    <div className="text-sm font-semibold text-slate-950 dark:text-white">What I can support</div>
+    <ul className="mt-4 space-y-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
+      <li>The previous workflow placed very large context and tool output in the OpenAI parent session.</li>
+      <li>Delegation can move raw supporting work to lower-cost OpenRouter models.</li>
+      <li>Compact reports reduce the candidate volume that must return to the lead.</li>
+      <li>The routing and audit controls passed their test suite and an independent check.</li>
+    </ul>
+  </div>
+  <div className="border-t-4 border-amber-500 bg-slate-50 p-6 dark:bg-slate-900">
+    <div className="text-sm font-semibold text-slate-950 dark:text-white">What I cannot support yet</div>
+    <ul className="mt-4 space-y-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
+      <li>A guaranteed percentage reduction for every task.</li>
+      <li>An exact change to OpenAI account limits, because their quota formula is not present in local logs.</li>
+      <li>The claim that worker tokens are free; OpenRouter usage is charged separately.</li>
+      <li>A broad before-and-after average from only a handful of delegated sessions.</li>
+    </ul>
+  </div>
+</div>
+
+That distinction is important. “We changed the plumbing, therefore the bill fell by 80%” would be a good headline and bad evidence.
+
+The honest conclusion is still useful: I now have a working system designed to reserve OpenAI's expensive context for the work that benefits most from it. The supporting labour can be sent to capable, lower-cost specialists, and the lead remains accountable for the result.
+
+## The part I like most
+
+The biggest improvement is not that several models can run at once. Parallel activity is easy to make impressive and surprisingly easy to make wasteful.
+
+The useful change is **separation of responsibility**.
+
+The lead has to decide. The workers have to show their work. The visual specialist receives actual images. The text specialists receive exact files. A failed route has a defined fallback. A completed worker is closed. A significant session ends with a check that the delegation rules were followed.
+
+That makes the setup easier to reason about, easier to test and much less likely to spend premium tokens on work that did not need a premium model.
+
+The next stage is measurement rather than invention: compare several similar tasks, record the OpenAI parent tokens and OpenRouter worker tokens separately, and publish the real difference. Until then, I would rather show the mechanism and its limits than decorate an estimate with false certainty.
+
+For the related local-model work, see [How I Ran Qwen Locally Inside Codex on an Apple Silicon Mac](/blog/how-i-ran-qwen-locally-inside-codex).
