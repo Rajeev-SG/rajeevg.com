@@ -48,9 +48,10 @@ exact token-saving percentage.
 - NEW `public/downloads/codex-work-checklist.md`
 - NEW `output/acceptance/what-551-codex-sessions-article-worker.md`
 
-## Not done (per boundaries)
-No commit, no push, no deploy. Not validated by a full site build (narrow
-XML/static checks used). Not reviewed visually in a browser.
+## Original worker boundary
+The initial worker did not commit, push, deploy, run a full site build, or
+review the article in a browser. Those delivery checks were completed by the
+resume pass and are recorded in the final acceptance report below.
 
 ---
 
@@ -86,3 +87,23 @@ SVG `title`/`desc`/text content. No visual or gitwork assets were altered.
 ### Boundaries honoured
 No commit, push, deploy, or browser automation. Only the two permitted files
 were edited.
+
+---
+
+## Final parent acceptance — 2026-08-11
+
+- `npm run build` — PASS.
+- `npm run lint` — PASS with no ESLint errors; only the repository's existing
+  multiple-lockfile and Mermaid `import.meta` warnings were present.
+- All five SVGs parsed as XML and retained `<title>` and `<desc>` — PASS.
+- Browser proof against the exact committed production build — PASS at
+  402×900, 768×900, 1440×1000, and 1575×1000.
+- Five article figures loaded, the metadata description rendered as plain
+  `3.3 GB` text, and no tested viewport had horizontal overflow.
+- Desktop, wide desktop, intermediate, mobile, ledger, and recovery-loop
+  screenshots were reviewed for clipping, overlap, dead zones, panel sizing,
+  whitespace, hierarchy, and figure readability.
+- The checklist target was present at `/downloads/codex-work-checklist.md`.
+
+Evidence: `output/playwright/20260811-551-article-final-proof-5/` and
+`output/acceptance/what-551-codex-sessions-article-final.md`.
