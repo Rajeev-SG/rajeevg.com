@@ -106,7 +106,7 @@ Those four reads feed the human-centred principles at the end.
 
 ## Where the numbers came from (and how to repeat it)
 
-I indexed transcripts with a privacy-safe session indexer that records **metadata only**: tool-call counts, token aggregates, compaction counts, model and role labels. It does **not** store prompts, tool outputs, or user content. Any session could be reconstructed and checked without exposing its contents.
+I indexed transcripts with a privacy-safe session indexer that records **metadata only**: tool-call counts, token aggregates, compaction counts, model and role labels. It does **not** store prompts, tool outputs, or user content. The recorded aggregates can be checked against retained source sessions without publishing their private contents.
 
 The workflow was deliberately scriptable and reproducible:
 
@@ -251,7 +251,7 @@ I promised to flag limits, so here they are plainly:
 If you run any agentic coding tool, here is the smallest experiment worth doing this week — and the full template is a **downloadable checklist** at the bottom of this article:
 
 1. Index your last month of transcripts with a **metadata-only** tool (no prompts).
-2. Count tool calls by type. `exec`/`execute` should dominate.
+2. Count tool calls by type. In my Codex ledger, `exec_command` dominated; use the equivalent command-execution tool recorded by your own harness.
 3. Find one long session and write its **done condition and evidence path** before you touch it again.
 4. Expect `update_plan` to be normal. Plan churn is a recovery feature, not a defect.
 5. Refuse to print a token-savings number you cannot prove.
