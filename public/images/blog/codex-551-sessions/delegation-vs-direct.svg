@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="440" viewBox="0 0 900 440" role="img" aria-labelledby="gt gd">
+<title id="gt">Native delegation is a small slice of recorded activity</title>
+<desc id="gd">A thin horizontal stack showing native spawn_agent calls (58) alongside the much larger exec and other tool volumes, illustrating that native delegation stays rare relative to direct action.</desc>
+<style>
+  text{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif}
+  .cap{fill:#64748b}.val{fill:#0f172a}
+  @media (prefers-color-scheme: dark){.cap{fill:#94a3b8}.val{fill:#f1f5f9}}
+  @media (prefers-reduced-motion: reduce){.slice{animation:none}}
+</style>
+<text class="cap" x="60" y="70" font-size="18" letter-spacing="1" font-weight="600">Native spawn_agent is a thin slice of total recorded calls</text>
+<!-- stacked bar: total 116k+ -->
+<rect x="60" y="130" width="780" height="70" rx="6" fill="#e2e8f0"/>
+<rect class="slice" x="60" y="130" width="760" height="70" rx="0" fill="#cbd5e1"><animate attributeName="opacity" values="0.4;1" dur="0.8s"/></rect>
+<rect class="slice" x="60" y="130" width="4" height="70" rx="0" fill="#0ea5e9"/>
+<text class="cap" x="60" y="240" font-size="15">Total recorded tool calls ≈ 116,000+. The visible sliver near the left edge is the 58 native spawn_agent calls.</text>
+<text class="cap" x="60" y="280" font-size="15">Delegate* (OpenRouter-backed) work also occurred and rose sharply in August — the count here is only the native floor.</text>
+<text class="cap" x="60" y="360" font-size="15" font-style="italic">Scale is illustrative, not to exact pixel proportion. Counts show activity, not value.</text>
+</svg>
