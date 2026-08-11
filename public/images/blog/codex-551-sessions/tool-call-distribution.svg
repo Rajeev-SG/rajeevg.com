@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="560" viewBox="0 0 1200 560" role="img" aria-labelledby="tt td">
+<title id="tt">Recorded tool-call distribution across 551 sessions</title>
+<desc id="td">Horizontal bars for the most frequent tool types: exec_command 61215, write_stdin 18763, exec 9161, apply_patch 7383, view_image 2537, update_plan 819, spawn_agent 58.</desc>
+<style>
+  text{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif}
+  .lbl{fill:#334155;font-size:16px}.val{fill:#0f172a;font-size:16px;font-weight:600}
+  @media (prefers-color-scheme: dark){ .lbl{fill:#cbd5e1} .val{fill:#f1f5f9} }
+  @media (prefers-reduced-motion: reduce){ .gw{animation:none} }
+</style>
+<g>
+  <!-- rows -->
+  <g transform="translate(0,40)"><text class="lbl" x="40" y="20">exec_command</text><rect x="430" y="6" width="690" height="22" rx="5" fill="#e2e8f0"/><rect class="gw" x="430" width="690" height="22" rx="5" fill="#0284c7"><animate attributeName="width" from="0" to="690" dur="1.2s"/></rect><text class="val" x="1140" y="21">61,215</text></g>
+  <g transform="translate(0,92)"><text class="lbl" x="40" y="20">write_stdin</text><rect x="430" y="6" width="690" height="22" rx="5" fill="#e2e8f0"/><rect x="430" width="211" height="22" rx="5" fill="#10b981"/><text class="val" x="1140" y="21">18,763</text></g>
+  <g transform="translate(0,144)"><text class="lbl" x="40" y="20">exec</text><rect x="430" y="6" width="690" height="22" rx="5" fill="#e2e8f0"/><rect x="430" width="103" height="22" rx="5" fill="#f59e0b"/><text class="val" x="1140" y="21">9,161</text></g>
+  <g transform="translate(0,196)"><text class="lbl" x="40" y="20">apply_patch</text><rect x="430" y="6" width="690" height="22" rx="5" fill="#e2e8f0"/><rect x="430" width="83" height="22" rx="5" fill="#8b5cf6"/><text class="val" x="1140" y="21">7,383</text></g>
+  <g transform="translate(0,248)"><text class="lbl" x="40" y="20">view_image</text><rect x="430" y="6" width="690" height="22" rx="5" fill="#e2e8f0"/><rect x="430" width="29" height="22" rx="5" fill="#f43f5e"/><text class="val" x="1140" y="21">2,537</text></g>
+  <g transform="translate(0,300)"><text class="lbl" x="40" y="20">update_plan</text><rect x="430" y="6" width="690" height="22" rx="5" fill="#e2e8f0"/><rect x="430" width="9" height="22" rx="5" fill="#0ea5e9"/><text class="val" x="1140" y="21">819</text></g>
+  <g transform="translate(0,352)"><text class="lbl" x="40" y="20">spawn_agent (native)</text><rect x="430" y="6" width="690" height="22" rx="5" fill="#e2e8f0"/><rect x="430" width="1" height="22" rx="5" fill="#64748b"/><text class="val" x="1140" y="21">58</text></g>
+</g>
+<text class="lbl" x="40" y="430" font-size="15">Bars are scaled to the maximum (exec_command = 100%). Native spawn_agent (58) is a lower bound; OpenRouter-backed worker delegation also occurred.</text>
+<text class="lbl" x="40" y="470" font-size="15">Counts describe activity, not time, value, or success.</text>
+</svg>

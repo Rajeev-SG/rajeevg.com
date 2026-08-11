@@ -1,0 +1,276 @@
+---
+title: What 551 Codex Sessions Reveal About Real AI Work
+slug: what-551-codex-sessions-reveal-about-real-ai-work
+date: 2026-08-11
+description: I measured 551 real Codex sessions, 3.3 GB of transcript and 61,215 shell commands. The patterns that emerge are less about brilliance and more about volume, recovery, and visible loops of work.
+tags: [ai, codex, agentic-work, observability, data, evidence, workflow]
+draft: false
+image: /images/blog/codex-551-sessions/551-sessions-overview.svg
+---
+
+<div className="flex flex-wrap gap-2">
+  <span className="inline-flex items-center rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-800 dark:border-sky-500/25 dark:bg-sky-500/10 dark:text-sky-200">Measured, not vibes</span>
+  <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-800 dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-200">551 real sessions</span>
+  <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-800 dark:border-amber-500/25 dark:bg-amber-500/10 dark:text-amber-200">3.3&nbsp;GB of transcript</span>
+  <span className="inline-flex items-center rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-800 dark:border-indigo-500/25 dark:bg-indigo-500/10 dark:text-indigo-200">Data journalism</span>
+</div>
+
+<ArticleFigure
+  src="/images/blog/codex-551-sessions/551-sessions-overview.svg"
+  alt="An editorial data summary showing 551 sessions, about 3.3 gigabytes of transcript, 377 indexed task titles, and the three most frequent tool types."
+  eyebrow="The dataset at a glance"
+  title="AI work, when you actually count it, looks like disciplined volume, not mystery."
+  caption="Measured aggregates from 551 real Codex sessions indexed between 2026-07 and 2026-08."
+/>
+
+Most writing about AI agents quotes a demo or a slogan. I would rather quote a ledger.
+
+For a few weeks I let Codex record what it actually did — every tool call, every shell command, every plan update, every retry — and then I counted it. This article is built from **551 real sessions**, roughly **3.3&nbsp;GB** of transcript, **377 indexed task titles**, and **116,000+ recorded tool calls**.
+
+The honest headline is quieter than the AI blogs would like. Real AI work is not a single brilliant turn. It is **a loop of small, visible, recoverable actions** — and the numbers make that loop visible.
+
+This is deliberately a *data-journalism* piece, not an "I automated my life" story. The categories are approximate. The counts show activity, not value. I will flag every limitation where it appears, because that discipline is the whole point.
+
+## The short version
+
+<div className="not-prose my-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+  <div className="border-t-4 border-sky-500 bg-slate-50 p-5 dark:bg-slate-900">
+    <div className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Sessions</div>
+    <div className="mt-2 text-3xl font-semibold text-slate-950 dark:text-white">551</div>
+    <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Real transcripts indexed, between July and mid-August 2026.</div>
+  </div>
+  <div className="border-t-4 border-emerald-500 bg-slate-50 p-5 dark:bg-slate-900">
+    <div className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Transcript size</div>
+    <div className="mt-2 text-3xl font-semibold text-slate-950 dark:text-white">~3.3&nbsp;GB</div>
+    <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">An approximate working-set measure; categories are title-derived.</div>
+  </div>
+  <div className="border-t-4 border-amber-500 bg-slate-50 p-5 dark:bg-slate-900">
+    <div className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Task titles</div>
+    <div className="mt-2 text-3xl font-semibold text-slate-950 dark:text-white">377</div>
+    <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Indexed task titles grouped into approximate themes.</div>
+  </div>
+  <div className="border-t-4 border-rose-500 bg-slate-50 p-5 dark:bg-slate-900">
+    <div className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Tool calls</div>
+    <div className="mt-2 text-3xl font-semibold text-slate-950 dark:text-white">116k+</div>
+    <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Recorded tool calls; counts are activity, not value.</div>
+  </div>
+</div>
+
+Three numbers in that grid deserve a second look, because they are doing more work than the rest:
+
+- **61,215 `exec_command`** — the single most frequent action. Agents mostly *run commands*.
+- **18,763 `write_stdin`** — long-running interactive processes get fed by hand.
+- **819 `update_plan`** — plan churn is ordinary, not a failure.
+
+If you only remember one sentence from this article: **healthy AI work is mostly a visible loop of `execute → observe → adjust → plan again`**, not a single long silent thought.
+
+## What the ledger actually shows
+
+Here is the recorded tool-call distribution, as measured:
+
+| Tool | Calls | What it mostly means |
+|---:|---:|---|
+| `exec_command` | 61,215 | Running shell commands — the dominant action |
+| `write_stdin` | 18,763 | Inputting into long-running, interactive processes |
+| `exec` | 9,161 | Additional command execution variants |
+| `apply_patch` | 7,383 | Applying discrete file changes |
+| `view_image` | 2,537 | Inspecting a screen or artefact before deciding |
+| `update_plan` | 819 | Reprioritising the working plan |
+| `spawn_agent` (native) | 58 | Native subagent delegation |
+
+A few reads of this table that the raw numbers alone would not give you:
+
+1. **Action outweighs reflection.** The top five rows are all *doing* — running, feeding, patching, looking. The plan rows are an order of magnitude smaller.
+2. **Edits are deliberate.** `apply_patch` at **7,383** is a real but modest slice. Most of the work is in *verifying* state by running commands and viewing images, not in typing diffs.
+3. **Delegation is still rare at the native level.** Only **58** native `spawn_agent` calls. That number matters for the "agents everywhere" hype — see the limitations below.
+4. **Feedback loops are constant.** `view_image` at **2,537** means the agent repeatedly *looked* before continuing. That visual check is the heartbeat of a recoverable loop.
+
+Those four reads feed the human-centred principles at the end.
+
+<ArticleFigure
+  src="/images/blog/codex-551-sessions/tool-call-distribution.svg"
+  alt="A horizontal bar chart of the recorded tool-call distribution across 551 sessions, with exec_command at 61,215 and progressively smaller bars for write_stdin, exec, apply_patch, view_image, update_plan, and 58 native spawn_agent calls."
+  eyebrow="The ledger"
+  title="Most agent work is running, feeding, and checking — not thinking."
+  caption="The top rows are all action — running commands, feeding processes, patching, and looking — and they dwarf the plan and delegation rows."
+/>
+
+<ArticleFigure
+  src="/images/blog/codex-551-sessions/delegation-vs-direct.svg"
+  alt="A thin horizontal slice showing 58 native spawn_agent calls against roughly 116,000 total recorded tool calls, illustrating how rare native delegation is relative to direct action."
+  eyebrow="Delegation, measured"
+  title="Native delegation is a sliver of the ledger — and still worth counting."
+  caption="58 native spawn_agent calls sit beside a much larger volume of direct action; OpenRouter-backed delegation raises that floor but not the measured native count."
+/>
+
+
+## Where the numbers came from (and how to repeat it)
+
+I indexed transcripts with a privacy-safe session indexer that records **metadata only**: tool-call counts, token aggregates, compaction counts, model and role labels. It does **not** store prompts, tool outputs, or user content. The recorded aggregates can be checked against retained source sessions without publishing their private contents.
+
+The workflow was deliberately scriptable and reproducible:
+
+1. **Point the indexer at a session folder.** It stream-parses JSONL transcripts.
+2. **Define a clean scope.** Top-level desktop sessions in the working directory across July and August 2026; subagent sessions and client-confidential work excluded.
+3. **Emit aggregates.** Counts by tool type, model, and role; per-session token and compaction summaries.
+4. **Review as metadata, not memory.** Because prompts are out, there is no risk of leaking private context into a blog post.
+
+The practical lesson for anyone running their own Codex (or Claude, or any agent harness): **put the measurement layer in place before you need it.** A metadata index is cheap, privacy-safe, and turns "I feel like I used a lot of tokens" into "here is the per-window count." I have written this up as a downloadable checklist (see the download at the end).
+
+## Task quality: the first and biggest lever
+
+The strongest signal across the ledger is that **the quality of the task packet determines the quality of the session** — not the cleverness of the model. When I look at the sessions that went smoothly, they share a shape:
+
+- **One bounded objective**, stated as a deliverable, not an aspiration.
+- **Explicit allowed paths and boundaries** so the agent knows where it may and may not write.
+- **A named "done" condition** with an evidence path, so completion is checkable.
+- **A small tool budget** (for example "8 substantive tool calls") that forces prioritisation.
+- **Exact reference paths and excerpts** in the original request, so the agent does not guess.
+
+That is the single most transferable insight: **write the packet as if a stranger must complete it with no memory of your conversation.** Treat context as a scarce resource. Every fuzzy instruction you delete from the prompt is context you are not paying to ship to the model and re-ship at every compaction.
+
+<div className="not-prose my-8 grid gap-4 md:grid-cols-2">
+  <div className="rounded-2xl border bg-card p-5 shadow-sm">
+    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">Weak task packet</p>
+    <ul className="mt-3 space-y-2 text-sm leading-6 text-muted-foreground">
+      <li>“Clean up the repo a bit.”</li>
+      <li>No allowed paths listed.</li>
+      <li>No done condition, no evidence path.</li>
+      <li>Model guesses scope on every turn.</li>
+    </ul>
+  </div>
+  <div className="rounded-2xl border bg-card p-5 shadow-sm">
+    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">Strong task packet</p>
+    <ul className="mt-3 space-y-2 text-sm leading-6 text-muted-foreground">
+      <li>“Refactor X, edit only <code>app/</code>, run tests, report changed files.”</li>
+      <li>Explicit paths and boundaries.</li>
+      <li>Named done condition + evidence file.</li>
+      <li>Tool budget forces focus; context stays scarce.</li>
+    </ul>
+  </div>
+</div>
+
+## Recoverable autonomy: the loop that survives interruption
+
+The single most common failure mode in my own launches is not a wrong answer. It is a **dead process or a dead connection** — the underlying tool, browser, or relay stops answering, and a long-running session silently accumulates stale state. The `exec_command` and `write_stdin` counts are a reminder of how much depends on *live processes staying alive*.
+
+Recoverable autonomy means the work survives a restart:
+
+- **Checkpoint the state, not just the answer.** Write durable checkpoints (task ID, current step, what is proven) so a replacement can resume from evidence instead of starting over.
+- **Lease what must not be shared.** For persistent ports and shared controllers (a browser debugging endpoint, a model relay), reserve them so only one owner runs them at a time, and release them after a health check.
+- **Treat a timeout as a question, not a verdict.** Confirm no activity across two checks before calling it a stall.
+- **Name ownership of the next action.** The most common source of drift is "who owns the next step?" — resolve it in writing.
+
+<ArticleFigure
+  src="/images/blog/codex-551-sessions/recoverable-autonomy.svg"
+  alt="A three-step sequence labelled checkpoint, health check plus release, and resume, showing how a durable state lets a replacement continue from evidence rather than restarting from zero."
+  eyebrow="The recovery loop"
+  title="The work that survives interruption is the work that checkpoints."
+  caption="Write durable state, confirm health before releasing a lease, and let the next owner resume from evidence — that loop is what keeps long sessions alive."
+/>
+
+
+The recovery loop is exactly what the 819 `update_plan` calls describe: a system repeatedly re-deciding, in a bounded way, what to do next. That is not indecision. It is a safety mechanism.
+
+## Context and token efficiency: being honest about "savings"
+
+This is where I have to slow down, because it matters for credibility.
+
+When I totaled per-window model tokens across the orchestration-era sessions, the **observed** numbers were genuinely large — running into the hundreds of millions of measured model tokens across compaction windows, with tool-output byte counts in the millions. But the honest summary must include three confounds:
+
+1. **Counts do not prove time, value, or success.** A session with huge tool-call counts can be doing nothing useful; a small one can be decisive.
+2. **Provider-side billing is not in local logs.** I can measure my local counters, but I cannot prove from transcript metadata whether OpenAI- or provider-side usage limits changed because of delegation. Worker and child tokens are billed separately.
+3. **OpenRouter delegation rose sharply in August** — but I will not claim an exact token-saving percentage. The counterfactual (how many tokens doing the work directly would have cost) is not measured.
+
+That honesty is not a cop-out. It is the correct engineering posture: **measure what you can, label what you estimated, and refuse to overclaim what you cannot.** A token proxy ('tool-output bytes ÷ ~4 chars/token') is an *estimate*, not a billed figure — I keep it clearly separated from measured values.
+
+The actionable efficiency levers from the evidence are:
+
+- **Cut context at the source.** Every instruction you remove from the prompt is context you are not shipping and re-shipping at every compaction.
+- **Send the smallest complete packet.** Task ID, objective, exact paths, boundaries, done condition, evidence path — nothing else.
+- **Stream large files.** Never read or dump a whole multi-gigabyte transcript; extract the one field you need.
+- **Keep the measurement layer metadata-only**, so the cost of measuring stays far below the cost of the work.
+
+## Design direction: understated editorial, not AI theatre
+
+I want to make the visual choice explicit, because it is a values statement. This article uses **flat, semantic SVG diagrams** with restrained editorial colour, real numbers, `alt` text, light/dark compatibility, and `prefers-reduced-motion` safety. No neon gradients, no "server room with glowing robots" hero, no density for its own sake.
+
+The five diagrams below each carry one idea:
+
+1. **551-sessions-overview** — the headline dataset at a glance.
+2. **tool-call-distribution** — the ledger as a horizontal bar chart.
+3. **work-loop** — `execute → observe → adjust → plan again` as a cycle.
+4. **delegation-vs-direct** — how native delegation stays a small slice of activity.
+5. **recoverable-autonomy** — the checkpoint/release loop that survives interruption.
+
+Each is a data visual, not decoration. If the diagram cannot be reduced to one sentence, I redraw it.
+
+## Six human-centred principles from the evidence
+
+These are the memorable principles I would hand to anyone starting serious agent work, all drawn from the measured behaviour above.
+
+<div className="not-prose my-8 grid gap-4 sm:grid-cols-2">
+  <div className="rounded-2xl border bg-card p-5 shadow-sm">
+    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-600 dark:text-sky-400">1 · Measure, then improve</p>
+    <p className="mt-2 text-sm leading-6 text-muted-foreground">You cannot improve what you cannot reconstruct. Install a metadata index before you need it.</p>
+  </div>
+  <div className="rounded-2xl border bg-card p-5 shadow-sm">
+    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-600 dark:text-emerald-400">2 · The packet is the product</p>
+    <p className="mt-2 text-sm leading-6 text-muted-foreground">Write each task as if a stranger must complete it with no memory of your conversation.</p>
+  </div>
+  <div className="rounded-2xl border bg-card p-5 shadow-sm">
+    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-600 dark:text-amber-400">3 · Scope the context, not the code</p>
+    <p className="mt-2 text-sm leading-6 text-muted-foreground">Every fuzzy line you delete is context you stop shipping at every compaction.</p>
+  </div>
+  <div className="rounded-2xl border bg-card p-5 shadow-sm">
+    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-rose-600 dark:text-rose-400">4 · Checkpoint the state, not the answer</p>
+    <p className="mt-2 text-sm leading-6 text-muted-foreground">Write durable checkpoints so a replacement resumes from evidence, never from memory.</p>
+  </div>
+  <div className="rounded-2xl border bg-card p-5 shadow-sm">
+    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-indigo-600 dark:text-indigo-400">5 · Lease what must not be shared</p>
+    <p className="mt-2 text-sm leading-6 text-muted-foreground">Reserve persistent ports and shared controllers; release them only after a health check.</p>
+  </div>
+  <div className="rounded-2xl border bg-card p-5 shadow-sm">
+    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-600 dark:text-teal-400">6 · Name the owner of the next action</p>
+    <p className="mt-2 text-sm leading-6 text-muted-foreground">Most drift is not a wrong answer; it is an unowned next step. Fix it in writing.</p>
+  </div>
+</div>
+
+## The honest limitations
+
+I promised to flag limits, so here they are plainly:
+
+- **Counts approximate categories.** Task titles are grouped by hand-rolled heuristics; "about 3.3&nbsp;GB" is a working-set measure.
+- **Counts are not value.** 61,215 `exec_command` calls describe activity. They do not prove any particular price, time, or business result.
+- **Native `spawn_agent` (58) is a floor, not a ceiling.** Delegation happens through OpenRouter-backed worker paths too; "58 native" should not be read as "delegation barely happened."
+- **No exact token-savings percentage.** OpenRouter delegation rose sharply in August, but the direct-execution counterfactual is not measured. Any slogan claiming a specific saving is unjustified by this data.
+- **One-sector sample.** This is one person's rig on one machine. Treat patterns as hypotheses, not population facts.
+
+## Your turn
+
+If you run any agentic coding tool, here is the smallest experiment worth doing this week — and the full template is a **downloadable checklist** at the bottom of this article:
+
+1. Index your last month of transcripts with a **metadata-only** tool (no prompts).
+2. Count tool calls by type. In my Codex ledger, `exec_command` dominated; use the equivalent command-execution tool recorded by your own harness.
+3. Find one long session and write its **done condition and evidence path** before you touch it again.
+4. Expect `update_plan` to be normal. Plan churn is a recovery feature, not a defect.
+5. Refuse to print a token-savings number you cannot prove.
+
+That is the whole ethos: **useful systems, not AI theatre.** The ledger is the proof.
+
+<ArticleFigure
+  src="/images/blog/codex-551-sessions/work-loop.svg"
+  alt="A cycle diagram showing execute, observe, adjust, and plan again as the recurring loop of real agent work."
+  eyebrow="The recurring loop"
+  title="The ledger describes a loop, not a monologue."
+  caption="Healthy AI work is a visible cycle of small actions, feedback and re-planning."
+/>
+
+<div className="mt-10 rounded-2xl border border-slate-200 bg-slate-50 p-6 dark:border-slate-800 dark:bg-slate-900">
+  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">Downloadable</p>
+  <p className="mt-2 text-lg font-semibold text-slate-950 dark:text-white">The practical checklist</p>
+  <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">A printable, copy-paste template for task packets, metadata indexing, recovery checkpoints, and honest token reporting.</p>
+  <p className="mt-4 text-sm font-medium text-sky-700 dark:text-sky-300">
+    <a className="underline underline-offset-4" href="/downloads/codex-work-checklist.md" download>Download <code className="rounded bg-slate-200 px-1 dark:bg-slate-800">codex-work-checklist.md</code></a>
+  </p>
+</div>

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520" role="img" aria-labelledby="wt wd">
+<title id="wt">The recurring loop of real AI work</title>
+<desc id="wd">A cycle with four nodes: execute, observe, adjust, and plan again, with a small feedback arrow around the loop.</desc>
+<style>
+  text{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif}
+  .n{fill:#0f172a;font-size:22px;font-weight:600}.k{fill:#64748b;font-size:14px}
+  @media (prefers-color-scheme: dark){ .n{fill:#f8fafc} .k{fill:#94a3b8} }
+  @media (prefers-reduced-motion: reduce){ circle,path{animation:none} }
+</style>
+<defs>
+  <marker id="arw" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0 0 L8 3 L0 6 z" fill="#94a3b8"/></marker>
+</defs>
+<!-- loop nodes as rounded rects on a circle -->
+<g stroke="#94a3b8" stroke-width="2" marker-end="url(#arw)" fill="none">
+  <path d="M 420 205 Q 640 170 668 300"/>
+  <path d="M 668 300 Q 640 440 420 400"/>
+  <path d="M 420 400 Q 200 440 172 300"/>
+  <path d="M 172 300 Q 200 170 420 205"/>
+</g>
+<g>
+  <rect x="180" y="120" width="480" height="60" rx="30" fill="#0284c7"/>
+  <text class="n" x="420" y="157" text-anchor="middle" fill="#ffffff">Execute</text>
+  <rect x="560" y="300" width="480" height="60" rx="30" fill="#10b981"/>
+  <text class="n" x="800" y="337" text-anchor="middle" fill="#ffffff">Observe</text>
+  <rect x="60" y="560" width="480" height="60" rx="30" fill="#f59e0b"/>
+  <text class="n" x="300" y="597" text-anchor="middle" fill="#ffffff">Adjust</text>
+  <rect x="130" y="300" width="480" height="60" rx="30" fill="#8b5cf6"/>
+  <text class="n" x="370" y="337" text-anchor="middle" fill="#ffffff">Plan again</text>
+</g>
+<text class="k" x="450" y="700" text-anchor="middle" font-size="15">Healthy AI work is a visible loop of small actions, feedback and re-planning — not one long silent thought.</text>
+</svg>
