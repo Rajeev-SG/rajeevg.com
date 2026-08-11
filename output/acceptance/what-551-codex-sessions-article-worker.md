@@ -105,5 +105,6 @@ were edited.
   whitespace, hierarchy, and figure readability.
 - The checklist target was present at `/downloads/codex-work-checklist.md`.
 
-Evidence: `output/playwright/20260811-551-article-final-proof-5/` and
+Evidence: `output/playwright/20260811-551-article-final-proof-5/`, focused
+post-fix proof in `output/playwright/20260811-551-article-final-proof-7/`, and
 `output/acceptance/what-551-codex-sessions-article-final.md`.

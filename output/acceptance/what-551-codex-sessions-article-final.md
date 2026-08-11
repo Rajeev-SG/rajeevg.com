@@ -25,6 +25,9 @@ exact committed production build locally with `next start`.
 Evidence directory:
 `output/playwright/20260811-551-article-final-proof-5/`
 
+Focused post-fix evidence directory:
+`output/playwright/20260811-551-article-final-proof-7/`
+
 Observed behavior:
 
 - Page title matched the article.
@@ -32,6 +35,8 @@ Observed behavior:
   literal HTML entity.
 - All five figures loaded at desktop and mobile widths.
 - The checklist link targeted `/downloads/codex-work-checklist.md`.
+- The checklist endpoint returned a non-empty Markdown file in the focused
+  post-fix proof.
 - No horizontal overflow occurred at 402×900, 768×900, 1440×1000, or
   1575×1000.
 - Desktop uses the available width well; wide desktop has no accidental dead
@@ -41,7 +46,7 @@ Observed behavior:
 - Whitespace is intentional, the primary reading flow remains dominant, and
   the ledger and recovery-loop figures remain readable.
 - The hero labels do not collide and the recovery-loop cards have sufficient
-  contrast.
+  contrast; connector segments remain outside the card copy.
 - Browser console capture contained no application errors.
 
 Artifacts include the four viewport screenshots, focused ledger and recovery
