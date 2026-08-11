@@ -1,0 +1,277 @@
+---
+title: How I Made Codex Subagents Measurable and Recoverable
+slug: how-i-made-codex-subagents-measurable
+date: 2026-08-11
+description: How I rebuilt my Codex subagent setup around reliable browser control, bounded work, recoverable handoffs, and honest token measurement.
+tags: [ai, codex, openrouter, multi-agent, observability, opentelemetry, langfuse, reliability]
+draft: false
+image: /images/blog/codex-subagent-system/codex-subagent-system-hero.png
+---
+
+<div className="flex flex-wrap gap-2">
+  <span className="inline-flex items-center rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-800 dark:border-sky-500/25 dark:bg-sky-500/10 dark:text-sky-200">Coordinated subagents</span>
+  <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-800 dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-200">Measured, not assumed</span>
+  <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-800 dark:border-amber-500/25 dark:bg-amber-500/10 dark:text-amber-200">Browser captain</span>
+</div>
+
+<ArticleFigure
+  src="/images/blog/codex-subagent-system/codex-subagent-system-hero.png"
+  alt="An editorial systems map showing one orchestrator routing bounded work to three measured worker stations"
+  eyebrow="Codex subagent operations"
+  title="The useful part is not adding more agents. It is making their work bounded, recoverable and visible."
+  caption="One orchestrator, specialist workers, durable handoffs and evidence coming back."
+/>
+
+I woke up to a Codex task littered with 503 errors. Work had continued overnight, but the transcript was long, several workers had been involved, and it was not immediately obvious which parts had completed cleanly, which parts had retried, or what the parent had spent supervising the whole thing.
+
+That is a bad way to run an expensive agent system. If I cannot reconstruct what happened after a night away, I cannot improve it with any confidence.
+
+There was a second failure hiding underneath it. The browser connection used by my automation had died.
+
+Not the browser itself. The connection my automation used to control the browser. A persistent Chrome debugging endpoint that had been the quiet workhorse of my QA loop stopped answering. A WebSocket to a local debugging port closed with error 1006. The port that had once served a DevTools inventory now answered every request with HTTP 404. No DOM. No URL. No screenshot.
+
+The task itself was tiny. The machinery around it was the problem. That has become the central lesson of this work: the clever prompt is rarely the hard part. The hard part is knowing who owns the next action, what happened when a dependency failed, and whether "done" comes with evidence.
+
+This article is about the second question. It is not a claim that delegation saves tokens. It is a record of the pieces I built so that delegation is measurable, recoverable, and not invisible.
+
+## The short version
+
+<div className="not-prose my-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+  <div className="border-t-4 border-rose-500 bg-slate-50 p-5 dark:bg-slate-900">
+    <div className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Browser captain</div>
+    <div className="mt-2 text-3xl font-semibold text-slate-950 dark:text-white">1 owner</div>
+    <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">One bounded controller, one lease, short transactions that checkpoint before continuing.</div>
+  </div>
+  <div className="border-t-4 border-sky-500 bg-slate-50 p-5 dark:bg-slate-900">
+    <div className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Bounded packets</div>
+    <div className="mt-2 text-3xl font-semibold text-slate-950 dark:text-white">8 / 12k</div>
+    <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">A worker gets a budget and an exact next action, not the whole conversation.</div>
+  </div>
+  <div className="border-t-4 border-emerald-500 bg-slate-50 p-5 dark:bg-slate-900">
+    <div className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Queue states</div>
+    <div className="mt-2 text-3xl font-semibold text-slate-950 dark:text-white">6</div>
+    <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">queued, leased, acknowledged, running, verifying, complete. Monotonic, with explicit blocked exits.</div>
+  </div>
+  <div className="border-t-4 border-amber-500 bg-slate-50 p-5 dark:bg-slate-900">
+    <div className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Telemetry</div>
+    <div className="mt-2 text-3xl font-semibold text-slate-950 dark:text-white">OTel &#8594; Langfuse</div>
+    <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Portable generative-AI traces, one per parent and child transcript, tagged by task.</div>
+  </div>
+</div>
+
+## Why measurement is the hard part
+
+In my earlier article I wrote about giving an OpenAI lead a team of lower-cost OpenRouter specialists. The honest ending was that I had a mechanism but not yet a matched comparison. I measured a very large historical parent session, and I refused to publish a percentage saving from it, because a historical session cannot prove what an unobserved direct run would have consumed.
+
+That boundary still stands. What changed is that I built the machinery to eventually answer the question properly, and along the way I fixed a reliability hole that would have invalidated any measurement I did produce.
+
+To measure delegation, three things have to be true:
+
+1. The work is divided into bounded, verifiable units, so "done" has a meaning.
+2. The work survives an interruption, so a failed attempt is not silently lost.
+3. Every unit records its own token, tool, and model evidence, separate from the parent and from other children.
+
+None of those were dependable before I started.
+
+## The historical session that forced the issue
+
+The original session analysis gave me a fairly brutal baseline. The GPT-5.6 parent recorded 25,980,767 measured tokens, 233 tool calls and two context compactions. Its children recorded another 45,741,825 tokens. The parent called `wait_agent` 93 times.
+
+The surprising part was where the child volume came from. Three bounded DeepSeek workers used 1,590,714 measured tokens in total. Two oversized GPT-5.6 recovery children used 44,151,111. One recovery child had effectively become a second orchestrator.
+
+That changed my diagnosis. Delegation itself was not the obvious problem. Loose recovery, repeated waiting and oversized context handoffs were.
+
+It also made the always-loaded instructions look wasteful. My global `AGENTS.md` was 2,153 words before useful work even began. The current lean parent policy is 487 words, about 77% shorter. The detailed browser, recovery, queue and worker procedures moved into runbooks that are loaded only when a packet requires them.
+
+That reduction is real, but it is not proof of a 77% reduction in parent usage. It only proves that 1,666 words no longer need to sit in the always-loaded policy. The matched task experiment still has to show what that does to a complete run.
+
+## The browser captain: one owner, short transactions
+
+The failure I opened with came from a persistent Chrome debugging connection being used as if it were a dependable shared resource. It was not. Its WebSocket never opened, its port was not flock-locked, and there was no owner telling a second controller to stay away.
+
+The fix is a coordinator I call the browser captain. It enforces a single owner for page control. It rejects a second CDP or Playwright page controller while the first holds the lease; native window and dialog tools remain separate. Work is divided into short transactions: read state, check preconditions, make one bounded change, verify a deterministic result, capture evidence, checkpoint the next exact action, then continue or release.
+
+The measurable payoff came from a fixed acceptance task. I pitted the old control surface against the captain-owned isolated session:
+
+<div className="not-prose my-8 overflow-hidden border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
+  <div className="grid md:grid-cols-2 md:items-stretch">
+    <div className="p-6">
+      <div className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Before</div>
+      <div className="mt-3 text-xl font-semibold text-rose-950 dark:text-white">persistent CDP</div>
+      <ul className="mt-4 space-y-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+        <li>Dead DevTools endpoint</li>
+        <li>WS close 1006 across 3 attempts</li>
+        <li>Port 9222 returned HTTP 404</li>
+        <li>No live DOM or URL evidence</li>
+      </ul>
+    </div>
+    <div className="bg-slate-950 p-6 text-white">
+      <div className="text-xs font-semibold uppercase text-slate-400">Now</div>
+      <div className="mt-3 text-xl font-semibold">captain-owned isolated session</div>
+      <ul className="mt-4 space-y-2 text-sm leading-6 text-slate-300">
+        <li>Live DOM evidence on both transactions</li>
+        <li>All four acceptance checks true</li>
+        <li>Deterministic title and URL assertions</li>
+        <li>Interruption recovery re-ran the transaction</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+The run also demonstrated recovery: after a planned interruption, a replacement worker resumed and re-ran the same transaction with a deterministic pass. That is the property that matters more than any single green check, because real work gets interrupted.
+
+One caveat: this was a single run per arm. It proves the improved control surface passed this one fixed task. It is not a statistical comparison, and I am not generalising it beyond the single attempt.
+
+## Bounded packets and the durable queue
+
+Browser control was only one weak spot. The handoff itself also needed work. Each delegated worker now receives a self-contained packet: a task ID, the objective, exact paths and excerpts, boundaries, a tool budget, a deadline, a done condition, and an exact next action. Large source files are pre-extracted or streamed; credentials and unrelated private material stay out.
+
+The packet is housed in a durable coordination queue. Its states are monotonic: `queued -> leased -> acknowledged -> running -> verifying -> complete`, with explicit `blocked` and `retryable` exits. Two rules make this safe to rely on:
+
+- **Acknowledgement.** A worker must repeat the task ID and the SHA-256 digest of its packet before starting work. No acknowledgement, no work. This drives the queue rather than the parent re-reading the file.
+- **Checkpoints.** A checkpoint records completed work, evidence, current state, and one exact next action. A replacement worker receives only the task ID, the queue location, and the checkpoint path, not a replay of the earlier transcript.
+
+The first time I needed a replacement, it waited for the original lease to expire. I treated that delay as a failure of efficiency, not as acceptable behaviour. The queue now has an owner-checked `release` operation: it requires a durable checkpoint, verifies the owner, returns the task to `queued`, drops the file lease, and lets a replacement re-lease immediately. Three focused tests cover safe handoff, rejection when the checkpoint is missing, and rejection when the caller is not the owner.
+
+A stalled worker can now be replaced without the parent supervising every step. The packet runs to completion, a checkpoint, or a clear blocker. The parent does not need to re-read every message.
+
+## Agent Mail: the message plane, not the scheduler
+
+Coordination also needs a place for acknowledgements, progress, blockers, and completion notices. I use Agent Mail for that. It is deliberately a message plane and not a scheduler: queue state stays authoritative, and mail carries IDs, digests, compact status, paths, and result references rather than message bodies or credentials.
+
+It supports threaded messages and advisory file reservations, so a worker can signal that it intends to edit a set of files. Analytics expose IDs, timestamps, counts, and states, not the content of the work. If the service is unavailable, there is a deterministic local outbox fallback, and that fallback is recorded explicitly in the evidence rather than hidden.
+
+## Measuring tokens with OpenTelemetry and Langfuse
+
+The coordination layer only makes delegation reliable. Measurement needs a way to see each participant's tokens separately. I reuse an existing local report tool that already handles the easy-to-get-wrong part: Codex's `total_token_usage` is cumulative and resets at compaction, so the tool sums per-window counts instead of adding cumulative counters, which avoids the double-counting that a naive parser would introduce.
+
+A small adapter produces portable OpenTelemetry JSON with generative-AI attributes, and sends one trace per transcript tree to Langfuse. Langfuse is the dashboard and trace store; OpenTelemetry keeps the data portable, so Langfuse could be replaced by another OTel-compatible system without changing how totals are measured. Credentials live in the macOS Keychain, not in the repository.
+
+The indexer streams every recent Codex transcript without retaining prompts, tool arguments, tool output, or message content. It keeps timestamps, lineage, provider and model, token counts, tool counts, compaction events, and completion signals. It extracts only a bounded durable queue identifier from the task text, and links child transcripts to their parent trace.
+
+## Attribution: whose tokens are these?
+
+The core question for measurement is attribution. When a DeepSeek child runs, are its tokens counted to the child, and can I still find them when I filter by task?
+
+Yes, now I can. After the change, the queue task and its linked parent and child transcripts are tagged `task:...` in Langfuse, and every generation observation carries the exact transcript, linked parent session, role, model, and provider. A fresh task created after the code change produced a tagged parent-and-child trace, which proves the behaviour works prospectively, not just on data I constructed after the fact.
+
+Concrete numbers from the task-attributed benchmark run:
+
+<div className="not-prose my-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+  <div className="border border-slate-200 p-5 dark:border-slate-800">
+    <div className="text-3xl font-semibold text-slate-950 dark:text-white">2,392,457</div>
+    <div className="mt-2 text-sm font-medium text-slate-700 dark:text-slate-200">Attributed benchmark tokens</div>
+    <div className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">Two DeepSeek children total across the tagged benchmark trace.</div>
+  </div>
+  <div className="border border-slate-200 p-5 dark:border-slate-800">
+    <div className="text-3xl font-semibold text-slate-950 dark:text-white">907,910</div>
+    <div className="mt-2 text-sm font-medium text-slate-700 dark:text-slate-200">Child one</div>
+    <div className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">First tagged DeepSeek child transcript.</div>
+  </div>
+  <div className="border border-slate-200 p-5 dark:border-slate-800">
+    <div className="text-3xl font-semibold text-slate-950 dark:text-white">1,484,547</div>
+    <div className="mt-2 text-sm font-medium text-slate-700 dark:text-slate-200">Child two</div>
+    <div className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">Second tagged DeepSeek child transcript.</div>
+  </div>
+  <div className="border border-slate-200 p-5 dark:border-slate-800">
+    <div className="text-3xl font-semibold text-slate-950 dark:text-white">346</div>
+    <div className="mt-2 text-sm font-medium text-slate-700 dark:text-slate-200">Indexed transcripts</div>
+    <div className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">A 31-day backfill, including 229 linked children, represented by 85 unique root traces.</div>
+  </div>
+  <div className="border border-slate-200 p-5 dark:border-slate-800">
+    <div className="text-3xl font-semibold text-slate-950 dark:text-white">85</div>
+    <div className="mt-2 text-sm font-medium text-slate-700 dark:text-slate-200">Unique root traces</div>
+    <div className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">A second identical upload skipped all 85 and created no duplicates.</div>
+  </div>
+  <div className="border border-slate-200 p-5 dark:border-slate-800">
+    <div className="text-3xl font-semibold text-slate-950 dark:text-white">702,973</div>
+    <div className="mt-2 text-sm font-medium text-slate-700 dark:text-slate-200">Canary child tokens</div>
+    <div className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">A fresh DeepSeek worker created after the change, linked to its parent session.</div>
+  </div>
+</div>
+
+These are measured token totals from my telemetry, treated as workload evidence, not as billing figures from a provider.
+
+## OpenRouter as the independent provider record
+
+Attribution inside Langfuse answers "which child used these tokens." A second source answers "what did that actually cost at the provider." OpenRouter is the independent record for the DeepSeek and Qwen calls.
+
+The difficulty is a historical one: the OpenRouter Activity API requires a management key rather than the existing inference key, so historical records mark models as `transcript_asserted`. The local worker now preserves the successful response generation ID, exact provider, detailed token fields, and provider-reported cost when available, and explicitly labels an estimated fallback as `cost_source: estimated`. That future-proofs the record: when a worker result is attached to the Langfuse observation, the record can be upgraded from `transcript_asserted` to `openrouter_confirmed`.
+
+Past sessions can be reconstructed as metadata, but they cannot recover cost fields that were never recorded. New worker runs keep the generation ID so the provider record can be attached later.
+
+## Token, cost, and orchestrator efficiency are different claims
+
+One thing the measurement work made unambiguous is that "fewer tokens" and "costs less" and "less parent supervision" are three different claims, and they do not move together.
+
+DeepSeek can cost less even if it uses the same or more tokens, because its price per token is lower. So I report three dimensions separately:
+
+- **Token efficiency:** did the system process fewer total tokens?
+- **Cost efficiency:** did the accepted result cost less at the provider?
+- **Orchestrator efficiency:** did the lead use fewer parent tokens and fewer supervision calls?
+
+I now have strong proof of attribution and recovery, but only directional evidence for orchestrator efficiency. I still cannot prove token efficiency. The three DeepSeek children in the historical benchmark were small and bounded. Two recovery children dominated total volume. None of that adds up to a universal saving.
+
+## What this proves, and what it does not
+
+<div className="not-prose my-8 grid gap-5 md:grid-cols-2">
+  <div className="border-t-4 border-emerald-500 bg-slate-50 p-6 dark:bg-slate-900">
+    <div className="text-sm font-semibold text-slate-950 dark:text-white">What I can support</div>
+    <ul className="mt-4 space-y-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
+      <li>A browser captain with a single owner and short verified transactions passed a fixed acceptance task where the old persistent connection failed.</li>
+      <li>Interruption recovery works: a replacement worker resumed the same transaction with a deterministic pass.</li>
+      <li>A durable queue with bounded packets, acknowledgements, and checkpoints makes a stall recoverable without per-step parent steering.</li>
+      <li>Parent and child transcripts are separately attributed by task in Langfuse, and a fresh task proved the behaviour prospectively.</li>
+      <li>OpenTelemetry makes the telemetry portable beyond Langfuse, token totals are treated as workload evidence rather than invoices, and the latest analytics suite passed all 48 tests.</li>
+    </ul>
+  </div>
+  <div className="border-t-4 border-amber-500 bg-slate-50 p-6 dark:bg-slate-900">
+    <div className="text-sm font-semibold text-slate-950 dark:text-white">What I cannot support yet</div>
+    <ul className="mt-4 space-y-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
+      <li>A percentage reduction in total or parent token usage. A matched direct-versus-delegated experiment has not yet been completed.</li>
+      <li>A universal browser-reliability claim from a single run per arm.</li>
+      <li>Historical provider cost details; past sessions are metadata reconstruction, not retroactive full tracing.</li>
+      <li>The claim that worker tokens are free; OpenRouter usage is charged separately.</li>
+      <li>A broad before-and-after average from only a handful of paired sessions.</li>
+    </ul>
+  </div>
+</div>
+
+That distinction is the whole point of the article. "We changed the plumbing, therefore the bill fell" is a good headline and bad evidence. I built plumbing that can eventually produce real evidence, and I am not going to skip the step where I actually produce it.
+
+## What a real proof would need
+
+For anyone who wants the same rig to prove a saving rather than just enable it, the experiment is a paired comparison handled as a first-class object, not a conversation.
+
+1. Freeze one task packet and calculate its SHA-256 fingerprint.
+2. Freeze the acceptance checks and test data.
+3. Run one arm with the lead doing the work directly.
+4. Run the other arm with the lead plus DeepSeek or Qwen children.
+5. Require both arms to pass the same acceptance checks.
+6. Measure the parent and every child with the same report version.
+7. Include retries and failed attempts in each arm.
+8. Repeat the pair several times in alternating order, to reduce time and provider effects.
+
+The comparator should return `proof: paired_measurement` only when the task fingerprint matches and both arms are accepted. One pair supports that task instance. Several repeated pairs are needed before claiming a normal saving for the task class.
+
+## The part I like most
+
+The browser failure is, oddly, the heart of the article. A persistent connection that I had stopped questioning turned out to be the fragile part. The fix was not a better prompt or a cleverer model. It was discipline: one owner, short verified transactions, explicit leases, and a checkpoint before continuing.
+
+Measurement needs the same discipline. A dashboard is useful only if I can follow a number back to the task and transcript that produced it. I now know which child used how many tokens, which task it belonged to, and whether provider evidence was captured or the record still relies on transcript metadata. I still cannot tell you the percentage I will save on the next task. When a matched experiment gives me a defensible number, I will publish it with the same caveat I have used throughout: workload evidence, not an invoice.
+
+For how the delegation is structured in the first place, see [I Gave My AI a Team. Here Is What Happened to the Expensive Work.](/blog/how-i-built-an-openrouter-backed-ai-team).
+
+## Sources
+
+- [Agent Mail (mcp_agent_mail)](https://github.com/Dicklesworthstone/mcp_agent_mail)
+- [Langfuse token and cost tracking](https://langfuse.com/docs/observability/features/token-and-cost-tracking)
+- [Langfuse Python instrumentation](https://langfuse.com/docs/observability/sdk/python/instrumentation)
+- [Langfuse OpenRouter integration](https://langfuse.com/integrations/gateways/openrouter)
+- [OpenRouter generation metadata](https://openrouter.ai/docs/api-reference/get-a-generation)
+- [OpenRouter Activity API](https://openrouter.ai/docs/api/api-reference/analytics/get-user-activity-grouped-by-endpoint)
+- [OpenRouter request metadata](https://openrouter.ai/docs/api-reference/chat-completion)
+- [OpenTelemetry generative-AI conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/)
+- [Codex configuration reference](https://learn.chatgpt.com/docs/config-file/config-reference)
+
+All measured token totals in this article are workload evidence from a local session index and task-attributed Langfuse traces. They are not provider billing figures.
