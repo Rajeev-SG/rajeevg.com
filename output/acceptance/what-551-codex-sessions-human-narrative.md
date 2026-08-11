@@ -25,6 +25,7 @@ Date: 2026-08-11
 ## Evidence
 
 - Final proof: `output/playwright/20260811-551-human-narrative-proof-2/`
+- Post-review factual proof: `output/playwright/20260811-551-human-narrative-proof-3/`
 - Broader narrative and token-section proof: `output/playwright/20260811-551-human-narrative-proof-1/`
 - Desktop top: `output/playwright/20260811-551-human-narrative-proof-2/desktop-top-1440.png`
 - Desktop questions: `output/playwright/20260811-551-human-narrative-proof-2/questions-desktop-1440.png`
@@ -34,6 +35,8 @@ Date: 2026-08-11
 ## Result
 
 PASS. The rewritten reading journey is reachable and readable on desktop and mobile. The actionable questions precede the optional technical appendix, the page has no tested horizontal overflow, and the checklist download completes.
+
+The post-review proof also confirms that the human summary reports more than 70,000 command runs while the collapsed appendix preserves the exact 61,215 and 9,161 component counts.
 
 ## Remaining risk
 
