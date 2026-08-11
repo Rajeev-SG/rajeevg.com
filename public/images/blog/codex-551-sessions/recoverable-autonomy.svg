@@ -3,7 +3,7 @@
 <desc id="rd">A sequence from durable checkpoint, through release, to a replacement that resumes from evidence rather than memory, with a health check before release.</desc>
 <style>
   text{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif}
-  .cap{fill:#64748b}.lbl{fill:#334155;font-size:15px}
+  .cap{fill:#64748b}.lbl{fill:#334155;font-size:15px}.boxLight{fill:#fff}.boxDark{fill:#0f172a}
   @media (prefers-color-scheme: dark){.cap{fill:#94a3b8}.lbl{fill:#cbd5e1}}
   @media (prefers-reduced-motion: reduce){.px{animation:none}}
 </style>
@@ -15,9 +15,9 @@
   <line x1="920" y1="240" x2="1080" y2="240"/>
 </g>
 <g text-anchor="middle">
-  <g><rect x="60" y="180" width="260" height="120" rx="12" fill="#0284c7"/><text class="cap" x="190" y="220" fill="#ffffff">1 · Checkpoint</text><text class="lbl" x="190" y="250" fill="#ffffff">Write durable state (task ID, step,</text><text class="lbl" x="190" y="272" fill="#ffffff">what is proven) so a replacement</text><text class="lbl" x="190" y="294" fill="#ffffff">resumes from evidence, not memory.</text></g>
-  <g><rect x="380" y="180" width="260" height="120" rx="12" fill="#10b981"/><text class="cap" x="510" y="220" fill="#ffffff">2 · Health check + release</text><text class="lbl" x="510" y="250" fill="#ffffff">Confirm the process or connection</text><text class="lbl" x="510" y="272" fill="#ffffff">is healthy, then release the lease</text><text class="lbl" x="510" y="294" fill="#ffffff">so the next owner can take over.</text></g>
-  <g><rect x="740" y="180" width="260" height="120" rx="12" fill="#f59e0b"/><text class="cap" x="870" y="220" fill="#ffffff">3 · Resume</text><text class="lbl" x="870" y="250" fill="#ffffff">A replacement re-leases immediately</text><text class="lbl" x="870" y="272" fill="#ffffff">and continues from the checkpoint</text><text class="lbl" x="870" y="294" fill="#ffffff">— no restart from zero.</text></g>
+  <g><rect x="60" y="180" width="260" height="120" rx="12" fill="#0369a1"/><text class="boxLight" x="190" y="220">1 · Checkpoint</text><text class="boxLight" x="190" y="250">Write durable state (task ID, step,</text><text class="boxLight" x="190" y="272">what is proven) so a replacement</text><text class="boxLight" x="190" y="294">resumes from evidence, not memory.</text></g>
+  <g><rect x="380" y="180" width="260" height="120" rx="12" fill="#047857"/><text class="boxLight" x="510" y="220">2 · Health check + release</text><text class="boxLight" x="510" y="250">Confirm the process or connection</text><text class="boxLight" x="510" y="272">is healthy, then release the lease</text><text class="boxLight" x="510" y="294">so the next owner can take over.</text></g>
+  <g><rect x="740" y="180" width="260" height="120" rx="12" fill="#f59e0b"/><text class="boxDark" x="870" y="220">3 · Resume</text><text class="boxDark" x="870" y="250">A replacement re-leases immediately</text><text class="boxDark" x="870" y="272">and continues from the checkpoint</text><text class="boxDark" x="870" y="294">— no restart from zero.</text></g>
 </g>
 <text class="cap" x="80" y="400" font-size="15">A timeout alone is not a stall. Confirm no activity across two checks, then decide.</text>
 <text class="cap" x="80" y="430" font-size="15">Name the owner of the next action in writing — most drift is an unowned next step, not a wrong answer.</text>
