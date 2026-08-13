@@ -1,0 +1,124 @@
+---
+title: How I Stopped My Cloud Agents Burning Tokens While Checking an Empty Inbox
+slug: how-i-stopped-my-cloud-agents-burning-tokens
+date: 2026-08-13
+description: I added privacy-conscious session analytics to two agents running on Coolify, found broken Agent Mail calls and wasteful inbox pollers, then rebuilt the idle path to use zero provider tokens.
+tags: [ai, agents, coolify, openclaw, hermes, observability, token-efficiency, mcp]
+draft: false
+image: /images/blog/coolify-agent-analytics/zero-token-polling.svg
+---
+
+<ArticleFigure
+  src="/images/blog/coolify-agent-analytics/zero-token-polling.svg"
+  alt="OpenClaw and Hermes checking an unread-only Agent Mail inbox through deterministic pollers, with the model waking only when new work exists"
+  eyebrow="Cloud agent operations"
+  title="The cheapest empty-inbox check is the one that never wakes a language model."
+  caption="Both agents still check every five minutes. Empty checks now use normal code and no provider tokens."
+/>
+
+I had two agents running on a Hetzner server through Coolify. OpenClaw handled research and planning. Hermes handled engineering. Agent Mail was supposed to sit between them, carrying a brief from one agent to the other and keeping the discussion in a thread.
+
+It looked fine from the outside. Both Telegram bots replied. The containers were healthy. Agent Mail's readiness endpoint was green.
+
+But OpenClaw did not seem to know who Hermes was, Hermes was not replying to briefs, and the five-minute inbox jobs were doing far more work than an inbox poll deserved. I needed something closer to the session analytics I use for Codex: enough structure to explain a failure, without copying private conversations onto another machine.
+
+The analytics found the problem quickly. Then they found a more embarrassing one: the agents were spending model tokens to discover that nothing had happened.
+
+## What I collect
+
+The collector connects to the persistent OpenClaw and Hermes volumes over SSH and normalises their session records. It stores session IDs, timestamps, model names, message and tool counts, detected failures, token and cost fields where the runtime exposes them, prompt hashes, cron state and recent log signals.
+
+It does not store message bodies, prompts, tool arguments, tool results, environment variables or credentials. Those stay on the server. If I need to inspect one session, the tool returns an event skeleton: roles, content lengths, tool names and error flags.
+
+That distinction matters because this is my personal agent system. Telegram messages and Agent Mail threads can contain private work. A useful debugging index does not need to become a second archive of everything I said.
+
+The current snapshot is refreshed on my Mac every 15 minutes. When something behaves oddly, Codex can run a fresh collection immediately and inspect the relevant session rather than guessing from a container's health badge.
+
+## What the first snapshot showed
+
+The initial collection found 41 OpenClaw sessions containing 347 tool calls and 51 detected failures. OpenClaw reported roughly 3.57 million tokens and $0.67 of provider cost across the stored history. Hermes had 36 sessions and 188 tool calls.
+
+Those totals were not a bill for one incident. They were historical workload evidence. The tool names were more useful than the headline number.
+
+Several poller sessions repeatedly fetched the whole Agent Mail inbox and tried to acknowledge old messages again. One OpenClaw run made 28 acknowledgement calls. Earlier Hermes runs made eight acknowledgements at a time. This happened every five minutes, so a small mistake could repeat 288 times per agent each day.
+
+The session skeletons also explained why the agents were not coordinating:
+
+- A new OpenClaw chat searched for a setup document that did not exist and guessed that the recipient was called `Hermes`. The registered identity was `SilverForge`.
+- Hermes called `fetch_inbox` with the wrong parameter name and supplied the literal string `$(AGENT_MAIL_REGISTRATION_TOKEN)` instead of a token value.
+- Three schema failures tripped Hermes's MCP circuit breaker. The resulting error said the service was unreachable, even though the network path and MCP health check both passed.
+- An older Hermes cron configuration had no model, producing repeated HTTP 400 responses with `No models provided`.
+
+None of those faults were obvious from “container healthy”. They were visible in the shape of the sessions.
+
+## The first repair: make identity and authentication boring
+
+I gave both agents stable identities in one Agent Mail project:
+
+- project: `/agents/personal-agent-system`
+- OpenClaw: `AmberOwl`
+- Hermes: `SilverForge`
+
+OpenClaw now has this mapping in its always-loaded workspace instructions, so a fresh chat knows that “send this to Hermes” means `SilverForge`. New briefs use `send_message`; continued discussion uses `reply_message`; pollers fetch unread mail only.
+
+I also stopped asking a language model to construct authenticated Agent Mail calls. A small deterministic helper reads credentials from the agent's local configuration and environment, then performs fetch, acknowledge, send and reply calls over HTTPS. The model sees the new message and decides what it means. It does not emit registration tokens or guess MCP parameter names.
+
+The repaired path first passed three real handoffs:
+
+1. OpenClaw sent message 25; Hermes acknowledged it and returned message 26 with `ANALYTICS_HANDOFF_OK`.
+2. Hermes's scheduled job processed message 27 and replied with message 28, `CRON_ASSISTED_OK`.
+3. OpenClaw's scheduled job processed message 29 and replied with message 30, `OPENCLAW_CRON_ASSISTED_OK`.
+
+After adding the zero-token idle gates and restricting the processing jobs to the terminal helper, I ran the conversation path again in both directions. OpenClaw returned `TOKEN_EFFICIENT_OPENCLAW_OK`; Hermes returned `TOKEN_EFFICIENT_HERMES_OK`. The optimization did not turn the pollers into silent message eaters.
+
+That proved the coordination flow. It did not yet prove that the pollers were efficient.
+
+## Unread-only was better, but still wasteful
+
+Changing from the full mailbox to unread-only removed the worst repetition. There was still a design flaw: every five-minute tick could wake a model merely to read `{ unread_count: 0 }` and say `NO_ACTION`.
+
+Two agents polling every five minutes means up to 576 checks a day. An empty inbox should not require inference, a system prompt, tool schemas or a model response 576 times.
+
+I changed the idle path for each runtime:
+
+- OpenClaw now runs a normal command job. A Python poller checks Agent Mail directly. If the inbox is empty, it exits. If unread messages exist, it starts one lightweight agent turn with only those messages.
+- Hermes keeps its pre-run script, but the script returns `{"wakeAgent": false}` when there is no unread mail. Hermes records a silent tick without constructing an agent session.
+
+The empty-inbox acceptance checks were concrete. OpenClaw completed in about 0.4 seconds and the container logs contained zero provider requests. Hermes's session count stayed unchanged and its cron output said `agent skipped`. When a message does exist, OpenClaw wakes a dormant processor with only `exec`, minimal thinking and lightweight context. Hermes's processing turn is limited to its terminal helper rather than inheriting the full browser and delegation tool catalogue.
+
+So “token efficient” has a precise meaning here: empty polling consumes zero provider tokens. I am not claiming the whole system has reached some universal optimum. When mail exists, a model still has to interpret it, and complex engineering work can still be expensive. The improvement is that routine absence of work is no longer treated as an AI task.
+
+## Making the analytics actionable
+
+A lifetime total can make a repaired system look broken forever. I changed the report to separate the current ten-minute window from historical totals, label the log lookback as historical, show each cron payload mode, and state whether empty-inbox model wakes are disabled.
+
+The current report can answer the questions I actually care about:
+
+- Did either poller wake a model while the inbox was empty?
+- Did the expected helper or Agent Mail tool run?
+- Did a cron job inherit the intended model?
+- Are failures new, or only present in the historical window?
+- Did a fresh chat use `AmberOwl` and `SilverForge`, or invent another identity?
+
+It also keeps 30 timestamped snapshots. That gives me a before-and-after trail when I change a prompt, model, helper or poller.
+
+## What I learned
+
+The expensive mistake was not an exotic model failure. It was treating a periodic check as a reasoning problem.
+
+Agents benefit from the same operating split as ordinary software. Code should handle stable rules, authentication, filtering, deduplication and empty states. Models should handle interpretation, ambiguity and generation. When those responsibilities blur, the system becomes harder to debug and quietly more expensive.
+
+The analytics paid for themselves before I had a dashboard. They showed me the repeated mailbox work, the identity drift, the malformed authentication call and the misleading circuit-breaker error. More importantly, they gave me a way to prove the repair instead of relying on a Telegram conversation that happened to work once.
+
+My next step is to bake the helper and polling scripts into versioned deployment images. They currently live on persistent Coolify volumes, which survives normal redeploys but not a completely fresh-volume rebuild. That is an operational gap, and the analytics report now makes it visible rather than allowing it to become folklore.
+
+For the related Codex measurement work, see [How I Made Codex Subagents Measurable and Recoverable](/blog/how-i-made-codex-subagents-measurable).
+
+## Sources
+
+- [MCP Agent Mail](https://github.com/Dicklesworthstone/mcp_agent_mail)
+- [Coolify documentation](https://coolify.io/docs/)
+- [OpenClaw cron jobs](https://docs.openclaw.ai/automation/cron-jobs)
+- [Hermes Agent cron documentation](https://hermes-agent.nousresearch.com/docs/user-guide/features/cron)
+
+All token and tool totals in this article are structural workload evidence from the agents' stored sessions. They are not provider invoices. Message bodies and credentials are excluded from the local analytics archive.
