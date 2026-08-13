@@ -1,0 +1,315 @@
+---
+title: Building a Two-Agent Personal Cloud on Coolify and Hetzner
+date: 2026-08-13
+slug: building-a-two-agent-personal-cloud
+description: How I deployed OpenClaw for research and Hermes for engineering as separate agents on a single Hetzner server, coordinated them through authenticated Agent Mail, and wired the result to Vercel deployment.
+tags: [ai, agents, infrastructure, coolify, hetzner, vercel, telegram, security, self-hosting]
+draft: false
+---
+
+<div className="flex flex-wrap gap-2">
+  <span className="inline-flex items-center rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-800 dark:border-sky-500/25 dark:bg-sky-500/10 dark:text-sky-200">Two agents</span>
+  <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-800 dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-200">Coolify on Hetzner</span>
+  <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-800 dark:border-amber-500/25 dark:bg-amber-500/10 dark:text-amber-200">Agent Mail coordination</span>
+</div>
+
+I needed two different assistants, but I did not want two different laptops.
+
+One assistant does research: it lives in Telegram, it can search the web through Brave, and it reports back with sources. I call it OpenClaw. The other does engineering: it works through a headless OpenCode instance, reads repositories, edits files, and runs tests. I call it Hermes.
+
+Both run on the same Hetzner server, managed through Coolify, and coordinated through a private mailbox system I set up at agentmail.rajeevg.com. When research completes, OpenClaw can drop a message for Hermes. When engineering finishes, Hermes can report back.
+
+This is how that system actually works, what I proved, what remains unfinished, and what I learned about running personal AI infrastructure without creating a maintenance burden.
+
+## The short version
+
+<div className="not-prose my-8 grid gap-4 sm:grid-cols-2">
+  <div className="border-t-4 border-sky-500 bg-slate-50 p-5 dark:bg-slate-900">
+    <div className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">OpenClaw (Research)</div>
+    <div className="mt-2 text-2xl font-semibold text-slate-950 dark:text-white">Telegram + Brave</div>
+    <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Receives messages via Telegram, searches with Brave, returns summaries with citations.</div>
+  </div>
+  <div className="border-t-4 border-emerald-500 bg-slate-50 p-5 dark:bg-slate-900">
+    <div className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Hermes (Engineering)</div>
+    <div className="mt-2 text-2xl font-semibold text-slate-950 dark:text-white">Headless OpenCode</div>
+    <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Runs Codex in headless mode, edits files, runs tests, pushes commits.</div>
+  </div>
+  <div className="border-t-4 border-amber-500 bg-slate-50 p-5 dark:bg-slate-900">
+    <div className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Coordination</div>
+    <div className="mt-2 text-2xl font-semibold text-slate-950 dark:text-white">Agent Mail</div>
+    <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Authenticated MCP at agentmail.rajeevg.com, five-minute polling, acknowledgements.</div>
+  </div>
+  <div className="border-t-4 border-rose-500 bg-slate-50 p-5 dark:bg-slate-900">
+    <div className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Output</div>
+    <div className="mt-2 text-2xl font-semibold text-slate-950 dark:text-white">rajeevg.com</div>
+    <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Writable deploy key, real Git push, Vercel CLI identity verified.</div>
+  </div>
+</div>
+
+The entire setup lives on a single Hetzner instance running Coolify. The agents do not run on my laptop. They run on the server, stay running when I close my laptop, and coordinate through the mailbox.
+
+## Why separate agents instead of one
+
+I tried the single-agent approach first. One assistant that does research and engineering both. The problem is not capability. It is context.
+
+Research wants broad search, loose constraints, exploratory queries. Engineering wants tight file access, specific commands, careful version control. When one agent tries to do both, the research context bleeds into the engineering session, and vice versa.
+
+Separating them means:
+
+- OpenClaw can run with broader permissions for web search, without those permissions following into the engineering workspace
+- Hermes can have repository access and Git credentials, without those being available to the research side
+- Each can restart, update, or fail without taking the other down
+- The mailbox creates an explicit handoff: research produces a message, engineering consumes it
+
+This is not about having more agents. It is about having clearer boundaries.
+
+## The infrastructure: Coolify on Hetzner
+
+Coolify is an open-source platform that manages applications, databases, and services on your own servers. It sits between raw infrastructure and the applications, handling deployment, environment variables, and basic networking.
+
+The Hetzner instance is a CX32: 4 vCPUs, 8 GB RAM, 80 GB disk, located in Germany. This is not high-end hardware. It is enough for two agents because each is relatively light when idle and scales up only when working.
+
+### What Coolify actually manages
+
+Each agent is a service in Coolify:
+
+- **OpenClaw**: A Node.js application, Telegram bot polling, Brave search integration
+- **Hermes**: A Docker container with headless OpenCode, git, Node.js, and Python tooling
+- **Agent Mail**: The Dicklesworthstone MCP Agent Mail service, handling message queues between agents
+
+Coolify handles the reverse proxy, SSL certificates through Let's Encrypt, and environment variable injection. The web interface is accessible over HTTPS, authenticated with a strong password.
+
+### What was proven about access
+
+I verified these access controls work:
+
+- **HTTPS Coolify access**: The Coolify dashboard is reachable only via HTTPS, not plain HTTP
+- **Port 8000 blocked externally**: The Coolify internal port is not exposed to the public internet
+- **UFW restricted**: Uncomplicated Firewall allows only ports 22 (SSH), 80 (HTTP redirect), and 443 (HTTPS)
+
+```bash
+$ sudo ufw status
+Status: active
+
+To                         Action      From
+--                         ------      ----
+22/tcp                     ALLOW       Anywhere
+80/tcp                     ALLOW       Anywhere
+443/tcp                    ALLOW       Anywhere
+```
+
+This is basic hygiene, but I verified it rather than assuming.
+
+## The agents in detail
+
+### OpenClaw: Research via Telegram
+
+OpenClaw is a Telegram bot built on the Grammy framework. It receives messages, decides whether it needs search, calls the Brave Search API, and returns formatted responses.
+
+Key characteristics:
+
+- **Telegram ID allowlist**: Only specific Telegram user IDs can interact with the bot. This is enforced in code, not just by keeping the bot handle private
+- **Brave Search**: Web searches go through Brave's API, which returns results without the tracking baggage of other search providers
+- **Stateful threads**: The bot maintains conversation context per chat, so follow-up questions work naturally
+
+The allowlist matters because Telegram bots are discoverable. Even if you do not publish the handle, brute-force discovery is possible. The allowlist rejects messages from unknown IDs silently.
+
+### Hermes: Engineering via headless OpenCode
+
+Hermes runs OpenCode in headless mode inside a container. This means:
+
+- It can work with repositories, edit files, run tests, and make commits
+- It does not need a GUI or browser session
+- It responds to messages from the mailbox rather than direct user input
+
+The container includes:
+
+- Git with a writable deploy key for rajeevg.com
+- Node.js and pnpm for the Next.js site
+- Python for utility scripts
+- OpenCode CLI configured for headless operation
+
+The deploy key is scoped: it can push to the repository, but it cannot access other repositories or administrative settings. It is a deployment credential, not a personal access token.
+
+## Agent Mail: The coordination layer
+
+Both agents connect to the same mailbox service running at agentmail.rajeevg.com. This is an authenticated MCP (Model Context Protocol) service based on Dicklesworthstone's MCP Agent Mail.
+
+### How the mailbox works
+
+- **Authenticated**: Each agent authenticates with a token. Unauthenticated requests are rejected
+- **Namespaced**: Messages are addressed to specific agents (e.g., "hermes", "openclaw", "amberowl", "silverforge")
+- **Acknowledged**: When a message is consumed, the mailbox sends an acknowledgement back to the sender
+- **Replies**: Agents can reply to messages, creating threaded conversations
+- **Five-minute polling**: Agents poll the mailbox every five minutes when idle, checking for new work
+
+The polling interval is a tradeoff. Shorter intervals mean faster response but more server load. Five minutes is a reasonable middle ground for personal use where immediate response is not required.
+
+### AmberOwl and SilverForge
+
+The mailbox supports more than two agents. I have defined four:
+
+- **OpenClaw**: Research agent
+- **Hermes**: Engineering agent
+- **AmberOwl**: Planning and review agent (currently minimal use)
+- **SilverForge**: Testing and validation agent (currently minimal use)
+
+For now, most traffic is between OpenClaw and Hermes. The other two are placeholders for future separation of concerns.
+
+## Deployment: Git push to Vercel
+
+When Hermes completes work on the rajeevg.com repository, it pushes commits using the writable deploy key. Vercel picks up the push and deploys.
+
+### What was verified about deployment
+
+- **Vercel CLI identity**: I verified that the Vercel CLI recognizes the deployment context and can check status
+- **Real Git push workflow**: Commits pushed by Hermes trigger actual Vercel builds, not just webhook simulations
+- **Build success**: The pushed code builds successfully on Vercel's infrastructure
+
+The deploy key is configured in the repository settings, not in my personal SSH config. This means Hermes can push without having my personal credentials.
+
+## Security boundaries
+
+The setup has several deliberate security boundaries:
+
+| Boundary | Implementation |
+|----------|----------------|
+| Agent isolation | Separate containers, separate credentials, communicate only through mailbox |
+| Network access | UFW restricts to 22/80/443, internal ports not exposed |
+| Repository access | Deploy key is repository-scoped, not account-scoped |
+| Telegram access | Allowlist rejects unknown user IDs |
+| Mailbox authentication | Token-based, agents cannot impersonate each other |
+| HTTPS only | Coolify enforces SSL, no plain HTTP access |
+
+No security setup is perfect. These boundaries reduce risk, not eliminate it.
+
+## What remains pending
+
+I am being explicit about what is not yet done:
+
+- **Gmail OAuth**: The integration for sending email summaries is built but awaits OAuth approval from Google. Until then, email alerts do not work.
+- **Cloudflare API token**: A scoped token for DNS management exists but is pending authorization in the Cloudflare dashboard. Until then, DNS changes require manual updates.
+
+These are not hypothetical future features. They are implemented but blocked on external approvals. I cannot control Google's OAuth review timeline or Cloudflare's token authorization flow.
+
+## Usage patterns
+
+A typical workflow looks like:
+
+1. I send a research question to OpenClaw via Telegram
+2. OpenClaw searches Brave, compiles an answer, and optionally drops a message for Hermes if implementation is needed
+3. Hermes polls the mailbox, sees the message, pulls the repository, makes changes
+4. Hermes commits and pushes; Vercel deploys
+5. OpenClaw receives acknowledgement that Hermes picked up the task
+6. I receive a Telegram message when research completes and when deployment finishes
+
+The agents do not replace my judgment. They handle the mechanical parts: searching, editing, committing, deploying. I still review the research and the code before considering it done.
+
+## Maintenance realities
+
+Running your own agents is not free. It costs time as well as money.
+
+### What I monitor
+
+- **Coolify dashboard**: Service health, memory usage, disk space
+- **Mailbox queue depth**: If messages pile up, something is stuck
+- **Vercel build logs**: Deployment failures are visible there
+- **Hetzner console**: If all else fails, raw server access
+
+### What I update
+
+- Container base images monthly
+- OpenCode when new versions release
+- Node.js dependencies when security advisories appear
+- Telegram bot framework when updates are available
+
+The agents are not "set and forget." They need the same maintenance attention as any other service.
+
+### Backup considerations
+
+The mailbox stores messages in a local database. I back this up daily to object storage. The agent code lives in Git. The environment variables are documented but not committed.
+
+If the Hetzner server died tomorrow, I could rebuild in a few hours from Git and backups, not days from memory.
+
+## Lessons learned
+
+### 1. Separation of concerns beats clever integration
+
+I initially tried to make one agent that could do research and engineering. It was technically possible but practically messy. The separation into OpenClaw and Hermes, with explicit handoffs through the mailbox, is simpler to reason about and safer to operate.
+
+### 2. Polling is fine for personal use
+
+I considered webhooks, sockets, and push notifications. Polling every five minutes is simpler, more reliable, and sufficient for my use case. The complexity of real-time coordination was not worth the benefit.
+
+### 3. Verification matters more than configuration
+
+I configured UFW, but I also ran `ufw status` to verify. I set up HTTPS, but I also tried accessing over HTTP to confirm it failed. Configuration files lie. Verification catches the lies.
+
+### 4. Deploy keys are better than personal tokens
+
+A personal access token would have been easier to set up. It would also have given the agent access to every repository I can touch. The deploy key is more work but limits blast radius if the key leaks.
+
+### 5. External approvals are unpredictable
+
+The Gmail OAuth and Cloudflare token are not blocked by my code or my configuration. They are blocked by external processes. I cannot speed them up. The lesson is to build without them first, then add them when ready, rather than waiting to launch.
+
+## Cost and performance
+
+The Hetzner CX32 costs approximately €5.35 per month. Coolify is free and open source. The Brave Search API has a free tier that covers my usage. Telegram bot API is free. Vercel hobby tier covers the deployment.
+
+Total running cost: under €6 per month, plus my time for maintenance.
+
+Performance is acceptable for personal use. Research queries take 10-30 seconds depending on search depth. Engineering tasks vary by complexity. Neither agent is fast, but both are asynchronous: I send a request, do other work, and receive a notification when ready.
+
+## What this proves and what it does not
+
+<div className="not-prose my-8 grid gap-5 md:grid-cols-2">
+  <div className="border-t-4 border-emerald-500 bg-slate-50 p-6 dark:bg-slate-900">
+    <div className="text-sm font-semibold text-slate-950 dark:text-white">Verified</div>
+    <ul className="mt-4 space-y-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
+      <li>HTTPS Coolify access working</li>
+      <li>Port 8000 blocked externally</li>
+      <li>UFW configured for 22/80/443 only</li>
+      <li>Telegram ID allowlist enforced</li>
+      <li>Agent Mail message acknowledgements and replies</li>
+      <li>Five-minute polling operational</li>
+      <li>OpenCode repo and generation smoke tests pass</li>
+      <li>Vercel CLI identity confirmed</li>
+      <li>Real Git push workflow end-to-end</li>
+    </ul>
+  </div>
+  <div className="border-t-4 border-amber-500 bg-slate-50 p-6 dark:bg-slate-900">
+    <div className="text-sm font-semibold text-slate-950 dark:text-white">Pending</div>
+    <ul className="mt-4 space-y-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
+      <li>Gmail OAuth approval</li>
+      <li>Cloudflare API token authorization</li>
+      <li>AmberOwl and SilverForge active usage</li>
+      <li>Load testing under concurrent agents</li>
+      <li>Disaster recovery drill (untested in practice)</li>
+    </ul>
+  </div>
+</div>
+
+This is a working personal system, not a production service for others. It works for my use case. It would need more work to work for yours.
+
+## The shape of the work
+
+If you want to build something similar, the sequence that worked for me:
+
+1. **Get the server**: Hetzner, DigitalOcean, or similar. 4GB RAM minimum, 8GB comfortable.
+2. **Install Coolify**: Follow their documentation. It handles the heavy lifting of reverse proxy and SSL.
+3. **Deploy one agent**: Start with whichever matters more to you. Get it working alone.
+4. **Add the mailbox**: Get two simple scripts to pass messages through it.
+5. **Add the second agent**: Connect it to the mailbox, verify handoffs.
+6. **Harden**: Add allowlists, firewalls, scoped credentials.
+7. **Verify**: Try to break it. Check that boundaries hold.
+
+The temptation is to build both agents at once, or to skip verification and trust configuration. Both temptations lead to debugging at 2am when something subtle breaks.
+
+## The honest bottom line
+
+I have two agents now. They run on a server I control, they coordinate through a mailbox I own, and they deploy to a site I built. They are not magic. They are careful plumbing: clear boundaries, explicit handoffs, verified constraints.
+
+The real value is not having AI agents. It is having agents that stay running, stay separate, and stay honest about what they can and cannot do.
+
+The Gmail OAuth and Cloudflare token will arrive when they arrive. Until then, the system works without them. That is the point: build what you can verify, ship what you can maintain, and be honest about what remains pending.
