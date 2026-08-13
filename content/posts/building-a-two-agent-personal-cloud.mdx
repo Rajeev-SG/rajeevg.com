@@ -32,7 +32,7 @@ This is how that system actually works, what I proved, what remains unfinished, 
   <div className="border-t-4 border-emerald-500 bg-slate-50 p-5 dark:bg-slate-900">
     <div className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Hermes (Engineering)</div>
     <div className="mt-2 text-2xl font-semibold text-slate-950 dark:text-white">Headless OpenCode</div>
-    <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Runs Codex in headless mode, edits files, runs tests, pushes commits.</div>
+    <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Runs headless OpenCode, edits files, runs tests, pushes commits. Accepts both direct Telegram requests and Agent Mail briefs.</div>
   </div>
   <div className="border-t-4 border-amber-500 bg-slate-50 p-5 dark:bg-slate-900">
     <div className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Coordination</div>
@@ -83,7 +83,7 @@ Coolify handles the reverse proxy, SSL certificates through Let's Encrypt, and e
 
 I verified these access controls work:
 
-- **HTTPS Coolify access**: The Coolify dashboard is reachable only via HTTPS, not plain HTTP
+- **HTTPS Coolify access**: The Coolify dashboard is reachable only via HTTPS; the legacy public port 8000 is blocked
 - **Port 8000 blocked externally**: The Coolify internal port is not exposed to the public internet
 - **UFW restricted**: Uncomplicated Firewall allows only ports 22 (SSH), 80 (HTTP redirect), and 443 (HTTPS)
 
@@ -104,7 +104,7 @@ This is basic hygiene, but I verified it rather than assuming.
 
 ### OpenClaw: Research via Telegram
 
-OpenClaw is a Telegram bot built on the Grammy framework. It receives messages, decides whether it needs search, calls the Brave Search API, and returns formatted responses.
+OpenClaw is the official OpenClaw gateway/image using Telegram long polling and the official Brave plugin. It receives messages, decides whether it needs search, calls the Brave Search API, and returns formatted responses.
 
 Key characteristics:
 
@@ -116,7 +116,7 @@ The allowlist matters because Telegram bots are discoverable. Even if you do not
 
 ### Hermes: Engineering via headless OpenCode
 
-Hermes runs OpenCode in headless mode inside a container. This means:
+Hermes runs headless OpenCode, never Codex, and accepts both direct Telegram requests and Agent Mail briefs. This means:
 
 - It can work with repositories, edit files, run tests, and make commits
 - It does not need a GUI or browser session
@@ -227,9 +227,7 @@ The agents are not "set and forget." They need the same maintenance attention as
 
 ### Backup considerations
 
-The mailbox stores messages in a local database. I back this up daily to object storage. The agent code lives in Git. The environment variables are documented but not committed.
-
-If the Hetzner server died tomorrow, I could rebuild in a few hours from Git and backups, not days from memory.
+The Agent Mail service uses persistent storage. No daily object-storage backup was configured because the owner explicitly accepted clean rebuilds.
 
 ## Lessons learned
 
@@ -243,7 +241,7 @@ I considered webhooks, sockets, and push notifications. Polling every five minut
 
 ### 3. Verification matters more than configuration
 
-I configured UFW, but I also ran `ufw status` to verify. I set up HTTPS, but I also tried accessing over HTTP to confirm it failed. Configuration files lie. Verification catches the lies.
+I configured UFW, but I also ran `ufw status` to verify. I set up HTTPS and verified the Coolify hostname works over HTTPS. Configuration files lie. Verification catches the lies.
 
 ### 4. Deploy keys are better than personal tokens
 
@@ -255,11 +253,11 @@ The Gmail OAuth and Cloudflare token require setup steps that are not yet comple
 
 ## Cost and performance
 
-The Hetzner instance costs a few euros per month. Coolify is free and open source. The Brave Search API has a free tier that covers my usage. Telegram bot API is free. Vercel hobby tier covers the deployment.
+The Hetzner instance costs a few euros per month. Coolify is free and open source. Telegram bot API is free. Vercel hobby tier covers the deployment.
 
 Total running cost: a few euros per month, plus my time for maintenance.
 
-Performance is acceptable for personal use. Research queries take 10-30 seconds depending on search depth. Engineering tasks vary by complexity. Neither agent is fast, but both are asynchronous: I send a request, do other work, and receive a notification when ready.
+Performance is acceptable for personal use. Engineering tasks vary by complexity. Neither agent is fast, but both are asynchronous: I send a request, do other work, and receive a notification when ready.
 
 ## What this proves and what it does not
 
@@ -283,9 +281,7 @@ Performance is acceptable for personal use. Research queries take 10-30 seconds 
     <ul className="mt-4 space-y-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
       <li>Gmail OAuth consent and cloud import</li>
       <li>Cloudflare API token creation</li>
-      <li>AmberOwl and SilverForge active usage</li>
       <li>Load testing under concurrent agents</li>
-      <li>Disaster recovery drill (untested in practice)</li>
     </ul>
   </div>
 </div>
@@ -296,7 +292,7 @@ This is a working personal system, not a production service for others. It works
 
 If you want to build something similar, the sequence that worked for me:
 
-1. **Get the server**: Hetzner, DigitalOcean, or similar. 4GB RAM minimum, 8GB comfortable.
+1. **Get the server**: Hetzner, DigitalOcean, or similar with sufficient RAM for your workload.
 2. **Install Coolify**: Follow their documentation. It handles the heavy lifting of reverse proxy and SSL.
 3. **Deploy one agent**: Start with whichever matters more to you. Get it working alone.
 4. **Add the mailbox**: Get two simple scripts to pass messages through it.
