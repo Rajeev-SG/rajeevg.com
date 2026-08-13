@@ -67,7 +67,7 @@ This is not about having more agents. It is about having clearer boundaries.
 
 Coolify is an open-source platform that manages applications, databases, and services on your own servers. It sits between raw infrastructure and the applications, handling deployment, environment variables, and basic networking.
 
-The Hetzner instance is a CX32: 4 vCPUs, 8 GB RAM, 80 GB disk, located in Germany. This is not high-end hardware. It is enough for two agents because each is relatively light when idle and scales up only when working.
+The Hetzner instance has 2 vCPU and about 3.7 GiB RAM, located in Germany. This is not high-end hardware. It is enough for two agents because each is relatively light when idle and scales up only when working.
 
 ### What Coolify actually manages
 
@@ -187,10 +187,10 @@ No security setup is perfect. These boundaries reduce risk, not eliminate it.
 
 I am being explicit about what is not yet done:
 
-- **Gmail OAuth**: The integration for sending email summaries is built but awaits OAuth approval from Google. Until then, email alerts do not work.
-- **Cloudflare API token**: A scoped token for DNS management exists but is pending authorization in the Cloudflare dashboard. Until then, DNS changes require manual updates.
+- **Gmail OAuth**: Pending completion of personal OAuth consent and cloud import. Until then, email alerts do not work.
+- **Cloudflare API token**: Pending creation and provisioning of a scoped API token for DNS management. Until then, DNS changes require manual updates.
 
-These are not hypothetical future features. They are implemented but blocked on external approvals. I cannot control Google's OAuth review timeline or Cloudflare's token authorization flow.
+These are not hypothetical future features. They are planned but require setup steps that are not yet complete.
 
 ## Usage patterns
 
@@ -249,15 +249,15 @@ I configured UFW, but I also ran `ufw status` to verify. I set up HTTPS, but I a
 
 A personal access token would have been easier to set up. It would also have given the agent access to every repository I can touch. The deploy key is more work but limits blast radius if the key leaks.
 
-### 5. External approvals are unpredictable
+### 5. External dependencies take time
 
-The Gmail OAuth and Cloudflare token are not blocked by my code or my configuration. They are blocked by external processes. I cannot speed them up. The lesson is to build without them first, then add them when ready, rather than waiting to launch.
+The Gmail OAuth and Cloudflare token require setup steps that are not yet complete. I cannot rush these steps. The lesson is to build without them first, then add them when ready, rather than waiting to launch.
 
 ## Cost and performance
 
-The Hetzner CX32 costs approximately €5.35 per month. Coolify is free and open source. The Brave Search API has a free tier that covers my usage. Telegram bot API is free. Vercel hobby tier covers the deployment.
+The Hetzner instance costs a few euros per month. Coolify is free and open source. The Brave Search API has a free tier that covers my usage. Telegram bot API is free. Vercel hobby tier covers the deployment.
 
-Total running cost: under €6 per month, plus my time for maintenance.
+Total running cost: a few euros per month, plus my time for maintenance.
 
 Performance is acceptable for personal use. Research queries take 10-30 seconds depending on search depth. Engineering tasks vary by complexity. Neither agent is fast, but both are asynchronous: I send a request, do other work, and receive a notification when ready.
 
@@ -281,8 +281,8 @@ Performance is acceptable for personal use. Research queries take 10-30 seconds 
   <div className="border-t-4 border-amber-500 bg-slate-50 p-6 dark:bg-slate-900">
     <div className="text-sm font-semibold text-slate-950 dark:text-white">Pending</div>
     <ul className="mt-4 space-y-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
-      <li>Gmail OAuth approval</li>
-      <li>Cloudflare API token authorization</li>
+      <li>Gmail OAuth consent and cloud import</li>
+      <li>Cloudflare API token creation</li>
       <li>AmberOwl and SilverForge active usage</li>
       <li>Load testing under concurrent agents</li>
       <li>Disaster recovery drill (untested in practice)</li>
@@ -312,4 +312,4 @@ I have two agents now. They run on a server I control, they coordinate through a
 
 The real value is not having AI agents. It is having agents that stay running, stay separate, and stay honest about what they can and cannot do.
 
-The Gmail OAuth and Cloudflare token will arrive when they arrive. Until then, the system works without them. That is the point: build what you can verify, ship what you can maintain, and be honest about what remains pending.
+The Gmail OAuth and Cloudflare token will be ready when the setup steps are complete. Until then, the system works without them. That is the point: build what you can verify, ship what you can maintain, and be honest about what remains pending.
