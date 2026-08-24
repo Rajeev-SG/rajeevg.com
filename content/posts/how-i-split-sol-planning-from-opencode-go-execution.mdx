@@ -244,6 +244,18 @@ The current evidence check found zero missing declared dashboard sources. That m
 
 The evidence windows are not aligned. Go usage, the one live OpenRouter fallback, the historical premium share, and the queue snapshot answer different questions at different times. I am keeping them together because they describe the operating system, not because they form a controlled experiment.
 
+### A first directional reading from the build itself
+
+We now have a little more than a static architecture snapshot. Three substantial slices of this build ran through the new Go queue: the operator dashboard, this article, and the final system-closure pass. All three completed, all three needed one retry, and all three passed native Sol review. The retained checks include a production content build, responsive browser proof, 78 focused dashboard tests, 95 focused closure checks, and a final unrestricted suite of 161 passing tests.
+
+The telemetry is still annoyingly uneven. Only the dashboard slice retained a complete provider counter in its queue evidence: **5,166,631 Go tokens at a reported cost of $0.19260677**. That makes 5.17 million tokens a lower bound for the three slices, not their total. The other two completion records prove what ran and what passed, but not how many worker tokens they consumed. Fixing that hole is now part of the system rather than a footnote I can ignore.
+
+The cleanest comparison is a smaller matched canary. The same task and the same five tests were run once through native Sol and once through Go. Both arms passed 5/5. The Go arm moved **100% of that execution slice off ChatGPT subscription tokens**, but it used **3.13 times as many provider tokens** and took about **2.30 times as long**. In other words, the routing worked economically, not magically: it exchanged cheap worker capacity and latency for scarce subscription capacity while preserving the observed result on one small task.
+
+There is also a less flattering number. The final closure audit counted **620 parent tool calls across two turns**, against a combined policy budget of 120, and marked that as a hard delegation breach. Tool calls are not tokens, so I will not pretend that this is a subscription-cost calculation. It is still the clearest sign of where premium usage is leaking: Go is doing large execution runs, but Sol is spending too long integrating, rechecking, and tidying their results.
+
+So the direction is encouraging, but the verdict is not in. We have evidence that bounded worker execution can leave the subscription meter entirely untouched while passing the same checks. We also have evidence that an overactive parent can give much of that advantage back. A stronger worker model can wait. The next gains should come from tighter result packets, complete per-dispatch counters, fewer parent-side tool calls, and one review pass unless the evidence genuinely fails.
+
 ## The deferred Phase 6 objective
 
 The ambitious objective is a tenfold subscription reduction with indistinguishable quality. That is a deferred Phase 6 objective, not a proven result.
@@ -286,6 +298,6 @@ That harness is the missing bridge between a well-instrumented architecture and 
 - [Vercel Skills](https://skills.sh/)
 - [OpenCode documentation](https://opencode.ai/docs/)
 
-The article metrics come from the privacy-safe `operator-snapshot/v1` artifact generated at `2026-08-24T00:47:34Z`, fingerprint `4c12fbc025ad3fd6d1908e101d078676553962a94681a13194ef8445c68f0ac3`. That snapshot records the Go and OpenRouter token/cost rows, queue state, selected-skill health, source health, and three fallback transition events. The live OpenRouter row is independently tied to generation `gen-1787532425-zr6WGUwsCyBY6SqSNZMC`, served by DeepInfra using `deepseek/deepseek-v4-flash-0731`.
+The article metrics come from the privacy-safe `operator-snapshot/v1` artifact generated at `2026-08-24T00:47:34Z`, fingerprint <span className="break-all font-mono text-[0.9em]">4c12fbc025ad3fd6d1908e101d078676553962a94681a13194ef8445c68f0ac3</span>. That snapshot records the Go and OpenRouter token/cost rows, queue state, selected-skill health, source health, and three fallback transition events. The live OpenRouter row is independently tied to generation `gen-1787532425-zr6WGUwsCyBY6SqSNZMC`, served by DeepInfra using `deepseek/deepseek-v4-flash-0731`.
 
 These are operational artifacts, not provider invoices. The differing evidence windows should not be combined as if they were one benchmark run. The production capacity state was closed at publication time, but the article does not treat that point-in-time state as proof of a matched fallback-and-return experiment.
