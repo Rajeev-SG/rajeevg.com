@@ -1,157 +1,129 @@
 ---
-title: How I Split Sol Planning from OpenCode Go Execution
+title: Can I Make Codex Last Longer Without Lowering the Quality?
 slug: how-i-split-sol-planning-from-opencode-go-execution
 date: 2026-08-24
-description: A practical architecture for using Sol to plan, review, and judge work while OpenCode Go handles high-execution tasks with deterministic routing, recoverable state, and honest provider fallbacks.
+description: I split coding work between Codex and OpenCode to avoid burning through my Codex subscription allowance. Here is how well it is working so far.
 tags: [ai, opencode, codex, architecture, routing, observability, reliability, openrouter]
 draft: false
 ---
 
 <div className="flex flex-wrap gap-2">
-  <span className="inline-flex items-center rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-xs font-medium text-violet-800 dark:border-violet-500/25 dark:bg-violet-500/10 dark:text-violet-200">Sol review gate</span>
-  <span className="inline-flex items-center rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1 text-xs font-medium text-cyan-800 dark:border-cyan-500/25 dark:bg-cyan-500/10 dark:text-cyan-200">Go execution</span>
-  <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-800 dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-200">Evidence first</span>
+  <span className="inline-flex items-center rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-xs font-medium text-violet-800 dark:border-violet-500/25 dark:bg-violet-500/10 dark:text-violet-200">Codex plans and checks</span>
+  <span className="inline-flex items-center rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1 text-xs font-medium text-cyan-800 dark:border-cyan-500/25 dark:bg-cyan-500/10 dark:text-cyan-200">OpenCode does the work</span>
+  <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-800 dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-200">Tests protect quality</span>
 </div>
+
+I kept running into the same practical problem: Codex is useful for coding, but my subscription usage is limited. If I ask it to make every small edit, run every check, and tidy every file, I can use up that allowance before the job is done.
+
+I wanted to keep Codex involved where judgement matters without asking it to do every repetitive step. So I split the work. The strongest Codex model in this setup, Sol, understands the request, makes the plan, and reviews the result. OpenCode Go uses a worker model called Luna to make the edits and run the checks. The hoped-for outcome is straightforward: use less Codex subscription capacity without accepting worse work.
+
+## The short verdict
+
+**Promising, but only partly proven.** In one small like-for-like test, the Go route moved 100% of the execution slice off Codex subscription tokens and passed the same five checks. The tradeoff was that Go used 3.13 times as many provider tokens and took about 2.30 times as long.
+
+That is useful. It is not a miracle, and it does not prove the larger goal: a tenfold reduction in total Codex subscription usage with quality that cannot be distinguished from the direct route. The measurements cover different workloads and time windows, and the planning side still does too much work in some runs.
+
+## The numbers that matter
+
+The fairest result so far comes from one small test. I gave the same coding job to Codex and OpenCode Go, then ran the same five checks on both results.
+
+<div className="not-prose my-8 overflow-hidden rounded-xl border bg-card">
+  <div className="overflow-x-auto">
+    <table className="w-full min-w-[620px] text-left text-sm">
+      <thead className="bg-muted/60 text-xs uppercase tracking-[0.14em] text-muted-foreground">
+        <tr>
+          <th className="px-4 py-3 font-semibold">Question</th>
+          <th className="px-4 py-3 font-semibold">Result</th>
+          <th className="px-4 py-3 font-semibold">In plain English</th>
+        </tr>
+      </thead>
+      <tbody className="divide-y">
+        <tr>
+          <td className="px-4 py-3 font-medium">Did both routes work?</td>
+          <td className="px-4 py-3 font-mono">5/5 checks in both routes</td>
+          <td className="px-4 py-3 text-muted-foreground">Both versions produced the same observed result on this small task.</td>
+        </tr>
+        <tr>
+          <td className="px-4 py-3 font-medium">Did Go avoid Codex usage?</td>
+          <td className="px-4 py-3 font-mono">0 Codex subscription tokens</td>
+          <td className="px-4 py-3 text-muted-foreground">The Codex version used 91,604 subscription tokens. Go handled the same execution job without using that allowance.</td>
+        </tr>
+        <tr>
+          <td className="px-4 py-3 font-medium">What was the tradeoff?</td>
+          <td className="px-4 py-3 font-mono">3.13x more tokens / 2.30x slower</td>
+          <td className="px-4 py-3 text-muted-foreground">Go saved the scarce subscription allowance, but spent more of its own cheaper capacity and took longer.</td>
+        </tr>
+        <tr>
+          <td className="px-4 py-3 font-medium">Did larger jobs hold up?</td>
+          <td className="px-4 py-3 font-mono">3 completed / 1 retry each</td>
+          <td className="px-4 py-3 text-muted-foreground">All three passed Sol review. This was not a controlled benchmark.</td>
+        </tr>
+        <tr>
+          <td className="px-4 py-3 font-medium">What did one real Go job cost?</td>
+          <td className="px-4 py-3 font-mono">About $0.19</td>
+          <td className="px-4 py-3 text-muted-foreground">The dashboard job used 5.17 million Go tokens. We do not yet have complete totals for all three larger jobs.</td>
+        </tr>
+        <tr>
+          <td className="px-4 py-3 font-medium">Where did the savings leak?</td>
+          <td className="px-4 py-3 font-mono">620 tool calls / 120-call budget</td>
+          <td className="px-4 py-3 text-muted-foreground">The planning side used too many calls. Calls are not tokens, but this shows where work is leaking.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+The good news is real: Go can perform a coding job without consuming the Codex subscription allowance, and the checked result can be just as good on that task. The bad news is equally real: the Codex side still did far too much follow-up work during the larger project. That is why I cannot yet tell you the overall percentage saved.
+
+## The manager and the workshop
+
+The simplest mental model is a manager and a workshop.
+
+The manager decides what needs doing, turns it into a safe job, checks the plan, and inspects the finished work. In my setup, that is Sol with Codex. The workshop does the hands-on work: it reads the relevant files, edits them, runs the narrow checks, and reports what happened. That is OpenCode Go, with Luna as the worker.
+
+The manager does not need to watch every keystroke. It needs a clear job description and a trustworthy report. That leaves the expensive context for decisions rather than repetitive execution.
+
+This does not mean Go is always cheaper. It means I can reserve Codex subscription usage for planning and judgement, then send suitable execution work through Go. The checks and review decide whether the work is good, not the product name.
+
+The diagram below shows the full setup. You do not need to understand every box to get the point: Codex decides, OpenCode works, and the evidence comes back for review.
 
 <GoArchitectureGuide />
 
-The most useful change in my AI setup was not choosing a cleverer model. It was deciding that the model making the plan did not have to be the model doing every keystroke.
+## What is proven, promising, and unknown
 
-I now use Sol for the work that benefits from broad context: planning, reviewing the plan, judging whether the result is actually acceptable, and deciding when a risk deserves a human decision. OpenCode Go, with Luna as the high-execution worker, handles the bounded implementation loop. The queue, skill registry, checkpoints, and telemetry make the split observable instead of turning it into folklore.
+### Proven
 
-That sounds like a model-routing story. In practice, the models were the easy bit. The hard part was making sure a half-finished task could be understood, resumed, measured, and safely rerouted without somebody reading an old transcript for twenty minutes.
+The matched canary passed the same 5/5 checks in both routes. Go handled 100% of that execution-only slice without Codex subscription tokens. Three substantial Go-routed slices also completed after one retry each and passed Sol review.
 
-## The short version
+The larger jobs also passed substantial checks: 78 dashboard tests, 95 system checks, a final suite of 161 passing tests, and browser tests on desktop and mobile.
 
-<div className="not-prose my-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-  <div className="border-t-4 border-violet-500 bg-violet-50 p-5 dark:bg-violet-950/30">
-    <div className="text-xs font-semibold uppercase tracking-[0.16em] text-violet-700 dark:text-violet-300">Sol</div>
-    <div className="mt-2 text-2xl font-semibold text-slate-950 dark:text-white">judge the edges</div>
-    <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Plan, review, and decide whether the evidence supports completion.</div>
-  </div>
-  <div className="border-t-4 border-cyan-500 bg-cyan-50 p-5 dark:bg-cyan-950/30">
-    <div className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700 dark:text-cyan-300">OpenCode Go</div>
-    <div className="mt-2 text-2xl font-semibold text-slate-950 dark:text-white">move the work</div>
-    <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Luna executes a packet with a clear scope, budget, deadline, and done condition.</div>
-  </div>
-  <div className="border-t-4 border-amber-500 bg-amber-50 p-5 dark:bg-amber-950/30">
-    <div className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-700 dark:text-amber-300">Queue</div>
-    <div className="mt-2 text-2xl font-semibold text-slate-950 dark:text-white">resume safely</div>
-    <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Leases, acknowledgements, checkpoints, and explicit retryable states prevent transcript archaeology.</div>
-  </div>
-  <div className="border-t-4 border-emerald-500 bg-emerald-50 p-5 dark:bg-emerald-950/30">
-    <div className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-300">Evidence</div>
-    <div className="mt-2 text-2xl font-semibold text-slate-950 dark:text-white">trace the claim</div>
-    <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">OTel, Langfuse, provider records, and a local operator view keep claims attached to sources.</div>
-  </div>
-</div>
+### Promising, but limited
 
-This is an architecture note, not a promise that a particular subscription or provider is always cheaper. The measurements below come from different windows and different workloads. They are useful operational evidence, not a matched benchmark.
+The evidence suggests that splitting the work can preserve quality while saving Codex usage. It also suggests that OpenCode Go is best treated as cheaper execution capacity, not a faster or more token-efficient model.
 
-## Why put Sol at the gate?
+### Still unknown
 
-Sol is most valuable before and after execution. Before execution it can turn an ambiguous request into a packet: objective, paths, constraints, risk, tool budget, deadline, acceptance checks, and the exact next action. During review it can challenge the packet rather than rubber-stamp it. After execution it can judge the result against the acceptance checks and decide whether a retry, a human decision, or a new packet is needed.
+I still do not know the end-to-end saving because two larger Go jobs did not retain complete usage totals, and the Codex planning side did not retain a clean total for the same window. I also do not yet know whether quality remains indistinguishable across a broad mix of real tasks.
 
-The gate is mandatory for high-risk work. That is deliberate. A fast worker should not be able to widen its own scope, silently change the provider chain, or mark an incomplete result as complete just because a command returned zero.
+My honest assessment is: **the core idea works, but the main goal is only partly demonstrated.** Worker execution is saving subscription usage. Overall tenfold savings and indistinguishable quality remain unproven.
 
-The useful distinction is:
+## What needs to happen next
 
-- **Planning:** What is the smallest safe packet that can produce the result?
-- **Review:** Are the paths, permissions, provider assumptions, and acceptance checks credible?
-- **Judgement:** Does the evidence support `complete`, or does the work need a bounded next action?
+1. **Measure every job completely.** Record Codex subscription usage, Go usage, cost, time, retries, and test results for the same start and end points. Missing counters are the biggest reason the overall saving is still unknown.
+2. **Make Codex stop after planning and one review.** The 620-call closure run shows that too much hands-on work drifted back to Codex. Better worker reports and a hard parent budget should reduce that.
+3. **Test a representative set of real tasks.** Run the same jobs through Codex-only and split Codex-plus-Go routes. Compare defects, human corrections, test results, time, and subscription use.
+4. **Show the goal on one simple dashboard.** The useful headline is not total tokens. It is: “How much Codex allowance did we save, and did quality change?”
+5. **Keep automatic backup routing.** When Go reaches its allowance, healthy OpenRouter workers should take over. When Go resets, new work should return automatically. Neither fallback should silently use Codex subscription capacity.
 
-Sol is not a permanent supervisor that watches every tool call. It is a decision point with a durable record. Once a packet passes the gate, Go gets enough context to execute without inheriting the whole planning transcript.
+Once those measurements exist, the decision becomes simple. If the split route repeatedly uses around one tenth of the Codex allowance while matching the direct route's outcomes, the goal is met. If quality drops or Codex keeps absorbing the follow-up work, it is not.
 
-## Go is the execution lane
+## A mistake that changed how I migrate tools
 
-OpenCode Go is useful here because it is the high-execution lane. Luna can spend its context on reading the relevant files, making the change, running the narrow check, and returning evidence. That is a better use of a worker than making it rediscover the entire system design from a long parent conversation.
+I learned this by breaking the session that was doing the migration.
 
-The packet is intentionally boring:
+The active Codex process had started with `model_provider = "cliproxyapi"`. I changed the config on disk and moved the old CLIProxyAPI LaunchAgent, assuming the running process would follow the new route. It did not. A running session keeps the provider chain it received at startup. I had removed a path the parent session still needed, so recovery meant restoring the provider and restarting the old `8080 -> 18081/8319` chain.
 
-```text
-task_id: publish-sol-go-architecture-20260824
-owner: opencode-go-luna-article-builder
-risk: HIGH
-objective: publish one evidence-led architecture article
-allowed_paths: /Users/rajeev/Code/rajeevg.com
-done_when: article builds, route renders, evidence is reported
-next_action: inspect existing MDX patterns and add the smallest publishable slice
-```
-
-The task ID and packet digest are repeated at acknowledgement. This matters because a worker should not begin from a vaguely similar prompt. The packet is the contract; the transcript is an implementation detail.
-
-## Deterministic skills beat prompt luck
-
-The skill registry is a small deterministic index, not a second model. Each entry names its purpose, allowed tools, expected evidence, and the runbook needed for the task. Routing starts from explicit hints such as `architecture`, `frontend`, or `documentation`, then selects the smallest healthy set that covers the packet.
-
-The selected skill set in the current evidence window was four healthy skills. That is a health result for those selected entries, not a claim that every installed skill was audited.
-
-The important rule is that routing is reproducible. A worker should be able to explain why a skill was selected, which version of its instructions it used, and what evidence it was expected to return. Vercel skills distribution is useful as a way to distribute versioned skill material and runbooks, but distribution is not validation. The local registry remains responsible for checking compatibility, required tools, and health before routing.
-
-This separation also makes migrations safer. A skill can be published, indexed, health-checked, canaried, and then promoted. Replacing a skill in place without that sequence creates a hidden behavior change in every future packet.
-
-## The queue is the memory
-
-The queue holds state that should survive a timeout, a process restart, or a model change. The state machine is monotonic for normal work:
-
-```text
-queued -> leased -> acknowledged -> running -> verifying -> complete
-             |          |             |             |
-             +----------+-------------+-------------+--> retryable / blocked
-```
-
-There are two safeguards I care about most.
-
-1. **Lease ownership:** only the current owner can advance or release its work. A replacement does not steal a live task just because it has a newer transcript.
-2. **Checkpoint before continuation:** the worker records what completed, the evidence that proves it, the current state, and one exact next action before doing more work.
-
-The checkpoint is smaller than the conversation and more useful than the conversation. It lets a replacement worker resume from state instead of replaying every thought that led there.
-
-The current queue snapshot contained 1 active task, 15 stale or expired tasks, and 59 complete tasks. That snapshot is a point-in-time operational view. It is not a throughput metric, and stale work is not evidence that the queue is healthy by itself. It is a prompt to review lease expiry, release behavior, and whether blocked tasks are being closed with a reason.
-
-## Quota is a circuit, not a surprise
-
-The provider path has an explicit quota and reset circuit. The normal route is Go. If the Go quota is exhausted or a reset is in progress, the circuit does not immediately send work to a fallback. It first health-checks OpenRouter, verifies that the selected fallback model and credentials are usable, and records why the route changed.
-
-The fallback is gated by health because a provider that is merely configured is not necessarily available. If OpenRouter fails its health check, the task becomes retryable or blocked with evidence. It does not churn through providers hoping one will work.
-
-When the Go quota resets, the circuit returns to Go. The return is also explicit and observable; otherwise a temporary fallback quietly becomes a permanent provider migration.
-
-```ts
-if (goQuota.isAvailable()) {
-  return route("opencode-go", packet)
-}
-
-if (await openRouter.healthCheck() && openRouter.isAllowedFor(packet)) {
-  return route("openrouter", { ...packet, fallback: true })
-}
-
-return retryable("no healthy execution route", { taskId: packet.taskId })
-```
-
-This is deliberately not a provider configuration change. It is a routing rule with a health gate, a reason code, and a return path.
-
-## Keep the rollback paths
-
-I have preserved the CLIProxyAPI and OpenRouter rollback paths rather than deleting them because a migration is not safe if its escape route exists only in someone's memory. The normal Go lane can be tested and promoted while the previous adapters remain available for a bounded rollback.
-
-That does not mean every provider should be active all the time. It means the system keeps a known seam:
-
-- the packet contract stays provider-neutral;
-- the Go adapter owns normal execution;
-- the OpenRouter adapter can serve a health-gated fallback;
-- the CLIProxyAPI path remains available for rollback and diagnosis;
-- the evidence record identifies which adapter actually handled the packet.
-
-Rollback should be a state transition with a reason and an expiry, not an emergency edit to a config file. Once the primary route is healthy again, new work returns to Go and the fallback is drained rather than left to accumulate hidden state.
-
-## The migration mistake that changed the rules
-
-I learned this one by breaking the session that was doing the migration.
-
-The active Codex process had started with `model_provider = "cliproxyapi"`. I changed the config on disk and moved the old CLIProxyAPI LaunchAgent, assuming the running process would follow the new route. It did not. Running sessions keep the provider chain they inherited at startup, so I had removed a path that the parent session still needed. Recovery meant restoring the provider and restarting the old `8080 -> 18081/8319` chain.
-
-It was avoidable, and the fix is now a hard migration sequence:
+The safer sequence is additive and staged:
 
 1. Identify active consumers, including long-running sessions and child processes.
 2. Add the new path without removing the old one.
@@ -159,136 +131,17 @@ It was avoidable, and the fix is now a hard migration sequence:
 4. Send new work to it while old sessions keep their inherited route.
 5. Let those sessions drain.
 6. Prove the old provider, daemon, port, or LaunchAgent is unused.
-7. Only then disable it, with a tested rollback path still available.
+7. Disable it only then, with a tested rollback path still available.
 
-Changing `~/.codex/config.toml` changes future sessions. It does not rewrite the assumptions inside a process that is already running. That sounds obvious written down. It was less obvious at one in the morning with several provider layers in motion.
+Changing `~/.codex/config.toml` affects future sessions. It does not rewrite the assumptions inside a process that is already running. That is obvious in a diagram and less obvious at one in the morning with several provider layers in motion.
 
-## The tool surfaces have different jobs
+## For technical readers
 
-MCPs, CLIs, APIs, and `AGENTS.md` are not interchangeable copies of instructions. They are different control surfaces.
+The worker receives a small written job containing the goal, allowed files, deadline, checks, and next action. A durable queue remembers who owns the job and where it stopped. Skills are selected from a checked registry rather than pasted into every prompt. Usage, retries, tests, and routing decisions feed the operator dashboard.
 
-- **MCPs** expose structured capabilities such as browser control, documentation retrieval, and telemetry queries. Their schemas should be deterministic and their failures should name the invalid field.
-- **CLIs** are good for lifecycle transitions, checkpoints, local builds, and evidence collection. They provide a narrow shell interface that can be audited in a runbook.
-- **APIs** connect the queue, provider adapters, Langfuse, OpenTelemetry collectors, and distribution systems. They need timeouts, authentication, health checks, and explicit retry behavior.
-- **`AGENTS.md`** should contain the short always-loaded policy: ownership, safety boundaries, and how to discover the right runbook. It should not become a 2,000-line encyclopedia.
-- **Runbooks** hold the detailed procedures for browser recovery, provider rollback, queue release, MCP diagnosis, and migration. They are loaded when the packet needs them.
+OpenCode Go is the normal worker route. If its allowance is exhausted, the system can use a health-checked OpenRouter worker without spending Codex subscription capacity. CLIProxyAPI remains available as a rollback path. New infrastructure is added and tested before old paths are removed.
 
-This division keeps the interface small enough to reason about. The implementation can be deep without forcing every worker to carry every procedure into every task.
-
-## Observability that can answer a question
-
-I want the operator view to answer questions, not merely show a green dashboard.
-
-Langfuse is the trace and generation view. OpenTelemetry is the portable event shape. The local operator dashboard is the practical surface for queue state, provider route, skill health, quota circuit, checkpoint age, and evidence links.
-
-The useful trace dimensions are deliberately structural:
-
-- task ID and packet digest;
-- parent and child transcript lineage;
-- role, provider, model, and route reason;
-- input/output token fields where available;
-- tool count, retry count, compaction, and completion state;
-- checkpoint and queue transition timestamps.
-
-Prompts, tool arguments, tool output, credentials, and private message bodies do not belong in a general operator index. A dashboard can be useful without becoming a second archive of the work.
-
-The current evidence check found zero missing declared dashboard sources. That means every source declared by the dashboard contract was present for the check. It does not mean the sources are timeless, complete, or correct for every future route.
-
-## What the current numbers say
-
-<div className="not-prose my-8 overflow-hidden rounded-xl border bg-card">
-  <div className="overflow-x-auto">
-    <table className="w-full min-w-[620px] text-left text-sm">
-      <thead className="bg-muted/60 text-xs uppercase tracking-[0.14em] text-muted-foreground">
-        <tr>
-          <th className="px-4 py-3 font-semibold">Signal</th>
-          <th className="px-4 py-3 font-semibold">Observed value</th>
-          <th className="px-4 py-3 font-semibold">How to read it</th>
-        </tr>
-      </thead>
-      <tbody className="divide-y">
-        <tr>
-          <td className="px-4 py-3 font-medium">OpenCode Go</td>
-          <td className="px-4 py-3 font-mono">13,583,938 tokens / $0.5239769</td>
-          <td className="px-4 py-3 text-muted-foreground">Recorded workload and cost in the Go evidence window, not a universal rate.</td>
-        </tr>
-        <tr>
-          <td className="px-4 py-3 font-medium">Live OpenRouter fallback</td>
-          <td className="px-4 py-3 font-mono">1,180 tokens / $0.000121</td>
-          <td className="px-4 py-3 text-muted-foreground">One observed fallback, not proof of a normal fallback cost.</td>
-        </tr>
-        <tr>
-          <td className="px-4 py-3 font-medium">Historical premium share</td>
-          <td className="px-4 py-3 font-mono">97.78%</td>
-          <td className="px-4 py-3 text-muted-foreground">Historical share across a different window; it is not comparable to the live fallback row.</td>
-        </tr>
-        <tr>
-          <td className="px-4 py-3 font-medium">Queue snapshot</td>
-          <td className="px-4 py-3 font-mono">1 active / 15 stale or expired / 59 complete</td>
-          <td className="px-4 py-3 text-muted-foreground">Point-in-time state, not throughput or success rate.</td>
-        </tr>
-        <tr>
-          <td className="px-4 py-3 font-medium">Selected skills</td>
-          <td className="px-4 py-3 font-mono">4 healthy</td>
-          <td className="px-4 py-3 text-muted-foreground">Health of the selected set, not an audit of the whole registry.</td>
-        </tr>
-        <tr>
-          <td className="px-4 py-3 font-medium">Dashboard source check</td>
-          <td className="px-4 py-3 font-mono">0 missing declared sources</td>
-          <td className="px-4 py-3 text-muted-foreground">The declared source contract resolved for this check.</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-The evidence windows are not aligned. Go usage, the one live OpenRouter fallback, the historical premium share, and the queue snapshot answer different questions at different times. I am keeping them together because they describe the operating system, not because they form a controlled experiment.
-
-### A first directional reading from the build itself
-
-We now have a little more than a static architecture snapshot. Three substantial slices of this build ran through the new Go queue: the operator dashboard, this article, and the final system-closure pass. All three completed, all three needed one retry, and all three passed native Sol review. The retained checks include a production content build, responsive browser proof, 78 focused dashboard tests, 95 focused closure checks, and a final unrestricted suite of 161 passing tests.
-
-The telemetry is still annoyingly uneven. Only the dashboard slice retained a complete provider counter in its queue evidence: **5,166,631 Go tokens at a reported cost of $0.19260677**. That makes 5.17 million tokens a lower bound for the three slices, not their total. The other two completion records prove what ran and what passed, but not how many worker tokens they consumed. Fixing that hole is now part of the system rather than a footnote I can ignore.
-
-The cleanest comparison is a smaller matched canary. The same task and the same five tests were run once through native Sol and once through Go. Both arms passed 5/5. The Go arm moved **100% of that execution slice off ChatGPT subscription tokens**, but it used **3.13 times as many provider tokens** and took about **2.30 times as long**. In other words, the routing worked economically, not magically: it exchanged cheap worker capacity and latency for scarce subscription capacity while preserving the observed result on one small task.
-
-There is also a less flattering number. The final closure audit counted **620 parent tool calls across two turns**, against a combined policy budget of 120, and marked that as a hard delegation breach. Tool calls are not tokens, so I will not pretend that this is a subscription-cost calculation. It is still the clearest sign of where premium usage is leaking: Go is doing large execution runs, but Sol is spending too long integrating, rechecking, and tidying their results.
-
-So the direction is encouraging, but the verdict is not in. We have evidence that bounded worker execution can leave the subscription meter entirely untouched while passing the same checks. We also have evidence that an overactive parent can give much of that advantage back. A stronger worker model can wait. The next gains should come from tighter result packets, complete per-dispatch counters, fewer parent-side tool calls, and one review pass unless the evidence genuinely fails.
-
-## The deferred Phase 6 objective
-
-The ambitious objective is a tenfold subscription reduction with indistinguishable quality. That is a deferred Phase 6 objective, not a proven result.
-
-The current evidence supports narrower statements:
-
-- planning, review, and judgement can be separated from high-execution implementation;
-- a deterministic registry can make skill selection explainable;
-- queue leases and checkpoints make interruption recoverable;
-- a health-gated OpenRouter fallback has been observed, while the reset-aware controller implements and tests the return to Go;
-- OTel, Langfuse, and a local dashboard can connect operational claims to records;
-- provider and rollback seams can remain available during migration.
-
-It does not support a tenfold savings claim, an indistinguishable-quality claim, or a universal token reduction claim. Those require a paired experiment with the same packet, acceptance checks, task class, evidence version, retries, and repeated runs across both arms.
-
-## Maintenance is part of the architecture
-
-The system will drift. My minimum maintenance loop is:
-
-1. Revalidate skill health and registry versions before a promotion.
-2. Expire or release stale leases with a durable checkpoint and reason code.
-3. Check that dashboard source declarations still resolve and that telemetry fields have not silently changed.
-4. Run a canary packet through Go, the health-gated fallback, and the return-to-Go path when provider behavior changes.
-5. Preserve the previous adapter and rollback runbook until the new route has passed its evidence window.
-6. Migrate state with a versioned schema, a dry run, a backup or export, and a reversible cutover.
-
-The safest migration is deliberately uneventful: add the new reader, dual-write only when necessary, compare records, cut over, observe, then remove the old path after a defined retention period. Changing the packet shape, provider route, queue state, and dashboard schema in one go is how I ended up repairing infrastructure instead of improving it.
-
-## What I would build next
-
-I would build the paired measurement harness before trying to optimise further. It should freeze a packet digest, run direct and delegated arms, attach the same acceptance checks, record all retries and fallback calls, and refuse to produce a saving claim when the task fingerprints differ.
-
-That harness is the missing bridge between a well-instrumented architecture and a defensible efficiency result. Until it exists, the right conclusion is modest: the system is more recoverable, more attributable, and easier to review. Whether it is ten times cheaper while preserving quality remains work for Phase 6.
+That is the machinery. The reader-facing result should stay much simpler: Codex plans and checks; Go does most of the repetitive work; tests and evidence decide whether the result is acceptable.
 
 ## Sources and operating notes
 
@@ -298,6 +151,6 @@ That harness is the missing bridge between a well-instrumented architecture and 
 - [Vercel Skills](https://skills.sh/)
 - [OpenCode documentation](https://opencode.ai/docs/)
 
-The article metrics come from the privacy-safe `operator-snapshot/v1` artifact generated at `2026-08-24T00:47:34Z`, fingerprint <span className="break-all font-mono text-[0.9em]">4c12fbc025ad3fd6d1908e101d078676553962a94681a13194ef8445c68f0ac3</span>. That snapshot records the Go and OpenRouter token/cost rows, queue state, selected-skill health, source health, and three fallback transition events. The live OpenRouter row is independently tied to generation `gen-1787532425-zr6WGUwsCyBY6SqSNZMC`, served by DeepInfra using `deepseek/deepseek-v4-flash-0731`.
+The article metrics come from the privacy-safe `operator-snapshot/v1` artifact generated at `2026-08-24T00:47:34Z`, fingerprint <span className="break-all font-mono text-[0.9em]">4c12fbc025ad3fd6d1908e101d078676553962a94681a13194ef8445c68f0ac3</span>. That snapshot records the Go and OpenRouter token and cost rows, queue state, selected-skill health, source health, and three fallback transition events. The live OpenRouter row is independently tied to generation `gen-1787532425-zr6WGUwsCyBY6SqSNZMC`, served by DeepInfra using `deepseek/deepseek-v4-flash-0731`.
 
-These are operational artifacts, not provider invoices. The differing evidence windows should not be combined as if they were one benchmark run. The production capacity state was closed at publication time, but the article does not treat that point-in-time state as proof of a matched fallback-and-return experiment.
+These are operational artifacts, not provider invoices. The differing evidence windows must not be combined as if they were one benchmark run. The production capacity state was closed at publication time, but that point-in-time state is not proof of a matched fallback-and-return experiment.

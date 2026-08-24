@@ -9,7 +9,9 @@ const artifactRoot = path.resolve(
     "output/acceptance/sol-go-article-directional-metrics-20260824",
 )
 
-test("renders the new directional metrics without browser errors or overflow", async ({ page }, testInfo) => {
+test("explains the Codex and OpenCode split clearly without browser errors or overflow", async ({
+  page,
+}, testInfo) => {
   await fs.mkdir(artifactRoot, { recursive: true })
 
   const consoleErrors: string[] = []
@@ -21,26 +23,33 @@ test("renders the new directional metrics without browser errors or overflow", a
     waitUntil: "domcontentloaded",
   })
 
-  const consentButton = page.getByRole("button", { name: /Allow analytics|Necessary only/ }).first()
-  if (await consentButton.isVisible({ timeout: 2_000 }).catch(() => false)) {
-    await consentButton.click()
-  }
+  const necessaryOnly = page.getByRole("button", { name: "Necessary only" }).last()
+  await necessaryOnly.click({ timeout: 4_000 }).catch(() => undefined)
 
-  const metricsHeading = page.getByRole("heading", {
-    name: "A first directional reading from the build itself",
+  await expect(
+    page.getByRole("heading", {
+      name: "Can I Make Codex Last Longer Without Lowering the Quality?",
+    }),
+  ).toBeVisible()
+
+  const verdictHeading = page.getByRole("heading", {
+    name: "The short verdict",
   })
-  await metricsHeading.scrollIntoViewIfNeeded()
-  await expect(metricsHeading).toBeVisible()
-  await expect(page.getByText(/5,166,631 Go tokens/)).toBeVisible()
-  await expect(page.getByText(/3.13 times as many provider tokens/)).toBeVisible()
-  await expect(page.getByText(/620 parent tool calls/)).toBeVisible()
+  await verdictHeading.scrollIntoViewIfNeeded()
+  await expect(verdictHeading).toBeVisible()
+  await expect(page.getByText(/Promising, but only partly proven/)).toBeVisible()
+  await expect(page.getByText("0 Codex subscription tokens", { exact: true })).toBeVisible()
+  await expect(page.getByText(/3.13x more tokens/)).toBeVisible()
+  await expect(page.getByText(/620 tool calls/)).toBeVisible()
+  await expect(page.getByRole("heading", { name: "The manager and the workshop" })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "What needs to happen next" })).toBeVisible()
 
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
   expect(overflow).toBeLessThanOrEqual(1)
   expect(consoleErrors).toEqual([])
 
   await page.screenshot({
-    path: path.join(artifactRoot, `directional-metrics-${testInfo.project.name}.png`),
+    path: path.join(artifactRoot, `plain-language-article-${testInfo.project.name}.png`),
     fullPage: false,
   })
 })
