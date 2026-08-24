@@ -7,6 +7,7 @@ import { MdxPre } from "@/components/mdx-pre"
 import { ProjectSpotlight } from "@/components/project-card"
 import { ArticleExplain } from "@/components/article-explain"
 import { ArticleFigure } from "@/components/article-figure"
+import { GoArchitectureGuide } from "@/components/go-architecture-guide"
 import {
   ReviewPill,
   TerminalLine,
@@ -248,4 +249,5 @@ export const mdxComponents: Record<string, React.ComponentType<any>> = {
   ReviewPill,
   ArticleExplain,
   ArticleFigure,
+  GoArchitectureGuide,
 }
