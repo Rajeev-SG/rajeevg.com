@@ -85,9 +85,22 @@ The manager does not need to watch every keystroke. It needs a clear job descrip
 
 This does not mean Go is always cheaper. It means I can reserve Codex subscription usage for planning and judgement, then send suitable execution work through Go. The checks and review decide whether the work is good, not the product name.
 
-The diagram below shows the full setup. You do not need to understand every box to get the point: Codex decides, OpenCode works, and the evidence comes back for review.
+The diagram below shows the full setup. You do not need to understand every box to get the point: Codex decides, OpenCode works, and one task record follows the job from start to finish.
 
-<GoArchitectureGuide />
+<figure className="not-prose my-10">
+  <a href="/images/blog/codex-opencode-agent-system/architecture.svg" target="_blank" rel="noreferrer">
+    <img src="/images/blog/codex-opencode-agent-system/architecture.svg" alt="Architecture of the Codex and OpenCode agent system, from planning and skill routing through execution, review, and end-to-end measurement" className="w-full rounded-2xl border bg-white shadow-sm" />
+  </a>
+  <figcaption className="mt-3 text-sm text-muted-foreground">
+    The routing and execution loop, with the new end-to-end task record along the bottom. <a href="/downloads/codex-opencode-agent-system.drawio" download>Download the editable draw.io source</a>.
+  </figcaption>
+</figure>
+
+### Is skill routing actually implemented?
+
+**Partly, and the implemented part is real.** A routing policy maps the kind of task and its risk to a worker role, a set of skills, allowed tools, and whether Sol must review the result. The skill registry checks each selected skill's metadata, source path, hash, and health before dispatch. Tests cover examples such as bugs selecting diagnosis and test-driven-development skills, interface work selecting frontend and browser checks, and security or architecture work forcing Sol review.
+
+The limitation is that this is currently strongest inside the bounded Go dispatcher. It is not yet a universal rule applied automatically to every possible Codex action, and the registry tests prove selected skills rather than every installed skill. So the accurate status is **working for routed Go jobs, with broader default adoption still in progress**.
 
 ## What is proven, promising, and unknown
 
