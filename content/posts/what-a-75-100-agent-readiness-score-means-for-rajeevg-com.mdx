@@ -1,0 +1,153 @@
+---
+title: What a 75/100 Agent-Readiness Score Means for rajeevg.com
+slug: what-a-75-100-agent-readiness-score-means-for-rajeevg-com
+date: 2026-08-24
+description: An agent-readiness audit scored rajeevg.com 69 first and 75 in its refreshed report. Here is what changed, which gaps matter, and why I am not building an API just to chase 100.
+tags: [ai, seo, agent-readiness, content-strategy]
+image: /images/blog/agent-readiness-75/is-agentic-score-75.png
+draft: false
+---
+
+<div className="not-prose my-8 overflow-hidden rounded-[30px] border border-slate-200 bg-[radial-gradient(circle_at_12%_12%,rgba(16,185,129,0.16),transparent_30%),linear-gradient(145deg,#ffffff,#f8fafc)] p-6 shadow-[0_26px_70px_-42px_rgba(15,23,42,0.55)] dark:border-slate-800 dark:bg-[radial-gradient(circle_at_12%_12%,rgba(16,185,129,0.14),transparent_30%),linear-gradient(145deg,#0f172a,#111827)] sm:p-8">
+  <p className="m-0 text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700 dark:text-emerald-300">A practical audit, not a universal SEO score</p>
+  <div className="mt-6 grid gap-4 sm:grid-cols-3">
+    <div className="rounded-2xl border border-slate-200 bg-white/85 p-5 dark:border-slate-700 dark:bg-slate-950/55">
+      <p className="m-0 text-4xl font-bold tracking-tight text-slate-950 dark:text-white">69</p>
+      <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">First report</p>
+    </div>
+    <div className="rounded-2xl border border-emerald-200 bg-emerald-50/90 p-5 dark:border-emerald-500/30 dark:bg-emerald-500/10">
+      <p className="m-0 text-4xl font-bold tracking-tight text-emerald-800 dark:text-emerald-200">75</p>
+      <p className="mt-2 text-sm text-emerald-900/70 dark:text-emerald-100/75">Refreshed report</p>
+    </div>
+    <div className="rounded-2xl border border-slate-200 bg-white/85 p-5 dark:border-slate-700 dark:bg-slate-950/55">
+      <p className="m-0 text-4xl font-bold tracking-tight text-slate-950 dark:text-white">16 → 24</p>
+      <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Eligible checks</p>
+    </div>
+  </div>
+  <p className="mb-0 mt-5 text-sm font-medium text-slate-700 dark:text-slate-200">The refreshed verdict: “Ready with a few material gaps.”</p>
+</div>
+
+An agent-readiness audit moved my site from 69 to 75. The useful result is a clearer distinction between helping an agent understand a content site and building a product an agent can operate.
+
+I ran the first [Is Agentic report](https://is-agentic.com/scan/rajeevg.com) on rajeevg.com on 24 August 2026. It scored 69/100 across 16 eligible checks. After a round of work, the refreshed report scored 75/100 and labelled the site “Ready with a few material gaps.” That report evaluated 24 eligible checks.
+
+The score is useful as a diagnostic. It is not a universal SEO score, and it does not promise rankings, traffic, citations, or agent recommendations.
+
+<ArticleFigure
+  src="/images/blog/agent-readiness-75/is-agentic-score-75.png"
+  alt="Is Agentic report for rajeevg.com showing a score of 75 out of 100 and the verdict Ready with a few material gaps"
+  eyebrow="Audit evidence"
+  title="The refreshed rajeevg.com result"
+  caption="The live report after the first round of changes. It records the result of this diagnostic; it is not a controlled SEO or traffic experiment."
+  className="not-prose"
+/>
+
+## What I changed
+
+The production work focused on making the site easier to read, identify, and recover from when an agent fetches it.
+
+The site now selects Markdown responses through the HTTP `Accept` header. In plain English, a client can ask for a machine-friendly representation rather than receiving only the normal webpage response. I also added a real 404 status and a short Markdown recovery response, so a requesting agent gets a truthful failure and useful guidance instead of an ambiguous success page.
+
+The homepage now includes meaningful server-rendered content and heading markup in its raw HTML. That means the important copy is present in the document returned by the server, rather than depending entirely on JavaScript running in a browser. I added Person JSON-LD, a structured data format that identifies the person represented by the site, and added or improved [`/llms.txt`](/llms.txt), [`/developers`](/developers), [`/contact`](/contact), and sitemap coverage.
+
+I wrote tests for content negotiation, status codes, raw HTML, machine-readable files, and structured data. Tests do not make a site agent-ready on their own, but they make these promises easier to keep while the site changes.
+
+The refreshed report no longer lists the earlier Markdown negotiation, 404, JSON-LD, contact, and agent-instruction problems. That is a concrete improvement. It is also the limit of what the audit proves.
+
+## Visibility and operability are different jobs
+
+### Visibility is the current job
+
+For a content site, agent readiness starts with visibility. Visibility means an agent can fetch the page, extract its content, identify who published it, find related pages, recover from a missing URL, and cite a stable source.
+
+Server-rendered copy, headings, metadata, structured identity, sitemaps, Markdown, internal links, and consistent naming all support that job. They help an agent answer basic questions: What is this page? Who wrote it? Which page should I read next? Is this URL real?
+
+The machine-readable entry point at [`/llms.txt`](/llms.txt) is part of that visibility layer. It gives an agent a concise route into the site's content without pretending to be a product API.
+
+### Operability is optional
+
+Operability is a different job. It means an agent can call a product through a defined interface. OpenAPI describes an HTTP API in a machine-readable format. Structured errors explain failures. A command-line tool lets an agent run product actions. Function calling gives those actions a model-compatible contract.
+
+<figure className="not-prose my-10">
+  <a href="/images/blog/agent-readiness-75/visibility-vs-operability.svg" target="_blank" rel="noreferrer">
+    <img src="/images/blog/agent-readiness-75/visibility-vs-operability.svg" alt="Diagram showing visibility as the path for every content site and operability as a separate path only when a real public callable product exists" className="w-full rounded-[24px] border border-slate-200 bg-white shadow-[0_24px_60px_-38px_rgba(15,23,42,0.5)] dark:border-slate-700" />
+  </a>
+  <figcaption className="mt-3 text-sm leading-6 text-muted-foreground">
+    Every content site needs the visibility path. The operability path only makes sense when there is a real product for an agent to call. <a href="/images/blog/agent-readiness-75/visibility-vs-operability.drawio" download>Download the editable draw.io source</a>.
+  </figcaption>
+</figure>
+
+## What the nine remaining findings actually measure
+
+The refreshed report still lists nine issues. I find them easier to evaluate when they are separated by the job they support.
+
+<div className="not-prose my-8 grid gap-5 md:grid-cols-2">
+  <section className="rounded-[26px] border border-emerald-200 bg-emerald-50/65 p-6 dark:border-emerald-500/25 dark:bg-emerald-500/10">
+    <p className="m-0 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-800 dark:text-emerald-300">Visibility and discoverability</p>
+    <h3 className="mt-3 text-xl font-semibold text-slate-950 dark:text-white">Four findings worth monitoring</h3>
+    <ul className="mt-4 space-y-3 pl-5 text-sm leading-6 text-slate-700 dark:text-slate-200">
+      <li>Content extraction and heading structure without JavaScript</li>
+      <li>Developer resources in name-based search</li>
+      <li>Brand-name search visibility</li>
+      <li>A homepage link to developer resources</li>
+    </ul>
+  </section>
+  <section className="rounded-[26px] border border-amber-200 bg-amber-50/65 p-6 dark:border-amber-500/25 dark:bg-amber-500/10">
+    <p className="m-0 text-xs font-semibold uppercase tracking-[0.2em] text-amber-800 dark:text-amber-300">Product operability</p>
+    <h3 className="mt-3 text-xl font-semibold text-slate-950 dark:text-white">Five findings that need a real product</h3>
+    <ul className="mt-4 space-y-3 pl-5 text-sm leading-6 text-slate-700 dark:text-slate-200">
+      <li>An OpenAPI specification</li>
+      <li>JSON API error responses</li>
+      <li>An official command-line tool</li>
+      <li>A typed API schema</li>
+      <li>A function-calling contract</li>
+    </ul>
+  </section>
+</div>
+
+<p className="text-sm text-muted-foreground"><em>This split is my interpretation of the audit findings, not a new score or category supplied by Is Agentic.</em></p>
+
+The visibility findings are fair prompts. The content warning is about extraction and heading structure, not proof that the live homepage is JavaScript-only. Brand search is also not fixed by code alone: indexing, consistent naming, links, and time all matter.
+
+The operability findings are accurate too. They are mostly irrelevant to this site. rajeevg.com is a personal editorial and portfolio site. It does not offer a public site-wide API, an official command-line tool, or a function-calling product. The [`/developers`](/developers) page says so directly.
+
+I should not manufacture those interfaces to make a score look complete.
+
+## Why 75 is enough for this site
+
+The Is Agentic methodology gives most of its score to essential checks and the rest to recommended checks, with bonus signals and exclusions for checks judged not applicable. The important point is that different sites have different public jobs.
+
+A software product with customers calling its API should care about schemas, predictable JSON errors, documentation, and function calling. A personal site publishing essays and project information has a different job. Its public surface is the content itself.
+
+For my site, the sensible target is strong visibility. An agent should be able to read the writing, understand that Rajeev Gill is the person behind it, find the relevant project or contact page, and avoid mistaking a missing page for a valid one. The work above improves those paths.
+
+The score of 75 says the site has a few material gaps in that broader audit. It does not say that I need to turn a blog into a software platform. Chasing 100 without checking applicability would reward fake or unused features. That would make the implementation less honest while leaving the reader-facing job unchanged.
+
+<aside className="not-prose my-10 overflow-hidden rounded-[28px] border border-slate-800 bg-slate-950 p-6 text-white shadow-[0_28px_70px_-40px_rgba(15,23,42,0.8)] sm:p-8">
+  <p className="m-0 text-xs font-semibold uppercase tracking-[0.22em] text-emerald-300">The decision rule</p>
+  <p className="mb-0 mt-4 text-xl font-semibold leading-8 sm:text-2xl">Improve the checks that help an agent read, identify, recover, and cite the site. Build operability features only when a real product needs agents to call them.</p>
+</aside>
+
+## A practical checklist for marketers and content teams
+
+If you run a marketing site, portfolio, or editorial publication, I would check these items before adding an API just for an audit:
+
+- Request the important pages as raw HTML and confirm the primary copy and heading hierarchy are present without JavaScript.
+- Return real HTTP status codes, especially for missing pages, and keep the recovery response short enough for a machine to use.
+- Publish stable metadata and structured identity so the site, author, organization, and content type are clear.
+- Provide a sitemap, useful internal links, contact information, and a plain-language machine-readable entry point such as `/llms.txt` where it fits the site.
+- Use one public name across page titles, author metadata, About copy, LinkedIn, GitHub, and other profiles.
+- Check how the brand appears in external search results. Code changes cannot guarantee a ranking change; indexing and profile consistency take time.
+- Add a visible homepage link labelled “Developer resources” if technical collaborators need it. Do not call it API documentation when no API exists.
+
+The list is deliberately less exciting than launching a new interface. It is also more likely to help the people and systems that actually visit a content site.
+
+## What I will do next
+
+I will keep checking the homepage's raw HTML and heading hierarchy as the content changes. A server-rendered page can drift. A new component can move meaningful copy behind a client boundary, or a heading can be chosen for visual size instead of document structure.
+
+I may add a visible “Developer resources” link for collaborators. That is a discoverability improvement, not a promise that the site has an API. I will also keep the public name consistent and use Search Console alongside normal off-site profile work. The outcome depends on external indexing, so I will not describe it as a guaranteed ranking fix.
+
+I will not add an OpenAPI file, command-line tool, JSON API, or function-calling layer unless the site gains a real callable product. If that happens, those interfaces will have a user and a maintenance reason. Until then, they would be props for a checklist.
+
+For rajeevg.com, a trustworthy 75 is better than a fictional 100.

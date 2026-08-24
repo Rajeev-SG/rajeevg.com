@@ -1,0 +1,69 @@
+<mxfile host="app.diagrams.net" modified="2026-08-24T13:15:00.000Z" agent="Codex" version="24.7.17">
+  <diagram id="agent-readiness-75" name="Visibility vs operability">
+    <mxGraphModel dx="1500" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="edge-vis-1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=3;strokeColor=#059669;" edge="1" parent="1" source="vis-publish" target="vis-discover">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-vis-2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=3;strokeColor=#059669;" edge="1" parent="1" source="vis-discover" target="vis-outcome">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-op-yes" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=3;strokeColor=#D97706;" edge="1" parent="1" source="op-decision" target="op-contract">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-op-stack" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=3;strokeColor=#D97706;" edge="1" parent="1" source="op-contract" target="op-tools">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-op-no" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;dashed=1;dashPattern=6 6;strokeWidth=2;strokeColor=#64748B;" edge="1" parent="1" source="op-decision" target="op-stop">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="title" value="&lt;div style=&quot;font-size:28px;font-weight:700;line-height:1.2;&quot;&gt;Agent readiness has two different jobs&lt;/div&gt;&lt;div style=&quot;font-size:15px;color:#475569;margin-top:8px;&quot;&gt;Content sites need visibility. Callable products also need operability.&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;overflow=hidden;fontColor=#0F172A;" vertex="1" parent="1">
+          <mxGeometry x="80" y="35" width="1340" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="vis-band" value="" style="rounded=1;arcSize=18;html=1;whiteSpace=wrap;fillColor=#ECFDF5;strokeColor=#A7F3D0;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="70" y="125" width="1360" height="290" as="geometry" />
+        </mxCell>
+        <mxCell id="vis-header" value="&lt;div style=&quot;font-size:13px;font-weight:700;letter-spacing:1.2px;color:#047857;&quot;&gt;VISIBILITY · FOR CONTENT, MARKETING AND PORTFOLIO SITES&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="105" y="145" width="750" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="vis-publish" value="&lt;div style=&quot;font-size:18px;font-weight:700;&quot;&gt;1 · Publish clear evidence&lt;/div&gt;&lt;div style=&quot;font-size:14px;line-height:1.5;color:#475569;margin-top:8px;&quot;&gt;Server-rendered copy&lt;br&gt;Real heading structure&lt;br&gt;Truthful HTTP status codes&lt;/div&gt;" style="rounded=1;arcSize=16;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#6EE7B7;strokeWidth=2;align=left;verticalAlign=middle;spacingLeft=22;spacingRight=18;fontColor=#0F172A;labelBackgroundColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="105" y="195" width="330" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="vis-discover" value="&lt;div style=&quot;font-size:18px;font-weight:700;&quot;&gt;2 · Make it discoverable&lt;/div&gt;&lt;div style=&quot;font-size:14px;line-height:1.5;color:#475569;margin-top:8px;&quot;&gt;Markdown negotiation&lt;br&gt;JSON-LD and sitemap&lt;br&gt;llms.txt and internal links&lt;/div&gt;" style="rounded=1;arcSize=16;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#6EE7B7;strokeWidth=2;align=left;verticalAlign=middle;spacingLeft=22;spacingRight=18;fontColor=#0F172A;labelBackgroundColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="585" y="195" width="330" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="vis-outcome" value="&lt;div style=&quot;font-size:18px;font-weight:700;&quot;&gt;3 · Help the agent succeed&lt;/div&gt;&lt;div style=&quot;font-size:14px;line-height:1.5;color:#475569;margin-top:8px;&quot;&gt;Read · Identify&lt;br&gt;Recover · Cite&lt;/div&gt;" style="rounded=1;arcSize=16;html=1;whiteSpace=wrap;fillColor=#047857;strokeColor=#047857;strokeWidth=2;align=left;verticalAlign=middle;spacingLeft=22;spacingRight=18;fontColor=#FFFFFF;labelBackgroundColor=#047857;" vertex="1" parent="1">
+          <mxGeometry x="1065" y="195" width="330" height="155" as="geometry" />
+        </mxCell>
+
+        <mxCell id="op-band" value="" style="rounded=1;arcSize=18;html=1;whiteSpace=wrap;fillColor=#FFF7ED;strokeColor=#FED7AA;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="70" y="450" width="1360" height="340" as="geometry" />
+        </mxCell>
+        <mxCell id="op-header" value="&lt;div style=&quot;font-size:13px;font-weight:700;letter-spacing:1.2px;color:#B45309;&quot;&gt;OPERABILITY · ONLY WHEN A REAL PRODUCT CAN BE CALLED&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="105" y="470" width="720" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="op-decision" value="&lt;div style=&quot;font-size:18px;font-weight:700;&quot;&gt;Does a public callable&lt;br&gt;product exist?&lt;/div&gt;" style="rhombus;html=1;whiteSpace=wrap;fillColor=#FEF3C7;strokeColor=#F59E0B;strokeWidth=2;fontColor=#78350F;align=center;verticalAlign=middle;labelBackgroundColor=#FEF3C7;" vertex="1" parent="1">
+          <mxGeometry x="120" y="540" width="250" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="op-contract" value="&lt;div style=&quot;font-size:18px;font-weight:700;&quot;&gt;Document the contract&lt;/div&gt;&lt;div style=&quot;font-size:14px;line-height:1.5;color:#475569;margin-top:8px;&quot;&gt;OpenAPI and schemas&lt;br&gt;Typed JSON errors&lt;br&gt;Operation descriptions&lt;/div&gt;" style="rounded=1;arcSize=16;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#FDBA74;strokeWidth=2;align=left;verticalAlign=middle;spacingLeft=22;spacingRight=18;fontColor=#0F172A;labelBackgroundColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="560" y="545" width="330" height="145" as="geometry" />
+        </mxCell>
+        <mxCell id="op-tools" value="&lt;div style=&quot;font-size:18px;font-weight:700;&quot;&gt;Expose real tools&lt;/div&gt;&lt;div style=&quot;font-size:14px;line-height:1.5;color:#475569;margin-top:8px;&quot;&gt;CLI or SDK&lt;br&gt;Function calling&lt;br&gt;Auth and rate limits&lt;/div&gt;" style="rounded=1;arcSize=16;html=1;whiteSpace=wrap;fillColor=#B45309;strokeColor=#B45309;strokeWidth=2;align=left;verticalAlign=middle;spacingLeft=22;spacingRight=18;fontColor=#FFFFFF;labelBackgroundColor=#B45309;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="545" width="330" height="145" as="geometry" />
+        </mxCell>
+        <mxCell id="op-stop" value="&lt;div style=&quot;font-size:14px;font-weight:700;&quot;&gt;NO · Stop at visibility&lt;/div&gt;&lt;div style=&quot;font-size:13px;color:#475569;margin-top:5px;&quot;&gt;Do not invent an API for a score.&lt;/div&gt;" style="rounded=1;arcSize=16;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#94A3B8;strokeWidth=2;dashed=1;align=center;verticalAlign=middle;fontColor=#0F172A;labelBackgroundColor=#F8FAFC;" vertex="1" parent="1">
+          <mxGeometry x="105" y="710" width="280" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend" value="&lt;div style=&quot;font-size:13px;color:#64748B;&quot;&gt;&lt;b style=&quot;color:#047857;&quot;&gt;Green&lt;/b&gt; = useful to rajeevg.com now &amp;nbsp;&amp;nbsp;·&amp;nbsp;&amp;nbsp; &lt;b style=&quot;color:#B45309;&quot;&gt;Amber&lt;/b&gt; = useful only if the site becomes a callable product&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="250" y="815" width="1000" height="35" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
