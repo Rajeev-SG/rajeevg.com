@@ -24,9 +24,20 @@ export default function Home() {
   const selectedSlugs = new Set(["open-gtm-index", "local-llm-lab", "hackathon-voting-app"])
   const selectedProjects = getPortfolioProjects().filter((project) => selectedSlugs.has(project.slug))
   const latestPosts = getSortedVisiblePostsLive().slice(0, 3)
+  const personJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: "Rajeev Gill",
+    url: site.siteUrl,
+    description: "Software developer building practical systems around AI, data, analytics, and adtech.",
+    jobTitle: "Software developer",
+    knowsAbout: ["AI-assisted software development", "data and analytics", "adtech workflows", "product engineering"],
+    sameAs: ["https://github.com/Rajeev-SG", "https://www.linkedin.com/in/rajeev-gill/"],
+  }
 
   return (
     <div className="space-y-24 sm:space-y-28">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }} />
       <section className="grid min-h-[58vh] content-center gap-10 py-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(260px,0.75fr)] lg:items-end">
         <div className="space-y-7">
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-muted-foreground">Rajeev Gill</p>

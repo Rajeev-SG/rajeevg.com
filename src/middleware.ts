@@ -2,6 +2,8 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
 import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
 
+import { addVaryValue, negotiateAccept } from "@/lib/accept-markdown"
+
 const isDashboardRoute = createRouteMatcher(["/dashboard", "/dashboard/(.*)"])
 const isDashboardApiRoute = createRouteMatcher(["/api/content-ops(.*)"])
 
@@ -18,7 +20,7 @@ async function handleProtectedRoutes(
   req: NextRequest,
 ) {
   if (hasDevelopmentBypass()) {
-    return NextResponse.next()
+    return negotiatePublicRequest(req)
   }
 
   if (isDashboardApiRoute(req)) {
@@ -26,7 +28,7 @@ async function handleProtectedRoutes(
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
-    return NextResponse.next()
+    return negotiatePublicRequest(req)
   }
 
   if (isDashboardRoute(req)) {
@@ -38,12 +40,59 @@ async function handleProtectedRoutes(
     }
   }
 
-  return NextResponse.next()
+  return negotiatePublicRequest(req)
+}
+
+function isNegotiablePublicPath(request: NextRequest) {
+  const pathname = request.nextUrl.pathname
+  if (
+    pathname === "/markdown-content" ||
+    pathname.startsWith("/_next/") ||
+    pathname === "/api" ||
+    pathname.startsWith("/api/") ||
+    pathname === "/trpc" ||
+    pathname.startsWith("/trpc/") ||
+    pathname === "/dashboard" ||
+    pathname.startsWith("/dashboard/") ||
+    pathname.includes(".")
+  ) {
+    return false
+  }
+
+  return true
+}
+
+function negotiatePublicRequest(request: NextRequest) {
+  if (!isNegotiablePublicPath(request)) return NextResponse.next()
+
+  const negotiation = negotiateAccept(request.headers.get("accept"))
+  if (!negotiation.representation) {
+    const response = new NextResponse("Not Acceptable", {
+      status: 406,
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
+    })
+    addVaryValue(response.headers, "Accept")
+    return response
+  }
+
+  if (negotiation.representation === "markdown") {
+    const url = request.nextUrl.clone()
+    url.pathname = "/markdown-content"
+    url.search = ""
+    const requestHeaders = new Headers(request.headers)
+    requestHeaders.set("x-markdown-path", request.nextUrl.pathname)
+    const response = NextResponse.rewrite(url, { request: { headers: requestHeaders } })
+    addVaryValue(response.headers, "Accept")
+    return response
+  }
+
+  const response = NextResponse.next()
+  addVaryValue(response.headers, "Accept")
+  return response
 }
 
 const developmentFallbackMiddleware = (request: NextRequest) => {
-  void request.nextUrl
-  return NextResponse.next()
+  return negotiatePublicRequest(request)
 }
 
 const middleware = isClerkConfigured()

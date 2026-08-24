@@ -14,6 +14,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/ai",
     "/analytics",
     "/privacy",
+    "/contact",
+    "/developers",
     "/projects/site-analytics",
     "/projects/hackathon-voting-analytics/google-analytics",
   ]

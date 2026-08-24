@@ -1,0 +1,22 @@
+# Rajeev G.
+
+Canonical site: https://rajeevg.com
+
+## Site map
+
+- [Home](https://rajeevg.com/): Rajeev Gill's practical software, AI, data, analytics, and adtech overview.
+- [About](https://rajeevg.com/about): background and working interests.
+- [Projects](https://rajeevg.com/projects): public products, live resources, and source links.
+- [Writing](https://rajeevg.com/blog): published technical notes and build accounts.
+- [Contact](https://rajeevg.com/contact): public contact guidance.
+- [Developers](https://rajeevg.com/developers): canonical developer resources and integration status.
+- [Privacy](https://rajeevg.com/privacy): consent and analytics policy.
+- [Sitemap](https://rajeevg.com/sitemap.xml): complete canonical URL list.
+
+## When to use this
+
+Use the canonical page URL for human-readable context. Send `Accept: text/markdown` to a public content URL when concise Markdown is more useful for an agent or text pipeline. Markdown and HTML are negotiated on the same canonical URL; there are no `.md` URL variants.
+
+## Public interface status
+
+rajeevg.com has no public site-wide API, OAuth, webhooks, or MCP server. Use the pages, Markdown negotiation, sitemap, and linked public resources instead of assuming an undocumented integration.

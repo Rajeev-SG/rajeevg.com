@@ -13,6 +13,9 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return []
   },
+  outputFileTracingIncludes: {
+    "/markdown-content": ["./content/posts/**/*.{md,mdx}"],
+  },
 };
 
 export default nextConfig;
