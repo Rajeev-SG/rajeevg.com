@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex, OpenCode and OpenRouter rotation architecture</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      height: 100%;
+      min-height: 100%;
+      margin: 0;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    body {
+      display: grid;
+      place-items: stretch;
+      overflow: hidden;
+    }
+
+    #diagram {
+      height: calc(100vh - 26px);
+      min-height: calc(100vh - 26px);
+      width: 100%;
+      background: #fff;
+    }
+
+    #status {
+      align-self: center;
+      justify-self: center;
+      max-width: 30rem;
+      padding: 1rem 1.25rem;
+      color: #475569;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    #status a { color: #1d4ed8; }
+  </style>
+</head>
+<body>
+  <div id="diagram" aria-label="Interactive Codex, OpenCode and OpenRouter architecture diagram">
+    <p id="status">Loading the native draw.io diagram…</p>
+  </div>
+  <script>
+    const source = "/downloads/codex-rotation-architecture.drawio";
+    const diagram = document.getElementById("diagram");
+
+    fetch(source)
+      .then((response) => {
+        if (!response.ok) throw new Error(`Diagram request failed: ${response.status}`);
+        return response.text();
+      })
+      .then((xml) => {
+        diagram.className = "mxgraph";
+        diagram.dataset.mxgraph = JSON.stringify({
+          highlight: "#2563eb",
+          nav: true,
+          resize: true,
+          toolbar: "zoom layers lightbox",
+          xml,
+        });
+        diagram.replaceChildren();
+
+        const viewer = document.createElement("script");
+        viewer.src = "https://viewer.diagrams.net/js/viewer-static.min.js";
+        viewer.async = true;
+        viewer.onerror = showFallback;
+        document.head.appendChild(viewer);
+      })
+      .catch(showFallback);
+
+    function showFallback() {
+      diagram.className = "";
+      diagram.innerHTML = '<p id="status">The interactive viewer could not load. <a href="' + source + '" download>Download the native draw.io source</a>.</p>';
+    }
+  </script>
+</body>
+</html>

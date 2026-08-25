@@ -1,169 +1,128 @@
 ---
-title: Can I Make Codex Last Longer Without Lowering the Quality?
-slug: how-i-split-sol-planning-from-opencode-go-execution
-date: 2026-08-24
-description: I split coding work between Codex and OpenCode to avoid burning through my Codex subscription allowance. Here is how well it is working so far.
-tags: [ai, opencode, codex, architecture, routing, observability, reliability, openrouter]
+title: "Can I Make Codex Last Longer Without Lowering the Quality?"
+slug: "how-i-split-sol-planning-from-opencode-go-execution"
+date: "2026-08-25"
+description: "A candid look at my Codex and OpenCode delegation system: what the evidence proves, what only partly works, and what is still an open claim."
+tags:
+  - ai
+  - opencode
+  - codex
+  - architecture
+  - routing
+  - observability
+  - reliability
+  - openrouter
 draft: false
 ---
 
-<div className="flex flex-wrap gap-2">
-  <span className="inline-flex items-center rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-xs font-medium text-violet-800 dark:border-violet-500/25 dark:bg-violet-500/10 dark:text-violet-200">Codex plans and checks</span>
-  <span className="inline-flex items-center rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1 text-xs font-medium text-cyan-800 dark:border-cyan-500/25 dark:bg-cyan-500/10 dark:text-cyan-200">OpenCode does the work</span>
-  <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-800 dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-200">Tests protect quality</span>
-</div>
+I wanted a simple thing: keep Codex in charge of the work while moving long execution stretches to cheaper capacity. The obvious fear was that I would save subscription usage by quietly lowering the quality of the result.
 
-I kept running into the same practical problem: Codex is useful for coding, but my subscription usage is limited. If I ask it to make every small edit, run every check, and tidy every file, I can use up that allowance before the job is done.
+So I stopped treating the setup as a clever prompt and started treating it as a system that had to leave evidence behind.
 
-I wanted to keep Codex involved where judgement matters without asking it to do every repetitive step. So I split the work. The strongest Codex model in this setup, Sol, understands the request, makes the plan, and reviews the result. OpenCode Go uses a worker model called Luna to make the edits and run the checks. The hoped-for outcome is straightforward: use less Codex subscription capacity without accepting worse work.
-
-## The short verdict
-
-**Promising, but only partly proven.** In one small like-for-like test, the Go route moved 100% of the execution slice off Codex subscription tokens and passed the same five checks. The tradeoff was that Go used 3.13 times as many provider tokens and took about 2.30 times as long.
-
-That is useful. It is not a miracle, and it does not prove the larger goal: a tenfold reduction in total Codex subscription usage with quality that cannot be distinguished from the direct route. The measurements cover different workloads and time windows, and the planning side still does too much work in some runs.
-
-## The numbers that matter
-
-The fairest result so far comes from one small test. I gave the same coding job to Codex and OpenCode Go, then ran the same five checks on both results.
-
-<div className="not-prose my-8 overflow-hidden rounded-xl border bg-card">
-  <div className="overflow-x-auto">
-    <table className="w-full min-w-[620px] text-left text-sm">
-      <thead className="bg-muted/60 text-xs uppercase tracking-[0.14em] text-muted-foreground">
-        <tr>
-          <th className="px-4 py-3 font-semibold">Question</th>
-          <th className="px-4 py-3 font-semibold">Result</th>
-          <th className="px-4 py-3 font-semibold">In plain English</th>
-        </tr>
-      </thead>
-      <tbody className="divide-y">
-        <tr>
-          <td className="px-4 py-3 font-medium">Did both routes work?</td>
-          <td className="px-4 py-3 font-mono">5/5 checks in both routes</td>
-          <td className="px-4 py-3 text-muted-foreground">Both versions produced the same observed result on this small task.</td>
-        </tr>
-        <tr>
-          <td className="px-4 py-3 font-medium">Did Go avoid Codex usage?</td>
-          <td className="px-4 py-3 font-mono">0 Codex subscription tokens</td>
-          <td className="px-4 py-3 text-muted-foreground">The Codex version used 91,604 subscription tokens. Go handled the same execution job without using that allowance.</td>
-        </tr>
-        <tr>
-          <td className="px-4 py-3 font-medium">What was the tradeoff?</td>
-          <td className="px-4 py-3 font-mono">3.13x more tokens / 2.30x slower</td>
-          <td className="px-4 py-3 text-muted-foreground">Go saved the scarce subscription allowance, but spent more of its own cheaper capacity and took longer.</td>
-        </tr>
-        <tr>
-          <td className="px-4 py-3 font-medium">Did larger jobs hold up?</td>
-          <td className="px-4 py-3 font-mono">3 completed / 1 retry each</td>
-          <td className="px-4 py-3 text-muted-foreground">All three passed Sol review. This was not a controlled benchmark.</td>
-        </tr>
-        <tr>
-          <td className="px-4 py-3 font-medium">What did one real Go job cost?</td>
-          <td className="px-4 py-3 font-mono">About $0.19</td>
-          <td className="px-4 py-3 text-muted-foreground">The dashboard job used 5.17 million Go tokens. We do not yet have complete totals for all three larger jobs.</td>
-        </tr>
-        <tr>
-          <td className="px-4 py-3 font-medium">Where did the savings leak?</td>
-          <td className="px-4 py-3 font-mono">620 tool calls / 120-call budget</td>
-          <td className="px-4 py-3 text-muted-foreground">The planning side used too many calls. Calls are not tokens, but this shows where work is leaking.</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-The good news is real: Go can perform a coding job without consuming the Codex subscription allowance, and the checked result can be just as good on that task. The bad news is equally real: the Codex side still did far too much follow-up work during the larger project. That is why I cannot yet tell you the overall percentage saved.
-
-## The manager and the workshop
-
-The simplest mental model is a manager and a workshop.
-
-The manager decides what needs doing, turns it into a safe job, checks the plan, and inspects the finished work. In my setup, that is Sol with Codex. The workshop does the hands-on work: it reads the relevant files, edits them, runs the narrow checks, and reports what happened. That is OpenCode Go, with Luna as the worker.
-
-The manager does not need to watch every keystroke. It needs a clear job description and a trustworthy report. That leaves the expensive context for decisions rather than repetitive execution.
-
-This does not mean Go is always cheaper. It means I can reserve Codex subscription usage for planning and judgement, then send suitable execution work through Go. The checks and review decide whether the work is good, not the product name.
-
-The diagram below shows the full setup. You do not need to understand every box to get the point: Codex decides, OpenCode works, and one task record follows the job from start to finish.
+The short answer is encouraging, but not clean. The delegation path works. The routing rules work. Several substantial tasks made the round trip and passed native Codex review. I still cannot claim that the whole system saves a particular multiple, or that every delegated result is indistinguishable from native execution.
 
 <figure className="not-prose my-10">
-  <a href="/images/blog/codex-opencode-agent-system/architecture.svg" target="_blank" rel="noreferrer">
-    <img src="/images/blog/codex-opencode-agent-system/architecture.svg" alt="Architecture of the Codex and OpenCode agent system, from planning and skill routing through execution, review, and end-to-end measurement" className="w-full rounded-2xl border bg-white shadow-sm" />
-  </a>
-  <figcaption className="mt-3 text-sm text-muted-foreground">
-    The routing and execution loop, with the new end-to-end task record along the bottom. <a href="/downloads/codex-opencode-agent-system.drawio" download>Download the editable draw.io source</a>.
+  <iframe
+    src="/images/blog/codex-opencode-agent-system/rotation-architecture.html"
+    title="Interactive architecture diagram of the Codex, OpenCode, and OpenRouter delegation system"
+    loading="lazy"
+    className="relative left-1/2 block h-[20rem] w-[min(94vw,90rem)] max-w-none -translate-x-1/2 rounded-2xl border border-slate-200 bg-white shadow-sm md:h-[44rem] xl:h-[68rem]"
+  />
+  <figcaption className="mx-auto mt-3 max-w-3xl text-center text-sm leading-6 text-slate-600 dark:text-slate-400">
+    The live diagram supports zoom, pan, and fullscreen. You can also <a className="font-medium underline underline-offset-4" href="/downloads/codex-rotation-architecture.drawio">download the native draw.io source</a>.
   </figcaption>
 </figure>
 
-### Is skill routing actually implemented?
+## The status, without the sales pitch
 
-**Partly, and the implemented part is real.** A routing policy maps the kind of task and its risk to a worker role, a set of skills, allowed tools, and whether Sol must review the result. The skill registry checks each selected skill's metadata, source path, hash, and health before dispatch. Tests cover examples such as bugs selecting diagnosis and test-driven-development skills, interface work selecting frontend and browser checks, and security or architecture work forcing Sol review.
+<div className="not-prose my-8 grid gap-4 md:grid-cols-3">
+  <section className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-5 text-emerald-950 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-100">
+    <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-300">Proven</p>
+    <p className="text-sm leading-6">Queue ownership, fail-closed health gates, Qwen's vision-only rule, null-safe telemetry, and several reviewed delegation returns.</p>
+  </section>
+  <section className="rounded-2xl border border-amber-200 bg-amber-50/70 p-5 text-amber-950 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-100">
+    <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-amber-700 dark:text-amber-300">Partial</p>
+    <p className="text-sm leading-6">Fresh-task handoff, complete worker-return telemetry, DeepSeek reset and return, and the operator snapshot.</p>
+  </section>
+  <section className="rounded-2xl border border-slate-300 bg-slate-50 p-5 text-slate-950 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-100">
+    <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-slate-600 dark:text-slate-300">Open</p>
+    <p className="text-sm leading-6">A complete live telemetry join, clean concurrent attribution, a full fallback recovery cycle, and whole-task savings.</p>
+  </section>
+</div>
 
-The limitation is that this is currently strongest inside the bounded Go dispatcher. It is not yet a universal rule applied automatically to every possible Codex action, and the registry tests prove selected skills rather than every installed skill. So the accurate status is **working for routed Go jobs, with broader default adoption still in progress**.
+That distinction matters. A component can work while the end-to-end claim remains unproven.
 
-## What is proven, promising, and unknown
+## Changing context is not changing provider
 
-### Proven
+The top band of the diagram is about Codex Desktop context rotation. When a task grows long, the parent writes a compact durable pack and starts a genuinely fresh desktop task from it. That protects the working context from becoming a transcript landfill.
 
-The matched canary passed the same 5/5 checks in both routes. Go handled 100% of that execution-only slice without Codex subscription tokens. Three substantial Go-routed slices also completed after one retry each and passed Sol review.
+It does not move the work to another model. The fresh task is still Codex, with the same responsibility for understanding the request, setting boundaries, validating evidence, and deciding whether the job is actually done.
 
-The larger jobs also passed substantial checks: 78 dashboard tests, 95 system checks, a final suite of 161 passing tests, and browser tests on desktop and mobile.
+This rotation is only partially proven. The pack, manifest, and fresh-task launch are real. The last bit of the handoff still needs stronger automated evidence, especially around complete joins between the old task, the new task, and the work returned by a delegated worker.
 
-### Promising, but limited
+One migration detail was easy to get wrong: a running session keeps the route it started with. A new configuration only applies to fresh sessions. During the transition, that made old and new routing appear to disagree even though both were behaving as configured. CLIProxyAPI was part of that migration history; it is not the active route shown here.
 
-The evidence suggests that splitting the work can preserve quality while saving Codex usage. It also suggests that OpenCode Go is best treated as cheaper execution capacity, not a faster or more token-efficient model.
+## The queue is the spine
 
-### Still unknown
+Delegation begins with a bounded task packet, not a transcript dump. The packet carries the task ID, scope, constraints, done condition, evidence path, budget, and the runbooks the worker needs. The coordination queue then becomes the authoritative record of ownership and state.
 
-I still do not know the end-to-end saving because two larger Go jobs did not retain complete usage totals, and the Codex planning side did not retain a clean total for the same window. I also do not yet know whether quality remains indistinguishable across a broad mix of real tasks.
+My default execution worker is OpenCode Go running Luna at high reasoning. The worker has to acknowledge both the task ID and the packet hash before it starts. Its output is not the final answer. It is evidence and proposed work that returns to the Codex parent for review.
 
-My honest assessment is: **the core idea works, but the main goal is only partly demonstrated.** Worker execution is saving subscription usage. Overall tenfold savings and indistinguishable quality remain unproven.
+That parent review catches a class of failure that a green command cannot. Did the worker touch files outside the packet? Did it return the evidence it promised? Do the changes answer the user's actual request? If scope, telemetry, or evidence breaks, the controller fails closed.
 
-## What needs to happen next
+This is not theoretical. In one run, the worker produced useful reconnaissance but also touched an unrelated coordination path. The controller rejected the return. I used the clue to continue my own inspection, but I did not count that worker run as a successful completion.
 
-1. **Measure every job completely.** Record Codex subscription usage, Go usage, cost, time, retries, and test results for the same start and end points. Missing counters are the biggest reason the overall saving is still unknown.
-2. **Make Codex stop after planning and one review.** The 620-call closure run shows that too much hands-on work drifted back to Codex. Better worker reports and a hard parent budget should reduce that.
-3. **Test a representative set of real tasks.** Run the same jobs through Codex-only and split Codex-plus-Go routes. Compare defects, human corrections, test results, time, and subscription use.
-4. **Show the goal on one simple dashboard.** The useful headline is not total tokens. It is: “How much Codex allowance did we save, and did quality change?”
-5. **Keep automatic backup routing.** When Go reaches its allowance, healthy OpenRouter workers should take over. When Go resets, new work should return automatically. Neither fallback should silently use Codex subscription capacity.
+## Capacity fallback and visual routing are different gates
 
-Once those measurements exist, the decision becomes simple. If the split route repeatedly uses around one tenth of the Codex allowance while matching the direct route's outcomes, the goal is met. If quality drops or Codex keeps absorbing the follow-up work, it is not.
+The third band separates two reasons to change models.
 
-## A mistake that changed how I migrate tools
+OpenRouter DeepSeek is a capacity fallback for text work. It is only eligible after a health gate says the normal Go route is unavailable. A failed or ambiguous health check closes the route instead of guessing.
 
-I learned this by breaking the session that was doing the migration.
+Qwen has a narrower job. It is only eligible when the packet contains image-bearing work. It is not a general text fallback, and it does not become one merely because another provider is busy.
 
-The active Codex process had started with `model_provider = "cliproxyapi"`. I changed the config on disk and moved the old CLIProxyAPI LaunchAgent, assuming the running process would follow the new route. It did not. A running session keeps the provider chain it received at startup. I had removed a path the parent session still needed, so recovery meant restoring the provider and restarting the old `8080 -> 18081/8319` chain.
+Keeping those gates separate prevents a blurry policy where any model can handle any task for any reason. The rules are simple enough to audit:
 
-The safer sequence is additive and staged:
+- Go/Luna is the default bounded execution route.
+- DeepSeek is the health-gated text-capacity fallback.
+- Qwen is vision-only.
+- Premium Sol use requires an explicit recorded gate.
 
-1. Identify active consumers, including long-running sessions and child processes.
-2. Add the new path without removing the old one.
-3. Prove the new route with a fresh disposable session.
-4. Send new work to it while old sessions keep their inherited route.
-5. Let those sessions drain.
-6. Prove the old provider, daemon, port, or LaunchAgent is unused.
-7. Disable it only then, with a tested rollback path still available.
+The gates themselves are proven. A complete live demonstration of fallback, reset, and return is still partial.
 
-Changing `~/.codex/config.toml` affects future sessions. It does not rewrite the assumptions inside a process that is already running. That is obvious in a diagram and less obvious at one in the morning with several provider layers in motion.
+## What the measurements actually say
 
-## For technical readers
+The cleanest matched canary completed all five checks on both routes. In that slice, Codex used 91,604 provider tokens and Go used 286,595. Go therefore used 3.13 times as many provider tokens and took about 2.30 times as long, while consuming zero Codex subscription tokens for the delegated execution slice.
 
-The worker receives a small written job containing the goal, allowed files, deadline, checks, and next action. A durable queue remembers who owns the job and where it stopped. Skills are selected from a checked registry rather than pasted into every prompt. Usage, retries, tests, and routing decisions feed the operator dashboard.
+That result is useful, but it is not a blanket efficiency claim. It says the subscription meter moved off Codex for that slice. It also says the substitute route spent more provider tokens and more wall-clock time.
 
-OpenCode Go is the normal worker route. If its allowance is exhausted, the system can use a health-checked OpenRouter worker without spending Codex subscription capacity. CLIProxyAPI remains available as a rollback path. New infrastructure is added and tested before old paths are removed.
+One dashboard task recorded 5,166,631 Go tokens and a cost of $0.19260677. Two other jobs did not expose complete counters, so their values remain unknown. The telemetry pipeline stores those gaps as null rather than turning missing data into a zero.
 
-That is the machinery. The reader-facing result should stay much simpler: Codex plans and checks; Go does most of the repetitive work; tests and evidence decide whether the result is acceptable.
+Three substantial work slices completed after one retry each and then passed a native Sol review. That is meaningful evidence for the workflow. It is not enough to say delegated quality is always identical.
 
-## Sources and operating notes
+Another revealing number was 620 parent tool calls against a 120-call budget. That is a tool-call leak, not a provider-token total. Mixing those units would make the dashboard look precise while saying something false.
 
-- [OpenTelemetry generative AI semantic conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/)
-- [Langfuse observability documentation](https://langfuse.com/docs/observability)
-- [OpenRouter generation metadata](https://openrouter.ai/docs/api-reference/get-a-generation)
-- [Vercel Skills](https://skills.sh/)
+## Observability is useful before it is complete
+
+The final band sends queue events, route decisions, provider counters, costs, retries, validation results, and handoff records into an observability layer. OpenTelemetry provides the trace shape; Langfuse gives me a place to inspect it.
+
+Today that view is good enough to find missing counters, failed gates, and attribution mistakes. It is not yet a complete live join across every desktop rotation and delegated return. Concurrent jobs are especially awkward because a plausible timestamp match is not the same thing as a durable identity.
+
+The rule I care about most is mundane: unknown stays unknown. If a provider does not return usage, the field is null. If a join is missing, the dashboard says partial. That makes the system less impressive in a screenshot and much more useful when something goes wrong.
+
+## What I would prove next
+
+I would not spend the next round making the diagram prettier. The gaps are operational:
+
+1. Finish the telemetry joins from the original desktop task through rotation, queue ownership, worker execution, and parent acceptance.
+2. Demonstrate a full health-gated fallback, recovery, reset, and return under controlled failure.
+3. Give concurrent jobs durable identities so attribution does not depend on timing.
+4. Run a representative matched Codex/Go/DeepSeek corpus with a hard parent budget and the same acceptance checks.
+
+Only then would I make a whole-task savings claim. Until then, the honest conclusion is narrower: I can move bounded execution off Codex without giving up parent control, and I have evidence that the route can produce accepted work. The size and consistency of the saving are still open questions.
+
+## References
+
 - [OpenCode documentation](https://opencode.ai/docs/)
-
-The article metrics come from the privacy-safe `operator-snapshot/v1` artifact generated at `2026-08-24T00:47:34Z`, fingerprint <span className="break-all font-mono text-[0.9em]">4c12fbc025ad3fd6d1908e101d078676553962a94681a13194ef8445c68f0ac3</span>. That snapshot records the Go and OpenRouter token and cost rows, queue state, selected-skill health, source health, and three fallback transition events. The live OpenRouter row is independently tied to generation `gen-1787532425-zr6WGUwsCyBY6SqSNZMC`, served by DeepInfra using `deepseek/deepseek-v4-flash-0731`.
-
-These are operational artifacts, not provider invoices. The differing evidence windows must not be combined as if they were one benchmark run. The production capacity state was closed at publication time, but that point-in-time state is not proof of a matched fallback-and-return experiment.
+- [OpenRouter provider routing](https://openrouter.ai/docs/features/provider-routing)
+- [OpenTelemetry documentation](https://opentelemetry.io/docs/)
+- [Langfuse documentation](https://langfuse.com/docs)
