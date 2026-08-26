@@ -1,0 +1,54 @@
+---
+title: "Why I Made My Coding-Agent Token Usage Public"
+slug: "why-i-made-my-agent-token-usage-public"
+date: "2026-08-26"
+description: "How I publish live Codex and OpenCode usage without publishing prompts, conversations, task names, or private telemetry systems."
+tags:
+  - ai
+  - agents
+  - observability
+  - privacy
+  - opentelemetry
+  - vercel
+draft: false
+image: /images/projects/agent-usage-observatory.svg
+---
+
+I run coding agents across Codex and OpenCode. Their private dashboard helps me answer operational questions: how much work is happening, which provider is doing it, whether events are arriving, and whether a missing number means zero or simply unknown.
+
+I wanted to make the useful part public without turning my telemetry system into a public archive of my work.
+
+[Open the live Tokenmaxxing dashboard](https://tokenmaxxing.rajeevg.com).
+
+## The small public version
+
+The public page does not connect to Grafana, Prometheus, Langfuse, Codex, OpenCode, or my Mac.
+
+Instead, a local publisher periodically creates a tiny summary containing only:
+
+- the measurement window and last update time;
+- broad provider token totals and shares;
+- aggregate counts for active, completed, and attention-needed work;
+- one hourly history point, retained for up to 90 days.
+
+Before upload, a strict allowlist discards everything else. The resulting JSON file is stored in Vercel Blob and the public page downloads that file.
+
+## What never leaves the machine
+
+Prompts, responses, reasoning, code, tool contents, credentials, costs, task names, model names, local paths, and task, session, or trace identifiers are not part of the public format.
+
+That is safer than trying to redact a complete private telemetry record after uploading it. The publisher constructs a new, deliberately small object from approved aggregate fields. A privacy test also feeds it fake prompt and identifier data and checks that none survives.
+
+## Why the page says “unknown”
+
+An absent measurement is not the same as zero usage. A desktop client may close before sending its last event. Provider attribution may be unavailable. A session may overlap the requested time range.
+
+The dashboard therefore totals only the providers it measured and labels that figure the **known total**. Missing providers remain “unknown.” This makes the page slightly less tidy and considerably more honest.
+
+## What “live” means here
+
+The local publisher refreshes the public summary every five minutes while the Mac is running. The dashboard marks old readings as delayed or stale, so a sleeping machine does not masquerade as zero activity.
+
+This design keeps the public site cheap and simple. Vercel serves one static page and one small aggregate file. The private observability stack remains private, and the public page remains useful even though it deliberately knows very little.
+
+[See the live numbers](https://tokenmaxxing.rajeevg.com) or [read about the wider Codex and OpenCode architecture](/blog/how-i-split-sol-planning-from-opencode-go-execution).
