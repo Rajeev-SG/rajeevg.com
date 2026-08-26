@@ -177,6 +177,23 @@ export const portfolioProjects: PortfolioProject[] = [
     inclusionReason: "Public production demonstrator with a complete visitor-facing workflow; source remains private.",
   },
   {
+    slug: "agent-usage-observatory",
+    title: "Agent Usage Observatory",
+    category: "AI operations tool",
+    tagline: "A plain-language view of where Codex and OpenCode Go tokens are actually going.",
+    summary:
+      "This dashboard answers the practical question behind my multi-agent setup: is OpenCode Go taking enough execution work away from the Codex subscription, or is the expensive parent conversation still doing too much? It shows the measured total, the Codex and Go split, fallback usage, and whether the current direction is on track.",
+    howItWorks:
+      "A privacy-safe local pipeline reads token counters and session metadata without publishing prompts or tool contents, joins Codex sessions to OpenCode Go dispatch results in one time window, removes duplicates, and deploys a small static snapshot. Unknown values are never presented as zero.",
+    imagePath: "/images/projects/agent-usage-observatory.svg",
+    imageAlt: "Agent Usage Observatory graphic showing an 88.9 percent Codex share and an 11.1 percent OpenCode Go share.",
+    liveUrl: "https://usage.rajeevg.com",
+    tech: ["Python", "Codex", "OpenCode Go", "OpenRouter", "Playwright", "Vercel"],
+    repoVisibility: "PRIVATE",
+    inclusionReason: "Public production dashboard backed by measured, privacy-safe session telemetry.",
+    detailLinks: [{ label: "Build write-up", href: "/blog/how-i-split-sol-planning-from-opencode-go-execution" }],
+  },
+  {
     slug: "mark-notes",
     title: "Mark Notes",
     category: "Productivity product",
@@ -291,6 +308,7 @@ const publicProjectOrder = [
   "creative-observatory",
   "github-canvas-monitor",
   "agent-orchestra",
+  "agent-usage-observatory",
   "mark-notes",
   "model-intelligence-maintainer",
   "workflow-garden",

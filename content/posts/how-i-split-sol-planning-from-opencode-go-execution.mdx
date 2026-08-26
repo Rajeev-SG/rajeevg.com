@@ -2,7 +2,7 @@
 title: "Can I Make Codex Last Longer Without Lowering the Quality?"
 slug: "how-i-split-sol-planning-from-opencode-go-execution"
 date: "2026-08-25"
-description: "A candid look at my Codex and OpenCode delegation system: what the evidence proves, what only partly works, and what is still an open claim."
+description: "A candid look at my Codex and OpenCode delegation system: the identity join now proven, the subscription drain still unexplained, and what comes next."
 tags:
   - ai
   - opencode
@@ -38,15 +38,15 @@ The short answer is encouraging, but not clean. The delegation path works. The r
 <div className="not-prose my-8 grid gap-4 md:grid-cols-3">
   <section className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-5 text-emerald-950 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-100">
     <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-300">Proven</p>
-    <p className="text-sm leading-6">Queue ownership, fail-closed health gates, Qwen's vision-only rule, null-safe telemetry, and several reviewed delegation returns.</p>
+    <p className="text-sm leading-6">Fresh-task identity join, Beads/BVR task state, Agent Mail evidence, measured OpenCode Go usage, fail-closed health gates, and reviewed delegation returns.</p>
   </section>
   <section className="rounded-2xl border border-amber-200 bg-amber-50/70 p-5 text-amber-950 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-100">
     <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-amber-700 dark:text-amber-300">Partial</p>
-    <p className="text-sm leading-6">Fresh-task handoff, complete worker-return telemetry, DeepSeek reset and return, and the operator snapshot.</p>
+    <p className="text-sm leading-6">Fleet-wide task attribution, concurrent work, DeepSeek reset and return, and whether delegation consistently reduces Codex subscription usage.</p>
   </section>
   <section className="rounded-2xl border border-slate-300 bg-slate-50 p-5 text-slate-950 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-100">
     <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-slate-600 dark:text-slate-300">Open</p>
-    <p className="text-sm leading-6">A complete live telemetry join, clean concurrent attribution, a full fallback recovery cycle, and whole-task savings.</p>
+    <p className="text-sm leading-6">The cause of rapid five-hour Codex-limit drain, a full fallback recovery cycle, and a defensible whole-task savings claim.</p>
   </section>
 </div>
 
@@ -58,13 +58,13 @@ The top band of the diagram is about Codex Desktop context rotation. When a task
 
 It does not move the work to another model. The fresh task is still Codex, with the same responsibility for understanding the request, setting boundaries, validating evidence, and deciding whether the job is actually done.
 
-This rotation is only partially proven. The pack, manifest, and fresh-task launch are real. The last bit of the handoff still needs stronger automated evidence, especially around complete joins between the old task, the new task, and the work returned by a delegated worker.
+The fresh-task seam is now proven for one end-to-end task. A new Codex Desktop task validated the pack without replaying the prior transcript, joined its Codex task and thread IDs to an NTM pane, OpenCode session, Bead, Agent Mail thread, and measured provider usage, then continued from the pack's exact next action. That is direct proof of the identity chain. It is not proof that every future rotation will be cheap or flawless.
 
 One migration detail was easy to get wrong: a running session keeps the route it started with. A new configuration only applies to fresh sessions. During the transition, that made old and new routing appear to disagree even though both were behaving as configured. CLIProxyAPI was part of that migration history; it is not the active route shown here.
 
 ## The queue is the spine
 
-Delegation begins with a bounded task packet, not a transcript dump. The packet carries the task ID, scope, constraints, done condition, evidence path, budget, and the runbooks the worker needs. The coordination queue then becomes the authoritative record of ownership and state.
+Delegation begins with a bounded task packet, not a transcript dump. The packet carries the task ID, scope, constraints, done condition, evidence path, budget, and the runbooks the worker needs. Beads plus BVR are the authoritative task-state layer; NTM schedules the worker; Agent Mail carries compact acknowledgements, progress, blockers, reservations, and completion notices. The older bespoke queue remains compatibility infrastructure only.
 
 My default execution worker is OpenCode Go running Luna at high reasoning. The worker has to acknowledge both the task ID and the packet hash before it starts. Its output is not the final answer. It is evidence and proposed work that returns to the Codex parent for review.
 
@@ -95,7 +95,7 @@ The cleanest matched canary completed all five checks on both routes. In that sl
 
 That result is useful, but it is not a blanket efficiency claim. It says the subscription meter moved off Codex for that slice. It also says the substitute route spent more provider tokens and more wall-clock time.
 
-One dashboard task recorded 5,166,631 Go tokens and a cost of $0.19260677. Two other jobs did not expose complete counters, so their values remain unknown. The telemetry pipeline stores those gaps as null rather than turning missing data into a zero.
+The fresh-task proof joined 605,429 measured OpenCode Go tokens across 17 calls, including cache and reasoning counters, to the same durable task ID used by Codex Desktop, NTM, Beads, and Agent Mail. The live daily snapshot then showed 99,160,482 Codex tokens beside those 605,429 Go tokens. That 99.4% Codex share is not the result I expected from a delegation system, so I have queued a separate telemetry investigation rather than calling the architecture a subscription-saving success.
 
 Three substantial work slices completed after one retry each and then passed a native Sol review. That is meaningful evidence for the workflow. It is not enough to say delegated quality is always identical.
 
@@ -105,7 +105,7 @@ Another revealing number was 620 parent tool calls against a 120-call budget. Th
 
 The final band sends queue events, route decisions, provider counters, costs, retries, validation results, and handoff records into an observability layer. OpenTelemetry provides the trace shape; Langfuse gives me a place to inspect it.
 
-Today that view is good enough to find missing counters, failed gates, and attribution mistakes. It is not yet a complete live join across every desktop rotation and delegated return. Concurrent jobs are especially awkward because a plausible timestamp match is not the same thing as a durable identity.
+Today that view is good enough to find missing counters, failed gates, and attribution mistakes. One fresh Desktop-to-worker task now has a complete durable identity join and appears in the live provider readout. The fleet-wide view is still incomplete, and concurrent jobs remain awkward because a plausible timestamp match is not the same thing as a durable identity.
 
 The rule I care about most is mundane: unknown stays unknown. If a provider does not return usage, the field is null. If a join is missing, the dashboard says partial. That makes the system less impressive in a screenshot and much more useful when something goes wrong.
 
@@ -113,12 +113,13 @@ The rule I care about most is mundane: unknown stays unknown. If a provider does
 
 I would not spend the next round making the diagram prettier. The gaps are operational:
 
-1. Finish the telemetry joins from the original desktop task through rotation, queue ownership, worker execution, and parent acceptance.
-2. Demonstrate a full health-gated fallback, recovery, reset, and return under controlled failure.
-3. Give concurrent jobs durable identities so attribution does not depend on timing.
-4. Run a representative matched Codex/Go/DeepSeek corpus with a hard parent budget and the same acceptance checks.
+1. Interrogate recent session telemetry to explain why the five-hour Codex subscription limit is draining rapidly despite rotation and delegation.
+2. Compare parent work before and after delegation, including tool-call volume, context growth, cache reads, worker share, and any routing or attribution failures.
+3. Demonstrate a full health-gated fallback, recovery, reset, and return under controlled failure.
+4. Give concurrent jobs durable identities so attribution does not depend on timing.
+5. Run a representative matched Codex/Go/DeepSeek corpus with a hard parent budget and the same acceptance checks.
 
-Only then would I make a whole-task savings claim. Until then, the honest conclusion is narrower: I can move bounded execution off Codex without giving up parent control, and I have evidence that the route can produce accepted work. The size and consistency of the saving are still open questions.
+Only then would I make a whole-task savings claim. Until then, the honest conclusion is narrower: I can move bounded execution off Codex without giving up parent control, and I can now join that worker to the same durable identity. The current daily split suggests that rotation and delegation are not yet reducing Codex usage enough, and understanding why is the next job.
 
 ## References
 
