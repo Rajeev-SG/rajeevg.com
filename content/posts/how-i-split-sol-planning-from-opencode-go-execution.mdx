@@ -15,11 +15,13 @@ tags:
 draft: false
 ---
 
-I wanted to move most of the long execution token volume away from my Codex subscription without giving up the best part of Codex: a premium parent that understands the request, makes the hard calls, reviews the return, and decides when the work is actually done.
+I wanted Codex to stay focused on the hard parts of a job: understanding the request, making decisions, and checking the result. Long execution work made that difficult. It filled the model's context and used part of my subscription allowance.
 
-So I stopped treating the setup as a clever prompt and started treating it as a system that had to leave evidence behind.
+So I split the job.
 
-The result is a split system. A native Codex task stays in charge. Fresh Codex tasks keep the parent context clean, while OpenCode Go handles bounded execution. That round trip works, but the savings story is not settled. A worker returns evidence and proposed work to the parent; it does not silently become the final answer.
+I kept Codex as the parent, or lead. The parent understands the request and judges the final work. I gave one small, clear slice to an OpenCode Go worker. A saved task record carries the scope, limits, expected files, and finish test. A scheduler starts the worker. A message channel carries short updates.
+
+It is a small system with records that let me see what happened.
 
 <figure className="not-prose my-10">
   <img
@@ -28,7 +30,7 @@ The result is a split system. A native Codex task stays in charge. Fresh Codex t
     className="relative left-1/2 block w-[min(94vw,90rem)] max-w-none -translate-x-1/2 rounded-2xl border border-slate-200 bg-white shadow-sm"
   />
   <figcaption className="mx-auto mt-3 max-w-3xl text-center text-sm leading-6 text-slate-600 dark:text-slate-400">
-    The primary route is deliberately short. DeepSeek and Qwen sit on conditional branches, not beside Go as equal defaults. <a className="font-medium underline underline-offset-4" href="/downloads/codex-rotation-architecture.drawio">Download the native draw.io source</a>.
+    The main route is short. DeepSeek and Qwen are conditional routes, not equal defaults. <a className="font-medium underline underline-offset-4" href="/downloads/codex-rotation-architecture.drawio">Download the native draw.io source</a>.
   </figcaption>
 </figure>
 
@@ -43,105 +45,59 @@ The result is a split system. A native Codex task stays in charge. Fresh Codex t
   </figcaption>
 </figure>
 
-## The status, without the sales pitch
+## One task, from request to review
 
-<div className="not-prose my-8 grid gap-4 md:grid-cols-3">
-  <section className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-5 text-emerald-950 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-100">
-    <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-300">Proven</p>
-    <p className="text-sm leading-6">Fresh-task identity join, Beads/BVR task state, Agent Mail evidence, measured OpenCode Go usage, fail-closed health gates, and reviewed delegation returns.</p>
-  </section>
-  <section className="rounded-2xl border border-amber-200 bg-amber-50/70 p-5 text-amber-950 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-100">
-    <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-amber-700 dark:text-amber-300">Partial</p>
-    <p className="text-sm leading-6">Fleet-wide task attribution, concurrent work, DeepSeek reset and return, and whether delegation consistently reduces Codex subscription usage.</p>
-  </section>
-  <section className="rounded-2xl border border-slate-300 bg-slate-50 p-5 text-slate-950 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-100">
-    <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-slate-600 dark:text-slate-300">Open</p>
-    <p className="text-sm leading-6">The cause of rapid five-hour Codex-limit drain, a full fallback recovery cycle, and a defensible whole-task savings claim.</p>
-  </section>
-</div>
+Suppose I ask for a report that needs research, file changes, and checks. Codex first turns that request into a plan. It writes a saved task record. The record names the task, allowed files, budget, finish test, and evidence path.
 
-That distinction matters. A component can work while the end-to-end claim remains unproven.
+The scheduler then gives the task to one worker. In this setup, Beads is the durable task list. BVR is the small set of rules that checks task ownership and state. These names matter less than their function: they stop two workers from claiming the same job.
 
-## Changing context is not changing provider
+NTM starts and watches the worker. Agent Mail is the message channel. It carries an acknowledgement, progress, a blocker, or a completion note. It does not own the task. It does not carry credentials.
 
-The top band of the diagram is about Codex Desktop context rotation. When a task grows long, the parent writes a compact durable pack and starts a genuinely fresh desktop task from it. That protects the working context from becoming a transcript landfill.
+OpenCode Go reads the task record by path. It does the bounded slice. It writes the requested files and a result record. It must repeat the task ID and packet hash before work starts. That reply proves it received the right instructions.
 
-It does not move the work to another model. The fresh task is still Codex, with the same responsibility for understanding the request, setting boundaries, validating evidence, and deciding whether the job is actually done.
+The parent then reviews the result. It checks the files, evidence, scope, and finish test. It accepts the task only when the checks pass and the work answers the request.
 
-I initially got the rotation policy wrong. Fixed call-count gates and a phase-complete flag that was never consumed could rotate healthy work early, and repeated handoff attempts could create several Desktop tasks for the same job. The repaired policy looks at actual context pressure, stalled progress, elapsed time, and compaction pressure. Phase completion is an edge that gets consumed once, not a permanent alarm. Before creating a replacement, the system reserves an idempotent handoff keyed by task, phase, and pack, and reuses an equivalent continuation instead of creating another task. A high call-count ceiling remains only as an emergency brake.
+If the worker stops, the saved record makes a safe restart possible. The replacement reads the last checkpoint, which is a saved restart position. It does not need to replay the whole chat. A lease is a short reservation that says who may work on a task or file. When the lease expires, a new worker can take over under the same rules.
 
-The fresh-task seam is now proven for one end-to-end task. A new Codex Desktop task validated the pack without replaying the prior transcript, joined its Codex task and thread IDs to an NTM pane, OpenCode session, Bead, Agent Mail thread, and measured provider usage, then continued from the pack's exact next action. That is direct proof of the identity chain. It is not proof that every future rotation will be cheap or flawless.
+## Fresh tasks reset context; delegation changes the worker
 
-One migration detail was easy to get wrong: a running session keeps the route it started with. A new configuration only applies to fresh sessions. During the transition, that made old and new routing appear to disagree even though both were behaving as configured. CLIProxyAPI was part of that migration history; it is not the active route shown here.
+When a Codex task grows too large, fresh-task rotation starts a new Codex task with a small handoff record. This changes the context. It does not change the provider. The new task is still Codex.
 
-## Why composition beat bespoke coordination
+Delegation is different. Delegation changes who executes the bounded slice. The parent remains responsible for the plan and review. OpenCode Go performs the work. The result returns to the parent.
 
-Delegation begins with a bounded task packet, not a transcript dump. The packet carries the task ID, scope, constraints, done condition, evidence path, budget, and the runbooks the worker needs.
+The distinction fixed a confusing part of my setup. A new configuration applies to fresh sessions. A running session keeps its original route. That is why old and new sessions can appear to disagree during a migration.
 
-Each existing capability then gets one clear job. Native Codex task creation supplies the fresh parent boundary. Beads plus BVR hold durable task state, ownership, dependencies, checkpoints, and verification. NTM schedules and supervises the worker. Agent Mail carries compact acknowledgements, progress, blockers, reservations, and completion notices. OpenCode Go performs bounded execution. Telemetry connects task IDs, route decisions, counters, retries, and acceptance results. The older bespoke queue remains compatibility infrastructure for existing immutable packets only; it is not another coordinator to expand.
+## What the names mean
 
-That composition won because every handoff already has somewhere to be checked. Agent Mail is not the scheduler and does not carry credentials. NTM is not the task database. A fresh Codex task is not a provider change. The parent can reject a wrong digest, an out-of-scope file, missing evidence, or a result that simply does not answer the request.
+Beads and BVR keep durable task state. NTM schedules and watches workers. Agent Mail carries compact messages. OpenCode Go is the bounded execution worker. Telemetry is the record of events, routes, token counts, retries, and checks. A control plane is the part that owns task state and legal changes. These are functions first, product names second.
 
-My default execution worker is OpenCode Go running Luna at high reasoning. The worker has to acknowledge both the task ID and the packet hash before it starts. Its output is not the final answer. It is evidence and proposed work that returns to the Codex parent for review.
+I keep fallback rules narrow. OpenCode Go with Luna is the default worker. DeepSeek is a text fallback only after a health check says Go is unavailable. Qwen is for image work. A failed health check closes the route. It does not silently pick another model.
 
-That parent review catches a class of failure that a green command cannot. Did the worker touch files outside the packet? Did it return the evidence it promised? Do the changes answer the user's actual request? If scope, telemetry, or evidence breaks, the controller fails closed.
+## What worked, and what failed
 
-This is not theoretical. In one run, the worker produced useful reconnaissance but also touched an unrelated coordination path. The controller rejected the return. I used the clue to continue my own inspection, but I did not count that worker run as a successful completion.
+The useful part was the identity chain. One task could be joined to its Codex task, NTM worker, Bead, Agent Mail thread, OpenCode session, and usage record. That made the return auditable.
 
-## Why Go won over a larger routing experiment
+The weak part was recovery. One worker touched an unrelated coordination path. The controller rejected the result. That was the right outcome. The worker found useful information, but it did not complete the assigned task.
 
-I experimented with OpenRouter routing and with OpenCode subagents. The arrangement that held up was simpler: keep Codex as the premium planning and review surface, rotate to a genuinely fresh native task when its context gets crowded, and delegate bounded execution to OpenCode Go running Luna at high reasoning.
+The system also needs a hard boundary around orchestration. A worker must not become a second parent. It must not create its own worker tree. It must not take a browser already reserved by another worker.
 
-OpenRouter still has a narrow role. It does not supervise the system, and an ordinary worker failure does not silently select another model. The conditional routes separate two reasons to change models.
+## What the benchmark means
 
-OpenRouter DeepSeek is a capacity fallback for text work. It is only eligible after a health gate says the normal Go route is unavailable. A failed or ambiguous health check closes the route instead of guessing.
+In one completed bounded task, the Codex parent used **4,997,110 tokens**. The OpenCode Go worker used **11,967,667 tokens**. The known total was **16,964,777 tokens**. OpenCode Go therefore held **70.54%** of the known total.
 
-Qwen has a narrower job. It is only eligible when the packet contains image-bearing work. It is not a general text fallback, and it does not become one merely because another provider is busy.
+Those are measured counts. They show where work occurred in that task. They do not show how much work Codex would have done alone.
 
-Keeping those gates separate prevents a blurry policy where any model can handle any task for any reason. The rules are simple enough to audit:
+This was one delegation-heavy completed-task window, not a representative calendar day. It shows where measured work occurred, not what would have happened without delegation, and supports no causal savings claim.
 
-- Go/Luna is the default bounded execution route.
-- DeepSeek is the health-gated text-capacity fallback.
-- Qwen is vision-only.
-- Premium Sol use requires an explicit recorded gate.
+The word token means a small unit of text used by a model. Different models can split the same sentence into different numbers of tokens. They can also use different amounts of reasoning. A provider is the service that supplies the model. Provider counts are useful evidence, but they are not a matched experiment.
 
-The gates themselves are proven. A complete live demonstration of fallback, reset, and return is still partial.
+## What still needs proof
 
-## What the measurements actually say
+The next test should compare two runs of the same task. One run should keep all work with Codex. The other should delegate the same bounded slice to OpenCode Go. Both runs need the same inputs, tool rules, finish tests, retry policy, and measurement method.
 
-The cleanest matched canary completed all five checks on both routes. In that slice, Codex used 91,604 provider tokens and Go used 286,595. Go therefore used 3.13 times as many provider tokens and took about 2.30 times as long, while consuming zero Codex subscription tokens for the delegated execution slice.
+I would compare total tokens, parent tokens, worker tokens, cost, elapsed time, steering calls, recovery time, and pass rate. I would also check that both runs produce the same required evidence.
 
-That result is useful, but it is not a blanket efficiency claim. It says the subscription meter moved off Codex for that slice. It also says the substitute route spent more provider tokens and more wall-clock time.
-
-The most useful directional figure came from completed tasks where both sides had attributable usage: Go represented 70.5% of the known token volume. That is much larger than the 9.7% Go share in the broader window and the corrected 18.75% Go share in the five-hour window.
-
-Those percentages answer different questions. Their windows and inclusion rules are not interchangeable, so I do not average them or describe the difference as savings. The 70.5% completed-task share says the split can move most measured execution volume away from Codex in the work that completed with usable attribution. The 9.7% broader view says the overall system still spends far more on the parent side. The corrected 18.75% five-hour view lands between them and is another warning against using a single window as the headline.
-
-The fresh-task proof also joined 605,429 measured OpenCode Go tokens across 17 calls to the same durable task ID used by Codex Desktop, NTM, Beads, and Agent Mail. That proves the identity chain. It does not prove that delegation caused a reduction in subscription usage. Without a matched baseline, the savings claim remains open.
-
-Three substantial work slices completed after one retry each and then passed a native Sol review. That is meaningful evidence for the workflow. It is not enough to say delegated quality is always identical.
-
-Another revealing number was 620 parent tool calls against a 120-call budget. That is a tool-call leak, not a provider-token total. Mixing those units would make the dashboard look precise while saying something false.
-
-## Observability is useful before it is complete
-
-The final band sends queue events, route decisions, provider counters, costs, retries, validation results, and handoff records into an observability layer. OpenTelemetry provides the trace shape; Langfuse gives me a place to inspect it.
-
-Today that view is good enough to find missing counters, failed gates, and attribution mistakes. One fresh Desktop-to-worker task now has a complete durable identity join and appears in the live provider readout. The fleet-wide view is still incomplete, and concurrent jobs remain awkward because a plausible timestamp match is not the same thing as a durable identity.
-
-The rule I care about most is mundane: unknown stays unknown. If a provider does not return usage, the field is null. If a join is missing, the dashboard says partial. That makes the system less impressive in a screenshot and much more useful when something goes wrong.
-
-## What I would prove next
-
-I would not spend the next round making the diagram prettier. The gaps are operational:
-
-1. Interrogate recent session telemetry to explain why the five-hour Codex subscription limit is draining rapidly despite rotation and delegation.
-2. Compare parent work before and after delegation, including tool-call volume, context growth, cache reads, worker share, and any routing or attribution failures.
-3. Demonstrate a full health-gated fallback, recovery, reset, and return under controlled failure.
-4. Give concurrent jobs durable identities so attribution does not depend on timing.
-5. Run a representative matched Codex/Go/DeepSeek corpus with a hard parent budget and the same acceptance checks.
-
-Only then would I make a whole-task savings claim. Until then, the honest conclusion is narrower: native fresh-task creation, Beads/BVR, Agent Mail, NTM/OpenCode Go, telemetry, rotation, and verification compose into an auditable system without a new bespoke coordinator. I can move bounded execution off Codex while keeping premium parent and review compute, and I can join that work back to the same durable identity. The 70.5%, 9.7%, and 18.75% figures are useful directional measurements, not causal proof.
+The next matched pair is the evidence I need before I call this a saving.
 
 ## References
 
@@ -149,3 +105,5 @@ Only then would I make a whole-task savings claim. Until then, the honest conclu
 - [OpenRouter provider routing](https://openrouter.ai/docs/features/provider-routing)
 - [OpenTelemetry documentation](https://opentelemetry.io/docs/)
 - [Langfuse documentation](https://langfuse.com/docs)
+
+[Back to writing](/blog)
