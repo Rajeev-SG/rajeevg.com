@@ -182,9 +182,9 @@ export const portfolioProjects: PortfolioProject[] = [
     category: "AI operations tool",
     tagline: "A live public record of where my coding-agent tokens are actually going.",
     summary:
-      "Tokenmaxxing turns the private telemetry behind my multi-agent setup into a small, public, privacy-safe dashboard. It shows measured totals, provider shares, agent activity and freshness while keeping every prompt, response, task and session identifier at home.",
+      "Tokenmaxxing turns the private telemetry behind my multi-agent setup into a small, public, privacy-safe dashboard. It shows measured totals, provider shares, agent activity and freshness, while a separate authenticated Grafana control room provides the granular operational view without publishing prompts or session identifiers.",
     howItWorks:
-      "A local pipeline reads Codex, OpenCode and dispatcher aggregates, reduces them through a strict public allowlist, and uploads a tiny rolling JSON summary to Vercel Blob. The public page only reads that summary; it cannot connect to my Mac, Grafana, Langfuse or private telemetry files. Unknown values are never presented as zero.",
+      "A local pipeline normalises Codex, Claude Code, Hermes, OMP, OpenClaw and Droid/OpenCode session stores, deduplicates cumulative provider/session values, and sends metrics to local Prometheus plus a private VictoriaMetrics and Grafana deployment on Coolify. A strict allowlist still publishes only a tiny rolling summary to Vercel Blob. Unknown values are never presented as zero.",
     imagePath: "/images/projects/agent-usage-observatory.svg",
     imageAlt: "Agent Usage Observatory graphic showing an 88.9 percent Codex share and an 11.1 percent OpenCode Go share.",
     liveUrl: "https://tokenmaxxing.rajeevg.com",
@@ -194,6 +194,7 @@ export const portfolioProjects: PortfolioProject[] = [
     detailLinks: [
       { label: "How the public feed works", href: "/blog/why-i-made-my-agent-token-usage-public" },
       { label: "Agent architecture", href: "/blog/how-i-split-sol-planning-from-opencode-go-execution" },
+      { label: "Private control room", href: "/blog/how-i-built-one-control-room-for-six-ai-agents" },
     ],
   },
   {
