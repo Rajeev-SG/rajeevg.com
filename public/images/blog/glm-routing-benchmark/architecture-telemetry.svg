@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">GLM routing benchmark architecture and telemetry</title>
+  <desc id="desc">An Excalidraw-style diagram showing an agent request travelling through CLIProxyAPI and OpenRouter to a GLM-5.3-Flash provider. Client timing, OpenTelemetry, Langfuse, Prometheus and Grafana capture first-token time, provider choice, tokens, cost, retries and total latency.</desc>
+  <defs>
+    <marker id="arrow-blue" markerWidth="12" markerHeight="12" refX="10" refY="4" orient="auto"><path d="M0 0 L0 8 L11 4 Z" fill="#2563eb"/></marker>
+    <marker id="arrow-green" markerWidth="12" markerHeight="12" refX="10" refY="4" orient="auto"><path d="M0 0 L0 8 L11 4 Z" fill="#047857"/></marker>
+    <marker id="arrow-purple" markerWidth="12" markerHeight="12" refX="10" refY="4" orient="auto"><path d="M0 0 L0 8 L11 4 Z" fill="#7c3aed"/></marker>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/></filter>
+  </defs>
+
+  <rect width="1200" height="760" fill="#ffffff"/>
+  <text x="48" y="58" fill="#0f172a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="30" font-weight="700">One request, two views</text>
+  <text x="48" y="88" fill="#475569" font-family="ui-sans-serif,system-ui,sans-serif" font-size="17">The request path stays simple. Telemetry explains where the time and money went.</text>
+
+  <rect x="30" y="112" width="1140" height="190" rx="22" fill="#eff6ff" stroke="#bfdbfe" stroke-width="2" stroke-dasharray="10 8"/>
+  <text x="54" y="143" fill="#1d4ed8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="16" font-weight="700" letter-spacing="2">INFERENCE PATH</text>
+
+  <g fill="none" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow-blue)">
+    <path d="M272 220 C292 214 304 226 324 220"/>
+    <path d="M547 220 C567 226 579 214 599 220"/>
+    <path d="M822 220 C842 214 854 226 874 220"/>
+  </g>
+
+  <g filter="url(#shadow)" font-family="ui-sans-serif,system-ui,sans-serif" text-anchor="middle">
+    <g><rect x="50" y="170" width="222" height="100" rx="16" fill="#dbeafe" stroke="#2563eb" stroke-width="3"/><text x="161" y="212" fill="#1e3a8a" font-size="22" font-weight="700">Agent / client</text><text x="161" y="240" fill="#1e40af" font-size="16">streams the response</text></g>
+    <g><rect x="325" y="170" width="222" height="100" rx="16" fill="#e0e7ff" stroke="#4f46e5" stroke-width="3"/><text x="436" y="212" fill="#312e81" font-size="22" font-weight="700">CLIProxyAPI</text><text x="436" y="240" fill="#4338ca" font-size="16">passes provider policy</text></g>
+    <g><rect x="600" y="170" width="222" height="100" rx="16" fill="#ede9fe" stroke="#7c3aed" stroke-width="3"/><text x="711" y="212" fill="#4c1d95" font-size="22" font-weight="700">OpenRouter</text><text x="711" y="240" fill="#6d28d9" font-size="16">chooses an endpoint</text></g>
+    <g><rect x="875" y="170" width="275" height="100" rx="16" fill="#fef3c7" stroke="#d97706" stroke-width="3"/><text x="1012" y="205" fill="#78350f" font-size="21" font-weight="700">GLM-5.3-Flash</text><text x="1012" y="234" fill="#92400e" font-size="16">Z.AI · Modal · fallbacks</text><text x="1012" y="255" fill="#a16207" font-size="14">provider inference</text></g>
+  </g>
+
+  <rect x="250" y="330" width="700" height="70" rx="18" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
+  <text x="600" y="359" text-anchor="middle" fill="#0f172a" font-family="ui-sans-serif,system-ui,sans-serif" font-size="19" font-weight="700">Generation ID + routing mode join the two views</text>
+  <text x="600" y="383" text-anchor="middle" fill="#475569" font-family="ui-sans-serif,system-ui,sans-serif" font-size="15">No prompts or response text are needed for the benchmark record</text>
+
+  <rect x="30" y="430" width="1140" height="330" rx="22" fill="#ecfdf5" stroke="#a7f3d0" stroke-width="2" stroke-dasharray="10 8"/>
+  <text x="54" y="461" fill="#047857" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="16" font-weight="700" letter-spacing="2">TELEMETRY VIEW</text>
+
+  <g fill="none" stroke-width="2.5" stroke-dasharray="8 7">
+    <path d="M161 270 C165 345 150 406 170 510" stroke="#2563eb" marker-end="url(#arrow-blue)"/>
+    <path d="M436 270 C430 350 445 410 455 510" stroke="#047857" marker-end="url(#arrow-green)"/>
+    <path d="M711 270 C720 350 730 408 740 510" stroke="#7c3aed" marker-end="url(#arrow-purple)"/>
+    <path d="M1012 270 C990 350 850 414 740 510" stroke="#7c3aed" marker-end="url(#arrow-purple)"/>
+  </g>
+
+  <g fill="none" stroke="#047857" stroke-width="3" marker-end="url(#arrow-green)">
+    <path d="M172 640 C220 672 345 674 455 690"/>
+    <path d="M460 640 C470 658 490 669 515 680"/>
+    <path d="M745 640 C720 658 690 669 650 680"/>
+  </g>
+
+  <g filter="url(#shadow)" font-family="ui-sans-serif,system-ui,sans-serif" text-anchor="middle">
+    <g><rect x="55" y="510" width="235" height="130" rx="16" fill="#dbeafe" stroke="#2563eb" stroke-width="3"/><text x="172" y="548" fill="#1e3a8a" font-size="20" font-weight="700">Client timing</text><text x="172" y="577" fill="#1e40af" font-size="15">first token · total time</text><text x="172" y="601" fill="#1e40af" font-size="15">tokens · status</text></g>
+    <g><rect x="345" y="510" width="230" height="130" rx="16" fill="#d1fae5" stroke="#047857" stroke-width="3"/><text x="460" y="548" fill="#064e3b" font-size="20" font-weight="700">OpenTelemetry</text><text x="460" y="577" fill="#065f46" font-size="15">proxy + agent spans</text><text x="460" y="601" fill="#065f46" font-size="15">Prometheus metrics</text></g>
+    <g><rect x="630" y="510" width="230" height="130" rx="16" fill="#ede9fe" stroke="#7c3aed" stroke-width="3"/><text x="745" y="548" fill="#4c1d95" font-size="20" font-weight="700">Langfuse</text><text x="745" y="577" fill="#6d28d9" font-size="15">provider · cost · cache</text><text x="745" y="601" fill="#6d28d9" font-size="15">retries · fallbacks</text></g>
+    <g><rect x="450" y="680" width="300" height="62" rx="16" fill="#fef3c7" stroke="#d97706" stroke-width="3"/><text x="600" y="706" fill="#78350f" font-size="20" font-weight="700">Grafana + benchmark analysis</text><text x="600" y="729" fill="#92400e" font-size="14">median · p90 · tok/s · speed versus cost</text></g>
+  </g>
+</svg>
