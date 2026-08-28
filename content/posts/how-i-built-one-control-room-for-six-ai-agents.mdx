@@ -25,6 +25,19 @@ These are routing hints, not hard permission walls. I deliberately kept each age
 
 The main hard boundary is ownership: only I should be able to instruct the private agents. Credentials stay in the macOS Keychain on the laptop, or in the protected environment of the server service that needs them.
 
+<ArticleFigure
+  src="/images/blog/agent-control-room/agent-control-room-architecture.svg"
+  alt="System diagram showing four location-labelled Telegram bots routing to OpenClaw and Hermes, with Codex and OMP as general-purpose escalation routes and a shared telemetry path to Grafana and Tokenmaxxing"
+  eyebrow="System map"
+  title="Roles guide the route; telemetry joins the result"
+  caption="The MacBook and Coolify bots are named by location. OpenClaw starts personal work, Hermes starts work workflows, and Codex or OMP can take larger tasks without turning those defaults into permission walls."
+  imgClassName="bg-white"
+/>
+
+<p className="-mt-6 text-sm text-muted-foreground">
+  <a className="font-medium underline underline-offset-4" href="/downloads/agent-control-room-architecture.excalidraw" download>Download the editable Excalidraw source</a>.
+</p>
+
 ## Four Telegram bots, with names that explain where they live
 
 I run two OpenClaw/Hermes pairs, and mixing them up was an easy operational mistake. The cloud pair and the MacBook pair now have explicit display names:
