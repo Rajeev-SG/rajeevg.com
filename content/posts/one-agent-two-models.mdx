@@ -1,0 +1,139 @@
+---
+title: My AI Agents Spent More on Oversight Than on Work. Here's the Data That Made Me Delete the Middlemen.
+slug: one-agent-two-models
+date: 2026-08-28
+description: I ran four layers of orchestration between a request and actual work. The telemetry said most of it was overhead. Here is the before, the after, and the numbers that convinced me.
+tags: [ai, codex, agents, openrouter, langfuse, observability, self-hosted]
+draft: false
+---
+
+<div className="flex flex-wrap gap-2">
+  <span className="inline-flex items-center rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-800 dark:border-sky-500/25 dark:bg-sky-500/10 dark:text-sky-200">Agent orchestration</span>
+  <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-800 dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-200">GLM-5.3-Flash workhorse</span>
+  <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-800 dark:border-amber-500/25 dark:bg-amber-500/10 dark:text-amber-200">Langfuse + Prometheus</span>
+</div>
+
+## How we got here
+
+When I first started running AI coding agents on real work, I did what a lot of people do: I added structure. A lot of it.
+
+[Codex](https://openai.com/codex) was my main agent, so I gave it a task tracker called [Beads](https://github.com/steveyegge/beads) that gave every piece of work a durable ID and status. On top of that I ran BVR, a verification pass that reviewed each task before I trusted it. Before any substantial work started, a preflight script checked that a worker had been reserved. The worker itself lived in NTM, a session manager that kept [OpenCode](https://opencode.ai) agents running in deterministic, sandboxed panes. And whenever a task got labelled high-risk, a fixed gate promoted it to GPT-5.6 Sol, OpenAI's most capable model at the time, for review.
+
+Each layer made sense on its own. Together, they meant a simple request climbed six hops — parent agent, task tracker, verification review, delegation preflight, worker reservation, and then, sometimes, a frontier-model review — before a single line of code moved.
+
+<figure className="not-prose my-10">
+  <img
+    src="/images/blog/one-agent-two-models/before.svg"
+    alt="Before diagram: a request passes through Codex Desktop, then Beads, BVR, a delegation preflight, and NTM before reaching OpenCode Go running GPT-5.6 Luna, with a Sol review gate looping back for high-risk tasks"
+    className="relative left-1/2 block w-[min(96vw,92rem)] max-w-none -translate-x-1/2 rounded-2xl border border-slate-200 bg-white shadow-sm"
+  />
+  <figcaption className="mx-auto mt-3 max-w-3xl text-center text-sm leading-6 text-slate-600 dark:text-slate-400">
+    The old path. Six hops before the model doing the actual work saw the task. <a className="font-medium underline underline-offset-4" href="/downloads/one-agent-two-models-before.excalidraw">Download the editable Excalidraw source</a>.
+  </figcaption>
+</figure>
+
+## How we ended up here
+
+The turning point wasn't a failure. It was a receipt.
+
+[Langfuse](https://langfuse.com), which I run self-hosted, records a trace for every model call — which model handled it, how many tokens went in and out, what it cost, and how long it took. A small exporter pushes those counts into [Prometheus](https://prometheus.io), and [Grafana](https://grafana.com) turns them into charts I can actually read. None of this is exotic. It is a receipt book and a dashboard.
+
+When I finally read the receipts instead of trusting the process, the story was uncomfortable. Most of the oversight machinery was catching errors that weren't happening. The frontier-model review gate fired far more often than the work justified. The cheap, fast model I was paying pennies for could have handled most of what the expensive path was being fed. And every hop added latency — not because the models were slow, but because the orchestration between them was.
+
+## What we're doing now
+
+The new setup has one rule: one agent per task, and you have to say why before you escalate.
+
+Every task is planned, edited, tested, and reported by a single agent in the same session. The everyday workhorse is GLM-5.3-Flash, a fast and cheap model from Zhipu routed through [OpenRouter](https://openrouter.ai). Across all four of my coding tools — Codex, OMP, Hermes, and Claude Code — the same model handles the routine path, which keeps the cost predictable and the behavior consistent.
+
+When something genuinely hard shows up, the task escalates once, and the escalation has to state a reason. For Codex that reason triggers GPT-5.6 Sol, because it matches Codex's native protocol best. For OMP, Hermes, and Claude Code, it triggers Claude Opus 5, which has the strongest tool-calling record through OpenRouter of the frontier models I tested. The point is not that these are the only good models. The point is that the choice is deliberate and the reason is recorded, so a frontier model can't fire just because a task was labelled scary.
+
+Beads, NTM, and Agent Mail are still installed. They just stopped sitting between the request and the work. ToolHive still provides isolated MCP endpoints when a task needs browser or retrieval access, and Agent Mail still exists as an optional cross-tool bridge — none of it runs by default anymore.
+
+<figure className="not-prose my-10">
+  <img
+    src="/images/blog/one-agent-two-models/after.svg"
+    alt="After diagram: one agent plans, edits, tests and reports directly, routing everyday work to GLM-5.3-Flash through OpenRouter and escalating hard tasks to GPT-5.6 Sol or Claude Opus 5, with every call logged through Langfuse, Prometheus and Grafana"
+    className="relative left-1/2 block w-[min(96vw,92rem)] max-w-none -translate-x-1/2 rounded-2xl border border-slate-200 bg-white shadow-sm"
+  />
+  <figcaption className="mx-auto mt-3 max-w-3xl text-center text-sm leading-6 text-slate-600 dark:text-slate-400">
+    The new path. One agent, two tiers, and a telemetry side-channel that makes every call measurable. <a className="font-medium underline underline-offset-4" href="/downloads/one-agent-two-models-after.excalidraw">Download the editable Excalidraw source</a>.
+  </figcaption>
+</figure>
+
+## How telemetry makes it measurable
+
+Before this change, "is this setup working?" was a feeling. Now it's a number I can query.
+
+Every model call, regardless of which tool made it, lands in Langfuse as a trace. That trace carries the resolved model name — not the alias, the actual model that answered — plus token counts, cost, latency, and whether it was part of a retry. The OpenRouter exporter in my Grafana stack aggregates those traces into per-model counters, so I can see at a glance how much work GLM-5.3-Flash did this week versus Claude Opus 5, and what each cost.
+
+This matters for the escalation rule specifically. Without telemetry, an escalation is a judgment call and you never find out if it was right. With telemetry, I can look at the specific trace where Claude Opus 5 was invoked and ask: did a stronger model actually produce a better answer here, or did I just pay more for the same output? That question is answerable now, and the answer shapes when I escalate next.
+
+## What the data actually shows
+
+I ran the same small canary through both tiers to see the difference in practice.
+
+The routine canary — add a function, run the test — went through GLM-5.3-Flash in about two and a half minutes of agent time, roughly 50k tokens of session traffic, and cost pennies. It edited the file, ran the test, and reported pass. No escalation was needed and none was triggered.
+
+The escalation canary — a deliberately architectural question about whether that same tiny program should be restructured — went to Claude Opus 5. It cost more and took about a minute. What it produced was the interesting part: it correctly declined to restructure a two-function file, and instead flagged the real risk, which was that the `add` function silently concatenates strings and lists because it defers to Python's `+` operator. That is a materially sharper judgment than a routine implementation pass would give, and it is exactly the kind of call worth paying for.
+
+<figure className="not-prose my-10">
+  <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
+    <table className="w-full text-sm">
+      <thead className="border-b bg-slate-50 dark:border-slate-800 dark:bg-slate-900">
+        <tr className="text-left">
+          <th className="px-4 py-3 font-semibold">Canary</th>
+          <th className="px-4 py-3 font-semibold">Model</th>
+          <th className="px-4 py-3 font-semibold">Latency</th>
+          <th className="px-4 py-3 font-semibold">Tokens</th>
+          <th className="px-4 py-3 font-semibold">What it proved</th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+        <tr>
+          <td className="px-4 py-3">Routine edit and test</td>
+          <td className="px-4 py-3">GLM-5.3-Flash</td>
+          <td className="px-4 py-3">~2m 29s</td>
+          <td className="px-4 py-3">~50k</td>
+          <td className="px-4 py-3">Ordinary work needs no frontier model</td>
+        </tr>
+        <tr>
+          <td className="px-4 py-3">Architecture judgment call</td>
+          <td className="px-4 py-3">Claude Opus 5</td>
+          <td className="px-4 py-3">~56s</td>
+          <td className="px-4 py-3">small</td>
+          <td className="px-4 py-3">Escalation earns its cost when justified</td>
+        </tr>
+        <tr>
+          <td className="px-4 py-3">Multi-file direct edit</td>
+          <td className="px-4 py-3">GLM-5.3-Flash</td>
+          <td className="px-4 py-3">~1m 47s</td>
+          <td className="px-4 py-3">small</td>
+          <td className="px-4 py-3">Multiple files alone never triggers delegation</td>
+        </tr>
+        <tr>
+          <td className="px-4 py-3">Native subagent delegation</td>
+          <td className="px-4 py-3">parent + 1 child</td>
+          <td className="px-4 py-3">~6 min incl. spawn</td>
+          <td className="px-4 py-3">minimal</td>
+          <td className="px-4 py-3">Delegation path still works, still capped at one</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <figcaption className="mx-auto mt-3 max-w-3xl text-center text-sm leading-6 text-slate-600 dark:text-slate-400">
+    Same repo, same task shape, two tiers. The cheap model handles the routine path; the expensive model is reserved for judgment calls that need it.
+  </figcaption>
+</figure>
+
+Across the whole migration window, GLM-5.3-Flash accumulated roughly $1.96 in cumulative cost while doing the bulk of the routine work, versus about $2.50 for Claude Opus 5 over a comparable period doing far fewer, far more targeted calls. Those are cumulative counters from the Grafana dashboard, not per-task bills, so treat them as a shape rather than an invoice. The shape is what matters: the cheap tier does the volume, the expensive tier does the judgment, and the telemetry makes both visible.
+
+## What I'm watching next
+
+Two things keep me honest here.
+
+First, Claude Code's Claude Opus 5 route goes through OpenRouter's Anthropic-compatible surface rather than Anthropic natively. The canary passed, but I haven't yet run a long agentic session through it, and tool-schema edge cases are exactly where compatibility layers tend to show their age. I'm watching that before I trust it with anything substantial.
+
+Second, the dashboards I used for this article are ones I've queried directly but haven't walked visually in a browser. The numbers are right; the presentation of the numbers is still something I want to eyeball before I call the observability story finished.
+
+The bigger bet — one agent, escalate only with a stated reason, measure everything — feels like the right resting point. It isn't minimal for its own sake. It's minimal because every extra layer I removed turned out to be a layer the data never asked for.
