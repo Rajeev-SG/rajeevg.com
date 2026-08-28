@@ -1,0 +1,170 @@
+---
+title: "I Made GLM-5.3-Flash 63% Faster. I'm Keeping the Cheap Route."
+slug: "i-made-glm-5-3-flash-faster-but-kept-cheap-routing"
+date: "2026-08-28"
+description: "A small OpenRouter routing benchmark made long GLM-5.3-Flash generations 63% faster, but modelling the result against a real day of agent use made the cost trade-off much clearer."
+tags:
+  - ai
+  - agents
+  - openrouter
+  - glm
+  - inference
+  - benchmarking
+  - observability
+  - cost
+draft: false
+image: /images/blog/glm-routing-benchmark/architecture-telemetry.svg
+---
+
+I went looking for the fastest sensible way to run GLM-5.3-Flash through OpenRouter. I found it. I am probably not going to use it as my default.
+
+That sounds like an anticlimax, but it is the useful result.
+
+Throughput routing cut a substantial generation from a median of **55.1 seconds to 20.7 seconds** in my test. That is roughly **63% faster**. It also pushed the likely cost of a busy day from about **£2.31 to somewhere around £3.90-£4.50**.
+
+An extra £2 is hardly ruinous. It just changes the character of the model. I use GLM because it is capable, quick enough, and extremely cheap. Paying twice as much to make every long answer arrive sooner solves a problem I do not always have.
+
+## The route I actually use
+
+My inference path is deliberately ordinary:
+
+<figure className="not-prose my-10">
+  <img
+    src="/images/blog/glm-routing-benchmark/architecture-telemetry.svg"
+    alt="Excalidraw architecture showing an agent request passing through CLIProxyAPI and OpenRouter to GLM providers, with timing, provider, token, cost and retry telemetry flowing into OpenTelemetry, Langfuse, Prometheus and Grafana"
+    className="relative left-1/2 block w-[min(96vw,92rem)] max-w-none -translate-x-1/2 rounded-2xl border border-slate-200 bg-white shadow-sm"
+  />
+  <figcaption className="mx-auto mt-3 max-w-3xl text-center text-sm leading-6 text-slate-600 dark:text-slate-400">
+    The request path stayed unchanged. The benchmark varied only the OpenRouter provider policy and joined client timing to provider telemetry. <a className="font-medium underline underline-offset-4" href="/downloads/glm-5-3-flash-routing-architecture.excalidraw">Download the editable Excalidraw source</a>.
+  </figcaption>
+</figure>
+
+The agent sends a normal request to CLIProxyAPI. The proxy forwards it to OpenRouter. OpenRouter chooses a provider serving `z-ai/glm-5.3-flash`.
+
+The useful bit sits alongside that path. A small client hook records the time to the first streamed token and the total response time. OpenRouter's generation metadata supplies the provider, token counts, cost, cache use and fallback attempts. OpenTelemetry, Langfuse, Prometheus and Grafana already collect the rest.
+
+I did not build a second observability stack for the benchmark. I added one small timing hook because the existing telemetry could not quite see the first token as the agent experienced it. All 40 clean requests joined back to the existing records using their OpenRouter generation IDs.
+
+That join showed the local plumbing was not the problem. The median gap between client-observed and OpenRouter-observed first-token time was **28.5 milliseconds**. OpenRouter's own routing step took **2 milliseconds at the median**. Most of the wait was provider inference.
+
+## A deliberately small benchmark
+
+I tested four policies:
+
+| Policy | What it asks OpenRouter to do |
+| --- | --- |
+| Default | Prefer lower-priced healthy providers |
+| Latency | Prioritise the lowest time to first token |
+| Throughput | Prioritise the highest output tokens per second |
+| Balanced | Prefer providers meeting soft latency and throughput thresholds |
+
+The throughput request was simply:
+
+```json
+{
+  "provider": {
+    "sort": "throughput",
+    "allow_fallbacks": true
+  }
+}
+```
+
+OpenRouter also supports the `:nitro` model suffix as an equivalent shortcut. The explicit provider object worked cleanly through my existing proxy, so that is what I tested.
+
+I ran five requests per policy against two workloads, giving 40 clean requests in total. One workload represented a short agent loop: inspect a result, choose a tool, make a brief decision. The other asked for a moderately long, implementation-ready coding response.
+
+This was enough for directional evidence without turning a curiosity into an API bill.
+
+## What happened on short agent turns
+
+| Routing | Median first token | Median output speed | Median total time | Cost per request | Errors / retries |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Default | 1.229s | 32.5 tok/s | 6.700s | $0.000055 | 0 / 0 |
+| Latency | 0.803s | 36.2 tok/s | 6.203s | $0.000050 | 0 / 0 |
+| Throughput | 1.172s | 33.9 tok/s | 6.619s | $0.000049 | 0 / 0 |
+| Balanced | 0.540s | 92.3 tok/s | 2.533s | $0.000108 | 0 / 1 |
+
+Latency routing did exactly what its name suggests. The first token arrived about **35% sooner**, but the complete short turn was only **7% faster**.
+
+The balanced policy was much more dramatic. It more than halved the total time, but it also doubled the normalised output cost and needed one recovered provider fallback.
+
+For a normal agent task with dozens of inference turns, those small waits add up. Based on my recent session history, the balanced route could remove roughly **4.5 minutes of inference time** from a typical 65-turn task. That estimate excludes tool execution and everything else the agent does between model calls.
+
+## Long generations were a different story
+
+| Routing | Median first token | Median output speed | Median total time | Cost per request | Errors / retries |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Default | 1.616s | 42.5 tok/s | 55.126s | $0.000558 | 0 / 1 |
+| Latency | 0.919s | 46.2 tok/s | 54.435s | $0.000623 | 0 / 0 |
+| Throughput | 0.502s | 122.2 tok/s | 20.667s | $0.001224 | 0 / 0 |
+| Balanced | 0.468s | 124.2 tok/s | 18.557s | $0.001082 | 0 / 2 |
+
+Here, throughput routing earned its name. Output speed rose from **42.5 to 122.2 tokens per second**. The median response finished **34.5 seconds sooner**.
+
+Balanced was a little faster again, but the difference was small and it produced more fallback churn. Three BaseTen attempts returned HTTP 429 and recovered through Modal. Throughput routing completed every request without a retry.
+
+The provider pattern explained most of the result:
+
+- Modal handled the fast long generations at roughly 120 output tokens per second.
+- Z.AI was slower, at roughly 36 tokens per second, but cheaper.
+- BaseTen looked spectacular once and rate-limited three other attempts. One good result is not a reason to pin production traffic.
+
+This is why provider-level telemetry matters. A routing label saying "balanced" does not tell you whether the router found a genuinely fast endpoint or merely recovered well from a bad first choice.
+
+## What the faster route would cost me over a real day
+
+The per-request premium looked almost silly in isolation: around **£0.00049** for each long benchmark generation. My actual usage told a different story because agents repeatedly send large contexts.
+
+In the measured 24-hour window, GLM-5.3-Flash handled:
+
+- **116,537,806 input tokens**;
+- **620,353 output tokens**;
+- roughly **379 requests**;
+- an estimated **$3.14, or £2.31**, of default-route cost.
+
+Those input tokens are not 116 million fresh words typed by a human. They include system instructions, tool definitions, conversation history and repeated working context sent back to the model on later turns.
+
+In the benchmark, throughput routing left the short requests on inexpensive Z.AI capacity and sent the longer work to faster Modal capacity. Current OpenRouter endpoint prices put Modal at roughly twice the Z.AI token price. Applying that behaviour to the measured day gives a sensible range rather than a fake exact forecast:
+
+| Daily routing choice | Estimated 24-hour cost | Difference |
+| --- | ---: | ---: |
+| Current/default | £2.31 | baseline |
+| Throughput routing | £3.90-£4.50 | about £1.60-£2.20 more |
+
+My central estimate is **about £2 extra per busy day**.
+
+That is still cheap in absolute terms. If I were waiting on long generated files all day, I would happily pay it. But most of my agent work is a mixture of model calls, tools, browser work, builds and tests. Making one part twice as expensive does not make the whole task twice as fast.
+
+## Why I am keeping the cheap route
+
+The benchmark changed my understanding, not my configuration.
+
+I now know there is a clean switch available when a task is generation-heavy. If I need a long implementation or structured analysis quickly, `provider.sort: "throughput"` is the obvious temporary choice. It was fast, simple and reliable in this run.
+
+For ordinary use, the default route remains more appealing. GLM-5.3-Flash is valuable to me because I can let agents work through large contexts without thinking too hard about every call. Cheap inference changes how freely I use the model. I would rather keep that property than shave seconds from work that is often waiting on a tool anyway.
+
+The more conservative speed tweak would be latency routing. It improved first-token time without a measured cost premium, although the complete short turn improved by only half a second. That is worth knowing, but not urgent enough for me to change a working setup.
+
+So the result is not "throughput routing is better." It is narrower:
+
+> Throughput routing is a very effective way to buy faster long GLM generations. I just do not need to buy them all the time.
+
+## Limits of the result
+
+This was a small benchmark, not a provider league table. Each policy had five requests per workload. Provider performance changes with load, routing statistics use rolling windows, and some prompts received cached input. The observed providers and prices can change.
+
+There were no user-visible failures across the 40 clean requests, but four upstream attempts needed fallbacks. Medians describe the centre of this run, not a guarantee for the next request.
+
+I also have not hard-pinned Modal or Z.AI. A small provider-specific follow-up would be useful if I decide to optimise further. For now, OpenRouter's fallbacks are doing useful work and the cheap default is doing exactly what I hired it to do.
+
+## Sources
+
+- [OpenRouter provider routing](https://openrouter.ai/docs/guides/routing/provider-selection)
+- [OpenRouter GLM-5.3-Flash endpoints and pricing](https://openrouter.ai/api/v1/models/z-ai/glm-5.3-flash/endpoints)
+- [CLIProxyAPI configuration reference](https://github.com/router-for-me/CLIProxyAPI/blob/a63da8ae76b1a4e0c0486c3eb0fb7ccf8f33e69d/config.example.yaml)
+- [OpenTelemetry documentation](https://opentelemetry.io/docs/)
+- [Langfuse documentation](https://langfuse.com/docs/)
+
+The benchmark changed no permanent agent or routing configuration. Costs are estimates derived from measured usage and endpoint prices at the time of the test. They are not a promise about a future OpenRouter bill.
+
+[Back to writing](/blog)
