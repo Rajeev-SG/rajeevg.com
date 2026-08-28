@@ -180,7 +180,7 @@ export const portfolioProjects: PortfolioProject[] = [
     slug: "agent-usage-observatory",
     title: "Tokenmaxxing",
     category: "AI operations tool",
-    tagline: "A live public record of where my coding-agent tokens are actually going.",
+    tagline: "A public token view backed by a private, full-detail Grafana control room.",
     summary:
       "Tokenmaxxing turns the private telemetry behind my multi-agent setup into a small, public, privacy-safe dashboard. It shows measured totals, provider shares, agent activity and freshness, while a separate authenticated Grafana control room provides the granular operational view without publishing prompts or session identifiers.",
     howItWorks:
@@ -192,9 +192,9 @@ export const portfolioProjects: PortfolioProject[] = [
     repoVisibility: "PRIVATE",
     inclusionReason: "Public production dashboard backed by measured, privacy-safe session telemetry.",
     detailLinks: [
+      { label: "Private control room", href: "/blog/how-i-built-one-control-room-for-six-ai-agents" },
       { label: "How the public feed works", href: "/blog/why-i-made-my-agent-token-usage-public" },
       { label: "Agent architecture", href: "/blog/how-i-split-sol-planning-from-opencode-go-execution" },
-      { label: "Private control room", href: "/blog/how-i-built-one-control-room-for-six-ai-agents" },
     ],
   },
   {
