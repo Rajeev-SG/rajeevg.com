@@ -1,0 +1,71 @@
+<mxGraphModel>
+  <root>
+    <mxCell id="0"/>
+    <mxCell id="1" parent="0"/>
+    <mxCell id="title" value="Before and After: Agent Oversight Ladder to One Agent Two Tiers" style="text;html=1;fontSize=24;fontStyle=1;align=left;" vertex="1" parent="1">
+      <mxGeometry x="40" y="20" width="900" height="40" as="geometry"/>
+    </mxCell>
+    <mxCell id="beforeBand" value="BEFORE: SIX HOPS BEFORE REAL WORK" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eff6ff;strokeColor=#bfdbfe;dashed=1;verticalAlign=top;fontStyle=1;fontSize=14;fontColor=#1d4ed8;spacingLeft=16;spacingTop=8;" vertex="1" parent="1">
+      <mxGeometry x="40" y="80" width="1120" height="240" as="geometry"/>
+    </mxCell>
+    <mxCell id="b1" value="&lt;b&gt;Codex Desktop&lt;/b&gt;&lt;br&gt;plans, checks, decides" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0e7ff;strokeColor=#4f46e5;strokeWidth=2;" vertex="1" parent="1">
+      <mxGeometry x="80" y="130" width="180" height="70" as="geometry"/>
+    </mxCell>
+    <mxCell id="b2" value="&lt;b&gt;Beads&lt;/b&gt;&lt;br&gt;task ID and status" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;strokeWidth=2;" vertex="1" parent="1">
+      <mxGeometry x="300" y="130" width="160" height="70" as="geometry"/>
+    </mxCell>
+    <mxCell id="b3" value="&lt;b&gt;BVR&lt;/b&gt;&lt;br&gt;verification review" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;strokeWidth=2;" vertex="1" parent="1">
+      <mxGeometry x="500" y="130" width="160" height="70" as="geometry"/>
+    </mxCell>
+    <mxCell id="b4" value="&lt;b&gt;Delegation preflight&lt;/b&gt;&lt;br&gt;worker must be reserved" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;strokeWidth=2;" vertex="1" parent="1">
+      <mxGeometry x="700" y="130" width="180" height="70" as="geometry"/>
+    </mxCell>
+    <mxCell id="b5" value="&lt;b&gt;NTM&lt;/b&gt;&lt;br&gt;reserves a worker session" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;strokeWidth=2;" vertex="1" parent="1">
+      <mxGeometry x="920" y="130" width="180" height="70" as="geometry"/>
+    </mxCell>
+    <mxCell id="bw" value="&lt;b&gt;OpenCode Go · GPT-5.6 Luna&lt;/b&gt;&lt;br&gt;the model doing the actual work" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#16a34a;strokeWidth=2;" vertex="1" parent="1">
+      <mxGeometry x="440" y="240" width="320" height="60" as="geometry"/>
+    </mxCell>
+    <mxCell id="bsol" value="&lt;b&gt;Sol gate · GPT-5.6 Sol&lt;/b&gt;&lt;br&gt;review triggered on high-risk tasks" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fee2e2;strokeColor=#dc2626;strokeWidth=2;" vertex="1" parent="1">
+      <mxGeometry x="800" y="240" width="300" height="60" as="geometry"/>
+    </mxCell>
+    <mxCell id="eb1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#64748b;strokeWidth=2;endArrow=block;endFill=1;" edge="1" parent="1" source="b1" target="b2"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="eb2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#64748b;strokeWidth=2;endArrow=block;endFill=1;" edge="1" parent="1" source="b2" target="b3"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="eb3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#64748b;strokeWidth=2;endArrow=block;endFill=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="b3" target="b4"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="580" y="115"/><mxPoint x="790" y="115"/></Array></mxGeometry></mxCell>
+    <mxCell id="eb4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#64748b;strokeWidth=2;endArrow=block;endFill=1;" edge="1" parent="1" source="b4" target="b5"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="ebw" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#16a34a;strokeWidth=2;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="b5" target="bw"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1010" y="225"/><mxPoint x="790" y="225"/></Array></mxGeometry></mxCell>
+    <mxCell id="ebsol" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#dc2626;strokeWidth=2;endArrow=block;endFill=1;dashed=1;" edge="1" parent="1" source="bw" target="bsol"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="afterBand" value="AFTER: ONE AGENT, TWO TIERS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfdf5;strokeColor=#a7f3d0;dashed=1;verticalAlign=top;fontStyle=1;fontSize=14;fontColor=#047857;spacingLeft=16;spacingTop=8;" vertex="1" parent="1">
+      <mxGeometry x="40" y="360" width="1120" height="240" as="geometry"/>
+    </mxCell>
+    <mxCell id="a1" value="&lt;b&gt;One agent&lt;/b&gt;&lt;br&gt;plan → edit → test → report" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0e7ff;strokeColor=#4f46e5;strokeWidth=2;" vertex="1" parent="1">
+      <mxGeometry x="80" y="410" width="220" height="70" as="geometry"/>
+    </mxCell>
+    <mxCell id="a2" value="&lt;b&gt;GLM-5.3-Flash&lt;/b&gt;&lt;br&gt;everyday work · cheap, fast&lt;br&gt;via OpenRouter" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#16a34a;strokeWidth=2;" vertex="1" parent="1">
+      <mxGeometry x="380" y="415" width="240" height="70" as="geometry"/>
+    </mxCell>
+    <mxCell id="a3" value="&lt;b&gt;Frontier escalation&lt;/b&gt;&lt;br&gt;GPT-5.6 Sol (Codex)&lt;br&gt;Claude Opus 5 (OMP, Hermes, Claude Code)&lt;br&gt;only with a stated reason" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fee2e2;strokeColor=#dc2626;strokeWidth=2;" vertex="1" parent="1">
+      <mxGeometry x="700" y="400" width="340" height="90" as="geometry"/>
+    </mxCell>
+    <mxCell id="a4" value="&lt;b&gt;Every call logged&lt;/b&gt;&lt;br&gt;model · tokens · cost · latency" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#94a3b8;strokeWidth=2;" vertex="1" parent="1">
+      <mxGeometry x="240" y="520" width="360" height="60" as="geometry"/>
+    </mxCell>
+    <mxCell id="a5" value="&lt;b&gt;Langfuse&lt;/b&gt;&lt;br&gt;one trace per model call" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;strokeWidth=2;" vertex="1" parent="1">
+      <mxGeometry x="700" y="520" width="180" height="60" as="geometry"/>
+    </mxCell>
+    <mxCell id="a6" value="&lt;b&gt;Prometheus + Grafana&lt;/b&gt;&lt;br&gt;counters · trends · dashboards" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ede9fe;strokeColor=#7c3aed;strokeWidth=2;" vertex="1" parent="1">
+      <mxGeometry x="920" y="520" width="220" height="60" as="geometry"/>
+    </mxCell>
+    <mxCell id="ea1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#16a34a;strokeWidth=2.5;endArrow=block;endFill=1;exitX=1;exitY=0.85;exitDx=0;exitDy=0;entryX=0;entryY=0.85;entryDx=0;entryDy=0;" edge="1" parent="1" source="a1" target="a2"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="ea2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#dc2626;strokeWidth=2.5;endArrow=block;endFill=1;dashed=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.85;entryDx=0;entryDy=0;" edge="1" parent="1" source="a1" target="a3"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="190" y="500"/><mxPoint x="660" y="500"/></Array></mxGeometry></mxCell>
+    <mxCell id="ea3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#64748b;strokeWidth=2;endArrow=block;endFill=1;dashed=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="a2" target="a4"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="ea5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#047857;strokeWidth=2.5;endArrow=block;endFill=1;" edge="1" parent="1" source="a4" target="a5"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="ea6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#047857;strokeWidth=2.5;endArrow=block;endFill=1;" edge="1" parent="1" source="a5" target="a6"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="legend" value="&lt;b&gt;Legend&lt;/b&gt;&lt;br&gt;solid green: everyday path&lt;br&gt;dashed red: escalation&lt;br&gt;dashed grey: telemetry side-channel" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#cbd5e1;strokeWidth=2;align=left;spacingLeft=12;" vertex="1" parent="1">
+      <mxGeometry x="40" y="630" width="360" height="100" as="geometry"/>
+    </mxCell>
+    <mxCell id="note" value="Beads, NTM and Agent Mail remain installed&lt;br&gt;but stopped sitting between the request and the work." style="text;html=1;fontSize=13;fontColor=#475569;align=left;" vertex="1" parent="1">
+      <mxGeometry x="440" y="655" width="720" height="50" as="geometry"/>
+    </mxCell>
+  </root>
+</mxGraphModel>
