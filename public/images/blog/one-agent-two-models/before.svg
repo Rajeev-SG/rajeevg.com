@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1020" height="660" viewBox="0 0 1020 660" font-family="ui-sans-serif, system-ui, Segoe UI, sans-serif">
+<rect width="1020" height="660" fill="#ffffff"/>
+<marker id="ah0" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#16a34a"/></marker>
+<marker id="ah1" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#64748b"/></marker>
+<marker id="ah2" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#dc2626"/></marker>
+<rect x="60" y="120" width="180" height="80" rx="10" fill="#f1f5f9" stroke="#1e293b" stroke-width="2"/>
+<rect x="320" y="120" width="280" height="80" rx="10" fill="#e0e7ff" stroke="#1e293b" stroke-width="2"/>
+<rect x="320" y="240" width="280" height="60" rx="10" fill="#fef9c3" stroke="#1e293b" stroke-width="2"/>
+<rect x="320" y="320" width="280" height="60" rx="10" fill="#fef9c3" stroke="#1e293b" stroke-width="2"/>
+<rect x="320" y="400" width="280" height="60" rx="10" fill="#fef9c3" stroke="#1e293b" stroke-width="2"/>
+<rect x="320" y="480" width="280" height="60" rx="10" fill="#fef9c3" stroke="#1e293b" stroke-width="2"/>
+<rect x="660" y="440" width="320" height="80" rx="10" fill="#dcfce7" stroke="#1e293b" stroke-width="2"/>
+<rect x="660" y="240" width="320" height="90" rx="10" fill="#fee2e2" stroke="#1e293b" stroke-width="2"/>
+<rect x="660" y="120" width="320" height="70" rx="10" fill="#f1f5f9" stroke="#1e293b" stroke-width="2"/>
+<line x1="460" y1="220" x2="460" y2="238" stroke="#64748b" stroke-width="2" marker-end="url(#ah1)"/>
+<line x1="460" y1="300" x2="460" y2="318" stroke="#64748b" stroke-width="2" marker-end="url(#ah1)"/>
+<line x1="460" y1="380" x2="460" y2="398" stroke="#64748b" stroke-width="2" marker-end="url(#ah1)"/>
+<line x1="460" y1="460" x2="460" y2="478" stroke="#64748b" stroke-width="2" marker-end="url(#ah1)"/>
+<line x1="600" y1="510" x2="656" y2="478" stroke="#16a34a" stroke-width="2" marker-end="url(#ah0)"/>
+<line x1="820" y1="436" x2="820" y2="334" stroke="#dc2626" stroke-width="2" stroke-dasharray="7 5" marker-end="url(#ah2)"/>
+<text x="40" y="52" font-size="24" fill="#0f172a" text-anchor="start" xml:space="preserve">Before: every task climbed the oversight ladder</text>
+<text x="89.55" y="156.25" font-size="15" fill="#0f172a" text-anchor="start" xml:space="preserve">You</text>
+<text x="89.55" y="175.0" font-size="15" fill="#0f172a" text-anchor="start" xml:space="preserve">(one request)</text>
+<text x="357.7" y="156.25" font-size="15" fill="#0f172a" text-anchor="start" xml:space="preserve">Codex Desktop parent</text>
+<text x="357.7" y="175.0" font-size="15" fill="#0f172a" text-anchor="start" xml:space="preserve">plans, checks, decides</text>
+<text x="347.15999999999997" y="275.25" font-size="14" fill="#0f172a" text-anchor="start" xml:space="preserve">Beads — task ID and status</text>
+<text x="351.5" y="355.25" font-size="14" fill="#0f172a" text-anchor="start" xml:space="preserve">BVR — verification review</text>
+<text x="373.2" y="435.25" font-size="14" fill="#0f172a" text-anchor="start" xml:space="preserve">Delegation preflight</text>
+<text x="325.46000000000004" y="515.25" font-size="14" fill="#0f172a" text-anchor="start" xml:space="preserve">NTM — reserves a worker session</text>
+<text x="675.85" y="476.25" font-size="15" fill="#0f172a" text-anchor="start" xml:space="preserve">OpenCode Go · GPT-5.6 Luna</text>
+<text x="675.85" y="495.0" font-size="15" fill="#0f172a" text-anchor="start" xml:space="preserve">the model doing the actual work</text>
+<text x="657.25" y="281.25" font-size="15" fill="#0f172a" text-anchor="start" xml:space="preserve">Sol gate · GPT-5.6 Sol</text>
+<text x="657.25" y="300.0" font-size="15" fill="#0f172a" text-anchor="start" xml:space="preserve">review triggered on high-risk tasks</text>
+<text x="780.4" y="381.5" font-size="12" fill="#475569" text-anchor="start" xml:space="preserve">review loop</text>
+<text x="687.01" y="151.75" font-size="13" fill="#0f172a" text-anchor="start" xml:space="preserve">Agent Mail — coordination notices</text>
+<text x="687.01" y="168.0" font-size="13" fill="#0f172a" text-anchor="start" xml:space="preserve">ToolHive — isolated MCP endpoints</text>
+<text x="320" y="596" font-size="16" fill="#334155" text-anchor="start" xml:space="preserve">Six hops before a single line of code moved —</text>
+<text x="320" y="616.0" font-size="16" fill="#334155" text-anchor="start" xml:space="preserve">and every hop cost tokens and time.</text>
+</svg>
