@@ -23,12 +23,12 @@ Each layer made sense on its own. Together, they meant a simple request climbed 
 
 <figure className="not-prose my-10">
   <img
-    src="/images/blog/one-agent-two-models/before.svg"
-    alt="Before diagram: a request passes through Codex Desktop, then Beads, BVR, a delegation preflight, and NTM before reaching OpenCode Go running GPT-5.6 Luna, with a Sol review gate looping back for high-risk tasks"
+    src="/images/blog/one-agent-two-models/combined.svg"
+    alt="Combined before and after diagram: the old six-hop oversight ladder with Beads, BVR, a delegation preflight and NTM before reaching OpenCode Go, alongside the new single-agent path routing everyday work to GLM-5.3-Flash and hard tasks to GPT-5.6 Sol or Claude Opus 5, with Langfuse, Prometheus and Grafana telemetry"
     className="relative left-1/2 block w-[min(96vw,92rem)] max-w-none -translate-x-1/2 rounded-2xl border border-slate-200 bg-white shadow-sm"
   />
   <figcaption className="mx-auto mt-3 max-w-3xl text-center text-sm leading-6 text-slate-600 dark:text-slate-400">
-    The old path. Six hops before the model doing the actual work saw the task. <a className="font-medium underline underline-offset-4" href="/downloads/one-agent-two-models-before.excalidraw">Download the editable Excalidraw source</a>.
+    The old path and the new path side by side. Six hops before, one agent after. <a className="font-medium underline underline-offset-4" href="/downloads/one-agent-two-models-combined.drawio">Download the editable draw.io source</a>.
   </figcaption>
 </figure>
 
@@ -58,17 +58,6 @@ Beads, NTM, and Agent Mail are still installed. They just stopped sitting betwee
   />
   <figcaption className="mx-auto mt-3 max-w-3xl text-center text-sm leading-6 text-slate-600 dark:text-slate-400">
     The new path. One agent, two tiers, and a telemetry side-channel that makes every call measurable. <a className="font-medium underline underline-offset-4" href="/downloads/one-agent-two-models-after.excalidraw">Download the editable Excalidraw source</a>.
-  </figcaption>
-</figure>
-
-<figure className="not-prose my-10">
-  <img
-    src="/images/blog/one-agent-two-models/combined.svg"
-    alt="Combined before and after diagram drawn in draw.io: the old six-hop oversight ladder across the top, the new single-agent two-tier path with Langfuse, Prometheus and Grafana telemetry below, and a legend for the arrow colours"
-    className="relative left-1/2 block w-[min(96vw,92rem)] max-w-none -translate-x-1/2 rounded-2xl border border-slate-200 bg-white shadow-sm"
-  />
-  <figcaption className="mx-auto mt-3 max-w-3xl text-center text-sm leading-6 text-slate-600 dark:text-slate-400">
-    Both paths side by side. <a className="font-medium underline underline-offset-4" href="/downloads/one-agent-two-models-combined.drawio">Download the editable draw.io source</a>.
   </figcaption>
 </figure>
 
