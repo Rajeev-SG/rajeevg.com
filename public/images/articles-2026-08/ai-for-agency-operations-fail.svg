@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">When platform and backend disagree</title>
+  <desc id="desc">Attribution claims vs measured truth, before and after reconciliation.</desc>
+  <defs>
+    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.1" fill="#e7e2d5"/></pattern>
+    <filter id="wobble" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="11" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="0.85"/></filter>
+    <marker id="arrowEnd" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M 0 0 L 9 5 L 0 10 z" fill="#172033"/></marker>
+    <style>
+      .rough { filter: url(#wobble); }
+      .title { font: 700 34px Georgia, serif; fill: #172033; }
+      .subtitle { font: 18px Georgia, serif; fill: #566174; }
+      .node-title { font: 700 22px "Comic Sans MS", "Bradley Hand", cursive; fill: #172033; }
+      .body { font: 15px "Comic Sans MS", "Bradley Hand", cursive; fill: #172033; }
+      .arrow-label { font: 14px "Comic Sans MS", "Bradley Hand", cursive; fill: #566174; paint-order: stroke; stroke: #fbfaf5; stroke-width: 7px; }
+      .footer { font: 15px Georgia, serif; font-style: italic; fill: #566174; }
+    </style>
+  </defs>
+  <rect width="1280" height="720" fill="#fbfaf5"/>
+  <rect width="1280" height="720" fill="url(#dots)" opacity=".68"/>
+  <path d="M 48 101 C 330 98, 580 105, 846 100 S 1125 103, 1230 99" fill="none" stroke="#172033" stroke-width="2" stroke-opacity=".18" class="rough"/>
+  <text x="48" y="60" class="title">When platform and backend disagree</text>
+  <text x="48" y="91" class="subtitle">Attribution claims vs measured truth, before and after reconciliation.</text>
+  <g><path d="M 540 280 C 640 280, 640 280, 740 280" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arrowEnd)" class="rough"/><text x="640" y="271" text-anchor="middle" class="arrow-label">changed</text></g>
+<g><path d="M 980 390 C 810 390, 810 450, 640 450" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arrowEnd)" class="rough"/></g>
+  <g><rect x="60" y="170" width="480" height="220" rx="18" fill="#ffe1de" stroke="#a45350" stroke-width="3" class="rough"/><rect x="65" y="175" width="470" height="210" rx="14" fill="none" stroke="#a45350" stroke-opacity=".22" stroke-width="1.5"/><text x="300" y="210" text-anchor="middle" class="node-title">Before</text><text x="300" y="244" text-anchor="middle" class="body">platform claims conversions</text>
+<text x="300" y="268" text-anchor="middle" class="body">backend shows fewer</text>
+<text x="300" y="292" text-anchor="middle" class="body">spend decided on the platform number</text></g>
+<g><rect x="740" y="170" width="480" height="220" rx="18" fill="#dcf3e5" stroke="#3f8460" stroke-width="3" class="rough"/><rect x="745" y="175" width="470" height="210" rx="14" fill="none" stroke="#3f8460" stroke-opacity=".22" stroke-width="1.5"/><text x="980" y="210" text-anchor="middle" class="node-title">After</text><text x="980" y="244" text-anchor="middle" class="body">gap measured and explained</text>
+<text x="980" y="268" text-anchor="middle" class="body">deduplication applied</text>
+<text x="980" y="292" text-anchor="middle" class="body">decision on the reconciled number</text></g>
+<g><rect x="330" y="450" width="620" height="130" rx="18" fill="#fff0c9" stroke="#a97921" stroke-width="3" class="rough"/><rect x="335" y="455" width="610" height="120" rx="14" fill="none" stroke="#a97921" stroke-opacity=".22" stroke-width="1.5"/><text x="640" y="490" text-anchor="middle" class="node-title">Why the change is defensible</text><text x="640" y="524" text-anchor="middle" class="body">Both sources stay visible; neither is silently overwritten. Known from anonymised reconciliation work.</text></g>
+  <path d="M 48 674 C 360 670, 620 678, 950 672 S 1160 675, 1230 671" fill="none" stroke="#172033" stroke-width="1.5" stroke-opacity=".18" class="rough"/>
+  <text x="640" y="700" text-anchor="middle" class="footer">Both sources stay visible; neither is silently overwritten. Known from anonymised reconciliation work.  ·  Before: platform wins → After: reconciled  ·  Evidence date: 2026-08-29</text>
+</svg>

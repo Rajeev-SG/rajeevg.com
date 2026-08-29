@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Collection and warehousing, honestly</title>
+  <desc id="desc">Server-side GTM and the warehouse are powerful. They are also optional.</desc>
+  <defs>
+    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.1" fill="#e7e2d5"/></pattern>
+    <filter id="wobble" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="11" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="0.85"/></filter>
+    <marker id="arrowEnd" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M 0 0 L 9 5 L 0 10 z" fill="#172033"/></marker>
+    <style>
+      .rough { filter: url(#wobble); }
+      .title { font: 700 34px Georgia, serif; fill: #172033; }
+      .subtitle { font: 18px Georgia, serif; fill: #566174; }
+      .node-title { font: 700 23px "Comic Sans MS", "Bradley Hand", cursive; fill: #172033; }
+      .body { font: 16px "Comic Sans MS", "Bradley Hand", cursive; fill: #172033; }
+      .arrow-label { font: 14px "Comic Sans MS", "Bradley Hand", cursive; fill: #566174; paint-order: stroke; stroke: #fbfaf5; stroke-width: 7px; }
+      .footer { font: 15px Georgia, serif; font-style: italic; fill: #566174; }
+    </style>
+  </defs>
+  <rect width="1280" height="720" fill="#fbfaf5"/>
+  <rect width="1280" height="720" fill="url(#dots)" opacity=".68"/>
+  <path d="M 48 101 C 330 98, 580 105, 846 100 S 1125 103, 1230 99" fill="none" stroke="#172033" stroke-width="2" stroke-opacity=".18" class="rough"/>
+  <text x="48" y="60" class="title">Collection and warehousing, honestly</text>
+  <text x="48" y="91" class="subtitle">Server-side GTM and the warehouse are powerful. They are also optional.</text>
+  <g><path d="M 380 250 C 425 250, 425 250, 470 250" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arrowEnd)" class="rough"/></g>
+<g><path d="M 790 250 C 835 250, 835 250, 880 250" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arrowEnd)" class="rough"/></g>
+<g><path d="M 790 320 C 645 320, 645 440, 500 440" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arrowEnd)" class="rough"/></g>
+<g><path d="M 505 515 C 647.5 515, 647.5 515, 790 515" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arrowEnd)" class="rough"/></g>
+  <g><rect x="60" y="160" width="320" height="180" rx="18" fill="#dce8ff" stroke="#4f6fad" stroke-width="3" class="rough"/><rect x="65" y="165" width="310" height="170" rx="14" fill="none" stroke="#4f6fad" stroke-opacity=".22" stroke-width="1.5"/><text x="220" y="200" text-anchor="middle" class="node-title">Consented collection</text><text x="220" y="234" text-anchor="middle" class="body">browser events</text>
+<text x="220" y="258" text-anchor="middle" class="body">consent checked first</text></g>
+<g><rect x="470" y="160" width="320" height="180" rx="18" fill="#e9e1ff" stroke="#7459a8" stroke-width="3" class="rough"/><rect x="475" y="165" width="310" height="170" rx="14" fill="none" stroke="#7459a8" stroke-opacity=".22" stroke-width="1.5"/><text x="630" y="200" text-anchor="middle" class="node-title">Server-side GTM</text><text x="630" y="234" text-anchor="middle" class="body">first-party endpoint</text>
+<text x="630" y="258" text-anchor="middle" class="body">control over what leaves</text></g>
+<g><rect x="880" y="160" width="310" height="180" rx="18" fill="#dcf3e5" stroke="#3f8460" stroke-width="3" class="rough"/><rect x="885" y="165" width="300" height="170" rx="14" fill="none" stroke="#3f8460" stroke-opacity=".22" stroke-width="1.5"/><text x="1035" y="200" text-anchor="middle" class="node-title">Warehouse</text><text x="1035" y="234" text-anchor="middle" class="body">BigQuery truth</text>
+<text x="1035" y="258" text-anchor="middle" class="body">joins backend events</text></g>
+<g><rect x="265" y="440" width="480" height="150" rx="18" fill="#ffe1de" stroke="#a45350" stroke-width="3" class="rough"/><rect x="270" y="445" width="470" height="140" rx="14" fill="none" stroke="#a45350" stroke-opacity=".22" stroke-width="1.5"/><text x="505" y="480" text-anchor="middle" class="node-title">When NOT to use it</text><text x="505" y="514" text-anchor="middle" class="body">low volume · no engineering owner</text>
+<text x="505" y="538" text-anchor="middle" class="body">client-side + export already answers the question</text></g>
+<g><rect x="790" y="440" width="400" height="150" rx="18" fill="#fff0c9" stroke="#a97921" stroke-width="3" class="rough"/><rect x="795" y="445" width="390" height="140" rx="14" fill="none" stroke="#a97921" stroke-opacity=".22" stroke-width="1.5"/><text x="990" y="480" text-anchor="middle" class="node-title">Cost reality</text><text x="990" y="514" text-anchor="middle" class="body">Cloud Run bills</text>
+<text x="990" y="538" text-anchor="middle" class="body">two measurement stacks to maintain</text></g>
+  <path d="M 48 674 C 360 670, 620 678, 950 672 S 1160 675, 1230 671" fill="none" stroke="#172033" stroke-width="1.5" stroke-opacity=".18" class="rough"/>
+  <text x="640" y="700" text-anchor="middle" class="footer">Evidence date: 29 Aug 2026  ·  consented-stack and cost-autopsy field notes folded into this story</text>
+</svg>

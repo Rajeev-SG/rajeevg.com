@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Agentic web analytics, end to end</title>
+  <desc id="desc">Implementation, QA, reporting and reconciliation as one governed loop.</desc>
+  <defs>
+    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.1" fill="#e7e2d5"/></pattern>
+    <filter id="wobble" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="11" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="0.85"/></filter>
+    <marker id="arrowEnd" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M 0 0 L 9 5 L 0 10 z" fill="#172033"/></marker>
+    <style>
+      .rough { filter: url(#wobble); }
+      .title { font: 700 34px Georgia, serif; fill: #172033; }
+      .subtitle { font: 18px Georgia, serif; fill: #566174; }
+      .node-title { font: 700 23px "Comic Sans MS", "Bradley Hand", cursive; fill: #172033; }
+      .body { font: 16px "Comic Sans MS", "Bradley Hand", cursive; fill: #172033; }
+      .arrow-label { font: 14px "Comic Sans MS", "Bradley Hand", cursive; fill: #566174; paint-order: stroke; stroke: #fbfaf5; stroke-width: 7px; }
+      .footer { font: 15px Georgia, serif; font-style: italic; fill: #566174; }
+    </style>
+  </defs>
+  <rect width="1280" height="720" fill="#fbfaf5"/>
+  <rect width="1280" height="720" fill="url(#dots)" opacity=".68"/>
+  <path d="M 48 101 C 330 98, 580 105, 846 100 S 1125 103, 1230 99" fill="none" stroke="#172033" stroke-width="2" stroke-opacity=".18" class="rough"/>
+  <text x="48" y="60" class="title">Agentic web analytics, end to end</text>
+  <text x="48" y="91" class="subtitle">Implementation, QA, reporting and reconciliation as one governed loop.</text>
+  <g><path d="M 390 260 C 435 260, 435 260, 480 260" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arrowEnd)" class="rough"/></g>
+<g><path d="M 800 260 C 845 260, 845 260, 890 260" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arrowEnd)" class="rough"/></g>
+<g><path d="M 890 350 C 760 350, 760 450, 630 450" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arrowEnd)" class="rough"/><text x="760" y="391" text-anchor="middle" class="arrow-label">loop</text></g>
+  <g><rect x="60" y="170" width="330" height="180" rx="18" fill="#dce8ff" stroke="#4f6fad" stroke-width="3" class="rough"/><rect x="65" y="175" width="320" height="170" rx="14" fill="none" stroke="#4f6fad" stroke-opacity=".22" stroke-width="1.5"/><text x="225" y="210" text-anchor="middle" class="node-title">Governed plan</text><text x="225" y="244" text-anchor="middle" class="body">events · properties · owners</text>
+<text x="225" y="268" text-anchor="middle" class="body">consent model first</text></g>
+<g><rect x="480" y="170" width="320" height="180" rx="18" fill="#e9e1ff" stroke="#7459a8" stroke-width="3" class="rough"/><rect x="485" y="175" width="310" height="170" rx="14" fill="none" stroke="#7459a8" stroke-opacity=".22" stroke-width="1.5"/><text x="640" y="210" text-anchor="middle" class="node-title">Agentic implementation</text><text x="640" y="244" text-anchor="middle" class="body">GTM and GA4 configured</text>
+<text x="640" y="268" text-anchor="middle" class="body">against the plan, not vibes</text></g>
+<g><rect x="890" y="170" width="300" height="180" rx="18" fill="#dcf3e5" stroke="#3f8460" stroke-width="3" class="rough"/><rect x="895" y="175" width="290" height="170" rx="14" fill="none" stroke="#3f8460" stroke-opacity=".22" stroke-width="1.5"/><text x="1040" y="210" text-anchor="middle" class="node-title">Automated QA</text><text x="1040" y="244" text-anchor="middle" class="body">real browser journeys</text>
+<text x="1040" y="268" text-anchor="middle" class="body">observed vs contract</text></g>
+<g><rect x="480" y="450" width="320" height="150" rx="18" fill="#fff0c9" stroke="#a97921" stroke-width="3" class="rough"/><rect x="485" y="455" width="310" height="140" rx="14" fill="none" stroke="#a97921" stroke-opacity=".22" stroke-width="1.5"/><text x="640" y="490" text-anchor="middle" class="node-title">Report and reconcile</text><text x="640" y="524" text-anchor="middle" class="body">GA4 · BigQuery · vendors</text>
+<text x="640" y="548" text-anchor="middle" class="body">differences explained</text></g>
+  <path d="M 48 674 C 360 670, 620 678, 950 672 S 1160 675, 1230 671" fill="none" stroke="#172033" stroke-width="1.5" stroke-opacity=".18" class="rough"/>
+  <text x="640" y="700" text-anchor="middle" class="footer">Evidence date: 29 Aug 2026  ·  human governance stays in the loop at every gate</text>
+</svg>

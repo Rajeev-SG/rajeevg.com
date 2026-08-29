@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">AI-Assisted Product Definition</title>
+  <desc id="desc">Messy context in. Scoped, reviewable decisions out.</desc>
+  <defs>
+    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.1" fill="#e7e2d5"/></pattern>
+    <filter id="wobble" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="11" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="0.85"/></filter>
+    <marker id="arrowEnd" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M 0 0 L 9 5 L 0 10 z" fill="#172033"/></marker>
+    <style>
+      .rough { filter: url(#wobble); }
+      .title { font: 700 34px Georgia, serif; fill: #172033; }
+      .subtitle { font: 18px Georgia, serif; fill: #566174; }
+      .node-title { font: 700 24px "Comic Sans MS", "Bradley Hand", cursive; fill: #172033; }
+      .body { font: 17px "Comic Sans MS", "Bradley Hand", cursive; fill: #172033; }
+      .arrow-label { font: 14px "Comic Sans MS", "Bradley Hand", cursive; fill: #566174; paint-order: stroke; stroke: #fbfaf5; stroke-width: 7px; }
+      .footer { font: 16px Georgia, serif; font-style: italic; fill: #566174; }
+    </style>
+  </defs>
+  <rect width="1280" height="720" fill="#fbfaf5"/>
+  <rect width="1280" height="720" fill="url(#dots)" opacity=".68"/>
+  <path d="M 48 101 C 330 98, 580 105, 846 100 S 1125 103, 1230 99" fill="none" stroke="#172033" stroke-width="2" stroke-opacity=".18" class="rough"/>
+  <text x="48" y="60" class="title">AI-Assisted Product Definition</text>
+  <text x="48" y="91" class="subtitle">Messy context in. Scoped, reviewable decisions out.</text>
+  <g><path d="M 390 272 C 435 272, 435 272, 480 272" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arrowEnd)" class="rough"/><text x="435" y="263" text-anchor="middle" class="arrow-label">structure</text></g>
+<g><path d="M 800 272 C 845 272, 845 272, 890 272" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arrowEnd)" class="rough"/><text x="845" y="263" text-anchor="middle" class="arrow-label">produce</text></g>
+<g><path d="M 640 355 C 640 355, 640 430, 640 430" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arrowEnd)" class="rough"/><text x="640" y="383.5" text-anchor="middle" class="arrow-label">gate</text></g>
+  <g><rect x="70" y="190" width="320" height="165" rx="18" fill="#dce8ff" stroke="#4f6fad" stroke-width="3" class="rough"/><rect x="75" y="195" width="310" height="155" rx="14" fill="none" stroke="#4f6fad" stroke-opacity=".22" stroke-width="1.5"/><text x="230" y="233" text-anchor="middle" class="node-title">Source material</text><text x="230" y="269" text-anchor="middle" class="body">calls · decks · docs</text>
+<text x="230" y="294" text-anchor="middle" class="body">commercial context</text></g>
+<g><rect x="480" y="190" width="320" height="165" rx="18" fill="#e9e1ff" stroke="#7459a8" stroke-width="3" class="rough"/><rect x="485" y="195" width="310" height="155" rx="14" fill="none" stroke="#7459a8" stroke-opacity=".22" stroke-width="1.5"/><text x="640" y="233" text-anchor="middle" class="node-title">Knowledge layer</text><text x="640" y="269" text-anchor="middle" class="body">structured, governed</text>
+<text x="640" y="294" text-anchor="middle" class="body">traceable to source</text></g>
+<g><rect x="890" y="190" width="320" height="165" rx="18" fill="#dcf3e5" stroke="#3f8460" stroke-width="3" class="rough"/><rect x="895" y="195" width="310" height="155" rx="14" fill="none" stroke="#3f8460" stroke-opacity=".22" stroke-width="1.5"/><text x="1050" y="233" text-anchor="middle" class="node-title">Definition output</text><text x="1050" y="269" text-anchor="middle" class="body">PRD · plan · scope</text>
+<text x="1050" y="294" text-anchor="middle" class="body">open questions explicit</text></g>
+<g><rect x="480" y="430" width="320" height="150" rx="18" fill="#fff0c9" stroke="#a97921" stroke-width="3" class="rough"/><rect x="485" y="435" width="310" height="140" rx="14" fill="none" stroke="#a97921" stroke-opacity=".22" stroke-width="1.5"/><text x="640" y="473" text-anchor="middle" class="node-title">Decision gate</text><text x="640" y="509" text-anchor="middle" class="body">review before build</text>
+<text x="640" y="534" text-anchor="middle" class="body">no generic document</text></g>
+  <path d="M 48 674 C 360 670, 620 678, 950 672 S 1160 675, 1230 671" fill="none" stroke="#172033" stroke-width="1.5" stroke-opacity=".18" class="rough"/>
+  <text x="640" y="700" text-anchor="middle" class="footer">Evidence date: 29 Aug 2026  ·  anonymised from agency scoping work</text>
+</svg>
