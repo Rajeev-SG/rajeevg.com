@@ -6,7 +6,8 @@ Canonical site: https://rajeevg.com
 
 - [Home](https://rajeevg.com/): Rajeev Gill's practical software, AI, data, analytics, and adtech overview.
 - [About](https://rajeevg.com/about): background and working interests.
-- [Projects](https://rajeevg.com/projects): public products, live resources, and source links.
+- [Solutions](https://rajeevg.com/solutions): AI and agent systems, martech and measurement, and operational products, each with evidence links and a last-updated date.
+- [Earlier products](https://rajeevg.com/solutions/earlier-products): earlier experiments, what each taught, and what survived.
 - [Writing](https://rajeevg.com/blog): published technical notes and build accounts.
 - [Contact](https://rajeevg.com/contact): public contact guidance.
 - [Developers](https://rajeevg.com/developers): canonical developer resources and integration status.

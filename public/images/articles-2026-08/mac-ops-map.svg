@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">The Mac as an operations centre</title>
+  <desc id="desc">One machine, four layers: processes, services, containers, and the outside world.</desc>
+  <defs>
+    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.1" fill="#e7e2d5"/></pattern>
+    <filter id="wobble" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="11" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="0.85"/></filter>
+    <marker id="arrowEnd" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M 0 0 L 9 5 L 0 10 z" fill="#172033"/></marker>
+    <style>
+      .rough { filter: url(#wobble); }
+      .title { font: 700 34px Georgia, serif; fill: #172033; }
+      .subtitle { font: 18px Georgia, serif; fill: #566174; }
+      .node-title { font: 700 23px "Comic Sans MS", "Bradley Hand", cursive; fill: #172033; }
+      .body { font: 16px "Comic Sans MS", "Bradley Hand", cursive; fill: #172033; }
+      .arrow-label { font: 14px "Comic Sans MS", "Bradley Hand", cursive; fill: #566174; paint-order: stroke; stroke: #fbfaf5; stroke-width: 7px; }
+      .footer { font: 15px Georgia, serif; font-style: italic; fill: #566174; }
+    </style>
+  </defs>
+  <rect width="1280" height="720" fill="#fbfaf5"/>
+  <rect width="1280" height="720" fill="url(#dots)" opacity=".68"/>
+  <path d="M 48 101 C 330 98, 580 105, 846 100 S 1125 103, 1230 99" fill="none" stroke="#172033" stroke-width="2" stroke-opacity=".18" class="rough"/>
+  <text x="48" y="60" class="title">The Mac as an operations centre</text>
+  <text x="48" y="91" class="subtitle">One machine, four layers: processes, services, containers, and the outside world.</text>
+  <g><path d="M 400 230 C 445 230, 445 230, 490 230" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arrowEnd)" class="rough"/><text x="445" y="221" text-anchor="middle" class="arrow-label">manage</text></g>
+<g><path d="M 820 230 C 865 230, 865 230, 910 230" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arrowEnd)" class="rough"/><text x="865" y="221" text-anchor="middle" class="arrow-label">isolate</text></g>
+<g><path d="M 445 310 C 445 310, 445 430, 445 430" fill="none" stroke="#172033" stroke-width="2.5" stroke-dasharray="10 9" marker-end="url(#arrowEnd)" class="rough"/><text x="445" y="361" text-anchor="middle" class="arrow-label">reach in</text></g>
+<g><path d="M 610 590 C 645 590, 645 590, 680 590" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arrowEnd)" class="rough"/><text x="645" y="581" text-anchor="middle" class="arrow-label">guard</text></g>
+  <g><rect x="70" y="150" width="330" height="160" rx="18" fill="#dce8ff" stroke="#4f6fad" stroke-width="3" class="rough"/><rect x="75" y="155" width="320" height="150" rx="14" fill="none" stroke="#4f6fad" stroke-opacity=".22" stroke-width="1.5"/><text x="235" y="190" text-anchor="middle" class="node-title">Local processes</text><text x="235" y="224" text-anchor="middle" class="body">ports · sockets</text>
+<text x="235" y="248" text-anchor="middle" class="body">each service one job</text></g>
+<g><rect x="490" y="150" width="330" height="160" rx="18" fill="#e9e1ff" stroke="#7459a8" stroke-width="3" class="rough"/><rect x="495" y="155" width="320" height="150" rx="14" fill="none" stroke="#7459a8" stroke-opacity=".22" stroke-width="1.5"/><text x="655" y="190" text-anchor="middle" class="node-title">Services</text><text x="655" y="224" text-anchor="middle" class="body">launchd keeps them alive</text>
+<text x="655" y="248" text-anchor="middle" class="body">recovery is automatic</text></g>
+<g><rect x="910" y="150" width="280" height="160" rx="18" fill="#fff0c9" stroke="#a97921" stroke-width="3" class="rough"/><rect x="915" y="155" width="270" height="150" rx="14" fill="none" stroke="#a97921" stroke-opacity=".22" stroke-width="1.5"/><text x="1050" y="190" text-anchor="middle" class="node-title">Containers</text><text x="1050" y="224" text-anchor="middle" class="body">OrbStack</text>
+<text x="1050" y="248" text-anchor="middle" class="body">isolated stacks</text></g>
+<g><rect x="280" y="430" width="330" height="160" rx="18" fill="#dcf3e5" stroke="#3f8460" stroke-width="3" class="rough"/><rect x="285" y="435" width="320" height="150" rx="14" fill="none" stroke="#3f8460" stroke-opacity=".22" stroke-width="1.5"/><text x="445" y="470" text-anchor="middle" class="node-title">Private access</text><text x="445" y="504" text-anchor="middle" class="body">Tailscale · SSH</text>
+<text x="445" y="528" text-anchor="middle" class="body">from phone or laptop</text></g>
+<g><rect x="680" y="430" width="330" height="160" rx="18" fill="#ffe1de" stroke="#a45350" stroke-width="3" class="rough"/><rect x="685" y="435" width="320" height="150" rx="14" fill="none" stroke="#a45350" stroke-opacity=".22" stroke-width="1.5"/><text x="845" y="470" text-anchor="middle" class="node-title">Boundary</text><text x="845" y="504" text-anchor="middle" class="body">nothing exposed by default</text>
+<text x="845" y="528" text-anchor="middle" class="body">sleep is the last line</text></g>
+  <path d="M 48 674 C 360 670, 620 678, 950 672 S 1160 675, 1230 671" fill="none" stroke="#172033" stroke-width="1.5" stroke-opacity=".18" class="rough"/>
+  <text x="640" y="700" text-anchor="middle" class="footer">Evidence date: 29 Aug 2026  ·  phone-to-system journeys work without a single public port</text>
+</svg>

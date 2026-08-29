@@ -1,0 +1,133 @@
+---
+title: Every Model I Use Now Passes Through One Door. Here Is What the Door Counts.
+slug: one-door-for-every-token
+date: 2026-08-28
+description: I pointed three different AI apps at one local gateway and one OpenRouter account, then wired their usage into self-hosted Langfuse and Grafana. Here is the full path, what it costs to run, and what the first real numbers show.
+tags: [ai, openrouter, langfuse, grafana, observability, costs, self-hosted]
+draft: false
+image: /images/blog/llm-spend-observability/llm-spend-architecture.png
+---
+
+> **Canonical update (2026-08-29)**: This article is a field note. The canonical description of the full telemetry stack now lives in [The agent telemetry stack, explained from first principles](/blog/the-agent-telemetry-stack).
+
+<div className="flex flex-wrap gap-2">
+  <span className="inline-flex items-center rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-800 dark:border-sky-500/25 dark:bg-sky-500/10 dark:text-sky-200">One gateway, one bill</span>
+  <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-800 dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-200">Self-hosted Langfuse</span>
+  <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-800 dark:border-amber-500/25 dark:bg-amber-500/10 dark:text-amber-200">Prometheus + Grafana</span>
+</div>
+
+<ArticleFigure
+  src="/images/blog/llm-spend-observability/llm-spend-architecture.png"
+  alt="Three AI apps flow through a local gateway into OpenRouter, whose traces reach self-hosted Langfuse and then a small exporter feeding Prometheus and Grafana"
+  eyebrow="The full path"
+  title="Requests go out the door. Traces come back the same day."
+  caption="Solid arrows are model requests. Dashed arrows are telemetry: OpenRouter broadcasts one trace per request, and a 100-line exporter turns Langfuse's ClickHouse aggregates into Prometheus metrics."
+/>
+
+I use three different AI apps on my Mac: Claude Desktop, Codex CLI, and Oh My Pi. Each one had its own way of billing, its own logs, and its own idea of what a "usage report" looks like. When a bill surprised me, I could not answer a basic question: which app, which model, which task?
+
+So I gave them one door.
+
+Every app now talks to a small local gateway on port 8319. The gateway forwards to a single OpenRouter account. And OpenRouter does something useful for free: it writes a trace for every request, with the model, the token counts, the latency and the cost, and pushes that trace to wherever I point it.
+
+The traces land in my own Langfuse. A tiny exporter reads the aggregates and feeds Prometheus. Grafana draws the bill.
+
+## What the door looks like
+
+The gateway is [CLIProxyAPI](https://github.com/router-for-me/CLIProxyAPI), running on localhost. It exposes a Claude-compatible API, so Claude Desktop connects to it like a normal Anthropic endpoint. Nothing in the app changes. No rebuild, no patched binary, no vendor login inside a proxy I don't control.
+
+```text
+Claude Desktop ──┐
+Codex CLI ───────┼──▶ CLIProxyAPI :8319 ──▶ OpenRouter ──▶ GLM / DeepSeek / Qwen / Kimi / MiniMax
+Oh My Pi ────────┘
+```
+
+Behind OpenRouter I keep a small stable of models: GLM for the everyday workhorse traffic, DeepSeek for flash tasks, Qwen, Kimi and MiniMax for variety. One API key. One invoice. And, the part I care about most, one ledger of every call.
+
+## Traces without writing an instrumentation line
+
+OpenRouter has a broadcast feature: give it an endpoint, and it sends an OpenTelemetry trace for every request it handles. No code changes in any app, because the tracing happens at the door, not inside the apps.
+
+I point the broadcast at my self-hosted Langfuse through a Tailscale Funnel URL. Langfuse stores each trace in ClickHouse: model name, input tokens, output tokens, latency, and the cost OpenRouter charged, per request.
+
+Two details that took some digging:
+
+- The funnel strips the mount prefix, so the target URL has to include the full path (`/api/public/otel/...`), not just the host.
+- Langfuse v4 stores everything in one ClickHouse table (`events_full`). The older `traces` and `observations` tables stay empty. If you query the old tables, you will wrongly conclude the pipeline is broken.
+
+## From traces to a dashboard
+
+Langfuse answers "what happened in this request". I wanted the follow-up question answered continuously: what does my fleet spend per model, per hour, right now?
+
+That is a 100-line Python exporter. It queries Langfuse's ClickHouse once per scrape and serves a handful of Prometheus metrics on port 9466:
+
+```text
+openrouter_requests_total{model}        # every generation seen by Langfuse
+openrouter_cost_usd_total{model}        # billed USD per model
+openrouter_input_tokens_total{model}    # input tokens per model
+openrouter_output_tokens_total{model}   # output tokens per model
+openrouter_cost_usd_24h{model}          # rolling 24h spend gauge
+openrouter_latency_p95_seconds_24h{model}
+```
+
+Prometheus scrapes it every 5 seconds, next to the existing coding-agent metrics. Grafana gets a dashboard called **OpenRouter Cost & Tokens**:
+
+<ArticleFigure
+  src="/images/blog/llm-spend-observability/grafana-cost-dashboard.png"
+  alt="Grafana dashboard showing 24 hour spend, request counts, rolling spend by model, and token throughput"
+  eyebrow="The first render"
+  title="Spend, requests and latency on one screen"
+  caption="Live data, about ten minutes after switching the exporter on. The history grows as Prometheus accumulates scrapes."
+/>
+
+## What the first numbers show
+
+The window is short, but the shape is already clear.
+
+<div className="not-prose my-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+  <div className="border border-slate-200 p-5 dark:border-slate-800">
+    <div className="text-3xl font-semibold text-slate-950 dark:text-white">12.97M</div>
+    <div className="mt-2 text-sm font-medium text-slate-700 dark:text-slate-200">Input tokens, one model</div>
+    <div className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">GLM 5.3 Flash handled this in 1,206 requests at a total cost of $0.21.</div>
+  </div>
+  <div className="border border-slate-200 p-5 dark:border-slate-800">
+    <div className="text-3xl font-semibold text-slate-950 dark:text-white">$0.32</div>
+    <div className="mt-2 text-sm font-medium text-slate-700 dark:text-slate-200">Spend, last 24 hours</div>
+    <div className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">Across every model that passed through the door that day.</div>
+  </div>
+  <div className="border border-slate-200 p-5 dark:border-slate-800">
+    <div className="text-3xl font-semibold text-slate-950 dark:text-white">10.9K</div>
+    <div className="mt-2 text-sm font-medium text-slate-700 dark:text-slate-200">Requests, last 24 hours</div>
+    <div className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">Most of them are small agent-loop calls, not long chats.</div>
+  </div>
+  <div className="border border-slate-200 p-5 dark:border-slate-800">
+    <div className="text-3xl font-semibold text-slate-950 dark:text-white">47s</div>
+    <div className="mt-2 text-sm font-medium text-slate-700 dark:text-slate-200">p95 latency, slowest model</div>
+    <div className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">Long agent turns on the cheap flash model. The dashboard turns "the cheap model feels slow" into a number.</div>
+  </div>
+</div>
+
+Three things I learned from the data that I could not have told you last week:
+
+1. **My agent traffic is many small calls, not few big ones.** The average request is tiny; the volume is the bill. Cost per request matters less than requests per task.
+2. **The cheap model is doing enormous reading.** Nearly 13 million input tokens against 26 thousand output tokens. The value is in what it reads, not what it writes, which is exactly what I want from a workhorse.
+3. **Latency and cost disagree.** The cheapest model is also the slowest at p95. Whether that trade is worth it depends on the task, and now I can see the trade instead of guessing.
+
+## What it cannot see yet
+
+Honest limits, because a dashboard that overclaims is worse than no dashboard:
+
+- Codex CLI and Oh My Pi also send their own OpenTelemetry traces straight to Langfuse. Those calls run on an OpenAI subscription, so they show up with token counts and $0 cost. Request totals therefore count all models; the cost panels only move for billed work.
+- The Mac sleeps. My laptop hosts the funnel, so a sleeping Mac misses any traces sent while it sleeps. The gap shows up as flat hours in the charts, not as wrong numbers.
+- The dashboard is young. The spend-by-model panel gets useful once Prometheus has days of history, not minutes.
+
+## The parts, if you want them
+
+- **Gateway:** CLIProxyAPI on localhost, one config file, apps point at `http://127.0.0.1:8319`.
+- **Traces:** OpenRouter → Broadcast → Tailscale Funnel → self-hosted Langfuse (docker compose from Langfuse's repo).
+- **Metrics:** a Python exporter querying ClickHouse's `events_full` and serving Prometheus text format.
+- **Dashboard:** Grafana with four stat panels and four time series, 30s refresh.
+
+The exporter is deliberately boring: one SQL aggregate, one HTTP endpoint, no state. If Langfuse's schema changes, the fix is one query string. That is the right size for a component whose entire job is moving numbers from one honest store to another.
+
+The door does not make the models smarter. It makes the bill legible, and it turns "I think the cheap model is slow" into a number I can act on.

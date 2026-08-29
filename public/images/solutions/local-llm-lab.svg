@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Local LLM Lab</title>
+  <desc id="desc">What is installed, what it is good at, what it costs to run.</desc>
+  <defs>
+    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.1" fill="#e7e2d5"/></pattern>
+    <filter id="wobble" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="11" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="0.85"/></filter>
+    <marker id="arrowEnd" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M 0 0 L 9 5 L 0 10 z" fill="#172033"/></marker>
+    <style>
+      .rough { filter: url(#wobble); }
+      .title { font: 700 34px Georgia, serif; fill: #172033; }
+      .subtitle { font: 18px Georgia, serif; fill: #566174; }
+      .node-title { font: 700 24px "Comic Sans MS", "Bradley Hand", cursive; fill: #172033; }
+      .body { font: 17px "Comic Sans MS", "Bradley Hand", cursive; fill: #172033; }
+      .arrow-label { font: 14px "Comic Sans MS", "Bradley Hand", cursive; fill: #566174; paint-order: stroke; stroke: #fbfaf5; stroke-width: 7px; }
+      .footer { font: 16px Georgia, serif; font-style: italic; fill: #566174; }
+    </style>
+  </defs>
+  <rect width="1280" height="720" fill="#fbfaf5"/>
+  <rect width="1280" height="720" fill="url(#dots)" opacity=".68"/>
+  <path d="M 48 101 C 330 98, 580 105, 846 100 S 1125 103, 1230 99" fill="none" stroke="#172033" stroke-width="2" stroke-opacity=".18" class="rough"/>
+  <text x="48" y="60" class="title">Local LLM Lab</text>
+  <text x="48" y="91" class="subtitle">What is installed, what it is good at, what it costs to run.</text>
+  <g><path d="M 420 278 C 450 278, 450 278, 480 278" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arrowEnd)" class="rough"/><text x="450" y="269" text-anchor="middle" class="arrow-label">inspect</text></g>
+<g><path d="M 800 278 C 845 278, 845 278, 890 278" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arrowEnd)" class="rough"/><text x="845" y="269" text-anchor="middle" class="arrow-label">publish</text></g>
+  <g><rect x="90" y="190" width="330" height="175" rx="18" fill="#dce8ff" stroke="#4f6fad" stroke-width="3" class="rough"/><rect x="95" y="195" width="320" height="165" rx="14" fill="none" stroke="#4f6fad" stroke-opacity=".22" stroke-width="1.5"/><text x="255" y="233" text-anchor="middle" class="node-title">Model inventories</text><text x="255" y="269" text-anchor="middle" class="body">Hugging Face · Ollama</text>
+<text x="255" y="294" text-anchor="middle" class="body">MLX · Apple</text></g>
+<g><rect x="480" y="190" width="320" height="175" rx="18" fill="#e9e1ff" stroke="#7459a8" stroke-width="3" class="rough"/><rect x="485" y="195" width="310" height="165" rx="14" fill="none" stroke="#7459a8" stroke-opacity=".22" stroke-width="1.5"/><text x="640" y="233" text-anchor="middle" class="node-title">Benchmark join</text><text x="640" y="269" text-anchor="middle" class="body">checked-in results</text>
+<text x="640" y="294" text-anchor="middle" class="body">exact revisions kept separate</text></g>
+<g><rect x="890" y="190" width="310" height="175" rx="18" fill="#dcf3e5" stroke="#3f8460" stroke-width="3" class="rough"/><rect x="895" y="195" width="300" height="165" rx="14" fill="none" stroke="#3f8460" stroke-opacity=".22" stroke-width="1.5"/><text x="1045" y="233" text-anchor="middle" class="node-title">Static guide</text><text x="1045" y="269" text-anchor="middle" class="body">quality · speed · memory</text>
+<text x="1045" y="294" text-anchor="middle" class="body">context length</text></g>
+  <path d="M 48 674 C 360 670, 620 678, 950 672 S 1160 675, 1230 671" fill="none" stroke="#172033" stroke-width="1.5" stroke-opacity=".18" class="rough"/>
+  <text x="640" y="700" text-anchor="middle" class="footer">Evidence date: 20 Aug 2026  ·  local-llm-lab.vercel.app · open source on GitHub</text>
+</svg>

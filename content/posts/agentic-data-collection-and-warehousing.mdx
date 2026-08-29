@@ -1,0 +1,45 @@
+---
+title: Agentic data collection and warehousing
+slug: agentic-data-collection-and-warehousing
+date: 2026-08-29
+description: Server-side GTM, first-party collection, warehouse destinations, and consent — with an honest account of cost, complexity, and when the heavy stack is the wrong answer.
+tags: [analytics, sgtm, bigquery, consent, privacy, data-engineering, measurement]
+draft: false
+image: /images/articles-2026-08/agentic-data-collection-and-warehousing-open.svg
+---
+
+Server-side tagging and a warehouse are powerful. They are also optional, and the industry's habit of treating them as mandatory has cost more projects than it has helped. This article covers what the heavy stack does, what it costs, and how to decide.
+
+<Figure src="/images/articles-2026-08/agentic-data-collection-and-warehousing-open.svg" alt="Four options: consented collection, server-side GTM, warehouse, or nothing heavier than client-side plus export" caption="The heavy stack is sometimes the wrong answer. This article says when." slug="agentic-data-collection-and-warehousing-open" date="29 August 2026" />
+
+## The stack, honestly
+
+<Figure src="/images/articles-2026-08/agentic-data-collection-and-warehousing-arch.svg" alt="Collection-to-warehouse stack: browser with consent-gated events, sGTM first-party endpoint, Cloud Run where the bill lands, BigQuery as raw event store, and reconciled reporting" caption="Every extra hop is infrastructure to maintain. The decision is about whether that maintenance buys you anything." slug="agentic-data-collection-and-warehousing-arch" date="29 August 2026" />
+
+**Consented collection** starts in the browser. Consent state gates what fires; nothing heavy changes that, it only changes where the event goes next.
+
+**Server-side GTM** is a first-party endpoint that receives events, transforms them, and routes them onward. Its real benefits are control (you decide exactly what leaves) and cookie lifetime on your own domain.
+
+**Cloud Run** hosts the sGTM container, and it is where the bill and the operational burden live. It is also the component most teams do not actually need.
+
+**BigQuery** is the warehouse: raw events, queryable, joinable to backend truth. For most organisations this is the component that survives even when sGTM does not.
+
+## One event's full journey
+
+<Figure src="/images/articles-2026-08/agentic-data-collection-and-warehousing-seq.svg" alt="Five steps: consent given or path branches, client-side event fires, sGTM receives on first-party endpoint, transformed and routed, BigQuery row queryable" caption="The measured path from the consented-stack field notes." slug="agentic-data-collection-and-warehousing-seq" date="29 August 2026" />
+
+## When NOT to use the heavy stack
+
+<Figure src="/images/articles-2026-08/agentic-data-collection-and-warehousing-fail.svg" alt="Before: sGTM on Cloud Run, two measurement stacks, engineering owner required, bill visible in GCP. After: client-side plus export, one stack, same decision quality for this use case" caption="The cost autopsy measured what the heavy stack actually charged before it was removed." slug="agentic-data-collection-and-warehousing-fail" date="29 August 2026" />
+
+The decision variable is not volume — it is whether you need **first-party cookie control and event transformation**. If you do, sGTM earns its operational cost. If you do not, the other criteria apply: low event volume, no engineering owner, questions answerable by client-side plus the GA4 BigQuery export. Volume alone rarely justifies the heavy stack. The [cost autopsy](/blog/when-not-to-use-server-side-tagging) measured the Cloud Run bill and the maintenance load before removing the stack for exactly these reasons. The [consented first-party stack article](/blog/how-we-built-a-consented-first-party-analytics-stack) documents when the heavy stack was the right call — consent-gated collection into BigQuery with a reporting layer on top — and both lessons are folded in here.
+
+## The backend-truth reconciliation
+
+The point of a warehouse is not storage; it is the join. Platform-reported conversions versus backend-measured outcomes, reconciled so neither is silently overwritten — that is what turns collection into decisions. [The consent and blending article](/blog/why-browser-consent-and-source-blending-make-marketing-measurement-harder) explains why the sources disagree in the first place.
+
+## Where to go next
+
+- [Agentic web analytics implementation](/blog/agentic-web-analytics-implementation) — the lighter half of the measurement loop
+- [The agent telemetry stack](/blog/the-agent-telemetry-stack) — the unifying claim of this site: the same collection, reconciliation, and honest-unknowns discipline governs AI systems and marketing data. The tools differ; the method is one method.
+

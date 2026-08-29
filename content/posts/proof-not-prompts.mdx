@@ -1,0 +1,39 @@
+---
+title: Proof, not prompts
+slug: proof-not-prompts
+date: 2026-08-29
+description: "A delivery standard for AI-assisted work: evidence packs, provenance, editable deliverables, reconciliation, and review gates — so a claim can be checked, not just believed."
+tags: [ai, evidence, qa, deliverables, quality, analytics]
+draft: false
+image: /images/articles-2026-08/proof-not-prompts-open.svg
+---
+
+The difference between a prompt output and a deliverable is not the words. It is whether someone else can check the claim. This article describes the working method: what gets captured, how provenance attaches, and where the gates are.
+
+<Figure src="/images/articles-2026-08/proof-not-prompts-open.svg" alt="The proof loop: evidence captured from real browser runs, provenance attached, editable deliverable produced, review gate with uncertainty stated" caption="This loop is the working method behind the analytics work described on this site." slug="proof-not-prompts-open" date="29 August 2026" />
+
+## What a proof pack contains
+
+<Figure src="/images/articles-2026-08/proof-not-prompts-arch.svg" alt="Proof pack layers: raw evidence (screenshots, traces, logs, exports), provenance layer (source, timestamp, who ran it), editable deliverable, and an uncertainty statement" caption="Reconciliation closes the loop when sources disagree." slug="proof-not-prompts-arch" date="29 August 2026" />
+
+This article follows its own standard: the acceptance artefacts behind this site's own builds (browser screenshots, console and network captures, and reconciliation outputs under the repo's `output/acceptance` runs) are the raw-evidence layer for the claims here.
+
+Raw evidence is the unedited capture: the browser recording, the network log, the data export. Provenance attaches source, timestamp, and runner to every claim, so "according to the GA4 export from Tuesday" is checkable rather than rhetorical. The deliverable stays editable — a reviewer can change the wording without breaking the trail. The uncertainty statement says what is not proven and what would change the answer. Most "AI delivered it" failures are missing exactly this last layer.
+
+## From claim to verified deliverable
+
+<Figure src="/images/articles-2026-08/proof-not-prompts-seq.svg" alt="Five steps: claim made, evidence run, provenance added, deliverable drafted, reviewed at a gate where uncertainty is stated" caption="The delivery sequence. The gate is where uncertainty becomes explicit rather than silent." slug="proof-not-prompts-seq" date="29 August 2026" />
+
+## The before and after
+
+<Figure src="/images/articles-2026-08/proof-not-prompts-fail.svg" alt="Before: a confident paragraph with no traceable source that the client cannot verify. After: the same confidence, traced, with provenance attached and a reviewer who can check it" caption="The difference is not the words — it is whether the claim can be checked." slug="proof-not-prompts-fail" date="29 August 2026" />
+
+## Where reconciliation fits
+
+When two sources disagree — platform-reported versus backend-measured, observed versus configured — reconciliation is the step that measures the gap and explains it rather than picking a winner. That is the difference between an evidence pack and a screenshot with a narrative.
+
+## Where to go next
+
+- [AI for agency operations](/blog/ai-for-agency-operations) — the workflows this standard governs
+- [Why agent systems become slow, expensive and fragile](/blog/why-agent-systems-become-slow-expensive-and-fragile) — why "it ran successfully" is not evidence
+
