@@ -429,9 +429,9 @@ export const portfolioProjects: PortfolioProject[] = [
     category: "Products & Operational Tools",
     tagline: "Turns messy commercial context into PRDs, plans and scoped decisions.",
     summary:
-      "A governed definition pipeline that turns business material into structured product definitions: PRDs, implementation plans and scoped decisions, each traceable back to the source context and reviewable before work starts. Outcome: scoping artefacts that a reviewer can check against source material, replacing the build-then-argue pattern.",
+      "A governed definition pipeline that turns business material into structured product definitions: PRDs, implementation plans and scoped decisions, each traceable back to the source context and reviewable before work starts.",
     howItWorks:
-      "Source material from calls, decks and docs is turned into a knowledge layer, then structured PRD and planning flows produce definitions with explicit scope, open questions and decision gates rather than a generic document. Status: running in live agency scoping work; described anonymised in the flagship article.",
+      "Source material from calls, decks and docs is turned into a knowledge layer, then structured PRD and planning flows produce definitions with explicit scope, open questions and decision gates rather than a generic document.",
     imagePath: "/images/solutions/ai-assisted-product-definition-system.svg",
     imageAlt: "Diagram of the AI-assisted product definition system from source material to reviewed PRD.",
     liveUrl: "/blog/ai-for-agency-operations",
@@ -586,11 +586,23 @@ export function getPortfolioProject(slug: string) {
   return portfolioProjects.find((project) => project.slug === slug)
 }
 
+const publicProjectOrder = [
+  "agent-operations-control-plane",
+  "coding-agent-observatory",
+  "agent-routing-and-lifecycle-system",
+  "global-measurement-governance-system",
+  "media-qa-attribution-toolkit",
+  "model-routing-performance-lab",
+  "local-llm-lab",
+  "open-gtm-index",
+  "model-intelligence-maintainer",
+  "creative-observatory",
+  "hackathon-voting-app",
+  "agent-orchestra",
+] as const
+
 export function getPortfolioProjects() {
-  return portfolioProjects
-    .filter((project) => project.category !== "Earlier products & experiments")
-    .sort(
-      (a, b) =>
-        new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime()
-    )
+  return publicProjectOrder
+    .map((slug) => getPortfolioProject(slug))
+    .filter((project): project is PortfolioProject => Boolean(project))
 }
