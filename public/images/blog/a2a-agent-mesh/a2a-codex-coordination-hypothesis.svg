@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">My coordination hypothesis</title>
+  <desc id="desc">Keep the technical mesh. Add one lightweight decision rule before adding more infrastructure.</desc>
+  <defs>
+    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.1" fill="#e7e2d5"/></pattern>
+    <filter id="wobble" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="11" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="0.85"/></filter>
+    <marker id="arrowEnd" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M 0 0 L 9 5 L 0 10 z" fill="#172033"/></marker>
+    <marker id="arrowStart" markerWidth="10" markerHeight="10" refX="2" refY="5" orient="auto-start-reverse"><path d="M 10 0 L 1 5 L 10 10 z" fill="#172033"/></marker>
+    <style>
+      .rough { filter: url(#wobble); }
+      .title { font: 700 34px Georgia, serif; fill: #172033; }
+      .subtitle { font: 18px Georgia, serif; fill: #566174; }
+      .node-title { font: 700 24px "Comic Sans MS", "Bradley Hand", cursive; fill: #172033; }
+      .body { font: 17px "Comic Sans MS", "Bradley Hand", cursive; fill: #172033; }
+      .arrow-label { font: 14px "Comic Sans MS", "Bradley Hand", cursive; fill: #566174; paint-order: stroke; stroke: #fbfaf5; stroke-width: 7px; }
+      .footer { font: 16px Georgia, serif; font-style: italic; fill: #566174; }
+    </style>
+  </defs>
+  <rect width="1280" height="720" fill="#fbfaf5"/>
+  <rect width="1280" height="720" fill="url(#dots)" opacity=".68"/>
+  <path d="M 48 101 C 330 98, 580 105, 846 100 S 1125 103, 1230 99" fill="none" stroke="#172033" stroke-width="2" stroke-opacity=".18" class="rough"/>
+  <text x="48" y="60" class="title">My coordination hypothesis</text>
+  <text x="48" y="91" class="subtitle">Keep the technical mesh. Add one lightweight decision rule before adding more infrastructure.</text>
+  <g><path d="M 515 260 C 407.5 260, 407.5 390, 300 390" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arrowEnd)" class="rough"/><text x="407.5" y="316" text-anchor="middle" class="arrow-label">delegate</text></g>
+<g><path d="M 640 260 C 640 260, 640 430, 640 430" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arrowEnd)" class="rough"/><text x="640" y="336" text-anchor="middle" class="arrow-label">delegate</text></g>
+<g><path d="M 765 260 C 872.5 260, 872.5 390, 980 390" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arrowEnd)" class="rough"/><text x="872.5" y="316" text-anchor="middle" class="arrow-label">delegate</text></g>
+<g><path d="M 405 475 C 438.5 475, 438.5 500, 472 500" fill="none" stroke="#172033" stroke-width="2.5" stroke-dasharray="10 9" marker-start="url(#arrowStart)" marker-end="url(#arrowEnd)" class="rough"/></g>
+<g><path d="M 807 500 C 841 500, 841 475, 875 475" fill="none" stroke="#172033" stroke-width="2.5" stroke-dasharray="10 9" marker-start="url(#arrowStart)" marker-end="url(#arrowEnd)" class="rough"/></g>
+<g><path d="M 300 390 C 407.5 390, 407.5 260, 515 260" fill="none" stroke="#172033" stroke-width="2.5" stroke-dasharray="10 9" marker-end="url(#arrowEnd)" class="rough"/><text x="407.5" y="316" text-anchor="middle" class="arrow-label">stuck? report evidence</text></g>
+<g><path d="M 980 390 C 872.5 390, 872.5 260, 765 260" fill="none" stroke="#172033" stroke-width="2.5" stroke-dasharray="10 9" marker-end="url(#arrowEnd)" class="rough"/><text x="872.5" y="316" text-anchor="middle" class="arrow-label">stuck? report evidence</text></g>
+  <g transform="rotate(-0.25 640 187.5)"><rect x="425" y="115" width="430" height="145" rx="18" fill="#dce8ff" stroke="#4f6fad" stroke-width="3" class="rough"/><rect x="430" y="120" width="420" height="135" rx="14" fill="none" stroke="#4f6fad" stroke-opacity=".22" stroke-width="1.5"/><text x="640" y="158" text-anchor="middle" class="node-title">Codex decides and unblocks</text><text x="640" y="194" text-anchor="middle" class="body">primary delegator · not a compulsory relay</text>
+<text x="640" y="219" text-anchor="middle" class="body">generally not the destination</text></g>
+<g transform="rotate(0.25 237.5 465)"><rect x="70" y="390" width="335" height="150" rx="18" fill="#dcf3e5" stroke="#3f8460" stroke-width="3" class="rough"/><rect x="75" y="395" width="325" height="140" rx="14" fill="none" stroke="#3f8460" stroke-opacity=".22" stroke-width="1.5"/><text x="237.5" y="433" text-anchor="middle" class="node-title">OpenClaw</text><text x="237.5" y="469" text-anchor="middle" class="body">broad capability</text>
+<text x="237.5" y="494" text-anchor="middle" class="body">personal/general default</text></g>
+<g transform="rotate(-0.25 639.5 505)"><rect x="472" y="430" width="335" height="150" rx="18" fill="#ffe1de" stroke="#a45350" stroke-width="3" class="rough"/><rect x="477" y="435" width="325" height="140" rx="14" fill="none" stroke="#a45350" stroke-opacity=".22" stroke-width="1.5"/><text x="639.5" y="473" text-anchor="middle" class="node-title">Hermes</text><text x="639.5" y="509" text-anchor="middle" class="body">substantive work</text>
+<text x="639.5" y="534" text-anchor="middle" class="body">work/engineering default</text></g>
+<g transform="rotate(0.25 1042.5 465)"><rect x="875" y="390" width="335" height="150" rx="18" fill="#fff0c9" stroke="#a97921" stroke-width="3" class="rough"/><rect x="880" y="395" width="325" height="140" rx="14" fill="none" stroke="#a97921" stroke-opacity=".22" stroke-width="1.5"/><text x="1042.5" y="433" text-anchor="middle" class="node-title">OMP</text><text x="1042.5" y="469" text-anchor="middle" class="body">fast bounded work</text>
+<text x="1042.5" y="494" text-anchor="middle" class="body">execution default</text></g>
+  <path d="M 48 674 C 360 670, 620 678, 950 672 S 1160 675, 1230 671" fill="none" stroke="#172033" stroke-width="1.5" stroke-opacity=".18" class="rough"/>
+  <text x="640" y="700" text-anchor="middle" class="footer">Try one reasonable alternative → report what failed and what is needed → Codex makes the decision. If Codex is unavailable, continue and log the question.</text>
+</svg>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">The network I proved on my Mac</title>
+  <desc id="desc">Four loopback endpoints. Every agent can discover and call every other agent.</desc>
+  <defs>
+    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.1" fill="#e7e2d5"/></pattern>
+    <filter id="wobble" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="11" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="0.85"/></filter>
+    <marker id="arrowEnd" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M 0 0 L 9 5 L 0 10 z" fill="#172033"/></marker>
+    <marker id="arrowStart" markerWidth="10" markerHeight="10" refX="2" refY="5" orient="auto-start-reverse"><path d="M 10 0 L 1 5 L 10 10 z" fill="#172033"/></marker>
+    <style>
+      .rough { filter: url(#wobble); }
+      .title { font: 700 34px Georgia, serif; fill: #172033; }
+      .subtitle { font: 18px Georgia, serif; fill: #566174; }
+      .node-title { font: 700 24px "Comic Sans MS", "Bradley Hand", cursive; fill: #172033; }
+      .body { font: 17px "Comic Sans MS", "Bradley Hand", cursive; fill: #172033; }
+      .arrow-label { font: 14px "Comic Sans MS", "Bradley Hand", cursive; fill: #566174; paint-order: stroke; stroke: #fbfaf5; stroke-width: 7px; }
+      .footer { font: 16px Georgia, serif; font-style: italic; fill: #566174; }
+    </style>
+  </defs>
+  <rect width="1280" height="720" fill="#fbfaf5"/>
+  <rect width="1280" height="720" fill="url(#dots)" opacity=".68"/>
+  <path d="M 48 101 C 330 98, 580 105, 846 100 S 1125 103, 1230 99" fill="none" stroke="#172033" stroke-width="2" stroke-opacity=".18" class="rough"/>
+  <text x="48" y="60" class="title">The network I proved on my Mac</text>
+  <text x="48" y="91" class="subtitle">Four loopback endpoints. Every agent can discover and call every other agent.</text>
+  <g><path d="M 520 240 C 460 240, 460 340, 400 340" fill="none" stroke="#172033" stroke-width="2.5" marker-start="url(#arrowStart)" marker-end="url(#arrowEnd)" class="rough"/></g>
+<g><path d="M 760 240 C 820 240, 820 340, 880 340" fill="none" stroke="#172033" stroke-width="2.5" marker-start="url(#arrowStart)" marker-end="url(#arrowEnd)" class="rough"/></g>
+<g><path d="M 430 402 C 465 402, 465 370, 500 370" fill="none" stroke="#172033" stroke-width="2.5" marker-start="url(#arrowStart)" marker-end="url(#arrowEnd)" class="rough"/></g>
+<g><path d="M 780 370 C 815 370, 815 402, 850 402" fill="none" stroke="#172033" stroke-width="2.5" marker-start="url(#arrowStart)" marker-end="url(#arrowEnd)" class="rough"/></g>
+<g><path d="M 430 440 C 475 440, 475 525, 520 525" fill="none" stroke="#172033" stroke-width="2.5" marker-start="url(#arrowStart)" marker-end="url(#arrowEnd)" class="rough"/></g>
+<g><path d="M 850 440 C 805 440, 805 525, 760 525" fill="none" stroke="#172033" stroke-width="2.5" marker-start="url(#arrowStart)" marker-end="url(#arrowEnd)" class="rough"/></g>
+  <g transform="rotate(-0.25 640 177.5)"><rect x="465" y="115" width="350" height="125" rx="18" fill="#dce8ff" stroke="#4f6fad" stroke-width="3" class="rough"/><rect x="470" y="120" width="340" height="115" rx="14" fill="none" stroke="#4f6fad" stroke-opacity=".22" stroke-width="1.5"/><text x="640" y="158" text-anchor="middle" class="node-title">Codex</text><text x="640" y="194" text-anchor="middle" class="body">primary operator · 127.0.0.1:8391</text></g>
+<g transform="rotate(0.25 255 402.5)"><rect x="80" y="340" width="350" height="125" rx="18" fill="#dcf3e5" stroke="#3f8460" stroke-width="3" class="rough"/><rect x="85" y="345" width="340" height="115" rx="14" fill="none" stroke="#3f8460" stroke-opacity=".22" stroke-width="1.5"/><text x="255" y="383" text-anchor="middle" class="node-title">OpenClaw</text><text x="255" y="419" text-anchor="middle" class="body">broad personal/general agent · :8392</text></g>
+<g transform="rotate(-0.25 1025 402.5)"><rect x="850" y="340" width="350" height="125" rx="18" fill="#fff0c9" stroke="#a97921" stroke-width="3" class="rough"/><rect x="855" y="345" width="340" height="115" rx="14" fill="none" stroke="#a97921" stroke-opacity=".22" stroke-width="1.5"/><text x="1025" y="383" text-anchor="middle" class="node-title">OMP</text><text x="1025" y="419" text-anchor="middle" class="body">fast executor · :8393</text></g>
+<g transform="rotate(0.25 640 587.5)"><rect x="465" y="525" width="350" height="125" rx="18" fill="#ffe1de" stroke="#a45350" stroke-width="3" class="rough"/><rect x="470" y="530" width="340" height="115" rx="14" fill="none" stroke="#a45350" stroke-opacity=".22" stroke-width="1.5"/><text x="640" y="568" text-anchor="middle" class="node-title">Hermes</text><text x="640" y="604" text-anchor="middle" class="body">work and engineering · :8394</text></g>
+<g transform="rotate(-0.25 640 370)"><rect x="500" y="320" width="280" height="100" rx="18" fill="#e9e1ff" stroke="#7459a8" stroke-width="3" class="rough"/><rect x="505" y="325" width="270" height="90" rx="14" fill="none" stroke="#7459a8" stroke-opacity=".22" stroke-width="1.5"/><text x="640" y="363" text-anchor="middle" class="node-title">A2A v1.0</text><text x="640" y="399" text-anchor="middle" class="body">agent cards + JSON-RPC</text></g>
+  <path d="M 48 674 C 360 670, 620 678, 950 672 S 1160 675, 1230 671" fill="none" stroke="#172033" stroke-width="1.5" stroke-opacity=".18" class="rough"/>
+  <text x="640" y="700" text-anchor="middle" class="footer">6 bidirectional links = 12 directed routes tested   •   12/12 completed   •   all listeners stayed on 127.0.0.1</text>
+</svg>
