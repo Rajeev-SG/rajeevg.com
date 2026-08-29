@@ -367,7 +367,7 @@ export const portfolioProjects: PortfolioProject[] = [
       "A thin routing layer decides which model and which agent handle each request: GLM-5.3-Flash as the workhorse, frontier models for genuinely hard work, and A2A endpoints so agents can discover each other without custom plumbing.",
     howItWorks:
       "Codex stays the primary operator, OpenCode handles fast execution, and a bounded escalation rule moves genuinely hard work to frontier models. A2A agent cards and JSON-RPC complete the discovery path between loopback agents.",
-    imagePath: "/images/solutions/agent-routing-lifecycle.svg",
+    imagePath: "/images/solutions/agent-routing-and-lifecycle-system.svg",
     imageAlt: "Diagram of the agent routing lifecycle showing role-aware models and A2A discovery.",
     liveUrl: "/blog/why-agent-systems-become-slow-expensive-and-fragile",
     lastUpdated: "2026-08-29",
@@ -389,7 +389,7 @@ export const portfolioProjects: PortfolioProject[] = [
       "A governed layer that keeps taxonomy, consent, QA and vendor reconciliation aligned across markets and analytics tools. Every deployment has an owner, a review gate and a reconciliation path back to the source of truth.",
     howItWorks:
       "Structured governance artifacts define the event and taxonomy contract, automated QA compares the live implementation against it, and reconciliation flows align GA4, BigQuery, vendor pixel data and backend truth before reporting decisions are made.",
-    imagePath: "/images/solutions/global-measurement-governance.svg",
+    imagePath: "/images/solutions/global-measurement-governance-system.svg",
     imageAlt: "Diagram of the global measurement governance system showing taxonomy, QA, and reconciliation loops.",
     liveUrl: "/blog/agentic-web-analytics-implementation",
     lastUpdated: "2026-08-29",
@@ -411,7 +411,7 @@ export const portfolioProjects: PortfolioProject[] = [
       "A repeatable toolkit for checking media tags, pixels and attribution claims against what actually fires in the browser, then reconciling the differences back to source data before anyone makes a spend decision.",
     howItWorks:
       "Automated browser QA exercises the real consent journey, records what tags fire, compares observed data against the vendor story, and feeds the reconciliation flows that close the gap between platform-reported and backend-measured conversions.",
-    imagePath: "/images/solutions/media-qa-attribution.svg",
+    imagePath: "/images/solutions/media-qa-attribution-toolkit.svg",
     imageAlt: "Diagram of the media QA and attribution reconciliation toolkit from browser checks to reconciled reporting.",
     liveUrl: "/blog/proof-not-prompts",
     lastUpdated: "2026-08-29",
@@ -432,7 +432,7 @@ export const portfolioProjects: PortfolioProject[] = [
       "A governed definition pipeline that turns business material into structured product definitions: PRDs, implementation plans and scoped decisions, each traceable back to the source context and reviewable before work starts.",
     howItWorks:
       "Source material from calls, decks and docs is turned into a knowledge layer, then structured PRD and planning flows produce definitions with explicit scope, open questions and decision gates rather than a generic document.",
-    imagePath: "/images/solutions/ai-product-definition.svg",
+    imagePath: "/images/solutions/ai-assisted-product-definition-system.svg",
     imageAlt: "Diagram of the AI-assisted product definition system from source material to reviewed PRD.",
     liveUrl: "/blog/ai-for-agency-operations",
     lastUpdated: "2026-08-29",
@@ -453,7 +453,7 @@ export const portfolioProjects: PortfolioProject[] = [
       "A repeatable benchmark that measures what actually happens when the same work is routed through different models and provider policies, so routing decisions come from data rather than a leaderboard.",
     howItWorks:
       "A controlled harness runs identical tasks across model and provider policies, records client-side timing and provider telemetry, and produces a comparison that separates measured difference from noise.",
-    imagePath: "/images/solutions/model-routing-lab.svg",
+    imagePath: "/images/solutions/model-routing-performance-lab.svg",
     imageAlt: "Diagram of the model routing performance lab comparing provider policies on the same task.",
     liveUrl: "/blog/i-made-glm-5-3-flash-faster-but-kept-cheap-routing",
     lastUpdated: "2026-08-28",
