@@ -220,6 +220,7 @@ const HR = (props: React.ComponentProps<"hr">) => (
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const mdxComponents: Record<string, React.ComponentType<any>> = {
   ArticleDiagramFigure,
+  Figure: ArticleDiagramFigure,
   h1: H1,
   h2: H2,
   h3: H3,
