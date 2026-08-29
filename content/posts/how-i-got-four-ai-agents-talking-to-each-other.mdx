@@ -1,0 +1,161 @@
+---
+title: I Got Four AI Agents Talking to Each Other. The Protocol Was the Easy Part.
+slug: how-i-got-four-ai-agents-talking-to-each-other
+date: 2026-08-29
+description: How I connected Codex, OpenClaw, OMP and Hermes through the Linux Foundation A2A protocol, proved all 12 routes, and arrived at a much simpler coordination rule.
+tags: [ai, agents, a2a, codex, openclaw, omp, hermes, orchestration]
+draft: false
+image: /images/blog/a2a-agent-mesh/a2a-four-agent-mesh.svg
+---
+
+I already had four capable AI agents on my Mac. The missing piece was a common language.
+
+Codex is my primary operator. OpenClaw is a broad personal and general-purpose assistant. Hermes is the work and engineering surface. OMP is the fast executor. They overlap deliberately, but until this week a handoff still depended on the originating tool knowing how to launch the destination, pass a prompt in its preferred format, and retrieve the answer from wherever that tool happened to store it.
+
+That is manageable with two agents. With four, it becomes a small collection of private dialects.
+
+I connected all four through the [Linux Foundation's Agent2Agent protocol](https://a2a-protocol.org/latest/), usually shortened to A2A. Every agent can now discover every other agent, submit a task, receive stable task and context identifiers, and retrieve the destination's actual response. I tested the full directed matrix: four originators, three destinations each, 12 routes in total.
+
+All 12 completed.
+
+The networking problem is solved. The more interesting question is what the agents should say to each other now that they can all talk.
+
+## A2A in one minute
+
+A2A is a standard envelope for agent-to-agent work. It does not merge the agents, share their memories, or decide which one is in charge.
+
+The destination publishes an **agent card** at a predictable URL. That card describes the agent, the skills it exposes, and the endpoint a client should call. The originating agent sends a JSON-RPC request such as `message/send`. The destination accepts the work as a task, updates its state, and returns artifacts or a final message under a stable task ID.
+
+The useful part is not the JSON. It is the agreement around the JSON. A Codex client and an OpenClaw server can disagree about almost everything inside their own runtimes and still agree on discovery, submission, task state and results.
+
+<figure className="not-prose my-10">
+  <div className="relative left-1/2 w-[min(96vw,86rem)] -translate-x-1/2 overflow-x-auto rounded-2xl border border-stone-200 bg-[#fbfaf5] shadow-sm dark:border-stone-700">
+    <img
+      src="/images/blog/a2a-agent-mesh/a2a-protocol-in-one-minute.svg"
+      alt="Excalidraw-style diagram showing an originating agent discovering an agent card, sending a JSON-RPC message, and following a destination task through to a completed response with stable task and context identifiers"
+      className="block min-w-[720px] w-full max-w-none sm:min-w-0"
+    />
+  </div>
+  <figcaption className="mx-auto mt-3 max-w-3xl text-center text-sm leading-6 text-slate-600 dark:text-slate-400">
+    <span className="block sm:hidden">Swipe sideways to inspect the full diagram. </span>The smallest useful A2A exchange. <a className="font-medium underline underline-offset-4" href="/downloads/a2a-protocol-in-one-minute.excalidraw">Download the editable Excalidraw source</a>.
+  </figcaption>
+</figure>
+
+A2A sits beside MCP rather than replacing it. MCP gives an agent access to tools and context. A2A lets one agent ask another agent to do work. One connects an agent to capabilities; the other connects agents to each other.
+
+## What I installed
+
+I started with a build-versus-buy check because agent infrastructure is an easy place to invent a router nobody asked for.
+
+The maintained [`hybroai/a2a-adapter`](https://github.com/hybroai/a2a-adapter) already supports the official A2A SDK and knows how to wrap several command-line agents. Version 0.2.13 covered most of the route. I used it directly for Codex, used its SDK adapter for OpenClaw, and added two thin compatibility shims where the installed runtimes differed from the adapter's assumptions.
+
+| Endpoint | Role | Local address | Adapter path |
+|---|---|---:|---|
+| Codex | Primary operator and delegator | `127.0.0.1:8391` | Standard adapter CLI |
+| OpenClaw | Broad personal/general agent | `127.0.0.1:8392` | Existing OpenClaw SDK adapter |
+| OMP | Fast executor | `127.0.0.1:8393` | Pi adapter with an OMP v18 compatibility shim |
+| Hermes | Work and engineering | `127.0.0.1:8394` | Existing Hermes adapter with its installed runtime layered in |
+
+The OMP shim removes a session flag that its current RPC mode no longer accepts, raises the frame limit, and translates OMP's final event name into the event the Pi adapter expects. The Hermes shim loads the already-installed Hermes runtime and one missing dependency. Neither changes the A2A protocol.
+
+I did not add a central router, an API gateway or another message broker. The four listeners bind only to `127.0.0.1`, so the A2A plane is available to local processes and invisible to the wider network.
+
+## The current system is a full mesh
+
+Each agent service publishes an agent card. Any of the other three can discover it and send work directly.
+
+<figure className="not-prose my-10">
+  <div className="relative left-1/2 w-[min(96vw,90rem)] -translate-x-1/2 overflow-x-auto rounded-2xl border border-stone-200 bg-[#fbfaf5] shadow-sm dark:border-stone-700">
+    <img
+      src="/images/blog/a2a-agent-mesh/a2a-four-agent-mesh.svg"
+      alt="Excalidraw-style full mesh diagram connecting Codex, OpenClaw, OMP and Hermes over four loopback A2A endpoints, representing 12 tested directed routes"
+      className="block min-w-[720px] w-full max-w-none sm:min-w-0"
+    />
+  </div>
+  <figcaption className="mx-auto mt-3 max-w-3xl text-center text-sm leading-6 text-slate-600 dark:text-slate-400">
+    <span className="block sm:hidden">Swipe sideways to inspect the full diagram. </span>The physical topology is a mesh: six bidirectional links, or 12 directed routes. <a className="font-medium underline underline-offset-4" href="/downloads/a2a-four-agent-mesh.excalidraw">Download the editable Excalidraw source</a>.
+  </figcaption>
+</figure>
+
+For every route, the test followed the same sequence:
+
+1. Fetch the destination's agent card.
+2. Send one small task through `message/send`.
+3. Record the returned `taskId` and `contextId`.
+4. Wait for `state: completed`.
+5. Read the destination's real reply from the task status or artifacts.
+
+The replies included fixed canary strings such as `A2A-CODEX-TO-HERMES-OK`, plus one small calculation that OpenClaw returned as `42`. A healthy HTTP endpoint would have proved very little. The destination agent had to receive the instruction, run through its own runtime, and return the expected answer through A2A.
+
+One Hermes-originated shell run hit a transient `DaemonThreadPoolExecutor` error inside Hermes. The route completed after the Hermes process recovered. That failure belongs to the executor, not the A2A exchange, but it is still part of the operational picture.
+
+I also checked the duplication boundary. Two sends sharing one A2A context produced exactly one OpenClaw session. Each deliberate `message/send` still receives its own task ID, which is how A2A defines a task, but OpenClaw did not create a second conversation for the same context.
+
+## What A2A leaves for the system designer
+
+The protocol can tell me that a task was accepted and completed. It cannot tell me whether Codex should have delegated it, whether Hermes used the right work account, whether the answer was good, or whether a listener will still be running after the laptop restarts.
+
+Those remain separate layers:
+
+- **Persistence:** the four servers currently launch per session. They are not yet login services.
+- **Trust:** loopback is the security boundary. An internet-facing A2A endpoint would need authentication and a much more deliberate threat model.
+- **Output shape:** OMP streams token-sized artifacts. The final text is complete, but the raw response is noisier than the other runtimes.
+- **Execution quality:** A2A transports a task; it does not make the destination reliable or prove the result is correct.
+- **Coordination:** a mesh says who *can* talk. Policy says who *should* talk, when, and why.
+
+<figure className="not-prose my-10">
+  <div className="relative left-1/2 w-[min(96vw,86rem)] -translate-x-1/2 overflow-x-auto rounded-2xl border border-stone-200 bg-[#fbfaf5] shadow-sm dark:border-stone-700">
+    <img
+      src="/images/blog/a2a-agent-mesh/a2a-edges-and-limitations.svg"
+      alt="Excalidraw-style four-note diagram describing ephemeral A2A endpoints, OMP chunked artifacts, a transient Hermes executor error, and loopback as the current trust boundary"
+      className="block min-w-[720px] w-full max-w-none sm:min-w-0"
+    />
+  </div>
+  <figcaption className="mx-auto mt-3 max-w-3xl text-center text-sm leading-6 text-slate-600 dark:text-slate-400">
+    <span className="block sm:hidden">Swipe sideways to inspect the full diagram. </span>The remaining edges sit around the protocol, not inside it. <a className="font-medium underline underline-offset-4" href="/downloads/a2a-edges-and-limitations.excalidraw">Download the editable Excalidraw source</a>.
+  </figcaption>
+</figure>
+
+This is the same lesson I found while building [one control room for six agents](/blog/how-i-built-one-control-room-for-six-ai-agents): shared visibility does not create shared judgment. It gives you a clean place to apply judgment.
+
+## A mesh with a boss, but no compulsory middleman
+
+My current hypothesis is deliberately small.
+
+Codex is the primary delegator and decision point. It chooses where work starts and unblocks agents when a decision crosses boundaries. Codex generally does not receive delegated work itself unless I ask for that or a defined execution boundary requires it.
+
+Once another agent receives a task, it should do the substantive work itself. It should not bounce every step back through Codex. OpenClaw remains broad, with personal and general work as a useful default. Hermes remains the work and engineering default. OMP remains the fast route for bounded execution. Those are starting points, not capability walls.
+
+If an agent is stuck, it tries one reasonable alternative first. If that fails, it reports to Codex with three things: what it tried, what failed, and what decision or access it needs. Work that clearly belongs to another agent's named domain can go there directly. If Codex is unavailable, the agent continues where it safely can and logs the unresolved question for later review.
+
+<figure className="not-prose my-10">
+  <div className="relative left-1/2 w-[min(96vw,90rem)] -translate-x-1/2 overflow-x-auto rounded-2xl border border-stone-200 bg-[#fbfaf5] shadow-sm dark:border-stone-700">
+    <img
+      src="/images/blog/a2a-agent-mesh/a2a-codex-coordination-hypothesis.svg"
+      alt="Excalidraw-style hub-and-spoke policy diagram with Codex as the primary delegator and decision point, delegating to OpenClaw, Hermes and OMP while allowing direct domain-fit handoffs and evidence-backed escalation"
+      className="block min-w-[720px] w-full max-w-none sm:min-w-0"
+    />
+  </div>
+  <figcaption className="mx-auto mt-3 max-w-3xl text-center text-sm leading-6 text-slate-600 dark:text-slate-400">
+    <span className="block sm:hidden">Swipe sideways to inspect the full diagram. </span>A full technical mesh with lightweight hub-and-spoke governance. <a className="font-medium underline underline-offset-4" href="/downloads/a2a-codex-coordination-hypothesis.excalidraw">Download the editable Excalidraw source</a>.
+  </figcaption>
+</figure>
+
+The distinction prevents Codex from becoming a slow central proxy. It is the place for assignment, judgment and escalation, not a toll booth every message must pass through.
+
+## What I would measure before adding more machinery
+
+I do not yet need another orchestrator. I need evidence about whether the policy reduces confusion.
+
+For the next small batch of cross-agent tasks, I would record:
+
+- who originated the task and who completed it;
+- whether the first destination was the right one;
+- how many handoffs occurred;
+- whether the same context created duplicate destination sessions;
+- time spent waiting for a decision;
+- whether the final result passed its normal acceptance check.
+
+Repeated missed handoffs would justify a generated capability registry. Repeated endpoint downtime would justify persistent launch services. Repeated ambiguity about ownership would justify a durable task ledger. Until those failures appear in real work, the standard protocol plus a short policy is enough.
+
+My next change is that policy: Codex decides and unblocks, each agent works where it is, and direct domain handoffs remain allowed. I will add a persistent supervisor only when repeated tasks show that it is needed.

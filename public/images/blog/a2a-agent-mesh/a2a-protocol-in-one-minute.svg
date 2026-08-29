@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">A2A in one minute</title>
+  <desc id="desc">Discovery, one standard request, and a task you can follow to completion.</desc>
+  <defs>
+    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.1" fill="#e7e2d5"/></pattern>
+    <filter id="wobble" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="11" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="0.85"/></filter>
+    <marker id="arrowEnd" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M 0 0 L 9 5 L 0 10 z" fill="#172033"/></marker>
+    <marker id="arrowStart" markerWidth="10" markerHeight="10" refX="2" refY="5" orient="auto-start-reverse"><path d="M 10 0 L 1 5 L 10 10 z" fill="#172033"/></marker>
+    <style>
+      .rough { filter: url(#wobble); }
+      .title { font: 700 34px Georgia, serif; fill: #172033; }
+      .subtitle { font: 18px Georgia, serif; fill: #566174; }
+      .node-title { font: 700 24px "Comic Sans MS", "Bradley Hand", cursive; fill: #172033; }
+      .body { font: 17px "Comic Sans MS", "Bradley Hand", cursive; fill: #172033; }
+      .arrow-label { font: 14px "Comic Sans MS", "Bradley Hand", cursive; fill: #566174; paint-order: stroke; stroke: #fbfaf5; stroke-width: 7px; }
+      .footer { font: 16px Georgia, serif; font-style: italic; fill: #566174; }
+    </style>
+  </defs>
+  <rect width="1280" height="720" fill="#fbfaf5"/>
+  <rect width="1280" height="720" fill="url(#dots)" opacity=".68"/>
+  <path d="M 48 101 C 330 98, 580 105, 846 100 S 1125 103, 1230 99" fill="none" stroke="#172033" stroke-width="2" stroke-opacity=".18" class="rough"/>
+  <text x="48" y="60" class="title">A2A in one minute</text>
+  <text x="48" y="91" class="subtitle">Discovery, one standard request, and a task you can follow to completion.</text>
+  <g><path d="M 315 225 C 352.5 225, 352.5 185, 390 185" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arrowEnd)" class="rough"/><text x="352.5" y="196" text-anchor="middle" class="arrow-label">GET</text></g>
+<g><path d="M 690 185 C 747.5 185, 747.5 225, 805 225" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arrowEnd)" class="rough"/><text x="747.5" y="196" text-anchor="middle" class="arrow-label">capabilities</text></g>
+<g><path d="M 315 315 C 352.5 315, 352.5 365, 390 365" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arrowEnd)" class="rough"/><text x="352.5" y="331" text-anchor="middle" class="arrow-label">POST</text></g>
+<g><path d="M 690 365 C 747.5 365, 747.5 350, 805 350" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arrowEnd)" class="rough"/><text x="747.5" y="348.5" text-anchor="middle" class="arrow-label">task</text></g>
+  <g transform="rotate(-0.25 190 257.5)"><rect x="65" y="175" width="250" height="165" rx="18" fill="#dce8ff" stroke="#4f6fad" stroke-width="3" class="rough"/><rect x="70" y="180" width="240" height="155" rx="14" fill="none" stroke="#4f6fad" stroke-opacity=".22" stroke-width="1.5"/><text x="190" y="218" text-anchor="middle" class="node-title">Originating agent</text><text x="190" y="254" text-anchor="middle" class="body">1. Fetch agent card</text>
+<text x="190" y="279" text-anchor="middle" class="body">2. Choose a skill</text>
+<text x="190" y="304" text-anchor="middle" class="body">3. Send a message</text></g>
+<g transform="rotate(0.25 540 182.5)"><rect x="390" y="125" width="300" height="115" rx="18" fill="#fff0c9" stroke="#a97921" stroke-width="3" class="rough"/><rect x="395" y="130" width="290" height="105" rx="14" fill="none" stroke="#a97921" stroke-opacity=".22" stroke-width="1.5"/><text x="540" y="168" text-anchor="middle" class="node-title">Agent card</text><text x="540" y="204" text-anchor="middle" class="body">/.well-known/agent-card.json</text>
+<text x="540" y="229" text-anchor="middle" class="body">name · skills · endpoint</text></g>
+<g transform="rotate(-0.25 540 372.5)"><rect x="390" y="300" width="300" height="145" rx="18" fill="#e9e1ff" stroke="#7459a8" stroke-width="3" class="rough"/><rect x="395" y="305" width="290" height="135" rx="14" fill="none" stroke="#7459a8" stroke-opacity=".22" stroke-width="1.5"/><text x="540" y="343" text-anchor="middle" class="node-title">JSON-RPC</text><text x="540" y="379" text-anchor="middle" class="body">message/send</text>
+<text x="540" y="404" text-anchor="middle" class="body">messageId + contextId</text>
+<text x="540" y="429" text-anchor="middle" class="body">parts: text, files, data</text></g>
+<g transform="rotate(0.25 985 310)"><rect x="805" y="175" width="360" height="270" rx="18" fill="#dcf3e5" stroke="#3f8460" stroke-width="3" class="rough"/><rect x="810" y="180" width="350" height="260" rx="14" fill="none" stroke="#3f8460" stroke-opacity=".22" stroke-width="1.5"/><text x="985" y="218" text-anchor="middle" class="node-title">Destination agent</text><text x="985" y="254" text-anchor="middle" class="body">accepts the task</text>
+<text x="985" y="279" text-anchor="middle" class="body">does the real work</text>
+<text x="985" y="304" text-anchor="middle" class="body">returns its actual response</text>
+<text x="985" y="329" text-anchor="middle" class="body">taskId · state · artifacts</text></g>
+  <path d="M 48 674 C 360 670, 620 678, 950 672 S 1160 675, 1230 671" fill="none" stroke="#172033" stroke-width="1.5" stroke-opacity=".18" class="rough"/>
+  <text x="640" y="700" text-anchor="middle" class="footer">submitted → working → completed   •   stable task ID   •   response stays attributable to the destination</text>
+</svg>
