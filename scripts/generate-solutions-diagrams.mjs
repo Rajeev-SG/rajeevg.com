@@ -224,6 +224,22 @@ const diagrams = [
     ],
     footer: "Evidence date: 30 May 2026  ·  vote.rajeevg.com · open source on GitHub",
   },
+  {
+    slug: "agent-orchestra",
+    title: "Agent Orchestra",
+    subtitle: "Coordinated agents around a shared task, not a prompt loop.",
+    lastUpdated: "2026-05-01",
+    nodes: [
+      { x: 90, y: 190, w: 330, h: 175, fill: "blue", label: "Shared task", lines: ["one goal,", "not four prompts"] },
+      { x: 480, y: 190, w: 320, h: 175, fill: "purple", label: "Coordination pattern", lines: ["each agent contributes", "what it is best at"] },
+      { x: 890, y: 190, w: 310, h: 175, fill: "green", label: "Demonstration", lines: ["public demo", "shows the interaction"] },
+    ],
+    arrows: [
+      { from: [420, 278], to: [480, 278], label: "distribute" },
+      { from: [800, 278], to: [890, 278], label: "show" },
+    ],
+    footer: "Evidence date: 1 May 2026  ·  multi-agent-orchestration-demo.vercel.app  ·  companion to the multi-agent journey article",
+  },
 ]
 
 function esc(value) {
