@@ -39,7 +39,7 @@ export default function ContactPage() {
         <aside className="border-l border-border pl-6 text-sm leading-7 text-muted-foreground">
           <p className="font-medium text-foreground">Related paths</p>
           <div className="mt-3 grid gap-2">
-            <Link className="underline underline-offset-4" href="/projects">Projects</Link>
+            <Link className="underline underline-offset-4" href="/solutions">Solutions</Link>
             <Link className="underline underline-offset-4" href="/blog">Writing</Link>
             <Link className="underline underline-offset-4" href="/developers">Developer resources</Link>
             <Link className="underline underline-offset-4" href="/privacy">Privacy policy</Link>

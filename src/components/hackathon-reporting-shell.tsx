@@ -345,7 +345,7 @@ export function HackathonReportingShell({
                   </Link>
                 </Button>
                 <Button asChild variant="ghost" size="sm">
-                  <Link href="/projects">Back to projects</Link>
+                  <Link href="/solutions">Back to solutions</Link>
                 </Button>
               </div>
             </CardContent>

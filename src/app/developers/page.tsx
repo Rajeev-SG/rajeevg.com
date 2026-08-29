@@ -27,7 +27,7 @@ export default function DevelopersPage() {
           <div className="space-y-4">
             <h2 className="text-2xl font-semibold tracking-tight">Canonical resources</h2>
             <ul className="space-y-3 text-lg leading-8">
-              <li><Link className="underline underline-offset-4" href="/projects">Projects</Link> for public products, source repositories, and live deployments.</li>
+              <li><Link className="underline underline-offset-4" href="/solutions">Solutions</Link> for public products, source repositories, and live deployments.</li>
               <li><Link className="underline underline-offset-4" href="/blog">Writing</Link> for technical notes and build accounts.</li>
               <li><Link className="underline underline-offset-4" href="https://github.com/Rajeev-SG" target="_blank" rel="noreferrer noopener">GitHub profile</Link> for public repositories and source history.</li>
               <li><Link className="underline underline-offset-4" href="https://www.linkedin.com/in/rajeev-gill/" target="_blank" rel="noreferrer noopener">LinkedIn profile</Link> for the professional profile.</li>

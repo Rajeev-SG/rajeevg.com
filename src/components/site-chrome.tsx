@@ -13,7 +13,7 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/s
 
 const publicNavigation = [
   { href: "/", label: "Home" },
-  { href: "/projects", label: "Projects" },
+  { href: "/solutions", label: "Solutions" },
   { href: "/blog", label: "Writing" },
   { href: "/about", label: "About" },
 ]

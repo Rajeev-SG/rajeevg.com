@@ -49,8 +49,8 @@ export default function Home() {
           </p>
           <div className="flex flex-wrap gap-3">
             <Button asChild size="lg">
-              <Link href="/projects">
-                View selected projects
+              <Link href="/solutions">
+                View selected solutions
                 <ArrowRight className="size-4" />
               </Link>
             </Button>
@@ -75,8 +75,8 @@ export default function Home() {
             <p className="text-sm font-medium uppercase tracking-[0.2em] text-muted-foreground">Selected projects</p>
             <h2 id="selected-projects" className="text-3xl font-semibold tracking-tight sm:text-4xl">Things I have built</h2>
           </div>
-          <Link href="/projects" className="inline-flex items-center gap-2 text-sm font-medium hover:underline">
-            See all projects <ArrowRight className="size-4" />
+          <Link href="/solutions" className="inline-flex items-center gap-2 text-sm font-medium hover:underline">
+            See all solutions <ArrowRight className="size-4" />
           </Link>
         </div>
         <div className="grid gap-6 lg:grid-cols-3">

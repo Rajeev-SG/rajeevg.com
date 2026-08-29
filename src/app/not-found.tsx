@@ -10,7 +10,7 @@ export default function NotFound() {
       </div>
       <nav aria-label="Recovery links" className="grid gap-3 sm:grid-cols-2">
         <Link href="/" className="rounded-md border border-border px-4 py-3 underline underline-offset-4">Home</Link>
-        <Link href="/projects" className="rounded-md border border-border px-4 py-3 underline underline-offset-4">Projects</Link>
+        <Link href="/solutions" className="rounded-md border border-border px-4 py-3 underline underline-offset-4">Solutions</Link>
         <Link href="/blog" className="rounded-md border border-border px-4 py-3 underline underline-offset-4">Writing</Link>
         <Link href="/sitemap.xml" className="rounded-md border border-border px-4 py-3 underline underline-offset-4">Sitemap</Link>
         <Link href="/llms.txt" className="rounded-md border border-border px-4 py-3 underline underline-offset-4">Agent guide</Link>
