@@ -21,7 +21,14 @@ const dateFormatter = new Intl.DateTimeFormat("en-GB", {
 export default function Home() {
   if (isLocalRuntimeOverlayEnabled()) noStore()
 
-  const selectedSlugs = new Set(["open-gtm-index", "local-llm-lab", "hackathon-voting-app"])
+  const featuredSlugs = [
+    "agent-operations-control-plane",
+    "coding-agent-observatory",
+    "agent-routing-and-lifecycle-system",
+    "global-measurement-governance-system",
+    "media-qa-attribution-toolkit",
+  ]
+  const selectedSlugs = new Set(featuredSlugs)
   const selectedProjects = getPortfolioProjects().filter((project) => selectedSlugs.has(project.slug))
   const latestPosts = getSortedVisiblePostsLive().slice(0, 3)
   const personJsonLd = {
@@ -72,8 +79,8 @@ export default function Home() {
       <section className="space-y-8" aria-labelledby="selected-projects">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="space-y-2">
-            <p className="text-sm font-medium uppercase tracking-[0.2em] text-muted-foreground">Selected projects</p>
-            <h2 id="selected-projects" className="text-3xl font-semibold tracking-tight sm:text-4xl">Things I have built</h2>
+            <p className="text-sm font-medium uppercase tracking-[0.2em] text-muted-foreground">Featured solutions</p>
+            <h2 id="selected-projects" className="text-3xl font-semibold tracking-tight sm:text-4xl">Systems I operate now</h2>
           </div>
           <Link href="/solutions" className="inline-flex items-center gap-2 text-sm font-medium hover:underline">
             See all solutions <ArrowRight className="size-4" />
