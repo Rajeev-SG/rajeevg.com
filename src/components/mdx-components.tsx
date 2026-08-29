@@ -7,6 +7,7 @@ import { MdxPre } from "@/components/mdx-pre"
 import { ProjectSpotlight } from "@/components/project-card"
 import { ArticleExplain } from "@/components/article-explain"
 import { ArticleFigure } from "@/components/article-figure"
+import { ArticleDiagramFigure } from "@/components/article-diagram-figure"
 import { GoArchitectureGuide } from "@/components/go-architecture-guide"
 import {
   ReviewPill,
@@ -218,6 +219,7 @@ const HR = (props: React.ComponentProps<"hr">) => (
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const mdxComponents: Record<string, React.ComponentType<any>> = {
+  ArticleDiagramFigure,
   h1: H1,
   h2: H2,
   h3: H3,

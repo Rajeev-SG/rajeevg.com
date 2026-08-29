@@ -1,0 +1,62 @@
+---
+title: The agent telemetry stack, explained from first principles
+slug: the-agent-telemetry-stack
+date: 2026-08-29
+description: "A plain-English tour of the modern telemetry stack that measures AI agents: what each piece is, why it exists, and how one Mac's signals become a trustworthy dashboard."
+tags: [ai, observability, opentelemetry, prometheus, grafana, langfuse, agents, telemetry]
+draft: false
+image: /images/articles-2026-08/the-agent-telemetry-stack-open.svg
+---
+
+When I first tried to answer "what did my agents actually do today?", the honest answer was: several different logs, three dashboards, and a spreadsheet nobody trusted. The tools existed. The problem was that nobody had explained how they were supposed to fit together.
+
+This article is the explanation I wish I had read first. It walks the whole stack in order — from raw signals leaving an agent, through the collector, into storage, and out onto a dashboard — and says what each piece is actually for.
+
+<Figure src="/images/articles-2026-08/the-agent-telemetry-stack-open.svg" alt="Simple three-step flow: agents and apps emit signals, the collector routes them, and one Grafana and Langfuse room shows the result" caption="The telemetry map, simplified. Every signal passes the collector before anything stores it." slug="the-agent-telemetry-stack-open" date="29 August 2026" />
+
+## Why you should care, even if you run nothing
+
+If you use AI tools at work, someone — you, a vendor, or an engineer down the hall — is making decisions about cost, speed, and reliability with almost no evidence. The telemetry stack is what turns "it feels slow and expensive" into a number you can argue with. You do not need to run it yourself to benefit from knowing what it can and cannot prove.
+
+## The pieces, in plain English
+
+**Agents and apps emit signals.** Every coding agent, chat app, or scripted workflow produces events: a request went out, tokens were spent, a tool was called, something failed. Individually these events are noise. The stack's first job is giving them a common shape.
+
+**The collector (OpenTelemetry Collector) is the traffic controller.** Nothing talks straight to storage. The collector receives signals in a standard format (OTLP), batches them, retries on failure, and routes each type where it belongs. This one decision — everything through one pipe — is what makes the rest of the system maintainable.
+
+**Prometheus stores metrics.** Metrics are counters and gauges: tokens per hour, requests per provider, cost per day. They are cheap to store, fast to query, and perfect for the "how much, how often" questions. Deduplication rules live here, because cumulative counters lie unless you subtract correctly.
+
+**Langfuse stores traces.** A trace is one complete story: a single request, which model answered, how many tokens, what it cost, how long it took. Langfuse runs on ClickHouse, a columnar database built for exactly this kind of analytical querying. This is where cost-per-task answers come from.
+
+**Session stores are the raw truth.** The original JSONL and SQLite files that agents write never get deleted. When two dashboards disagree, these files settle the argument.
+
+**Grafana is the room where it becomes visible.** Metrics from Prometheus and aggregates from Langfuse land as panels on dashboards. One public, privacy-safe summary; one private full-detail view.
+
+<Figure src="/images/articles-2026-08/the-agent-telemetry-stack-arch.svg" alt="Reference architecture: sources feed the OpenTelemetry Collector, which routes to Prometheus for metrics, Langfuse on ClickHouse for traces, and keeps raw JSONL and SQLite session stores, with Grafana rooms presenting public and private views" caption="The full reference architecture. Postgres holds app state, Redis queues work, MinIO stores blobs, and VictoriaMetrics keeps long-term private metrics." slug="the-agent-telemetry-stack-arch" date="29 August 2026" />
+
+## Supporting cast
+
+**Postgres** holds application state — who is allowed into which dashboard, what the ops board records. **Redis** queues work so a slow consumer does not block a fast producer. **MinIO** is S3-compatible blob storage, keeping exports and attachments without an external bill. **VictoriaMetrics** is a drop-in Prometheus-compatible store that keeps long-term private metrics without Prometheus's retention pain. **JSONL and SQLite** are what the agents themselves write — unglamorous, but the only source that never gets rounded or summarised.
+
+## Where one request's telemetry actually travels
+
+<Figure src="/images/articles-2026-08/the-agent-telemetry-stack-seq.svg" alt="Five-step sequence: agent sends request via local gateway, provider responds with usage attached, gateway writes trace to Langfuse, collector samples metrics, Grafana reflects the update" caption="The sequence for one request. Every hop is measured; trace ordering within one second is inferred." slug="the-agent-telemetry-stack-seq" date="29 August 2026" />
+
+This sequence is why the stack is trustworthy: the same request produces a trace and a metric, so a dashboard number can be traced back to the story behind it.
+
+## When the stack quietly lies
+
+<Figure src="/images/articles-2026-08/the-agent-telemetry-stack-fail.svg" alt="Before and after: cumulative counters read as task totals and unknowns shown as zero, versus deduplicated counters with unknowns kept visibly unknown" caption="The failure mode and the fix. Cumulative provider counters were misread until deduplication by provider and session was added." slug="the-agent-telemetry-stack-fail" date="29 August 2026" />
+
+Two specific lessons from running this: providers expose cumulative counters that look like per-task totals until you subtract the previous value, and missing data renders as zero unless the pipeline explicitly marks it unknown. Both were caught in my own dashboards; both are the reason the pipeline now deduplicates by provider and session and never renders an unknown as zero.
+
+## Field notes that fed this article
+
+This is the canonical description. Two earlier articles cover pieces of the journey and remain useful as field notes: [One door for every token](/blog/one-door-for-every-token) covers the routing gateway and cost feed, and [why I made my agent token usage public](/blog/why-i-made-my-agent-token-usage-public) covers the public summary pipeline. Where they describe older paths, this article is the current truth.
+
+## Where to go next
+
+- [Agent Ops for people who don't run infrastructure](/blog/agent-ops-for-people-who-dont-run-infrastructure) — what happens when the dashboards raise an alarm
+- [Your Mac as an AI operations centre](/blog/your-mac-as-an-ai-operations-centre) — the machine this stack runs on
+- [Why agent systems become slow, expensive and fragile](/blog/why-agent-systems-become-slow-expensive-and-fragile) — what the telemetry revealed about cost
+

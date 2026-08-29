@@ -1,0 +1,47 @@
+---
+title: Your Mac as an AI operations centre
+slug: your-mac-as-an-ai-operations-centre
+date: 2026-08-29
+description: "Ports, processes, services, containers, and one honest boundary: how a laptop becomes an operations centre you can reach from your phone without exposing anything to the internet."
+tags: [ai, operations, macos, launchd, orbstack, tailscale, ssh, security]
+draft: false
+image: /images/articles-2026-08/your-mac-as-an-ai-operations-centre-open.svg
+---
+
+A laptop is a surprisingly good operations centre. It has a real Unix underneath, it sleeps when you close it, and it is already with you. The work is understanding what runs on it and where the boundary is.
+
+<Figure src="/images/articles-2026-08/your-mac-as-an-ai-operations-centre-open.svg" alt="Four layers of the Mac as operations centre: local processes, launchd services, OrbStack containers, and private access via Tailscale and SSH" caption="The Mac in four layers. Nothing here needs a public port." slug="your-mac-as-an-ai-operations-centre-open" date="29 August 2026" />
+
+## The layers, in plain English
+
+**Processes and ports.** Everything running on your Mac is a process, and network services listen on numbered ports. `localhost:3000` means "port 3000 on this machine only". The loopback address 127.0.0.1 is unreachable from outside — which is exactly why most of this system stays there.
+
+**launchd and services.** A service is a process that should keep running. launchd is the macOS mechanism that starts them, restarts them on failure, and records when they did. Containers are optional here, not required.
+
+**OrbStack and containers.** Some things — the VictoriaMetrics store, the Grafana room, a small Coolify stack — run best isolated in containers. OrbStack provides that on a Mac without the ceremony of Docker Desktop. Volumes persist container state across restarts.
+
+**The outside world.** Two ways in: Tailscale, a private mesh network that makes your Mac reachable from your phone from anywhere, and SSH for terminal access. Both require your credentials. No public ports, no firewall holes.
+
+<Figure src="/images/articles-2026-08/your-mac-as-an-ai-operations-centre-arch.svg" alt="Boundary map: loopback-only services, OrbStack containers, Tailscale private mesh, and Vercel as the only public edge" caption="What actually listens where. Exposure stays at zero by default; volumes persist state; sleep pauses everything." slug="your-mac-as-an-ai-operations-centre-arch" date="29 August 2026" />
+
+## The phone-to-system journey
+
+<Figure src="/images/articles-2026-08/your-mac-as-an-ai-operations-centre-seq.svg" alt="Five-step sequence: open Tailscale, reach the Semaphore board, read the alarm, SSH if needed, confirm healthy" caption="Checking the rig from a phone. This journey works from any device on the tailnet." slug="your-mac-as-an-ai-operations-centre-seq" date="29 August 2026" />
+
+This is the practical payoff: an alarm arrives on your phone, you open the board, you read the runbook, you fix or delegate the fix, and you confirm recovery — from anywhere.
+
+## When the boundary is wrong
+
+<Figure src="/images/articles-2026-08/your-mac-as-an-ai-operations-centre-fail.svg" alt="Before: dashboard on a public port, credentials in a screenshot, sleep as the only guard. After: loopback plus tailnet only, secrets in environment variables, sleep as a bonus" caption="The boundary is a design decision, not an accident of default settings." slug="your-mac-as-an-ai-operations-centre-fail" date="29 August 2026" />
+
+Three specific mistakes account for most self-hosted exposures: a dashboard bound to 0.0.0.0 instead of loopback, credentials visible in screenshots, and "it sleeps" treated as security. The boundary should be loopback plus your tailnet, with sleep as a bonus rather than a plan.
+
+## Laptop sleep, honestly
+
+Sleep pauses everything — agents, containers, collection. That is a feature, not a bug, for a personal rig: it bounds the bill and the risk. If something must run continuously, it belongs on a small always-on host, not on the machine you close.
+
+## Where to go next
+
+- [Agent Ops for people who don't run infrastructure](/blog/agent-ops-for-people-who-dont-run-infrastructure) — what runs on this machine day to day
+- [The agent telemetry stack, explained from first principles](/blog/the-agent-telemetry-stack) — what the dashboards are made of
+

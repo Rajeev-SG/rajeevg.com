@@ -1,0 +1,45 @@
+---
+title: "The multi-agent journey: what survived contact with reality"
+slug: the-multi-agent-journey-what-survived-contact-with-reality
+date: 2026-08-29
+description: Every multi-agent architecture I tried, what the telemetry said about each one, and why the system I actually use now is simpler than anything I built first.
+tags: [ai, agents, codex, multi-agent, a2a, observability, opencode]
+draft: false
+image: /images/articles-2026-08/the-multi-agent-journey-open.svg
+---
+
+This is the honest version of two years of multi-agent work: what was built, what the measurements said, and why the current system is one agent with two models rather than the orchestration layer I once thought was the point.
+
+<Figure src="/images/articles-2026-08/the-multi-agent-journey-open.svg" alt="Four phases: native subagents, measurable workers, Codex plus OpenCode, and the simplified role-aware system with optional A2A" caption="Each phase was measured. The survivors are the simple parts." slug="the-multi-agent-journey-open" date="29 August 2026" />
+
+## Phase by phase
+
+**Native subagents.** The first instinct was parallelism: spawn a worker per task, let them run. It worked — and produced no evidence. When two workers disagreed, there was no trace to settle it.
+
+**Measurable workers.** The fix was telemetry: per-worker traces, recoverable handoffs, tokens attributed to the worker that spent them. This made the next conclusion possible, because now overhead was visible instead of assumed.
+
+**Codex + OpenCode.** Splitting planner and executor into two tools with two models looked like an architecture win. Per-call traces showed the planning and review layers costing more than the work itself.
+
+**Lifecycle experiments.** Beads, BVR, and NTM added state machines, ticket routing, and formal lifecycle bookkeeping. Every one of them added coordination cost that the traces showed was not being repaid in quality.
+
+**Simplified roles.** The current system: one agent (Codex as operator), a role-aware routing rule to GLM-5.3-Flash as workhorse with frontier escalation, and A2A as an optional discovery capability. Everything else was deleted, deliberately.
+
+<Figure src="/images/articles-2026-08/the-multi-agent-journey-seq.svg" alt="Five phases in order: native subagents, measurable workers, Codex plus OpenCode, lifecycle experiments, simplified roles" caption="The measured chronology: 551 sessions, public token data, and one deleted middleman." slug="the-multi-agent-journey-seq" date="29 August 2026" />
+
+## What the middleman tax actually cost
+
+<Figure src="/images/articles-2026-08/the-multi-agent-journey-fail.svg" alt="Before: four orchestration layers each spending planning, review, and polling tokens. After: one agent with two models, measured oversight drop, no middleman to poll" caption="The same tasks through both paths, with per-call traces attached. This is a measured comparison, not a preference." slug="the-multi-agent-journey-fail" date="29 August 2026" />
+
+## What survived
+
+Three things: measurement as a first-class citizen (per-call traces so every architectural claim can be checked), role-aware routing instead of model loyalty (cheap workhorse by default, frontier only for genuinely hard work), and A2A as a companion capability — agents that can discover each other without custom plumbing. Everything else — the orchestration layers, the lifecycle bookkeeping, the inbox protocols — was removed after the telemetry showed it cost more than it returned.
+
+## Field notes this consolidates
+
+The long-form evidence lives in earlier articles, which remain valuable as the paper trail: [what 551 Codex sessions revealed](/blog/what-551-codex-sessions-reveal-about-real-ai-work), [the OpenRouter-backed AI team](/blog/how-i-built-an-openrouter-backed-ai-team), [making subagents measurable](/blog/how-i-made-codex-subagents-measurable), [one agent, two models](/blog/one-agent-two-models), [the A2A mesh](/blog/how-i-got-four-ai-agents-talking-to-each-other), and [Sol/OpenCode split](/blog/how-i-split-sol-planning-from-opencode-go-execution). This article is the through-line.
+
+## Where to go next
+
+- [Why agent systems become slow, expensive and fragile](/blog/why-agent-systems-become-slow-expensive-and-fragile) — the mechanism behind the middleman tax
+- [What should be an agent — and what should be normal code?](/blog/what-should-be-an-agent) — the decision rule this journey produced
+

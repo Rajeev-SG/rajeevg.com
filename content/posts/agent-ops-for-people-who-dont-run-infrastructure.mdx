@@ -1,0 +1,49 @@
+---
+title: Agent Ops for people who don't run infrastructure
+slug: agent-ops-for-people-who-dont-run-infrastructure
+date: 2026-08-29
+description: How to keep a fleet of AI agents alive, monitored, and recoverable using launchd, an ops board, alerts, and runbooks — explained for people who have never administered a server.
+tags: [ai, agents, operations, launchd, alertmanager, grafana, telegram, runbooks]
+draft: false
+image: /images/articles-2026-08/agent-ops-for-people-open.svg
+---
+
+Most writing about "AI operations" assumes you run Kubernetes and enjoy it. This article is for the other case: you have several agents doing real work on your machine, and you want them to keep working without becoming a second job.
+
+The good news is that the pattern is small. Four pieces — a way to keep things running, a place to see their state, a way to be told when something drifts, and written instructions for fixing it — cover almost everything.
+
+<Figure src="/images/articles-2026-08/agent-ops-for-people-open.svg" alt="Four-part operations loop: agents started by launchd, building manager checks readiness, Alertmanager routes alarms, runbooks document exact recovery steps" caption="The operations loop. The loop ends when the runbook fixes the cause, not the symptom." slug="agent-ops-for-people-open" date="29 August 2026" />
+
+## The four pieces, in plain English
+
+**launchd is the building manager.** On macOS, launchd starts services, restarts them when they crash, and defines what "running" means for each one. If your agent dies at 3am, launchd brings it back before you wake up. No containers required.
+
+**The ops board (Semaphore) is the lobby directory.** One page that shows the state of every service: running, stopped, failing, when it last checked in. When something looks wrong, this is the first place to look, because looking in five places is how incidents get missed.
+
+**Alertmanager is the alarm system.** It watches metrics and decides what deserves your attention. Alarms route to Telegram, which means your phone is the pager. A good alarm says what broke and links to what to do about it; a bad alarm says nothing and trains you to ignore it.
+
+**Runbooks are the SOPs.** A runbook is one document per failure mode: what the alarm means, the exact commands to run, how to verify the fix. Written while the failure is still understood, so the version of you at 3am doesn't have to reconstruct the reasoning.
+
+<Figure src="/images/articles-2026-08/agent-ops-for-people-arch.svg" alt="Five-layer agent ops stack: worker agents, launchd, Semaphore board, Alertmanager, and runbooks, with Grafana and Telegram completing the stack" caption="Each layer has one job and a named owner. Grafana provides context; Telegram is the remote desk." slug="agent-ops-for-people-arch" date="29 August 2026" />
+
+## From alarm to recovery, in order
+
+<Figure src="/images/articles-2026-08/agent-ops-for-people-seq.svg" alt="Five-step sequence: drift detected, alert routed to Telegram, runbook opened, fix applied, board shows healthy again" caption="A real recovery sequence, known from live alarm history on this rig." slug="agent-ops-for-people-seq" date="29 August 2026" />
+
+The sequence matters more than the tools. Any alerting system that doesn't end in a runbook produces anxiety, not recovery.
+
+## The before and after of having a runbook
+
+<Figure src="/images/articles-2026-08/agent-ops-for-people-fail.svg" alt="Before: alarm arrives with no context, the person who built it is asleep, recovery takes hours. After: alarm links to the exact SOP, anyone on the desk can act, recovery takes minutes" caption="Runbook missing versus runbook present. The runbook is written while the failure is still understood." slug="agent-ops-for-people-fail" date="29 August 2026" />
+
+This is the highest-leverage habit in the whole discipline, and it costs one document per failure mode.
+
+## What this looks like on a real Mac
+
+The rig this describes runs launchd jobs for each agent, a Semaphore ops board in a local container, Alertmanager wired to Telegram, and runbooks in a docs tree. Grafana gives the context behind each alarm. Nothing here needs a public port — [the Mac operations centre article](/blog/your-mac-as-an-ai-operations-centre) covers how that works.
+
+## Where to go next
+
+- [The agent telemetry stack, explained from first principles](/blog/the-agent-telemetry-stack) — where the metrics that feed the alarms come from
+- [What should be an agent — and what should be normal code?](/blog/what-should-be-an-agent) — deciding what deserves this operational care at all
+

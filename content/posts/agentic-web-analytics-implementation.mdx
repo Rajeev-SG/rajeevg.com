@@ -1,0 +1,49 @@
+---
+title: Agentic web analytics implementation
+slug: agentic-web-analytics-implementation
+date: 2026-08-29
+description: How web analytics implementation — consent, GA4, GTM setup, QA, reporting, reconciliation — can be substantially automated while humans keep governance. Marketer-first, proof-backed.
+tags: [analytics, ga4, gtm, consent, qa, reporting, agentic]
+draft: false
+image: /images/articles-2026-08/agentic-web-analytics-implementation-open.svg
+---
+
+Web analytics implementation has a reputation problem: it is either slow and expensive (agency-led) or quietly broken (self-serve). Agentic implementation changes the economics without removing the governance. This article shows the whole loop — plan, implement, QA, report, reconcile — and what the human still owns.
+
+<Figure src="/images/articles-2026-08/agentic-web-analytics-implementation-open.svg" alt="Four-stage governed loop: plan with consent model, agentic GTM and GA4 implementation, automated browser QA, reporting and reconciliation" caption="Human governance stays in the loop at every gate. The automation removes labour, not accountability." slug="agentic-web-analytics-implementation-open" date="29 August 2026" />
+
+## Why marketers should care
+
+The value is not "AI did the tags". It is that QA, which used to be the part that got skipped, becomes the part that always runs. A configured-but-broken implementation is worse than none — you make decisions on under-counted data with no signal that anything is wrong. Agentic QA closes exactly that gap.
+
+## The implementation stack
+
+<Figure src="/images/articles-2026-08/agentic-web-analytics-implementation-arch.svg" alt="Implementation stack: measurement contract, GTM workspace, GA4 property, QA harness, reporting layer" caption="Consent mode gates every tag. The QA harness proves the gate works, not just that it is configured." slug="agentic-web-analytics-implementation-arch" date="29 August 2026" />
+
+**The measurement contract** comes first: events, properties, owners, and the consent model. AI drafts it from a requirements conversation; humans approve it. Nothing else starts until this exists.
+
+**The GTM workspace** is built against the contract, versioned, and reviewed before publish. Agentic tooling generates tags, triggers, and variables from the contract rather than from memory.
+
+**GA4** receives events with consent-aware gating, so what fires depends on what the visitor allowed.
+
+**The QA harness** is the differentiator: automated browser journeys that exercise the real consent path, record what actually fired, and compare it against the contract.
+
+**Reporting** joins GA4, BigQuery, and vendor data through a reconciliation pass before any number reaches a decision.
+
+## Implementation to verified reporting
+
+<Figure src="/images/articles-2026-08/agentic-web-analytics-implementation-seq.svg" alt="Five steps: plan agreed, GTM built, browser QA records observed events, observed versus contract gaps documented, reporting goes live reconciled and trusted" caption="This replaces the older one-off GA4 setup story with a repeatable method." slug="agentic-web-analytics-implementation-seq" date="29 August 2026" />
+
+## Configured-but-broken versus verified
+
+<Figure src="/images/articles-2026-08/agentic-web-analytics-implementation-fail.svg" alt="Before: tag exists in GTM but consent blocks it silently and reports under-count with no signal. After: QA harness fires the real journey and measures the configured-versus-firing gap" caption="The verification is a browser run, not a screenshot of the GTM workspace." slug="agentic-web-analytics-implementation-fail" date="29 August 2026" />
+
+## What the earlier setup story got right and wrong
+
+The [original GA4 setup write-up](/blog/how-we-finished-the-ga4-property-setup-on-rajeevg-com) documented a one-off property build. The setup itself was correct; the method was not repeatable. This article is the repeatable version — same destination, contract-first, with QA as a stage rather than an afterthought. [The measurement reality article](/blog/why-browser-consent-and-source-blending-make-marketing-measurement-harder) remains the best explanation of why browser-side truth is hard in the first place.
+
+## Where to go next
+
+- [Agentic data collection and warehousing](/blog/agentic-data-collection-and-warehousing) — when the collection layer itself should get heavier
+- [Proof, not prompts](/blog/proof-not-prompts) — the delivery standard this loop feeds
+

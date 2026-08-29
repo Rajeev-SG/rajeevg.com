@@ -1,0 +1,43 @@
+---
+title: What should be an agent — and what should be normal code?
+slug: what-should-be-an-agent
+date: 2026-08-29
+description: Four questions — ambiguity, repetition, failure cost, auditability — that decide whether a task deserves an agent or a script, with the measured evidence from this rig's own routing decisions.
+tags: [ai, architecture, agents, engineering, decision-making]
+draft: false
+image: /images/articles-2026-08/what-should-be-an-agent-open.svg
+---
+
+The most expensive mistake in agent work is using an agent where a script belongs. It is also the most common one, because agents are exciting and scripts are not. This article offers four questions that settle it, and the evidence from this rig's own decisions.
+
+<Figure src="/images/articles-2026-08/what-should-be-an-agent-open.svg" alt="Four questions: is it ambiguous, does it repeat, what does failure cost, who must audit it" caption="A working heuristic, not a formal theory. The honest answer is usually code." slug="what-should-be-an-agent-open" date="29 August 2026" />
+
+## The four questions
+
+**Is it ambiguous?** If the input varies in ways rules cannot enumerate — a messy brief, an unclear spec, a weird repo state — judgment is required, and that is an agent's home turf.
+
+**Does it repeat?** Same input, same output, every time. Repetition is a script's home turf. An agent on a deterministic job burns tokens for variance you did not want.
+
+**What does failure cost?** Cheap failure (a draft nobody ships, a suggestion nobody takes) tolerates agents. Expensive failure (payments, publishing, anything client-facing) needs deterministic paths and guardrails.
+
+**Who must audit it?** If a decision needs to be traced after the fact — compliance, billing, client disputes — you need either normal code or a fully logged agent with provenance attached.
+
+<Figure src="/images/articles-2026-08/what-should-be-an-agent-arch.svg" alt="Decision tree resolving the four questions into normal code, an agent, or a logged agent" caption="Work through the questions in order. Most tasks resolve before the third question." slug="what-should-be-an-agent-arch" date="29 August 2026" />
+
+## A decision in sequence
+
+<Figure src="/images/articles-2026-08/what-should-be-an-agent-seq.svg" alt="Five steps: task arrives, ask ambiguity, ask repetition, ask failure cost, choose code, agent, or hybrid" caption="This sequence is how this rig's own automation decisions are made." slug="what-should-be-an-agent-seq" date="29 August 2026" />
+
+## The measured before and after
+
+<Figure src="/images/articles-2026-08/what-should-be-an-agent-fail.svg" alt="Before: an agent on a deterministic job producing nondeterministic output and burning tokens. After: deterministic code that is fast and auditable, with the agent freed for real judgment" caption="The deterministic path was measured: same output, lower cost, no variance. Known from this rig's routing decisions." slug="what-should-be-an-agent-fail" date="29 August 2026" />
+
+## The hybrid pattern that usually wins
+
+Most real work is a script with an agent at the edges: deterministic pipeline for the 90% that repeats, agent for the 10% that needs judgment, with the handoff explicit. This is what [the routing system](/solutions/agent-routing-and-lifecycle-system) does — cheap workhorse for routine work, frontier escalation only when the questions above say the judgment is real.
+
+## Where to go next
+
+- [The multi-agent journey](/blog/the-multi-agent-journey-what-survived-contact-with-reality) — the architectural history behind this heuristic
+- [Proof, not prompts](/blog/proof-not-prompts) — how auditability attaches to whatever you choose
+

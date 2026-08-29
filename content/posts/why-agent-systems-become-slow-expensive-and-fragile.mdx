@@ -1,0 +1,45 @@
+---
+title: Why agent systems become slow, expensive and fragile
+slug: why-agent-systems-become-slow-expensive-and-fragile
+date: 2026-08-29
+description: "The measured mechanisms behind agent bloat: context resends, oversight cost, cumulative failures, and the attribution traps that make dashboards lie about all of it."
+tags: [ai, agents, cost, observability, reliability, measurement]
+draft: false
+image: /images/articles-2026-08/why-agent-systems-become-slow-expensive-and-fragile-open.svg
+---
+
+Ask someone why their agent system is slow and they will blame the model. The telemetry says otherwise: in my own measured runs, most of the cost and latency accumulated around the model, not inside it. This article names the mechanisms.
+
+<Figure src="/images/articles-2026-08/why-agent-systems-become-slow-expensive-and-fragile-open.svg" alt="Three mechanisms: every hop resends context, oversight costs more than work, and failures accumulate through retries, inbox errors, tool-output bloat, and stale duplicate workers" caption="Measured across 551 sessions and two public dashboards. None of this is illustrative." slug="why-agent-systems-become-slow-expensive-and-fragile-open" date="29 August 2026" />
+
+## The mechanisms
+
+**Every hop resends context.** When a planner hands work to a worker, the worker receives its instructions again, plus enough history to act. The reviewer reads the output plus the original context. Each hop re-pays for tokens the previous hop already spent.
+
+**Oversight costs more than work.** Planning tokens, review tokens, and polling waits are all real spend. In the one-agent-two-models comparison, oversight across four orchestration layers exceeded the tokens spent doing the actual task.
+
+**Failures are cumulative, not isolated.** A retry is cheap; a retry culture is not. Inbox errors, browser reconnects, tool-output bloat, and stale duplicate workers each add a little. Together they turn a two-minute task into a twenty-minute session.
+
+**Interruptions and inference-vs-tool bottlenecks.** A cancelled task still bills its tokens. And long tool calls (a browser action, a file write) block the inference loop, so wall-clock time diverges from token cost — which is why "it took ages" and "it cost a lot" are different measurements.
+
+<Figure src="/images/articles-2026-08/why-agent-systems-become-slow-expensive-and-fragile-arch.svg" alt="The request path: user request, planner agent, worker agent, reviewer agent, cumulative bill — each arrow is a context resend" caption="Each arrow is a context resend. Hops, not model choice alone, drive the cost curve." slug="why-agent-systems-become-slow-expensive-and-fragile-arch" date="29 August 2026" />
+
+## A request through the cost machine
+
+<Figure src="/images/articles-2026-08/why-agent-systems-become-slow-expensive-and-fragile-seq.svg" alt="Five steps: request parsed, planned, worked, reviewed, reported — with context resend costs one through four and a total of four times the actual work" caption="The multiplier is measured, not illustrative. Per-call traces exist for this exact path." slug="why-agent-systems-become-slow-expensive-and-fragile-seq" date="29 August 2026" />
+
+## The attribution trap
+
+<Figure src="/images/articles-2026-08/why-agent-systems-become-slow-expensive-and-fragile-fail.svg" alt="Before: gaps in provider counters render as zeros, making cost look lower than truth. After: missing data marked unknown, totals exclude it honestly, no false confidence" caption="Unknown is not zero. The pipeline changed specifically so gaps never render as zero." slug="why-agent-systems-become-slow-expensive-and-fragile-fail" date="29 August 2026" />
+
+Cumulative-versus-task metrics and unknown-versus-zero are the two quiet ways dashboards lie. Fixing them is what made honest optimisation possible at all.
+
+## What to do about it
+
+The structural fixes are boring and effective: fewer hops (delete layers that don't repay their coordination cost), task-scoped metrics (attribute tokens to the task, not the lifetime counter), bounded tool output (truncate what you would never read), and a stale-worker reaper. The routing rule — cheap workhorse by default, frontier for genuinely hard work — is documented in [the routing benchmark article](/blog/i-made-glm-5-3-flash-faster-but-kept-cheap-routing).
+
+## Where to go next
+
+- [The multi-agent journey](/blog/the-multi-agent-journey-what-survived-contact-with-reality) — the architectural decisions this evidence produced
+- [The agent telemetry stack](/blog/the-agent-telemetry-stack) — how to measure your own version of this
+
