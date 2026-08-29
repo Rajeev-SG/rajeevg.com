@@ -32,7 +32,7 @@ Server-side tagging and a warehouse are powerful. They are also optional, and th
 
 <Figure src="/images/articles-2026-08/agentic-data-collection-and-warehousing-fail.svg" alt="Before: sGTM on Cloud Run, two measurement stacks, engineering owner required, bill visible in GCP. After: client-side plus export, one stack, same decision quality for this use case" caption="The cost autopsy measured what the heavy stack actually charged before it was removed." slug="agentic-data-collection-and-warehousing-fail" date="29 August 2026" />
 
-The honest criteria: low event volume, no engineering owner, questions answerable by client-side plus the GA4 BigQuery export, and no first-party cookie requirement. The [cost autopsy](/blog/when-not-to-use-server-side-tagging) measured the Cloud Run bill and the maintenance load before removing the stack for exactly these reasons. The [consented first-party stack article](/blog/how-we-built-a-consented-first-party-analytics-stack) documents when the heavy stack was the right call — consent-gated collection into BigQuery with a reporting layer on top — and both lessons are folded in here.
+The decision variable is not volume — it is whether you need **first-party cookie control and event transformation**. If you do, sGTM earns its operational cost. If you do not, the other criteria apply: low event volume, no engineering owner, questions answerable by client-side plus the GA4 BigQuery export. Volume alone rarely justifies the heavy stack. The [cost autopsy](/blog/when-not-to-use-server-side-tagging) measured the Cloud Run bill and the maintenance load before removing the stack for exactly these reasons. The [consented first-party stack article](/blog/how-we-built-a-consented-first-party-analytics-stack) documents when the heavy stack was the right call — consent-gated collection into BigQuery with a reporting layer on top — and both lessons are folded in here.
 
 ## The backend-truth reconciliation
 
@@ -41,5 +41,5 @@ The point of a warehouse is not storage; it is the join. Platform-reported conve
 ## Where to go next
 
 - [Agentic web analytics implementation](/blog/agentic-web-analytics-implementation) — the lighter half of the measurement loop
-- [The agent telemetry stack](/blog/the-agent-telemetry-stack) — the same warehousing logic applied to AI systems
+- [The agent telemetry stack](/blog/the-agent-telemetry-stack) — the unifying claim of this site: the same collection, reconciliation, and honest-unknowns discipline governs AI systems and marketing data. The tools differ; the method is one method.
 

@@ -18,9 +18,13 @@ Every organisation has the same problem in different clothes: the truth exists, 
 
 **Source corpus stays raw.** Files are never edited in place. The corpus is the evidence; the governed layer is the interpretation.
 
-**Extraction attaches provenance.** Every extracted claim keeps its source: which file, which email, which meeting, which date. A claim without provenance is a rumour with formatting.
+**Extraction attaches provenance.** Every extracted claim keeps its source: which file, which email, which meeting, which date. A claim without provenance is a rumour with formatting. (The delivery-side definition of provenance is owned by [Proof, not prompts](/blog/proof-not-prompts); this article owns the store.)
 
-**The governed layer is canonical.** One version per fact, a named owner, a review date. When two sources disagree, the layer records both and flags the conflict instead of silently picking one.
+**The governed layer is canonical.** One version per fact, a named owner, a review date.
+
+The non-obvious governance rule is the one that separates a knowledge layer from a search index: **when two sources disagree, the layer records both and flags the conflict instead of silently picking one.** This is the whole argument against naive retrieval — a system that auto-picks a winner launders the disagreement into a confident answer. Flagging the conflict keeps the human decision in the loop where it belongs.
+
+The concrete instantiation on this rig is a docs tree with per-topic files, named owners, and enforced review dates, run weekly: the structure is boring, and that is the point.
 
 **Retrieval asks the layer.** Agents and people query the governed layer, not the folder. This is the difference between "the AI said" and "the layer says, and here is the source".
 

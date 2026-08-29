@@ -8,7 +8,7 @@ draft: false
 image: /images/articles-2026-08/agent-ops-for-people-open.svg
 ---
 
-Most writing about "AI operations" assumes you run Kubernetes and enjoy it. This article is for the other case: you have several agents doing real work on your machine, and you want them to keep working without becoming a second job.
+Most writing about "AI operations" assumes you run Kubernetes and enjoy it. This article is for the other case: you are technical enough to edit a config file and run a command, but you have no interest in becoming a server administrator. You have several agents doing real work on your machine, and you want them to keep working without becoming a second job.
 
 The good news is that the pattern is small. Four pieces — a way to keep things running, a place to see their state, a way to be told when something drifts, and written instructions for fixing it — cover almost everything.
 
@@ -16,7 +16,7 @@ The good news is that the pattern is small. Four pieces — a way to keep things
 
 ## The four pieces, in plain English
 
-**launchd is the building manager.** On macOS, launchd starts services, restarts them when they crash, and defines what "running" means for each one. If your agent dies at 3am, launchd brings it back before you wake up. No containers required.
+**launchd is the building manager.** On macOS, launchd starts services, restarts them when they crash, and defines what "running" means for each one. If your agent dies at 3am, launchd brings it back before you wake up. (The [Mac operations centre article](/blog/your-mac-as-an-ai-operations-centre) covers how services and ports work in more depth; this article is about what to do when they misbehave.)
 
 **The ops board (Semaphore) is the lobby directory.** One page that shows the state of every service: running, stopped, failing, when it last checked in. When something looks wrong, this is the first place to look, because looking in five places is how incidents get missed.
 
@@ -36,11 +36,15 @@ The sequence matters more than the tools. Any alerting system that doesn't end i
 
 <Figure src="/images/articles-2026-08/agent-ops-for-people-fail.svg" alt="Before: alarm arrives with no context, the person who built it is asleep, recovery takes hours. After: alarm links to the exact SOP, anyone on the desk can act, recovery takes minutes" caption="Runbook missing versus runbook present. The runbook is written while the failure is still understood." slug="agent-ops-for-people-fail" date="29 August 2026" />
 
-This is the highest-leverage habit in the whole discipline, and it costs one document per failure mode.
+This is the highest-leverage habit in this discipline's daily work, and the cheapest one to adopt: one document per failure mode.
 
 ## What this looks like on a real Mac
 
 The rig this describes runs launchd jobs for each agent, a Semaphore ops board in a local container, Alertmanager wired to Telegram, and runbooks in a docs tree. Grafana gives the context behind each alarm. Nothing here needs a public port — [the Mac operations centre article](/blog/your-mac-as-an-ai-operations-centre) covers how that works.
+
+## Why this matters outside the terminal
+
+The transferable claim is not "run launchd". It is that any automated system you depend on needs four things — a keeper, a window, an alarm, and a written fix — and agencies that automate tagging, reporting, or QA pipelines need exactly the same four. The tools change; the loop does not.
 
 ## Where to go next
 

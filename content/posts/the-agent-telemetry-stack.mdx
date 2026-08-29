@@ -14,6 +14,7 @@ This article is the explanation I wish I had read first. It walks the whole stac
 
 <Figure src="/images/articles-2026-08/the-agent-telemetry-stack-open.svg" alt="Simple three-step flow: agents and apps emit signals, the collector routes them, and one Grafana and Langfuse room shows the result" caption="The telemetry map, simplified. Every signal passes the collector before anything stores it." slug="the-agent-telemetry-stack-open" date="29 August 2026" />
 
+
 ## Why you should care, even if you run nothing
 
 If you use AI tools at work, someone — you, a vendor, or an engineer down the hall — is making decisions about cost, speed, and reliability with almost no evidence. The telemetry stack is what turns "it feels slow and expensive" into a number you can argue with. You do not need to run it yourself to benefit from knowing what it can and cannot prove.
@@ -24,7 +25,7 @@ If you use AI tools at work, someone — you, a vendor, or an engineer down the 
 
 **The collector (OpenTelemetry Collector) is the traffic controller.** Nothing talks straight to storage. The collector receives signals in a standard format (OTLP), batches them, retries on failure, and routes each type where it belongs. This one decision — everything through one pipe — is what makes the rest of the system maintainable.
 
-**Prometheus stores metrics.** Metrics are counters and gauges: tokens per hour, requests per provider, cost per day. They are cheap to store, fast to query, and perfect for the "how much, how often" questions. Deduplication rules live here, because cumulative counters lie unless you subtract correctly.
+**Prometheus stores metrics.** Metrics are counters and gauges: tokens per hour, requests per provider, cost per day. They are cheap to store, fast to query, and perfect for the "how much, how often" questions. Deduplication rules live here, because cumulative counters lie unless you subtract correctly. Prometheus is the live scrape store — what the dashboards query right now.
 
 **Langfuse stores traces.** A trace is one complete story: a single request, which model answered, how many tokens, what it cost, how long it took. Langfuse runs on ClickHouse, a columnar database built for exactly this kind of analytical querying. This is where cost-per-task answers come from.
 
@@ -36,7 +37,7 @@ If you use AI tools at work, someone — you, a vendor, or an engineer down the 
 
 ## Supporting cast
 
-**Postgres** holds application state — who is allowed into which dashboard, what the ops board records. **Redis** queues work so a slow consumer does not block a fast producer. **MinIO** is S3-compatible blob storage, keeping exports and attachments without an external bill. **VictoriaMetrics** is a drop-in Prometheus-compatible store that keeps long-term private metrics without Prometheus's retention pain. **JSONL and SQLite** are what the agents themselves write — unglamorous, but the only source that never gets rounded or summarised.
+**Postgres** holds application state — who is allowed into which dashboard, what the ops board records. **Redis** queues work so a slow consumer does not block a fast producer. **MinIO** is S3-compatible blob storage, keeping exports and attachments without an external bill. **VictoriaMetrics** is the long-term archive: a drop-in Prometheus-compatible store that keeps private metrics for months without Prometheus's retention pain. The division of labour is simple — Prometheus answers "what is happening", VictoriaMetrics answers "what happened". **JSONL and SQLite** are what the agents themselves write — unglamorous, but the only source that never gets rounded or summarised.
 
 ## Where one request's telemetry actually travels
 
@@ -55,6 +56,8 @@ Two specific lessons from running this: providers expose cumulative counters tha
 This is the canonical description. Two earlier articles cover pieces of the journey and remain useful as field notes: [One door for every token](/blog/one-door-for-every-token) covers the routing gateway and cost feed, and [why I made my agent token usage public](/blog/why-i-made-my-agent-token-usage-public) covers the public summary pipeline. Where they describe older paths, this article is the current truth.
 
 ## Where to go next
+
+The measurement discipline in this article is the same one that governs the marketing data work elsewhere on this site — the tools differ, the reconciliation logic does not. Start with:
 
 - [Agent Ops for people who don't run infrastructure](/blog/agent-ops-for-people-who-dont-run-infrastructure) — what happens when the dashboards raise an alarm
 - [Your Mac as an AI operations centre](/blog/your-mac-as-an-ai-operations-centre) — the machine this stack runs on

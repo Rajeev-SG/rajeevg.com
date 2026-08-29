@@ -16,7 +16,7 @@ A laptop is a surprisingly good operations centre. It has a real Unix underneath
 
 **Processes and ports.** Everything running on your Mac is a process, and network services listen on numbered ports. `localhost:3000` means "port 3000 on this machine only". The loopback address 127.0.0.1 is unreachable from outside — which is exactly why most of this system stays there.
 
-**launchd and services.** A service is a process that should keep running. launchd is the macOS mechanism that starts them, restarts them on failure, and records when they did. Containers are optional here, not required.
+**launchd and services.** A service is a process that should keep running. launchd is the macOS mechanism that starts them, restarts them on failure, and records when they did — it is the layer the rest of this site's operations depend on. Containers are optional here, not required.
 
 **OrbStack and containers.** Some things — the VictoriaMetrics store, the Grafana room, a small Coolify stack — run best isolated in containers. OrbStack provides that on a Mac without the ceremony of Docker Desktop. Volumes persist container state across restarts.
 
@@ -34,7 +34,7 @@ This is the practical payoff: an alarm arrives on your phone, you open the board
 
 <Figure src="/images/articles-2026-08/your-mac-as-an-ai-operations-centre-fail.svg" alt="Before: dashboard on a public port, credentials in a screenshot, sleep as the only guard. After: loopback plus tailnet only, secrets in environment variables, sleep as a bonus" caption="The boundary is a design decision, not an accident of default settings." slug="your-mac-as-an-ai-operations-centre-fail" date="29 August 2026" />
 
-Three specific mistakes account for most self-hosted exposures: a dashboard bound to 0.0.0.0 instead of loopback, credentials visible in screenshots, and "it sleeps" treated as security. The boundary should be loopback plus your tailnet, with sleep as a bonus rather than a plan.
+The three mistakes I have seen most often in self-hosted setups: a dashboard bound to 0.0.0.0 instead of loopback, credentials visible in screenshots, and "it sleeps" treated as security. The boundary should be loopback plus your tailnet, with sleep as a bonus rather than a plan.
 
 ## Laptop sleep, honestly
 

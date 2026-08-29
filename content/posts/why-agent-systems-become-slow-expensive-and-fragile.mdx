@@ -16,7 +16,7 @@ Ask someone why their agent system is slow and they will blame the model. The te
 
 **Every hop resends context.** When a planner hands work to a worker, the worker receives its instructions again, plus enough history to act. The reviewer reads the output plus the original context. Each hop re-pays for tokens the previous hop already spent.
 
-**Oversight costs more than work.** Planning tokens, review tokens, and polling waits are all real spend. In the one-agent-two-models comparison, oversight across four orchestration layers exceeded the tokens spent doing the actual task.
+**Oversight costs more than work.** Planning tokens, review tokens, and polling waits are all real spend. In the one-agent-two-models comparison — the same tasks through both paths, with per-call traces — oversight across four orchestration layers exceeded the tokens spent doing the actual task. The measured multiplier behind this is in [the cost-machine sequence](#a-request-through-the-cost-machine) below.
 
 **Failures are cumulative, not isolated.** A retry is cheap; a retry culture is not. Inbox errors, browser reconnects, tool-output bloat, and stale duplicate workers each add a little. Together they turn a two-minute task into a twenty-minute session.
 
@@ -28,7 +28,9 @@ Ask someone why their agent system is slow and they will blame the model. The te
 
 <Figure src="/images/articles-2026-08/why-agent-systems-become-slow-expensive-and-fragile-seq.svg" alt="Five steps: request parsed, planned, worked, reviewed, reported — with context resend costs one through four and a total of four times the actual work" caption="The multiplier is measured, not illustrative. Per-call traces exist for this exact path." slug="why-agent-systems-become-slow-expensive-and-fragile-seq" date="29 August 2026" />
 
-## The attribution trap
+## The attribution trap *(canonical)*
+
+*This section is the canonical description of the cumulative-versus-task and unknown-versus-zero problems. Other articles link here rather than re-deriving them.*
 
 <Figure src="/images/articles-2026-08/why-agent-systems-become-slow-expensive-and-fragile-fail.svg" alt="Before: gaps in provider counters render as zeros, making cost look lower than truth. After: missing data marked unknown, totals exclude it honestly, no false confidence" caption="Unknown is not zero. The pipeline changed specifically so gaps never render as zero." slug="why-agent-systems-become-slow-expensive-and-fragile-fail" date="29 August 2026" />
 
@@ -37,6 +39,10 @@ Cumulative-versus-task metrics and unknown-versus-zero are the two quiet ways da
 ## What to do about it
 
 The structural fixes are boring and effective: fewer hops (delete layers that don't repay their coordination cost), task-scoped metrics (attribute tokens to the task, not the lifetime counter), bounded tool output (truncate what you would never read), and a stale-worker reaper. The routing rule — cheap workhorse by default, frontier for genuinely hard work — is documented in [the routing benchmark article](/blog/i-made-glm-5-3-flash-faster-but-kept-cheap-routing).
+
+## Why this matters outside the terminal
+
+"It took ages" and "it cost a lot" are different measurements — and the same trap exists in marketing data, where platform latency and platform spend get conflated. The habit of separating them transfers directly.
 
 ## Where to go next
 

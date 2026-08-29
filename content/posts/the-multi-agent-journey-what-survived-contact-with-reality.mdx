@@ -28,7 +28,13 @@ This is the honest version of two years of multi-agent work: what was built, wha
 
 ## What the middleman tax actually cost
 
+*(The cost mechanism behind this section is owned by [Why agent systems become slow, expensive and fragile](/blog/why-agent-systems-become-slow-expensive-and-fragile); this article owns the architectural decision that followed.)*
+
 <Figure src="/images/articles-2026-08/the-multi-agent-journey-fail.svg" alt="Before: four orchestration layers each spending planning, review, and polling tokens. After: one agent with two models, measured oversight drop, no middleman to poll" caption="The same tasks through both paths, with per-call traces attached. This is a measured comparison, not a preference." slug="the-multi-agent-journey-fail" date="29 August 2026" />
+
+## The current stack, dated
+
+What follows names specific tools. They are the evidence, not the recommendation: as of **29 August 2026**, the rig runs Codex as operator, OpenCode as fast executor, GLM-5.3-Flash as workhorse with frontier escalation, and A2A on loopback. The durable conclusion — role-aware routing beats model loyalty — will outlive all of these names.
 
 ## What survived
 
@@ -37,6 +43,10 @@ Three things: measurement as a first-class citizen (per-call traces so every arc
 ## Field notes this consolidates
 
 The long-form evidence lives in earlier articles, which remain valuable as the paper trail: [what 551 Codex sessions revealed](/blog/what-551-codex-sessions-reveal-about-real-ai-work), [the OpenRouter-backed AI team](/blog/how-i-built-an-openrouter-backed-ai-team), [making subagents measurable](/blog/how-i-made-codex-subagents-measurable), [one agent, two models](/blog/one-agent-two-models), [the A2A mesh](/blog/how-i-got-four-ai-agents-talking-to-each-other), and [Sol/OpenCode split](/blog/how-i-split-sol-planning-from-opencode-go-execution). This article is the through-line.
+
+## Why this matters outside the terminal
+
+If you build anything with AI tools, the subtractive arc is the useful part: every layer you add to make agents coordinate has a cost that is measurable, and most of them do not repay it. That finding applies to agency automation stacks as directly as it applies to coding agents.
 
 ## Where to go next
 
