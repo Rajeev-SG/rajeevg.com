@@ -2,32 +2,99 @@
 title: Proof, not prompts
 slug: proof-not-prompts
 date: 2026-08-29
-description: "A delivery standard for AI-assisted work: evidence packs, provenance, editable deliverables, reconciliation, and review gates — so a claim can be checked, not just believed."
+description: "A delivery standard for AI-assisted work: raw evidence, provenance, editable deliverables, reconciliation, and review gates — walked through one real build end to end, including the failure that only the evidence caught."
 tags: [ai, evidence, qa, deliverables, quality, analytics]
 draft: false
-image: /images/editorial/proof-loop-circle.svg
+image: /images/blog/proof-not-prompts/reporting-walkthrough.svg
 ---
 
-The difference between a prompt output and a deliverable is not the words. It is whether someone else can check the claim. This article describes the working method: what gets captured, how provenance attaches, and where the gates are.
+The difference between a prompt output and a deliverable is not the words. It is whether someone else — a client, a reviewer, or you three weeks later — can check the claim without re-running the work. When an AI agent says "the build passes" or "the dashboard is live", that sentence is either backed by evidence you can inspect, or it is a guess wearing confident grammar.
 
-<Figure src="/images/editorial/proof-loop-circle.svg" alt="Circular proof loop with four stages — capture, attach provenance, draft deliverable, review gate — connected by a dashed cycle" caption="The proof loop: capture from real runs, attach provenance, draft an editable deliverable, and pass a gate where uncertainty is stated. Reconciliation closes the loop when sources disagree." slug="proof-loop-circle" date="29 August 2026" />
+This article describes the delivery standard I now apply to AI-assisted work: raw evidence, provenance, editable deliverables, reconciliation, uncertainty, and independent review. Then it walks through a real failure from this site's own delivery history, because the standard earns its keep precisely when the claim looks true and the evidence disagrees.
 
-## What a proof pack contains
+## What an evidence pack contains
 
-This article follows its own standard: the acceptance artefacts behind this site's own builds (browser screenshots, console and network captures, and reconciliation outputs under the repo's `output/acceptance` runs) are the raw-evidence layer for the claims here.
+Every substantial deliverable I ship now carries five layers. None of them is exotic, and each one answers a question that "the agent said it worked" cannot.
 
-Raw evidence is the unedited capture: the browser recording, the network log, the data export. Provenance attaches source, timestamp, and runner to every claim, so "according to the GA4 export from Tuesday" is checkable rather than rhetorical. The deliverable stays editable — a reviewer can change the wording without breaking the trail. The uncertainty statement says what is not proven and what would change the answer. Most "AI delivered it" failures are missing exactly this last layer.
+**Raw evidence.** The unedited capture of the run: a full-page screenshot at each breakpoint, the browser console log, the network request list, the exact command output. The point is that raw evidence is never summarised. A summary can be wrong in ways the underlying capture cannot hide. When a previous release claimed the dashboard was correct, the console log was the artefact that could prove or disprove it — the narrative could not be argued with the log.
 
-## From claim to verified deliverable
+**Provenance.** Every claim gets a source, a timestamp, and a runner. "According to the GA4 export from Tuesday, queried with the service-account key from environment X" is checkable. "The analytics look fine" is rhetoric. Provenance is what makes the difference between an opinion and an audit trail.
 
-## The before and after
+**Editable deliverable.** The artefact itself — a page, a spreadsheet, a document — stays in a format a reviewer can change without breaking the trail. For diagrams that means an editable source file; for text, a tracked change; for a dashboard, a query someone else can re-run. If the only way to review the work is to redo the work, the work was not reviewable.
+
+**Uncertainty statement.** What is not proven, what was not tested, and what would change the answer. "I verified this against the local build, not the production deployment" is a useful sentence. It tells the reader where the trust boundary is.
+
+**Review gate.** Someone or something else reads the pack and the deliverable and either accepts, rejects, or asks a question. The gate is the moment the work stops being the author's private belief and becomes something the team can rely on.
+
+<figure className="not-prose my-10">
+  <div className="relative left-1/2 w-[min(96vw,86rem)] -translate-x-1/2 overflow-x-auto rounded-2xl border border-stone-200 bg-[#fbfaf5] shadow-sm dark:border-stone-700">
+    <img
+      src="/images/blog/proof-not-prompts/reporting-walkthrough.svg"
+      alt="Flow diagram of the worked example: a claim branches into live GA4 evidence and empty BigQuery evidence, both feeding a reconciliation policy that discloses its fallback; a dashed path shows the production newline failure that only the raw capture layer caught, closing at an independent review gate that re-proved the fix on the production URL"
+      className="block min-w-[820px] w-full max-w-none sm:min-w-0"
+    />
+  </div>
+  <figcaption className="mx-auto mt-3 max-w-3xl text-center text-sm leading-6 text-slate-600 dark:text-slate-400">
+    How the claim actually moved from belief to proof, including the failure the reconciliation policy alone could not prevent. <a className="font-medium underline underline-offset-4" href="/downloads/proof-not-prompts-reporting-walkthrough.excalidraw">Download the editable Excalidraw source</a>.
+  </figcaption>
+</figure>
+
+The five layers are cheap to produce when they are collected during the run, and nearly impossible to reconstruct afterwards. That asymmetry — minutes now, or a lost afternoon later — is the main argument for making evidence collection part of the work, not a step after it.
+
+## From claim to verified deliverable: a real walk-through
+
+This site publishes its own acceptance records under an `output/acceptance` directory in the repository. They are the raw-evidence layer for most articles on the site, including this one. One of them — a reporting reconciliation run from March 2026 — is the clearest worked example of the standard in action, because it ends with a disagreement the pack had to resolve rather than hide.
+
+The task looked simple: a public analytics dashboard for a hackathon voting project should show real traffic. GA4 — the measurement platform — had live events. A BigQuery warehouse, fed by the same property, was supposed to mirror them into a modeled dataset the dashboard could read cheaply. The claim on the table was "the dashboard shows correct data."
+
+The first pass of the dashboard read the modeled BigQuery dataset. The build passed. The page rendered. If someone had stopped at "it works", it would have shipped looking exactly like the evidence the workflow was supposed to prevent.
+
+Then the pack disagreed with itself. Reading the raw evidence layer by layer:
+
+- **Raw GA4 capture.** The direct GA4 query, run on the real production property with the exact host filter the site uses, returned real events — page views, vote submissions, judge activity, hundreds of events across the live window. The traffic existed.
+- **Raw BigQuery capture.** The same pack queried the modeled dataset directly: every table returned zero rows. The raw GA4 export table in the warehouse had also not landed.
+- **The gap.** Both sources were supposed to be describing the same traffic. One had data; the other did not. The claim "the dashboard shows correct data" was unfalsifiable until this gap was named.
+
+That gap is where the pack stops being paperwork. Two plausible endings existed: pick a winner (GA4 is obviously right, BigQuery must be wrong), or reconcile — measure the gap, explain it, and make the deliverable state which source is driving the numbers. The second ending is the one that survives a client's question.
+
+The reconciliation chose to make the split *visible* rather than resolving it silently. The dashboard now reads modeled BigQuery rows when they exist, and falls back to a GA4-derived dataset when the warehouse is empty — and says so on the page. The reconciliation note in the acceptance record names all three runtime states: warehouse live, warehouse empty with GA4 fallback, warehouse unreachable. No state is silent.
+
+And there was a second, sharper catch. The first production deployment still showed zeroes on the GA4 route despite the local evidence passing. The root cause lived in the environment: the production values for the GA4 hostname and stream ID carried trailing newlines — `"vote.rajeevg.com\n"` — and the exact-match hostname filter therefore missed every row. Locally correct, production wrong, and only the production-layer raw capture exposed it. The fix was normalising environment values in code, then re-proving on the deployed URL, not assuming the local pass carried over.
+
+The final pack recorded lint and build results, six passing end-to-end tests locally, the same six against the production URL, the named root cause, and the deployment URLs where each fix landed. A reviewer reading that pack can re-run any line. That is the deliverable — not the dashboard, but the pack plus the dashboard.
 
 ## Where reconciliation fits
 
-When two sources disagree — platform-reported versus backend-measured, observed versus configured — reconciliation is the step that measures the gap and explains it rather than picking a winner. That is the difference between an evidence pack and a screenshot with a narrative.
+Reconciliation is the step most AI-assisted work skips, because reconciliation requires admitting the sources disagree. Platform-reported numbers versus backend-measured numbers. Configured behaviour versus observed behaviour. The agent's summary versus the raw log. When two sources disagree, the honest move is to measure the gap, explain the mechanism behind it, and surface the explanation in the deliverable — not to pick the source that makes the narrative work.
+
+In the worked example, the mechanism was mundane: an export pipeline that had not run, plus an environment string with a newline in it. Mundane mechanisms are the norm. The value is not the elegance of the explanation; it is that the deliverable can now be trusted because the disagreement has an owner and a story rather than a shrug.
+
+If your deliverable cannot say which source is driving its numbers, it is not a deliverable. It is a screenshot with a narrative attached.
+
+## Honest limitations
+
+This standard costs time, and it does not solve everything it touches.
+
+**Evidence collection is still manual discipline.** Nothing in my current stack forces a pack to exist. If I am rushed, the temptation is to capture fewer layers, and a thinner pack degrades exactly where the next failure will land. Automating the capture would help; I have not done it yet.
+
+**Reconciliation needs domain context.** Knowing that an empty BigQuery table means "export has not run" and not "GA4 is broken" required understanding how the pipeline works. The pack structures the disagreement; it does not interpret it for you. An AI agent can produce the raw captures, but the interpretation gate is still a human judgment.
+
+**Evidence can be complete and still miss the question.** The pack proved the dashboard's data pipeline. It did not prove users found the dashboard useful, or that the reconciliation note itself was readable at mobile width. Different claim, different pack.
+
+**Cost scales with surface area.** A one-page static site is cheap to prove end to end. A multi-tenant product with auth flows, third-party integrations, and stateful backends is not. The standard stays the same; the effort budget does not. Pick the surfaces where a wrong claim costs the most, and prove those hardest.
+
+## Who needs this
+
+**Agencies and client work.** When an AI agent drafts a client deliverable, the pack is what turns "we shipped it" into "here is what changed, here is the evidence, here is what we have not verified." Clients rarely audit the pack — but the discipline of producing one changes the work it accompanies. The editorial standard behind this site (see [AI for agency operations](/blog/ai-for-agency-operations)) uses the same gates for content: no article ships because the model wrote it confidently; it ships because a build, a browser proof, and a review pass backed the claim.
+
+**Business and product teams.** A claim about revenue impact, activation, or usage is exactly the kind of statement this standard exists for. Attach the query, the window, the source system, and the caveat to the number before it enters a deck. The pack is also the antidote to the most common AI-assisted failure in business reporting: a plausible number with no way to find out where it came from.
+
+**Analytics and data work.** Reconciliation between GA4 and a warehouse, or between two dashboards, is a weekly occurrence for most teams. The worked example above is one instance of a pattern that generalises: capture both sources raw, name the gap, explain the mechanism, and make the deliverable disclose which source is driving what the reader sees.
 
 ## Where to go next
 
-- [AI for agency operations](/blog/ai-for-agency-operations) — the workflows this standard governs
-- [Why agent systems become slow, expensive and fragile](/blog/why-agent-systems-become-slow-expensive-and-fragile) — why "it ran successfully" is not evidence
+The standard is not a framework to adopt in one afternoon. It is a habit applied claim by claim. Pick the next thing you are about to hand over, and ask one question: *if a skeptical reviewer opened this tomorrow, what would they need to check it?* Whatever is missing from that answer is what the pack should contain.
 
+- [AI for agency operations](/blog/ai-for-agency-operations) — the workflows this standard governs
+- [What 551 Codex sessions reveal about real AI work](/blog/what-551-codex-sessions-reveal-about-real-ai-work) — why measured sessions beat intuition
+- [Building a two-agent personal cloud](/blog/building-a-two-agent-personal-cloud) — the same evidence discipline applied to infrastructure

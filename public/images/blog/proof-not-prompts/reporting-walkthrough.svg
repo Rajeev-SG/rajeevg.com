@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="t d">
+<title id="t">Proof pack in action: the reporting rebuild</title><desc id="d">A claim branches into two real evidence sources that diverge, feeding a reconciliation policy; a dashed path shows the production failure that only the raw capture layer caught, closing at an independent review gate.</desc>
+<defs><pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.1" fill="#e7e2d5"/></pattern><marker id="ar" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M 0 0 L 9 5 L 0 10 z" fill="#566174"/></marker><marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M 0 0 L 9 5 L 0 10 z" fill="#a84040"/></marker></defs>
+<rect width="1280" height="720" fill="#fbfaf5"/><rect width="1280" height="720" fill="url(#dots)" opacity=".6"/>
+<text x="48" y="56" font-size="28" fill="#172033" font-family="Comic Sans MS, cursive" text-anchor="start" >Proof pack in action: the reporting rebuild</text>
+<text x="48" y="86" font-size="15" fill="#566174" font-family="Comic Sans MS, cursive" text-anchor="start" >One claim, two evidence sources, one reconciliation, one failure, one gate.</text>
+<rect x="48" y="140" width="300" height="110" rx="16" fill="#fff0c9" stroke="#a97921" stroke-width="3"/>
+<text x="68" y="168" font-size="15" fill="#172033" font-family="Comic Sans MS, cursive" text-anchor="start" >CLAIM</text>
+<text x="68" y="188" font-size="15" fill="#172033" font-family="Comic Sans MS, cursive" text-anchor="start" >&quot;Dashboard shows correct data&quot;</text>
+<text x="68" y="208" font-size="15" fill="#172033" font-family="Comic Sans MS, cursive" text-anchor="start" >(voted-for, unproven)</text>
+<rect x="470" y="110" width="330" height="120" rx="16" fill="#dce8ff" stroke="#4f6fad" stroke-width="3"/>
+<text x="490" y="138" font-size="14" fill="#172033" font-family="Comic Sans MS, cursive" text-anchor="start" >GA4 (direct query)</text>
+<text x="490" y="156" font-size="14" fill="#172033" font-family="Comic Sans MS, cursive" text-anchor="start" >live events · real traffic</text>
+<text x="490" y="174" font-size="14" fill="#172033" font-family="Comic Sans MS, cursive" text-anchor="start" >→ claim&#x27;s positive half</text>
+<rect x="470" y="270" width="330" height="120" rx="16" fill="#fbdcdc" stroke="#a84040" stroke-width="3"/>
+<text x="490" y="298" font-size="14" fill="#172033" font-family="Comic Sans MS, cursive" text-anchor="start" >BigQuery modeled dataset</text>
+<text x="490" y="316" font-size="14" fill="#172033" font-family="Comic Sans MS, cursive" text-anchor="start" >all tables = 0 rows</text>
+<text x="490" y="334" font-size="14" fill="#172033" font-family="Comic Sans MS, cursive" text-anchor="start" >→ contradicts claim</text>
+<path d="M 348 175 L 470 175" stroke="#566174" stroke-width="2.5" fill="none" marker-end="url(#ar)" stroke-linejoin="round"/>
+<path d="M 348 225 L 400 225 L 400 330 L 470 330" stroke="#566174" stroke-width="2.5" fill="none" marker-end="url(#ar)" stroke-linejoin="round"/>
+<rect x="880" y="110" width="340" height="200" rx="16" fill="#dcf3e5" stroke="#3f8460" stroke-width="3"/>
+<text x="900" y="138" font-size="14" fill="#172033" font-family="Comic Sans MS, cursive" text-anchor="start" >RECONCILIATION</text>
+<text x="900" y="156" font-size="14" fill="#172033" font-family="Comic Sans MS, cursive" text-anchor="start" >Gap is real, not a bug.</text>
+<text x="900" y="174" font-size="14" fill="#172033" font-family="Comic Sans MS, cursive" text-anchor="start" >Policy: warehouse live → read it;</text>
+<text x="900" y="192" font-size="14" fill="#172033" font-family="Comic Sans MS, cursive" text-anchor="start" >warehouse empty → GA4 fallback,</text>
+<text x="900" y="210" font-size="14" fill="#172033" font-family="Comic Sans MS, cursive" text-anchor="start" >disclosed on the page.</text>
+<text x="900" y="228" font-size="14" fill="#172033" font-family="Comic Sans MS, cursive" text-anchor="start" >No silent zero-state.</text>
+<path d="M 800 170 L 880 170" stroke="#566174" stroke-width="2.5" fill="none" marker-end="url(#ar)" stroke-linejoin="round"/>
+<path d="M 800 330 L 840 330 L 840 260 L 880 260" stroke="#566174" stroke-width="2.5" fill="none" marker-end="url(#ar)" stroke-linejoin="round"/>
+<rect x="470" y="470" width="330" height="130" rx="16" fill="#fdf0f0" stroke="#a84040" stroke-width="3" stroke-dasharray="10 8"/>
+<text x="490" y="498" font-size="13" fill="#172033" font-family="Comic Sans MS, cursive" text-anchor="start" >PRODUCTION FAILURE</text>
+<text x="490" y="515" font-size="13" fill="#172033" font-family="Comic Sans MS, cursive" text-anchor="start" >env strings carried &quot;\n&quot;</text>
+<text x="490" y="532" font-size="13" fill="#172033" font-family="Comic Sans MS, cursive" text-anchor="start" >→ hostname filter matched 0 rows</text>
+<text x="490" y="549" font-size="13" fill="#172033" font-family="Comic Sans MS, cursive" text-anchor="start" >locally passed, prod showed zeros</text>
+<text x="490" y="588" font-size="12" fill="#8f2f2f" font-family="Comic Sans MS, cursive" text-anchor="start" >only raw prod capture exposed it</text>
+<path d="M 1050 310 L 1050 420 L 800 420 L 800 510 L 800 510" stroke="#a84040" stroke-width="2.5" fill="none" marker-end="url(#arr)" stroke-dasharray="10 8" stroke-linejoin="round"/>
+<text x="870" y="400" font-size="12" fill="#a84040" font-family="Comic Sans MS, cursive" text-anchor="start" >deployed blind to prod</text>
+<text x="870" y="416" font-size="12" fill="#a84040" font-family="Comic Sans MS, cursive" text-anchor="start" >root cause invisible until</text>
+<text x="870" y="432" font-size="12" fill="#a84040" font-family="Comic Sans MS, cursive" text-anchor="start" >raw capture layer</text>
+<rect x="880" y="470" width="340" height="130" rx="16" fill="#e9e1ff" stroke="#7459a8" stroke-width="3"/>
+<text x="900" y="498" font-size="13" fill="#172033" font-family="Comic Sans MS, cursive" text-anchor="start" >REVIEW GATE</text>
+<text x="900" y="515" font-size="13" fill="#172033" font-family="Comic Sans MS, cursive" text-anchor="start" >re-prove on production URL</text>
+<text x="900" y="532" font-size="13" fill="#172033" font-family="Comic Sans MS, cursive" text-anchor="start" >6/6 e2e pass locally AND in prod</text>
+<text x="900" y="549" font-size="13" fill="#172033" font-family="Comic Sans MS, cursive" text-anchor="start" >claim now verified → deliverable</text>
+<path d="M 800 535 L 880 535" stroke="#566174" stroke-width="2.5" fill="none" marker-end="url(#ar)" stroke-linejoin="round"/>
+<path d="M 1050 310 L 1050 470" stroke="#566174" stroke-width="2.5" fill="none" marker-end="url(#ar)" stroke-dasharray="10 8" stroke-linejoin="round"/>
+<text x="48" y="648" font-size="13" fill="#566174" font-family="Georgia, serif" text-anchor="start" >Failure causality the prose does not show: the reconciliation policy was correct, but the production layer</text>
+<text x="48" y="668" font-size="13" fill="#566174" font-family="Georgia, serif" text-anchor="start" >broke it independently — only the raw-evidence layer caught the divergence.</text>
+</svg>
