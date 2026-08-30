@@ -2,44 +2,129 @@
 title: Why agent systems become slow, expensive and fragile
 slug: why-agent-systems-become-slow-expensive-and-fragile
 date: 2026-08-29
+updated: 2026-08-31
 description: "The measured mechanisms behind agent bloat: context resends, oversight cost, cumulative failures, and the attribution traps that make dashboards lie about all of it."
 tags: [ai, agents, cost, observability, reliability, measurement]
 draft: false
 image: /images/editorial/agent-cost-waterfall.svg
 ---
 
-Ask someone why their agent system is slow and they will blame the model. The telemetry says otherwise: in my own measured runs, most of the cost and latency accumulated around the model, not inside it. This article names the mechanisms.
+<ArticleExplain term="Agent system">One or more language-model agents plus everything around them: the orchestration layers, tools, queues, and telemetry that turn a single task into a working system.</ArticleExplain>
+<ArticleExplain term="Token">The unit of text a model reads or writes. Every context resend, review pass and retry is billed in tokens.</ArticleExplain>
+<ArticleExplain term="Context">The working material a model sees on one turn: instructions, history, tool definitions and results. Agents resend most of it every turn.</ArticleExplain>
+<ArticleExplain term="Oversight">Model work spent coordinating other model work: planning, reviewing, polling and recovering. It is real spend, not free supervision.</ArticleExplain>
 
-## The mechanisms
+Ask someone why their agent system is slow and they will blame the model. The telemetry says otherwise. Across my own measured runs, most of the cost and latency accumulated **around** the model, not inside it: planning layers that re-read whole contexts, reviewers that re-read the work, pollers that woke models to confirm nothing had changed, and retries that quietly multiplied every hop. This article is the canonical description of those mechanisms, how to see them in your own traces, and what fixing them actually looked like.
 
-**Every hop resends context.** When a planner hands work to a worker, the worker receives its instructions again, plus enough history to act. The reviewer reads the output plus the original context. Each hop re-pays for tokens the previous hop already spent.
+It stands between two companion pieces. [The agent telemetry stack](/blog/the-agent-telemetry-stack) explains the measurement machinery these findings depend on. [The multi-agent journey](/blog/the-multi-agent-journey-what-survived-contact-with-reality) tells the architectural story that follows from them. Neither article re-derives the mechanisms below, and this one does not re-derive their tool choices. Here it is the mechanisms, the evidence, and the trade-offs.
 
-**Oversight costs more than work.** Planning tokens, review tokens, and polling waits are all real spend. In the one-agent-two-models comparison — the same tasks through both paths, with per-call traces — oversight across four orchestration layers exceeded the tokens spent doing the actual task. The measured multiplier behind this is in the cost waterfall below.
+## The four mechanisms
 
-**Failures are cumulative, not isolated.** A retry is cheap; a retry culture is not. Inbox errors, browser reconnects, tool-output bloat, and stale duplicate workers each add a little. Together they turn a two-minute task into a twenty-minute session.
+**Context resends make every hop pay for every earlier hop.** When a planner hands work to a worker, the worker receives its instructions again plus enough history to act. The reviewer reads the output plus the original context. Each hop re-bills tokens the previous hop already spent.
 
-**Interruptions and inference-vs-tool bottlenecks.** A cancelled task still bills its tokens. And long tool calls (a browser action, a file write) block the inference loop, so wall-clock time diverges from token cost — which is why "it took ages" and "it cost a lot" are different measurements.
+**Oversight costs more than the work.** Planning, review and polling are not free supervision — they are real spend, billed in the same tokens as the task itself. In the one-agent-two-models comparison, oversight across four orchestration layers exceeded the tokens the actual task used.
+
+**Failures are cumulative, not isolated.** A single retry is cheap. A retry culture is not: inbox errors, browser reconnects, tool-output bloat and stale workers each add a little, until a two-minute task becomes a twenty-minute session.
+
+**Latency and cost diverge.** A cancelled task still bills its tokens, and long tool calls block the inference loop. That is why "it took ages" and "it cost a lot" are different measurements, and why they need separate dashboards rather than a single blended number.
+
+## Symptoms first, mechanisms second
+
+<div className="not-prose my-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
+  <div className="overflow-x-auto">
+    <table className="w-full text-sm">
+      <thead className="border-b bg-slate-50 dark:border-slate-800 dark:bg-slate-900">
+        <tr className="text-left">
+          <th className="px-4 py-3 font-semibold">What you notice</th>
+          <th className="px-4 py-3 font-semibold">What is usually behind it</th>
+          <th className="px-4 py-3 font-semibold">Which mechanism</th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+        <tr>
+          <td className="px-4 py-3">"It took twenty minutes for a two-minute task."</td>
+          <td className="px-4 py-3">Planning, review and polling multiplied the work without adding value.</td>
+          <td className="px-4 py-3">Oversight cost</td>
+        </tr>
+        <tr>
+          <td className="px-4 py-3">"The bill is many times what the task should have cost."</td>
+          <td className="px-4 py-3">Every orchestration hop resent the whole working context.</td>
+          <td className="px-4 py-3">Context resends</td>
+        </tr>
+        <tr>
+          <td className="px-4 py-3">"It works, but slowly, and every fix uncovers another slowness."</td>
+          <td className="px-4 py-3">Small failures layered on top of each other, each individually forgivable.</td>
+          <td className="px-4 py-3">Cumulative failure</td>
+        </tr>
+        <tr>
+          <td className="px-4 py-3">"It feels slow but the cost is small." (or the reverse)</td>
+          <td className="px-4 py-3">Long tool calls, waits and cancellations make wall clock and token cost diverge.</td>
+          <td className="px-4 py-3">Latency-cost divergence</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+Each of these has a fix, but the fix is different per mechanism, which is why one-size-fits-all "optimise the prompt" advice rarely helps.
 
 ## A request through the cost machine
 
-<Figure src="/images/editorial/agent-cost-waterfall.svg" alt="Waterfall chart showing one request becoming four bills: actual work at one times, then planning, review, and polling layers stacking to four times the cost" caption="How one request becomes four bills: the actual work costs 1×, then each orchestration layer re-reads context and re-bills it. Measured across 551 sessions with per-call traces — the multiplier is traced, not illustrative." slug="agent-cost-waterfall" date="29 August 2026" />
+To make the mechanisms concrete, follow one request through the four layers I actually had running: the task itself, a planning layer, a review layer, and polling with retries. Each layer re-reads the context the previous layer already paid for, so the cumulative bill multiplies rather than adds.
 
-## The attribution trap *(canonical)*
+<Figure src="/images/editorial/agent-cost-waterfall.svg" alt="Conceptual waterfall showing one request becoming four bills: actual work at one times, then planning, review, and polling layers stacking to four times the cost" caption="A conceptual explanation of cumulative rebilling: the actual work costs 1×, and each orchestration layer re-reads context and re-bills it. The orchestration layers themselves were observed in per-call traces; the exact 1×→4× staircase is conceptual, not a measured multiplier." slug="agent-cost-waterfall" date="29 August 2026" />
 
-*This section is the canonical description of the cumulative-versus-task and unknown-versus-zero problems. Other articles link here rather than re-deriving them.*
+The orchestration layers in that waterfall were observed directly: the one-agent-two-models comparison ran the same tasks through both a direct path and the four-layer stack, with per-call traces on every model call. What the traces show is that those layers existed and that each re-read context and re-billed it. The exact 1×→4× staircase itself is a conceptual explanation of that cumulative rebilling, not a measured multiplier — the separate 551-session dataset shows the traffic shape that makes rebilling expensive, not a 4× result.
 
-Cumulative-versus-task metrics and unknown-versus-zero are the two quiet ways dashboards lie. Fixing them is what made honest optimisation possible at all.
+## How the evidence was measured
 
-## What to do about it
+The honest question is not "do agent systems get expensive" but "how would I know, in my own setup, before the bill arrives?" Here is what the evidence actually is.
 
-The structural fixes are boring and effective: fewer hops (delete layers that don't repay their coordination cost), task-scoped metrics (attribute tokens to the task, not the lifetime counter), bounded tool output (truncate what you would never read), and a stale-worker reaper. The routing rule — cheap workhorse by default, frontier for genuinely hard work — is documented in [the routing benchmark article](/blog/i-made-glm-5-3-flash-faster-but-kept-cheap-routing).
+**The 551-session dataset.** A few weeks of Codex work recorded every command, every file read and every plan change into about 3.3&nbsp;GB of transcript. The counts are activity, not quality: 61,215 command executions, 2,537 screen views, 819 re-plans and 58 subagent handoffs. What mattered for this article is where the volume concentrated — the same instructions being carried and re-read hop after hop, and machine output bloating the material each turn carried.
+
+**Per-call traces on the one-agent-two-models comparison.** Langfuse recorded every model call with tokens, latency and model. The four-layer stack could be compared against a direct path because both produced traces for the same task, so "oversight exceeded work" is a measurement, not a feeling.
+
+**The separate tool-time and token-time audits.** A different audit of five heavy sessions showed about 60.5&nbsp;percent of the heaviest transcript was machine output, and trimming it could have saved roughly 713,880 tokens of re-reading. That is an estimate from a different set of sessions, not a measured saving from the 551, and I label it as such rather than blending the two.
+
+**Known limits.** These are one person's sessions on one rig, collected for activity not quality, so the patterns are hypotheses for your setup rather than universal laws. Token totals are workload evidence, not provider invoices. Where a claim is directional rather than measured, the text says so.
+
+## The attribution trap
+
+Measurement fixes are not free, and two of the quiet ones nearly broke the dashboards before they fixed them.
+
+**Cumulative counters look like per-task totals until you subtract.** Providers and local logs often expose lifetime session counters. A naive parser adds them up and double-counts every window where the counter carried forward. My own report tool had to sum per-window counts instead, and even then a compaction resets the counter mid-session, which is exactly the kind of trap a lifetime total hides.
+
+**Missing data renders as zero unless the pipeline marks it unknown.** If a provider has no price for a model, the honest answer is "unknown spend", not "$0". My control-room dashboards now show $9.33 of known spend across the previous 24 hours with explicit unknown labels for the rest, because a confident zero is worse than a labelled gap.
+
+Both were caught in my own pipeline. Both are the reason the dashboards deduplicate by provider and session and never render an unknown as zero. The [telemetry stack article](/blog/the-agent-telemetry-stack) owns the full pipeline; this is the trap it exists to prevent.
+
+## What actually reduced the cost
+
+The structural fixes are boring, and that is the point. Each one names the mechanism it targets.
+
+**Delete layers that do not repay their coordination cost.** The one-agent-two-models comparison showed oversight across four orchestration layers exceeding the tokens spent doing the actual task. The fix was not tuning the layers; it was removing most of them and keeping one agent with a stated escalation rule. The architectural decision is owned by the multi-agent journey article.
+
+**Route by role, not by model loyalty.** The routing rule is one sentence: cheap workhorse by default, frontier for genuinely hard work. The measured GLM routing benchmark, 63&nbsp;percent faster long generations for about £2 more per busy day, shows what "genuinely hard" means in practice — a judgment call worth a stronger model, not a scary label that triggers escalation automatically.
+
+**Bound the tool output you would never read.** The separate audit found about 60.5&nbsp;percent machine output in the heaviest transcript, with a directional estimate of roughly 713,880 tokens of re-reading saved by trimming it. That is not a guarantee for every session; it is the shape of the waste.
+
+**Make stale workers replaceable instead of supervised.** In the historical large session, one "recovery" child became a second orchestrator and recorded 44.1&nbsp;million tokens while three bounded workers used 1.6&nbsp;million. A stale-worker reaper plus owner-checked release is what makes a replacement cheap instead of a second bill.
+
+**Give empty polls zero-token exits.** The cloud-agent work proved an empty-inbox check can run in normal code: the acceptance check completed in about 0.4 seconds with zero provider requests. The lesson generalises — routine absence of work should not be a reasoning problem.
+
+**Watch-outs.** Removing layers is not automatically cheaper; the replacement must not become the new orchestrator, as the 44.1-million-token child proved. Boundless truncation loses context the task needed. And every one of these fixes changes a measurement, so re-check the dashboards after each change rather than assuming the fix worked.
+
+<Figure src="/images/editorial/agent-cost-anatomy.svg" alt="Anatomy of one orchestration request showing where each cost is created and which fix removes it: context resend, oversight layer, retry culture, tool-output bloat, cumulative counter, and missing-data rendering as zero" caption="One request, six named cost points, each mapped to the fix that removes it. The point is not to memorise six things, but to see that each cost has a specific repair." slug="agent-cost-anatomy" date="31 August 2026" />
 
 ## Why this matters outside the terminal
 
-"It took ages" and "it cost a lot" are different measurements — and the same trap exists in marketing data, where platform latency and platform spend get conflated. The habit of separating them transfers directly.
+"It took ages" and "it cost a lot" are different measurements, and the same trap exists in marketing data, where platform latency and platform spend get conflated. The habit of separating them transfers directly. If you take one sentence from this article: measure the mechanism, not the model.
 
 ## Where to go next
 
+- [The agent telemetry stack](/blog/the-agent-telemetry-stack) — the pipeline that makes these mechanisms visible
 - [The multi-agent journey](/blog/the-multi-agent-journey-what-survived-contact-with-reality) — the architectural decisions this evidence produced
-- [The agent telemetry stack](/blog/the-agent-telemetry-stack) — how to measure your own version of this
+- [One agent, two models](/blog/one-agent-two-models) — the matched comparison behind the oversight finding
+- [I stopped my cloud agents burning tokens](/blog/how-i-stopped-my-cloud-agents-burning-tokens) — the empty-poll fix in detail
 
+---

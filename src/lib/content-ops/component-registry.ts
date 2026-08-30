@@ -3,6 +3,7 @@ export type RegisteredMdxComponent =
   | "span"
   | "ArticleExplain"
   | "ArticleFigure"
+  | "ArticleDiagramFigure"
   | "ProjectSpotlight"
   | "WorkflowFrame"
   | "TerminalLine"
@@ -21,6 +22,7 @@ export const ALLOWED_MDX_COMPONENTS: RegisteredMdxComponent[] = [
   "span",
   "ArticleExplain",
   "ArticleFigure",
+  "ArticleDiagramFigure",
   "ProjectSpotlight",
   "WorkflowFrame",
   "TerminalLine",
@@ -42,6 +44,13 @@ export const COMPONENT_INSERTION_TEMPLATES: ComponentInsertionTemplate[] = [
     description: "Structured image figure with title, eyebrow, and caption.",
     snippet:
       '<ArticleFigure src="/images/blog/example.png" alt="Describe the image" eyebrow="Proof" title="What this shows" caption="Explain why this image matters for the argument." />',
+  },
+  {
+    name: "ArticleDiagramFigure",
+    label: "Diagram figure",
+    description: "Wide diagram with swipeable inspection, caption, evidence date, and an editable source link.",
+    snippet:
+      '<Figure src="/images/editorial/example.svg" alt="Describe the diagram" caption="Explain what the figure shows and what evidence it rests on." slug="example-source-name" date="29 August 2026" />',
   },
   {
     name: "ProjectSpotlight",
