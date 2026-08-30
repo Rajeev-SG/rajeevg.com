@@ -732,7 +732,7 @@ export function getExistingContentInventory(): ContentInventoryRecord[] {
           pageClass: "Proof / external project",
           pillar: "Business value and orchestration",
           cluster: "Proof assets",
-          url: project.liveUrl,
+          url: project.liveUrl ?? "",
           format: "External project",
           audienceSegment: "Collaborators; technical readers",
           intent: "Proof + exploration",

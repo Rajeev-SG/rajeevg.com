@@ -85,11 +85,19 @@ export default async function SolutionDetailPage({ params }: { params: Promise<{
               <CardTitle className="text-lg">Evidence &amp; links</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-wrap gap-2">
-              <Button asChild size="sm">
-                <a href={project.liveUrl} target="_blank" rel="noreferrer noopener">
-                  <ArrowUpRight className="size-4" /> {project.liveUrl.startsWith("/") ? "Read the article" : "Live site"}
-                </a>
-              </Button>
+              {project.liveUrl?.startsWith("/") ? (
+                <Button asChild size="sm">
+                  <Link href={project.liveUrl}>
+                    <ArrowRight className="size-4" /> Read article
+                  </Link>
+                </Button>
+              ) : project.liveUrl ? (
+                <Button asChild size="sm">
+                  <a href={project.liveUrl} target="_blank" rel="noreferrer noopener">
+                    <ArrowUpRight className="size-4" /> Live site
+                  </a>
+                </Button>
+              ) : null}
               {project.githubUrl ? (
                 <Button asChild size="sm" variant="outline">
                   <a href={project.githubUrl} target="_blank" rel="noreferrer noopener">

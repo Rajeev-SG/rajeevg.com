@@ -5,16 +5,14 @@ date: 2026-08-29
 description: Files, email, decks, sheets, and meetings become a governed knowledge layer — with named owners, review dates, and provenance — so answers trace to sources instead of folklore.
 tags: [ai, knowledge-management, governance, retrieval, documentation]
 draft: false
-image: /images/articles-2026-08/building-maintainable-knowledge-systems-open.svg
+image: /images/editorial/knowledge-systems-pipeline.png
 ---
 
 Every organisation has the same problem in different clothes: the truth exists, but it is scattered across files nobody can find, email nobody re-reads, decks with stale numbers, and meeting recordings nobody replays. AI makes retrieval cheap. It does not make the knowledge governed — that part is still your job.
 
-<Figure src="/images/articles-2026-08/building-maintainable-knowledge-systems-open.svg" alt="Three stages: messy input from files, email, decks, sheets and meetings; extraction and structure with provenance; a governed layer with named owners and review dates" caption="The pipeline is boring on purpose. That is why it holds up." slug="building-maintainable-knowledge-systems-open" date="29 August 2026" />
-
 ## The stack
 
-<Figure src="/images/articles-2026-08/building-maintainable-knowledge-systems-arch.svg" alt="Knowledge system stack: source corpus unchanged, extraction pipeline with provenance per claim, governed layer with owners and canonical versions, and retrieval for agents and people" caption="Review dates are enforced. Stale entries are surfaced, not silently trusted." slug="building-maintainable-knowledge-systems-arch" date="29 August 2026" />
+<Figure src="/images/editorial/knowledge-systems-pipeline.png" alt="Four-band draw.io pipeline: raw material through extraction with provenance, into a governed layer with owners, review dates and conflict flags, out to retrieval that traces answers to source" caption="Three stages: the source corpus stays raw, extraction attaches provenance to every claim, and the governed layer enforces owners and review dates. When sources disagree the layer records both and flags the conflict instead of silently picking a winner." slug="knowledge-systems-pipeline" date="29 August 2026" />
 
 **Source corpus stays raw.** Files are never edited in place. The corpus is the evidence; the governed layer is the interpretation.
 
@@ -30,11 +28,7 @@ The concrete instantiation on this rig is a docs tree with per-topic files, name
 
 ## Material to decision, in order
 
-<Figure src="/images/articles-2026-08/building-maintainable-knowledge-systems-seq.svg" alt="Five steps: material arrives, extracted, governed with canonical version, retrieved by agents, decision traceable to source" caption="This sequence runs weekly on this rig." slug="building-maintainable-knowledge-systems-seq" date="29 August 2026" />
-
 ## Folder versus governed layer
-
-<Figure src="/images/articles-2026-08/building-maintainable-knowledge-systems-fail.svg" alt="Before: folder of files with no owner per claim, no review date, contradictions invisible. After: governed layer with owners, review dates, surfaced contradictions, traceable answers" caption="The governed layer catches what the folder silently hides." slug="building-maintainable-knowledge-systems-fail" date="29 August 2026" />
 
 ## What AI changes and what it does not
 

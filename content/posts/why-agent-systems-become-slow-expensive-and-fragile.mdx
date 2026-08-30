@@ -5,34 +5,28 @@ date: 2026-08-29
 description: "The measured mechanisms behind agent bloat: context resends, oversight cost, cumulative failures, and the attribution traps that make dashboards lie about all of it."
 tags: [ai, agents, cost, observability, reliability, measurement]
 draft: false
-image: /images/articles-2026-08/why-agent-systems-become-slow-expensive-and-fragile-open.svg
+image: /images/editorial/agent-cost-waterfall.svg
 ---
 
 Ask someone why their agent system is slow and they will blame the model. The telemetry says otherwise: in my own measured runs, most of the cost and latency accumulated around the model, not inside it. This article names the mechanisms.
-
-<Figure src="/images/articles-2026-08/why-agent-systems-become-slow-expensive-and-fragile-open.svg" alt="Three mechanisms: every hop resends context, oversight costs more than work, and failures accumulate through retries, inbox errors, tool-output bloat, and stale duplicate workers" caption="Measured across 551 sessions and two public dashboards. None of this is illustrative." slug="why-agent-systems-become-slow-expensive-and-fragile-open" date="29 August 2026" />
 
 ## The mechanisms
 
 **Every hop resends context.** When a planner hands work to a worker, the worker receives its instructions again, plus enough history to act. The reviewer reads the output plus the original context. Each hop re-pays for tokens the previous hop already spent.
 
-**Oversight costs more than work.** Planning tokens, review tokens, and polling waits are all real spend. In the one-agent-two-models comparison — the same tasks through both paths, with per-call traces — oversight across four orchestration layers exceeded the tokens spent doing the actual task. The measured multiplier behind this is in [the cost-machine sequence](#a-request-through-the-cost-machine) below.
+**Oversight costs more than work.** Planning tokens, review tokens, and polling waits are all real spend. In the one-agent-two-models comparison — the same tasks through both paths, with per-call traces — oversight across four orchestration layers exceeded the tokens spent doing the actual task. The measured multiplier behind this is in the cost waterfall below.
 
 **Failures are cumulative, not isolated.** A retry is cheap; a retry culture is not. Inbox errors, browser reconnects, tool-output bloat, and stale duplicate workers each add a little. Together they turn a two-minute task into a twenty-minute session.
 
 **Interruptions and inference-vs-tool bottlenecks.** A cancelled task still bills its tokens. And long tool calls (a browser action, a file write) block the inference loop, so wall-clock time diverges from token cost — which is why "it took ages" and "it cost a lot" are different measurements.
 
-<Figure src="/images/articles-2026-08/why-agent-systems-become-slow-expensive-and-fragile-arch.svg" alt="The request path: user request, planner agent, worker agent, reviewer agent, cumulative bill — each arrow is a context resend" caption="Each arrow is a context resend. Hops, not model choice alone, drive the cost curve." slug="why-agent-systems-become-slow-expensive-and-fragile-arch" date="29 August 2026" />
-
 ## A request through the cost machine
 
-<Figure src="/images/articles-2026-08/why-agent-systems-become-slow-expensive-and-fragile-seq.svg" alt="Five steps: request parsed, planned, worked, reviewed, reported — with context resend costs one through four and a total of four times the actual work" caption="The multiplier is measured, not illustrative. Per-call traces exist for this exact path." slug="why-agent-systems-become-slow-expensive-and-fragile-seq" date="29 August 2026" />
+<Figure src="/images/editorial/agent-cost-waterfall.svg" alt="Waterfall chart showing one request becoming four bills: actual work at one times, then planning, review, and polling layers stacking to four times the cost" caption="How one request becomes four bills: the actual work costs 1×, then each orchestration layer re-reads context and re-bills it. Measured across 551 sessions with per-call traces — the multiplier is traced, not illustrative." slug="agent-cost-waterfall" date="29 August 2026" />
 
 ## The attribution trap *(canonical)*
 
 *This section is the canonical description of the cumulative-versus-task and unknown-versus-zero problems. Other articles link here rather than re-deriving them.*
-
-<Figure src="/images/articles-2026-08/why-agent-systems-become-slow-expensive-and-fragile-fail.svg" alt="Before: gaps in provider counters render as zeros, making cost look lower than truth. After: missing data marked unknown, totals exclude it honestly, no false confidence" caption="Unknown is not zero. The pipeline changed specifically so gaps never render as zero." slug="why-agent-systems-become-slow-expensive-and-fragile-fail" date="29 August 2026" />
 
 Cumulative-versus-task metrics and unknown-versus-zero are the two quiet ways dashboards lie. Fixing them is what made honest optimisation possible at all.
 

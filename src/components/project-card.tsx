@@ -41,7 +41,7 @@ export function ProjectCard({ project, compact = false }: ProjectCardProps) {
             alt={project.imageAlt}
             fill
             sizes="(max-width: 768px) 100vw, 960px"
-            className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.015]"
+            className={`${project.imagePath.endsWith(".svg") ? "object-contain p-3" : "object-cover object-top"} bg-white dark:bg-slate-900`}
             priority={false}
           />
           <div className="absolute inset-0 bg-linear-to-t from-background/22 via-background/4 to-transparent" />
@@ -71,14 +71,16 @@ export function ProjectCard({ project, compact = false }: ProjectCardProps) {
         </div>
       </CardContent>
       <CardFooter className="mt-auto flex flex-wrap gap-2">
-          {project.detailLinks?.slice(0, compact ? 1 : 2).map((detail) => (
-            <Button key={detail.href} asChild variant="ghost" size="sm">
-              <Link href={detail.href}>
-                {detail.label}
-                <ArrowRight className="size-4" />
-              </Link>
-            </Button>
-          ))}
+          {project.detailLinks?.slice(0, compact ? 1 : 2)
+            .filter((detail) => detail.href !== project.liveUrl)
+            .map((detail) => (
+              <Button key={detail.href} asChild variant="ghost" size="sm">
+                <Link href={detail.href}>
+                  {detail.label}
+                  <ArrowRight className="size-4" />
+                </Link>
+              </Button>
+            ))}
           {project.githubUrl ? (
             <Button asChild variant="outline" size="sm">
               <Link
@@ -98,23 +100,43 @@ export function ProjectCard({ project, compact = false }: ProjectCardProps) {
               </Link>
             </Button>
           ) : null}
-          <Button asChild size="sm">
-            <Link
-              href={project.liveUrl}
-              target="_blank"
-              rel="noreferrer noopener"
-              data-analytics-event="project_click"
-              data-analytics-section="project_card"
-              data-analytics-item-type="project_live_site"
-              data-analytics-item-id={project.slug}
-              data-analytics-item-name={project.title}
-              data-analytics-item-category={project.category}
-              data-analytics-destination="live_site"
-            >
-              <ArrowUpRight className="size-4" />
-              Live site
-            </Link>
-          </Button>
+          {project.liveUrl ? (
+            project.liveUrl.startsWith("/") ? (
+              <Button asChild size="sm">
+                <Link
+                  href={project.liveUrl}
+                  data-analytics-event="project_click"
+                  data-analytics-section="project_card"
+                  data-analytics-item-type="project_article"
+                  data-analytics-item-id={project.slug}
+                  data-analytics-item-name={project.title}
+                  data-analytics-item-category={project.category}
+                  data-analytics-destination="article"
+                >
+                  <ArrowRight className="size-4" />
+                  Read article
+                </Link>
+              </Button>
+            ) : (
+              <Button asChild size="sm">
+                <a
+                  href={project.liveUrl}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  data-analytics-event="project_click"
+                  data-analytics-section="project_card"
+                  data-analytics-item-type="project_live_site"
+                  data-analytics-item-id={project.slug}
+                  data-analytics-item-name={project.title}
+                  data-analytics-item-category={project.category}
+                  data-analytics-destination="live_site"
+                >
+                  <ArrowUpRight className="size-4" />
+                  Live site
+                </a>
+              </Button>
+            )
+          ) : null}
       </CardFooter>
     </Card>
   )

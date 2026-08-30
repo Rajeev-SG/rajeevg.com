@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { ArrowUpRight, Github } from "lucide-react"
+import { ArrowRight, ArrowUpRight, Github } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -60,9 +60,15 @@ export default function EarlierProductsPage() {
                     <a href={project.githubUrl} target="_blank" rel="noreferrer noopener"><Github className="size-4" /> GitHub</a>
                   </Button>
                 ) : null}
-                <Button asChild variant="ghost" size="sm">
-                  <a href={project.liveUrl} target="_blank" rel="noreferrer noopener"><ArrowUpRight className="size-4" /> {project.liveUrl.startsWith("/") ? "Article" : "Live"}</a>
-                </Button>
+                {project.liveUrl?.startsWith("/") ? (
+                  <Button asChild variant="ghost" size="sm">
+                    <Link href={project.liveUrl}><ArrowRight className="size-4" /> Read article</Link>
+                  </Button>
+                ) : project.liveUrl ? (
+                  <Button asChild variant="ghost" size="sm">
+                    <a href={project.liveUrl} target="_blank" rel="noreferrer noopener"><ArrowUpRight className="size-4" /> Live</a>
+                  </Button>
+                ) : null}
               </div>
             </CardContent>
           </Card>

@@ -42,8 +42,8 @@ export default function DevelopersPage() {
                 <li key={project.slug} className="flex flex-wrap items-baseline justify-between gap-3 py-4">
                   <span>{project.title}</span>
                   <span className="flex gap-4 text-sm text-muted-foreground">
-                    <Link href={project.liveUrl} target="_blank" rel="noreferrer noopener" className="underline underline-offset-4">Live site</Link>
-                    <Link href={project.githubUrl!} target="_blank" rel="noreferrer noopener" className="underline underline-offset-4">GitHub</Link>
+                    {project.liveUrl ? <Link href={project.liveUrl} target="_blank" rel="noreferrer noopener" className="underline underline-offset-4">Live site</Link> : null}
+                    {project.githubUrl ? <Link href={project.githubUrl} target="_blank" rel="noreferrer noopener" className="underline underline-offset-4">GitHub</Link> : null}
                   </span>
                 </li>
               ))}

@@ -7,7 +7,7 @@ export type PortfolioProject = {
   howItWorks: string
   imagePath: string
   imageAlt: string
-  liveUrl: string
+  liveUrl?: string
   githubUrl?: string
   lastUpdated: string
   tech: string[]

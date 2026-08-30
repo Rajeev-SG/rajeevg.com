@@ -5,16 +5,14 @@ date: 2026-08-29
 description: Server-side GTM, first-party collection, warehouse destinations, and consent — with an honest account of cost, complexity, and when the heavy stack is the wrong answer.
 tags: [analytics, sgtm, bigquery, consent, privacy, data-engineering, measurement]
 draft: false
-image: /images/articles-2026-08/agentic-data-collection-and-warehousing-open.svg
+image: /images/editorial/agentic-collection-warehousing.png
 ---
 
 Server-side tagging and a warehouse are powerful. They are also optional, and the industry's habit of treating them as mandatory has cost more projects than it has helped. This article covers what the heavy stack does, what it costs, and how to decide.
 
-<Figure src="/images/articles-2026-08/agentic-data-collection-and-warehousing-open.svg" alt="Four options: consented collection, server-side GTM, warehouse, or nothing heavier than client-side plus export" caption="The heavy stack is sometimes the wrong answer. This article says when." slug="agentic-data-collection-and-warehousing-open" date="29 August 2026" />
-
 ## The stack, honestly
 
-<Figure src="/images/articles-2026-08/agentic-data-collection-and-warehousing-arch.svg" alt="Collection-to-warehouse stack: browser with consent-gated events, sGTM first-party endpoint, Cloud Run where the bill lands, BigQuery as raw event store, and reconciled reporting" caption="Every extra hop is infrastructure to maintain. The decision is about whether that maintenance buys you anything." slug="agentic-data-collection-and-warehousing-arch" date="29 August 2026" />
+<Figure src="/images/editorial/agentic-collection-warehousing.png" alt="Draw.io comparison: consented browser collection splitting into a heavy sGTM path on Cloud Run into BigQuery, and a lighter client-side plus GA4 export path, both feeding reconciled reporting" caption="The heavy stack (sGTM on Cloud Run into BigQuery) buys first-party cookie control and event transformation. Without that requirement, client-side collection plus the GA4 BigQuery export answers the same questions with one stack to maintain instead of two." slug="agentic-collection-warehousing" date="29 August 2026" />
 
 **Consented collection** starts in the browser. Consent state gates what fires; nothing heavy changes that, it only changes where the event goes next.
 
@@ -26,11 +24,7 @@ Server-side tagging and a warehouse are powerful. They are also optional, and th
 
 ## One event's full journey
 
-<Figure src="/images/articles-2026-08/agentic-data-collection-and-warehousing-seq.svg" alt="Five steps: consent given or path branches, client-side event fires, sGTM receives on first-party endpoint, transformed and routed, BigQuery row queryable" caption="The measured path from the consented-stack field notes." slug="agentic-data-collection-and-warehousing-seq" date="29 August 2026" />
-
 ## When NOT to use the heavy stack
-
-<Figure src="/images/articles-2026-08/agentic-data-collection-and-warehousing-fail.svg" alt="Before: sGTM on Cloud Run, two measurement stacks, engineering owner required, bill visible in GCP. After: client-side plus export, one stack, same decision quality for this use case" caption="The cost autopsy measured what the heavy stack actually charged before it was removed." slug="agentic-data-collection-and-warehousing-fail" date="29 August 2026" />
 
 The decision variable is not volume — it is whether you need **first-party cookie control and event transformation**. If you do, sGTM earns its operational cost. If you do not, the other criteria apply: low event volume, no engineering owner, questions answerable by client-side plus the GA4 BigQuery export. Volume alone rarely justifies the heavy stack. The [cost autopsy](/blog/when-not-to-use-server-side-tagging) measured the Cloud Run bill and the maintenance load before removing the stack for exactly these reasons. The [consented first-party stack article](/blog/how-we-built-a-consented-first-party-analytics-stack) documents when the heavy stack was the right call — consent-gated collection into BigQuery with a reporting layer on top — and both lessons are folded in here.
 
