@@ -1,0 +1,94 @@
+---
+title: The multi-agent execution behind one rebuild
+slug: multi-agent-execution-behind-one-rebuild
+date: 2026-08-30
+description: "A candid case study of the exact execution that shipped this site's solutions/editorial rebuild and visual remediation: a Sol supervisor, a GLM workhorse in an isolated worktree, a bounded Opus review, GLM amendments, and independent parent acceptance — with the failures included."
+tags: [ai, agents, codex, glm, opus, orchestration, qa]
+draft: false
+image: /images/editorial/ma-execution-topology.svg
+---
+
+<Figure src="/images/editorial/ma-execution-topology.svg" alt="Execution topology showing the Sol supervisor sending a contract to a GLM implementation thread, which sends pull requests to a parent acceptance gate, and exchanges rendered articles and verdicts with a read-only Opus review" caption="The execution loop behind one rebuild: supervision, bounded implementation, read-only frontier review, and an independent acceptance gate, with the actual session identifiers attached." slug="ma-execution-topology" date="30 August 2026" />
+
+Most writing about multi-agent systems describes the architecture people *plan* to run. This article describes the execution that actually shipped a real product change — this site's solutions/editorial rebuild and the visual-remediation follow-up — including what failed, who fixed it, and what it cost. The identifiers are real, the token counts come from local telemetry, and the two least flattering findings are printed here on purpose, because they are the reason the topology works at all.
+
+## Who did what, exactly
+
+One task, three model roles, four artefacts:
+
+- **Sol supervisor** — Codex Desktop session `01a04e0b-0c32-7483-a71c-316899c31cb6`, running `gpt-5.6-sol`. It owned the plan, wrote the worker contracts, created the native Codex task, monitored the worker, ran the corrective rounds, and performed final acceptance. It never edited an article file.
+- **GLM implementation thread** — Codex thread `01a04ecb-ced8-7590-926e-8aa284b5d58a`, running `z-ai/glm-5.3-flash`, created as a native Codex task (visible in the session metadata as `agent_created_thread`). It did the substantive work: article and solution-page implementation, figure generation, index integration — all inside an isolated worktree checkout (`worktrees/18cc/rajeevg.com`), not the main tree.
+- **Opus narrative review** — OpenCode session `ses_fb10c0ea9ffedNiTORIrFXoBhd`, running `anthropic/claude-opus-5`. One bounded task: read the 13 rendered articles as a reader would and return verdicts. It had no file access and changed nothing.
+- **Parent acceptance** — the same Sol supervisor, after the GLM amendments, re-checked the rendered output independently before merging. This is the step that caught what everyone else missed.
+
+The execution shipped three merged PRs: `#31` (`9d67b0c`) — the portfolio solutions reframe and flagship editorial rebuild; `#33` (`f2327bc`) — the corrective 13-solution inventory, date ordering, and homepage curation; and `#35` (`bf06c11`) — the visual remediation that re-art-directed eleven flagship figures and fixed solution-card treatment.
+
+## The loop, and why the boundaries matter
+
+<Figure src="/images/editorial/ma-execution-boundaries.svg" alt="Three-column boundary map: supervisor writes contracts but never article files, GLM worker owns bounded writes in an isolated worktree, reviewer reads the rendered site and returns verdicts without edit access" caption="Responsibility boundaries: supervision, bounded implementation, and review are deliberately separated so a failure in one lane cannot silently propagate." slug="ma-execution-boundaries" date="30 August 2026" />
+
+The contract sent to the GLM worker named the exact durable runbook paths to read, the writable scope (article, figures, index and metadata integration only), and the acceptance checks it had to satisfy before opening a PR. The worktree isolation is not ceremony: it meant a worker mistake could never disturb the main checkout, and a rejected PR could be discarded without archaeology.
+
+Monitoring was bounded, not a polling loop. The supervisor waited on the task, read its final summary, and sent a corrective message only when the worker's own summary or the PR evidence showed a gap — the corrective pass that produced PR `#33` after the first merge left the solution inventory incomplete, and the remediation contract that produced PR `#35` after parent QA rejected the first batch of figures.
+
+The review loop is the part worth copying. Opus received the rendered articles — the same pages a reader sees — with instructions to review and return verdicts. It had no edit capability, so it could not silently "improve" the article it was reviewing. Its verdicts came back to the supervisor, which routed them to the GLM worker as amendments inside the worker's own scope. Review findings never became edits by themselves; the worker applied them, and the supervisor re-checked.
+
+That last role is why the execution survived its own failures, which is the next section.
+
+## What went wrong
+
+Three findings, in order of how embarrassing they are.
+
+**The first visual gate was insufficient.** The original 44 role-based figures from PR `#31` were batch-generated card strips — generic prose-in-coloured-boxes with identical grammar across articles. They passed the check that existed at the time ("does the figure render and link correctly?") but would have failed the visual standard the site now enforces: no information the prose doesn't carry, no identical box-and-arrow grammar across articles. A correct diagram can still be a bad figure. The remediation PR re-art-directed eleven articles and removed 28 generic card strips, keeping figures only where they taught something the prose could not.
+
+**Editable-source links were wrong on some figures.** The remediation commit re-pointed article figure references to the new art-directed assets, but the first pass left some figures pointing at stale editable-source paths — the rendered image showed the new figure while the download link offered the old one. Parent QA caught it because it checked the *download URL*, not just the rendered image.
+
+**An earlier acceptance-evidence commit reintroduced a defect that had already been fixed.** Commit `e7a144a` ("Add production acceptance evidence for the corrective release") shipped screenshots *and* — alongside them, in the same commit — a change to `src/app/page.tsx` and `src/lib/portfolio-projects.ts` that reverted the homepage back to the six-item solution list the corrective release had just fixed. The regression rode in on an otherwise reasonable commit because acceptance evidence and product code shared a diff, and nobody re-read the code adjacent to the screenshots.
+
+Each failure has the same shape: a check that validated the wrong layer, and a human-supervisor pass that caught what the automated gate could not. That is the strongest argument for independent supervisor QA — not that the supervisor is cleverer, but that it is the only actor in the loop whose acceptance criteria are not inherited from the worker's own summary of its work.
+
+## The model mix, measured
+
+<Figure src="/images/editorial/ma-execution-economics.svg" alt="Two-panel economics: a bounded Opus review at 56,747 tokens and $0.47, beside lifetime Prometheus counters for the GLM thread and Sol session that are explicitly labelled not comparable, with the Opus per-task delta marked unknown" caption="Only the Opus review produced a clean per-task number. The GLM and supervisor figures are lifetime session counters — shown to be transparent, not to be compared." slug="ma-execution-economics" date="30 August 2026" />
+
+The numbers first, with their provenance and caveats:
+
+- **Opus narrative review** (session `ses_fb10c0ea9ffedNiTORIrFXoBhd`, one step-finish record): 56,747 total tokens — 2 input, 4,212 output, 2,020 reasoning, 50,513 cache-write — measured cost **$0.47151625**. Verified independently against OpenCode's SQLite store (`~/.local/share/opencode/opencode.db`), not taken from a prior report.
+- **GLM implementation thread** — lifetime Prometheus counters at query time: 202.2M prompt tokens, 157K completion tokens. These counters include every other job that thread ever did; there is no clean per-rebuild delta, so none is claimed.
+- **Sol supervisor session** — lifetime counters: 76.7M prompt, 86K completion. Same caveat.
+- **Opus within this specific execution** — its per-task bounded delta inside the parent execution is unknown (the clean $0.47 figure is the standalone narrative review; its contribution to the execution window is not separately measurable). Reported as unknown, not zero.
+
+The directional claim is the only honest one: the cheap workhorse (`z-ai/glm-5.3-flash`) absorbed essentially all of the implementation volume — writing, figure generation, build iterations — while the expensive model was deliberately capped at one small, high-value review task that cost under fifty cents *because it was bounded*. Nothing here is a benchmark; the token shares are descriptive and non-causal, and the lifetime counters are not comparable to each other or to the Opus delta.
+
+The general pattern this execution recommends:
+
+1. **A capable supervisor on the control plane** — it writes contracts, holds the acceptance bar, and never does the mechanical work itself. This is `gpt-5.6-sol` here; the specific model matters less than the role.
+2. **A cheap, capable workhorse for bounded implementation** — GLM 5.3 Flash wrote the bulk of the build in an isolated worktree. Its cost profile is what makes the topology economically interesting at all.
+3. **An expensive specialist for narrow, high-value review** — Opus reading thirteen articles as a reader costs almost nothing when the task is scoped to *judgement, not output*.
+4. **GLM amendments applied inside the worker's scope** — verdicts become code changes through the same disciplined channel, not by a reviewer reaching into the tree.
+5. **Independent supervisor acceptance** — fresh eyes on the rendered result before merge. This is the gate that caught all three failures above.
+6. **Rotation only on real triggers** — context pressure or a genuine stall, not token counts or phase-complete events.
+
+The same shape maps onto work outside this repository:
+
+- **Analytics implementation** — a supervisor defines the tracking contract, a cheap worker implements the tag changes, a specialist reviews only the data-layer contract and consent implications, and a separate acceptance run checks the live property.
+- **Martech QA** — a workhorse executes the tag/browser test matrix; a specialist reviews the consent model once, at the end, read-only; the supervisor verifies production against the original requirements.
+- **Code delivery** — the default: a cheap worker writes the PR, a frontier model reviews the risky 10% (SQL, auth, trust boundaries), the supervisor merges only after its own pass.
+- **Research synthesis** — a cheap worker drafts the corpus and extracts claims; an expensive reviewer audits sourcing and argument quality; the supervisor decides what is shippable.
+- **Operations and runbooks** — a cheap worker drafts or updates runbooks from real incident data; a supervisor confirms the commands actually run before the doc ships.
+
+## Why no A2A protocol here
+
+This site published [an A2A agent mesh article](/blog/how-i-got-four-ai-agents-talking-to-each-other) and a [control-room article](/blog/how-i-built-one-control-room-for-six-ai-agents) — the two reference exemplars for the visual standard this article follows. Both describe cases where *discovery between agents* was the hard problem: multiple systems that needed to find, describe, and negotiate with each other. A2A exists for that. Here it would have been overhead: one supervisor, one worker, one reviewer, three hops, all within one repository and one parent's line of sight. Native Codex task creation plus the OpenCode review path already gave every capability the topology needed — isolation, contracts, monitoring, and evidence — with none of the protocol overhead. A2A becomes appropriate when the participants live in different trust domains, different runtimes, or different organisations, or when the discovery problem itself (who exists, what can they do, how do I reach them) is the problem worth solving. With three hops and a single supervisor, it was overhead, not capability.
+
+## What a reader should take away
+
+The topology fit this work because it was one interdependent repository: every change touched the same index, the same design system, and the same visual standard, so isolation at the worktree level (not the repo level) was the correct granularity, and one supervisor could hold the whole picture in view. The failures — the insufficient visual gate, the wrong download links, the six-item regression — were all caught by the same mechanism: an acceptance pass whose criteria were written by someone who did not also write the implementation. That separation, more than any model choice, is what the reader should copy.
+
+## Where to go next
+
+- [How I got four AI agents talking to each other](/blog/how-i-got-four-ai-agents-talking-to-each-other) — the A2A experiment this execution deliberately avoided
+- [How I built one control room for six AI agents](/blog/how-i-built-one-control-room-for-six-ai-agents) — the control-plane exemplar this supervisor model descends from
+- [Proof, not prompts](/blog/proof-not-prompts) — the evidence standard behind this article's own acceptance
+- [I made GLM 5.3 Flash faster but kept cheap routing](/blog/i-made-glm-5-3-flash-faster-but-kept-cheap-routing) — why the workhorse model earns its slot
+- [The multi-agent journey: what survived contact with reality](/blog/the-multi-agent-journey-what-survived-contact-with-reality) — the two-year context this execution sits in
