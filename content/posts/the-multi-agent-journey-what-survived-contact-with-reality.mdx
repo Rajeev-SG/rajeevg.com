@@ -5,12 +5,12 @@ date: 2026-08-29
 description: Every multi-agent architecture I tried, what the telemetry said about each one, and why the system I actually use now is simpler than anything I built first.
 tags: [ai, agents, codex, multi-agent, a2a, observability, opencode]
 draft: false
-image: /images/articles-2026-08/the-multi-agent-journey-open.svg
+image: /images/editorial/multi-agent-journey-map.svg
 ---
 
 This is the honest version of two years of multi-agent work: what was built, what the measurements said, and why the current system is one agent with two models rather than the orchestration layer I once thought was the point.
 
-<Figure src="/images/articles-2026-08/the-multi-agent-journey-open.svg" alt="Four phases: native subagents, measurable workers, Codex plus OpenCode, and the simplified role-aware system with optional A2A" caption="Each phase was measured. The survivors are the simple parts." slug="the-multi-agent-journey-open" date="29 August 2026" />
+<Figure src="/images/editorial/multi-agent-journey-map.svg" alt="Timeline of five multi-agent phases with verdicts: native subagents kept the instinct, measurable workers kept measurement, the Codex and OpenCode split and lifecycle experiments were deleted, and role-aware routing is the current system" caption="Two years of multi-agent work on one map: five phases, two deliberate deletions, and the one lesson that survived — measurement. The current system is the simplest thing on the timeline." slug="multi-agent-journey-map" date="29 August 2026" />
 
 ## Phase by phase
 
@@ -24,13 +24,9 @@ This is the honest version of two years of multi-agent work: what was built, wha
 
 **Simplified roles.** The current system: one agent (Codex as operator), a role-aware routing rule to GLM-5.3-Flash as workhorse with frontier escalation, and A2A as an optional discovery capability. Everything else was deleted, deliberately.
 
-<Figure src="/images/articles-2026-08/the-multi-agent-journey-seq.svg" alt="Five phases in order: native subagents, measurable workers, Codex plus OpenCode, lifecycle experiments, simplified roles" caption="The measured chronology: 551 sessions, public token data, and one deleted middleman." slug="the-multi-agent-journey-seq" date="29 August 2026" />
-
 ## What the middleman tax actually cost
 
 *(The cost mechanism behind this section is owned by [Why agent systems become slow, expensive and fragile](/blog/why-agent-systems-become-slow-expensive-and-fragile); this article owns the architectural decision that followed.)*
-
-<Figure src="/images/articles-2026-08/the-multi-agent-journey-fail.svg" alt="Before: four orchestration layers each spending planning, review, and polling tokens. After: one agent with two models, measured oversight drop, no middleman to poll" caption="The same tasks through both paths, with per-call traces attached. This is a measured comparison, not a preference." slug="the-multi-agent-journey-fail" date="29 August 2026" />
 
 ## The current stack, dated
 

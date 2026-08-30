@@ -5,14 +5,12 @@ date: 2026-08-29
 description: How to keep a fleet of AI agents alive, monitored, and recoverable using launchd, an ops board, alerts, and runbooks — explained for people who have never administered a server.
 tags: [ai, agents, operations, launchd, alertmanager, grafana, telegram, runbooks]
 draft: false
-image: /images/articles-2026-08/agent-ops-for-people-open.svg
+image: /images/editorial/agent-ops-loop.png
 ---
 
 Most writing about "AI operations" assumes you run Kubernetes and enjoy it. This article is for the other case: you are technical enough to edit a config file and run a command, but you have no interest in becoming a server administrator. You have several agents doing real work on your machine, and you want them to keep working without becoming a second job.
 
 The good news is that the pattern is small. Four pieces — a way to keep things running, a place to see their state, a way to be told when something drifts, and written instructions for fixing it — cover almost everything.
-
-<Figure src="/images/articles-2026-08/agent-ops-for-people-open.svg" alt="Four-part operations loop: agents started by launchd, building manager checks readiness, Alertmanager routes alarms, runbooks document exact recovery steps" caption="The operations loop. The loop ends when the runbook fixes the cause, not the symptom." slug="agent-ops-for-people-open" date="29 August 2026" />
 
 ## The four pieces, in plain English
 
@@ -24,17 +22,13 @@ The good news is that the pattern is small. Four pieces — a way to keep things
 
 **Runbooks are the SOPs.** A runbook is one document per failure mode: what the alarm means, the exact commands to run, how to verify the fix. Written while the failure is still understood, so the version of you at 3am doesn't have to reconstruct the reasoning.
 
-<Figure src="/images/articles-2026-08/agent-ops-for-people-arch.svg" alt="Five-layer agent ops stack: worker agents, launchd, Semaphore board, Alertmanager, and runbooks, with Grafana and Telegram completing the stack" caption="Each layer has one job and a named owner. Grafana provides context; Telegram is the remote desk." slug="agent-ops-for-people-arch" date="29 August 2026" />
+<Figure src="/images/editorial/agent-ops-loop.png" alt="Four-band draw.io loop: launchd keeps agents running, the Semaphore board shows state, Alertmanager routes alarms to Telegram, and the runbook closes the loop back to launchd" caption="Four layers, one loop: launchd defines what running means, the Semaphore board shows the state of every service, Alertmanager turns drift into a phone alarm, and the runbook holds the exact fix. The loop closes back to launchd because the runbook fixes causes, not symptoms." slug="agent-ops-loop" date="29 August 2026" />
 
 ## From alarm to recovery, in order
-
-<Figure src="/images/articles-2026-08/agent-ops-for-people-seq.svg" alt="Five-step sequence: drift detected, alert routed to Telegram, runbook opened, fix applied, board shows healthy again" caption="A real recovery sequence, known from live alarm history on this rig." slug="agent-ops-for-people-seq" date="29 August 2026" />
 
 The sequence matters more than the tools. Any alerting system that doesn't end in a runbook produces anxiety, not recovery.
 
 ## The before and after of having a runbook
-
-<Figure src="/images/articles-2026-08/agent-ops-for-people-fail.svg" alt="Before: alarm arrives with no context, the person who built it is asleep, recovery takes hours. After: alarm links to the exact SOP, anyone on the desk can act, recovery takes minutes" caption="Runbook missing versus runbook present. The runbook is written while the failure is still understood." slug="agent-ops-for-people-fail" date="29 August 2026" />
 
 This is the highest-leverage habit in this discipline's daily work, and the cheapest one to adopt: one document per failure mode.
 

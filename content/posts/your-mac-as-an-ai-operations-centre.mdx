@@ -5,12 +5,10 @@ date: 2026-08-29
 description: "Ports, processes, services, containers, and one honest boundary: how a laptop becomes an operations centre you can reach from your phone without exposing anything to the internet."
 tags: [ai, operations, macos, launchd, orbstack, tailscale, ssh, security]
 draft: false
-image: /images/articles-2026-08/your-mac-as-an-ai-operations-centre-open.svg
+image: /images/editorial/mac-ops-boundary-map.png
 ---
 
 A laptop is a surprisingly good operations centre. It has a real Unix underneath, it sleeps when you close it, and it is already with you. The work is understanding what runs on it and where the boundary is.
-
-<Figure src="/images/articles-2026-08/your-mac-as-an-ai-operations-centre-open.svg" alt="Four layers of the Mac as operations centre: local processes, launchd services, OrbStack containers, and private access via Tailscale and SSH" caption="The Mac in four layers. Nothing here needs a public port." slug="your-mac-as-an-ai-operations-centre-open" date="29 August 2026" />
 
 ## The layers, in plain English
 
@@ -22,17 +20,13 @@ A laptop is a surprisingly good operations centre. It has a real Unix underneath
 
 **The outside world.** Two ways in: Tailscale, a private mesh network that makes your Mac reachable from your phone from anywhere, and SSH for terminal access. Both require your credentials. No public ports, no firewall holes.
 
-<Figure src="/images/articles-2026-08/your-mac-as-an-ai-operations-centre-arch.svg" alt="Boundary map: loopback-only services, OrbStack containers, Tailscale private mesh, and Vercel as the only public edge" caption="What actually listens where. Exposure stays at zero by default; volumes persist state; sleep pauses everything." slug="your-mac-as-an-ai-operations-centre-arch" date="29 August 2026" />
+<Figure src="/images/editorial/mac-ops-boundary-map.png" alt="Four-zone draw.io boundary map: loopback services, OrbStack containers, the Tailscale private mesh, and Vercel as the only public edge, with green showing the only path in" caption="Four zones, one honest boundary: services bind to loopback, containers live in OrbStack, Tailscale is the only way in from outside, and Vercel is the only public surface. Nothing self-hosted is exposed; sleep is a bonus, not the plan." slug="mac-ops-boundary-map" date="29 August 2026" />
 
 ## The phone-to-system journey
-
-<Figure src="/images/articles-2026-08/your-mac-as-an-ai-operations-centre-seq.svg" alt="Five-step sequence: open Tailscale, reach the Semaphore board, read the alarm, SSH if needed, confirm healthy" caption="Checking the rig from a phone. This journey works from any device on the tailnet." slug="your-mac-as-an-ai-operations-centre-seq" date="29 August 2026" />
 
 This is the practical payoff: an alarm arrives on your phone, you open the board, you read the runbook, you fix or delegate the fix, and you confirm recovery — from anywhere.
 
 ## When the boundary is wrong
-
-<Figure src="/images/articles-2026-08/your-mac-as-an-ai-operations-centre-fail.svg" alt="Before: dashboard on a public port, credentials in a screenshot, sleep as the only guard. After: loopback plus tailnet only, secrets in environment variables, sleep as a bonus" caption="The boundary is a design decision, not an accident of default settings." slug="your-mac-as-an-ai-operations-centre-fail" date="29 August 2026" />
 
 The three mistakes I have seen most often in self-hosted setups: a dashboard bound to 0.0.0.0 instead of loopback, credentials visible in screenshots, and "it sleeps" treated as security. The boundary should be loopback plus your tailnet, with sleep as a bonus rather than a plan.
 
