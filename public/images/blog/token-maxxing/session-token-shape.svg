@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">The shape of token usage across four real agent sessions</title>
+  <desc id="desc">Measured cumulative prompt and completion tokens for a GPT-5.6 Sol parent, a GLM-5.3-Flash worker and two Claude Opus 5 sessions.</desc>
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#07111f"/><stop offset="1" stop-color="#14213b"/></linearGradient>
+    <linearGradient id="cheap"><stop stop-color="#34d399"/><stop offset="1" stop-color="#22d3ee"/></linearGradient>
+    <linearGradient id="frontier"><stop stop-color="#a78bfa"/><stop offset="1" stop-color="#f472b6"/></linearGradient>
+  </defs>
+  <rect width="1600" height="900" rx="44" fill="url(#bg)"/>
+  <circle cx="1430" cy="90" r="220" fill="#2563eb" opacity=".1"/><circle cx="140" cy="840" r="260" fill="#14b8a6" opacity=".08"/>
+  <g font-family="Inter,Arial,sans-serif">
+    <text x="88" y="94" fill="#94a3b8" font-size="23" font-weight="700" letter-spacing="4">REAL SESSION TELEMETRY · 30 AUGUST 2026</text>
+    <text x="88" y="158" fill="#f8fafc" font-size="52" font-weight="750">Most tokens are work being re-read,</text>
+    <text x="88" y="218" fill="#f8fafc" font-size="52" font-weight="750">not the final answer being written.</text>
+    <text x="90" y="266" fill="#94a3b8" font-size="24">Cumulative prompt/context traffic and completion output, grouped by session.</text>
+    <rect x="88" y="320" width="684" height="430" rx="28" fill="#0f1c30" stroke="#334155" stroke-width="2"/>
+    <text x="130" y="374" fill="#67e8f9" font-size="20" font-weight="700" letter-spacing="3">ROUTED CODEX WORK</text>
+    <text x="130" y="420" fill="#f8fafc" font-size="31" font-weight="700">One parent, one workhorse</text>
+    <text x="130" y="485" fill="#cbd5e1" font-size="22">GPT-5.6 Sol parent</text>
+    <rect x="130" y="508" width="550" height="22" rx="11" fill="#1e293b"/><rect x="130" y="508" width="258" height="22" rx="11" fill="url(#frontier)"/>
+    <text x="130" y="570" fill="#f8fafc" font-size="28" font-weight="700">94,993,571</text><text x="303" y="570" fill="#94a3b8" font-size="20">prompt</text>
+    <text x="492" y="570" fill="#f8fafc" font-size="28" font-weight="700">131,884</text><text x="614" y="570" fill="#94a3b8" font-size="20">output</text>
+    <text x="130" y="636" fill="#cbd5e1" font-size="22">GLM-5.3-Flash worker</text>
+    <rect x="130" y="659" width="550" height="22" rx="11" fill="#1e293b"/><rect x="130" y="659" width="550" height="22" rx="11" fill="url(#cheap)"/>
+    <text x="130" y="721" fill="#f8fafc" font-size="28" font-weight="700">202,209,265</text><text x="333" y="721" fill="#94a3b8" font-size="20">prompt</text>
+    <text x="492" y="721" fill="#f8fafc" font-size="28" font-weight="700">157,173</text><text x="614" y="721" fill="#94a3b8" font-size="20">output</text>
+    <rect x="828" y="320" width="684" height="430" rx="28" fill="#0f1c30" stroke="#334155" stroke-width="2"/>
+    <text x="870" y="374" fill="#f0abfc" font-size="20" font-weight="700" letter-spacing="3">TARGETED FRONTIER CALLS</text>
+    <text x="870" y="420" fill="#f8fafc" font-size="31" font-weight="700">Two OpenRouter Opus sessions</text>
+    <text x="870" y="485" fill="#cbd5e1" font-size="22">Claude Opus 5 session A</text>
+    <rect x="870" y="508" width="550" height="22" rx="11" fill="#1e293b"/><rect x="870" y="508" width="550" height="22" rx="11" fill="url(#frontier)"/>
+    <text x="870" y="570" fill="#f8fafc" font-size="28" font-weight="700">50,515</text><text x="975" y="570" fill="#94a3b8" font-size="20">prompt</text>
+    <text x="1235" y="570" fill="#f8fafc" font-size="28" font-weight="700">6,232</text><text x="1328" y="570" fill="#94a3b8" font-size="20">output</text>
+    <text x="870" y="636" fill="#cbd5e1" font-size="22">Claude Opus 5 session B</text>
+    <rect x="870" y="659" width="550" height="22" rx="11" fill="#1e293b"/><rect x="870" y="659" width="440" height="22" rx="11" fill="url(#frontier)"/>
+    <text x="870" y="721" fill="#f8fafc" font-size="28" font-weight="700">40,378</text><text x="975" y="721" fill="#94a3b8" font-size="20">prompt</text>
+    <text x="1265" y="721" fill="#f8fafc" font-size="28" font-weight="700">38</text><text x="1328" y="721" fill="#94a3b8" font-size="20">output</text>
+    <path d="M90 798H1510" stroke="#334155" stroke-width="2"/>
+    <text x="90" y="840" fill="#cbd5e1" font-size="22">Bars compare sessions within each panel, not model quality or price.</text>
+    <text x="90" y="874" fill="#64748b" font-size="19">Source: local Prometheus. Prompt totals include repeated instructions, tools and working history.</text>
+  </g>
+</svg>
