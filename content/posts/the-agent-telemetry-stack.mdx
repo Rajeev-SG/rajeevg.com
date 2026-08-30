@@ -29,9 +29,9 @@ The same discipline applies to martech data quality and to client work generally
 
 **Local gateways are the single door.** Provider traffic goes through a local gateway (CLIProxyAPI in the current setup, with OpenRouter as the explicit fallback path) rather than straight to each vendor. One door means one place to count what entered, which provider answered, and what it cost. It also means the provider attribution problem is a routing problem with a paper trail, not archaeology across five dashboards.
 
-**The OpenTelemetry Collector is the traffic controller.** Nothing talks straight to storage. The collector receives signals in a standard format (OTLP), batches them, retries on failure, and routes each type where it belongs. The choice that matters here is not "OpenTelemetry" as a brand; it is the decision to have one pipe. When a new agent appears, it plugs into the pipe; when a store is replaced, only the routing changes.
+**The OpenTelemetry Collector is the traffic controller.** Instrumented telemetry — the OTLP signals from agents and apps — flows through the Collector rather than straight to storage; raw session files remain a separate, direct-write path outside it. The collector receives signals in a standard format, batches them, retries on failure, and routes each type where it belongs. The choice that matters here is not "OpenTelemetry" as a brand; it is the decision to have one pipe. When a new agent appears, it plugs into the pipe; when a store is replaced, only the routing changes.
 
-**Prometheus stores metrics.** Metrics are counters and gauges: tokens per hour, requests per provider, cost per day, active workers. They are cheap to store, fast to query, and perfect for "how much, how often" questions. On this rig Prometheus is also where the coding-agent exporter lands its per-session, per-model, per-provider counters — the source behind the public token page — and where the deduplication rules live so the same session counted through two paths does not inflate the total. The live snapshot behind this article held roughly 1,150 distinct session IDs and a retained lifetime total of about 11.6 billion tokens across all providers, queried directly from Prometheus on 30 August 2026.
+**Prometheus stores metrics.** Metrics are counters and gauges: tokens per hour, requests per provider, cost per day, active workers. They are cheap to store, fast to query, and perfect for "how much, how often" questions. On this rig the coding-agent exporter lands its per-session, per-model, per-provider counters here — the source behind the public token page. Deduplication happens before publication: the exporter and query pipeline resolve provider and session duplicates so the same request counted through two paths does not inflate the total; Prometheus then stores and exposes the resulting labelled series. The live snapshot behind this article held roughly 1,150 distinct session IDs and a retained lifetime total of about 11.6 billion tokens across all providers, queried directly from Prometheus on 30 August 2026.
 
 **Langfuse stores traces.** A trace is one complete story: a single request, which model answered, how many tokens, what it cost, how long it took. Langfuse runs on ClickHouse, a columnar database built for exactly this kind of analytical querying. This is where cost-per-task answers come from, and where the difference between "the model was slow" and "my orchestration made three extra calls" becomes visible.
 
@@ -77,17 +77,6 @@ Follow one real turn through the stack:
 This sequence is why the stack is trustworthy. Any single path can lie — a dropped event, a mislabelled provider, a counter that was read before the retry landed. The design assumes that and buys safety through redundancy: three independent records of the same request, plus a rule for which one wins when they disagree.
 
 ## When the stack quietly lies
-
-<figure className="not-prose my-10">
-  <img
-    src="/images/editorial/agent-cost-waterfall.svg"
-    alt="Waterfall chart showing one request becoming four bills: actual work at one times, then planning, review, and polling layers stacking to four times the cost"
-    className="relative left-1/2 block w-[min(94vw,86rem)] max-w-none -translate-x-1/2 rounded-2xl border border-slate-200 bg-white shadow-sm"
-  />
-  <figcaption className="mx-auto mt-3 max-w-3xl text-center text-sm leading-6 text-slate-600 dark:text-slate-400">
-    How one request becomes four bills: the actual work costs 1×, then each orchestration layer re-reads context and re-bills it. Measured across 551 sessions with per-call traces — the multiplier is traced, not illustrative.
-  </figcaption>
-</figure>
 
 Running this stack produced a specific list of ways it can mislead, each one learned by being caught out at least once.
 
