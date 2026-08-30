@@ -45,7 +45,7 @@ const diagrams = [
       { label: "+ Review layer", cost: "3×", detail: "the reviewer re-read output plus context", fill: "amber", y: 340 },
       { label: "+ Polling & retries", cost: "4×", detail: "waiting, failed hops, stale workers", fill: "rose", y: 260 },
     ],
-    footer: "Measured across 551 sessions — the multiplier is traced, not illustrative · Evidence date: 29 Aug 2026",
+    footer: "Orchestration layers observed in per-call traces · the 1×→4× staircase is conceptual, not a measured multiplier · Evidence date: 29 Aug 2026",
   },
   // Agent or code — real decision tree
   {

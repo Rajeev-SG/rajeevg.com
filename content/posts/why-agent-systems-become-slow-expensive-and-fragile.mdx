@@ -18,9 +18,15 @@ Ask someone why their agent system is slow and they will blame the model. The te
 
 It stands between two companion pieces. [The agent telemetry stack](/blog/the-agent-telemetry-stack) explains the measurement machinery these findings depend on. [The multi-agent journey](/blog/the-multi-agent-journey-what-survived-contact-with-reality) tells the architectural story that follows from them. Neither article re-derives the mechanisms below, and this one does not re-derive their tool choices. Here it is the mechanisms, the evidence, and the trade-offs.
 
-## The four mechanisms, in one paragraph
+## The four mechanisms
 
-**Context resends make every hop pay for every earlier hop.** When a planner hands work to a worker, the worker receives its instructions again plus enough history to act; the reviewer reads output plus the original context; each hop re-bills tokens the previous hop already spent. **Oversight costs more than the work.** Planning, review and polling are real spend, and in the one-agent-two-models comparison the oversight across four orchestration layers exceeded the tokens the actual task used. **Failures are cumulative, not isolated.** A retry is cheap; a retry culture is not, because inbox errors, browser reconnects, tool-output bloat and stale workers each add a little until a two-minute task becomes a twenty-minute session. **Latency and cost diverge.** A cancelled task still bills its tokens, and long tool calls block the inference loop, so "it took ages" and "it cost a lot" are different measurements that need separate dashboards.
+**Context resends make every hop pay for every earlier hop.** When a planner hands work to a worker, the worker receives its instructions again plus enough history to act. The reviewer reads the output plus the original context. Each hop re-bills tokens the previous hop already spent.
+
+**Oversight costs more than the work.** Planning, review and polling are not free supervision — they are real spend, billed in the same tokens as the task itself. In the one-agent-two-models comparison, oversight across four orchestration layers exceeded the tokens the actual task used.
+
+**Failures are cumulative, not isolated.** A single retry is cheap. A retry culture is not: inbox errors, browser reconnects, tool-output bloat and stale workers each add a little, until a two-minute task becomes a twenty-minute session.
+
+**Latency and cost diverge.** A cancelled task still bills its tokens, and long tool calls block the inference loop. That is why "it took ages" and "it cost a lot" are different measurements, and why they need separate dashboards rather than a single blended number.
 
 ## Symptoms first, mechanisms second
 
@@ -66,9 +72,9 @@ Each of these has a fix, but the fix is different per mechanism, which is why on
 
 To make the mechanisms concrete, follow one request through the four layers I actually had running: the task itself, a planning layer, a review layer, and polling with retries. Each layer re-reads the context the previous layer already paid for, so the cumulative bill multiplies rather than adds.
 
-<Figure src="/images/editorial/agent-cost-waterfall.svg" alt="Waterfall chart showing one request becoming four bills: actual work at one times, then planning, review, and polling layers stacking to four times the cost" caption="How one request becomes four bills: the actual work costs 1×, then each orchestration layer re-reads context and re-bills it. Measured across 551 sessions with per-call traces — the multiplier is traced, not illustrative." slug="agent-cost-waterfall" date="29 August 2026" />
+<Figure src="/images/editorial/agent-cost-waterfall.svg" alt="Conceptual waterfall showing one request becoming four bills: actual work at one times, then planning, review, and polling layers stacking to four times the cost" caption="A conceptual explanation of cumulative rebilling: the actual work costs 1×, and each orchestration layer re-reads context and re-bills it. The orchestration layers themselves were observed in per-call traces; the exact 1×→4× staircase is conceptual, not a measured multiplier." slug="agent-cost-waterfall" date="29 August 2026" />
 
-That waterfall is not an illustration of a hypothetical. It comes from the one-agent-two-models comparison, where the same tasks ran through both a direct path and the four-layer orchestration stack, with per-call traces on every model call. The layers were real and the tokens were counted.
+The orchestration layers in that waterfall were observed directly: the one-agent-two-models comparison ran the same tasks through both a direct path and the four-layer stack, with per-call traces on every model call. What the traces show is that those layers existed and that each re-read context and re-billed it. The exact 1×→4× staircase itself is a conceptual explanation of that cumulative rebilling, not a measured multiplier — the separate 551-session dataset shows the traffic shape that makes rebilling expensive, not a 4× result.
 
 ## How the evidence was measured
 
