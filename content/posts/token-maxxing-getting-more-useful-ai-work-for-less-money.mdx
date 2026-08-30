@@ -1,0 +1,159 @@
+---
+title: "Token Maxxing: Getting More Useful AI Work for Less Money"
+slug: "token-maxxing-getting-more-useful-ai-work-for-less-money"
+date: "2026-08-30"
+description: "A non-technical guide to using capable low-cost AI models for routine work, escalating the decisions that matter, and gradually automating the hand-offs."
+tags: [ai, agents, codex, claude-code, openrouter, model-routing, token-economics]
+draft: false
+image: /images/blog/token-maxxing/session-token-shape.svg
+---
+
+The biggest AI bill is often caused by a simple mistake: using the most expensive model for every part of the job.
+
+The alternative is **token maxxing**. Use a cheap but capable model for most of the volume. Bring in an expensive frontier model when the work is unusually difficult or its quality will materially affect the outcome. Then measure the result so that “cheap” means cheap per completed job, not merely cheap per million tokens.
+
+This is already how many businesses use people. Routine execution and senior judgment are different kinds of work. AI models now vary enough in capability and price for the same distinction to matter.
+
+The interesting part is not recognising the distinction. It is making the hand-offs reliable without building an absurd management structure around them.
+
+## Tokens are the meter, not the goal
+
+A token is a small piece of text read or written by a model. Providers usually charge separately for input and output. Input includes your request, instructions, tool definitions and often the previous conversation. Output includes the answer and, depending on the service, reasoning generated along the way.
+
+“Maxxing” does not mean generating the most text possible. The useful measure is:
+
+> **Accepted work divided by total cost, including retries and checking.**
+
+A model with a tiny advertised price can still be expensive if it writes enormous answers, repeatedly misunderstands the job or needs a premium model to repair everything. Conversely, a more expensive model can be economical for a difficult decision it gets right quickly.
+
+Artificial Analysis makes this distinction visible. Its June 2026 assessment placed Z.ai’s GLM-5.2 on the **intelligence versus cost-per-task Pareto frontier**. It also found that GLM-5.2 used 43,000 output tokens per Intelligence Index task—more than MiniMax M3, Kimi K2.6 and DeepSeek V4 Pro in that comparison.
+
+<ArticleFigure src="/images/blog/token-maxxing/artificial-analysis-glm-5-2.png" alt="Artificial Analysis article showing GLM-5.2's June 2026 intelligence, cost-per-task and output-token findings" eyebrow="Price is only one measure" title="Cost per token and cost per completed task are not the same." caption="Artificial Analysis reports intelligence, task cost and token use separately. Evidence captured 30 August 2026." />
+
+[Open the current Artificial Analysis source](https://artificialanalysis.ai/articles/glm-5-2-is-the-new-leading-open-weights-model-on-the-artificial-analysis-intelligence-index/).
+
+## Route work according to how much the answer matters
+
+| Work | Default route | Why |
+| --- | --- | --- |
+| Search, summaries, first drafts, routine edits, repeated checks | Capable low-cost model | High volume; mistakes are cheap to notice and correct |
+| Architecture, difficult debugging, important editorial judgment, ambiguous planning | Frontier model | A weak decision can spoil all the work that follows |
+| Publishing, spending money, deleting data, legal or financial claims | Frontier review plus human approval | Consequences extend beyond the model session |
+
+The dividing line is not file count, prompt length or whether a task sounds impressive. It is whether weaker judgment at that point would materially change the result.
+
+The [FrugalGPT paper](https://arxiv.org/abs/2305.05176) explored model cascades: try an economical service first and escalate when its response is unlikely to meet the required standard. Its experiments reported savings of up to 98% while matching the strongest model on the tasks studied. That is evidence that cascades can work, not a promise that everybody will save 98%.
+
+<figure className="not-prose my-10">
+  <img src="/images/blog/one-agent-two-models/after.svg" alt="One agent routes everyday work to GLM-5.3-Flash and difficult judgment to GPT-5.6 Sol or Claude Opus 5 while telemetry records each call" className="relative left-1/2 block w-[min(96vw,92rem)] max-w-none -translate-x-1/2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm" />
+  <figcaption className="mx-auto mt-3 max-w-3xl text-center text-sm leading-6 text-slate-600 dark:text-slate-400">My current rule: one agent owns the job; ordinary execution goes to the workhorse; difficult judgment escalates once for a stated reason; telemetry stays out of the work path. <a className="font-medium underline underline-offset-4" href="/downloads/one-agent-two-models-after.excalidraw">Download the editable diagram</a>.</figcaption>
+</figure>
+
+## A practical starting point: Claude coordinates, Codex works
+
+For somebody already comfortable in Claude Code, OpenAI’s official [Codex plugin for Claude Code](https://github.com/openai/codex-plugin-cc) is an approachable first step. It keeps Claude Code as the place where you describe the job while allowing Claude to ask Codex for a review, transfer a session or delegate work.
+
+The plugin currently exposes commands including [`/codex:review`](https://github.com/openai/codex-plugin-cc#what-you-get), [`/codex:adversarial-review`](https://github.com/openai/codex-plugin-cc#what-you-get) and [`/codex:rescue`](https://github.com/openai/codex-plugin-cc/blob/main/plugins/codex/commands/rescue.md). Its documented requirements include Node.js 18.18 or later and either a ChatGPT subscription or OpenAI API access.
+
+<ArticleFigure src="/images/blog/token-maxxing/codex-plugin-github.png" alt="The official openai codex-plugin-cc repository, described as using Codex from Claude Code to review code or delegate tasks" eyebrow="A maintained first hand-off" title="Codex can work from inside the Claude Code workflow." caption="Official OpenAI repository captured 30 August 2026. Use the repository for current installation instructions." />
+
+Claude Code reads persistent project instructions from `CLAUDE.md`. A useful starting instruction is:
+
+```md
+Act as the coordinator and final reviewer.
+
+Delegate substantial implementation work to Codex when it is clearly
+worth the hand-off. Give Codex the exact outcome, relevant files,
+constraints and the checks that must pass. Review the result before
+presenting it as complete. Handle small tasks directly when delegation
+would create more work than it saves.
+```
+
+That is less absolute than “you only exist as quality control”. The harder version is memorable, but it can make Claude delegate tiny jobs that would take less time to finish directly. Reviewing another model’s work is itself real work.
+
+## The next price step: Chinese-developed models through OpenRouter
+
+Once the hand-off works, the next saving comes from changing the model doing the high-volume execution.
+
+[OpenRouter](https://openrouter.ai) offers one API through which many model families and hosting providers can be selected. That reduces the work needed to test alternatives: in many integrations, switching model is primarily a configuration change rather than a new vendor project.
+
+Several Chinese-developed model families—[DeepSeek](https://openrouter.ai/deepseek), [Qwen](https://openrouter.ai/qwen), [Kimi](https://openrouter.ai/moonshotai), [GLM](https://openrouter.ai/z-ai) and [MiniMax](https://openrouter.ai/minimax)—now occupy unusually strong positions on cost-quality comparisons. “Chinese-developed” is more accurate and useful than turning nationality into a joke. It lets readers investigate the actual labs, models, licences and providers.
+
+The careful claim is not that these models are universally as good as Claude or GPT. It is that the strongest are now close enough on important benchmarks, and cheap enough, that using a premium American model for every routine job no longer makes economic sense.
+
+In June 2026, Artificial Analysis scored GLM-5.2 as the leading open-weight model on its Intelligence Index and reported it effectively level with GPT-5.5 xhigh on its GDPval-AA v2 agentic benchmark. OpenRouter’s June review described the open-weight gap as real but narrow, highlighted DeepSeek V4 Flash on the cost-performance frontier, and advised testing models against your own workload.
+
+<ArticleFigure src="/images/blog/token-maxxing/openrouter-open-models.png" alt="OpenRouter's June 2026 review covering DeepSeek V4 Flash, GLM-5.2, MiniMax M3 and NVIDIA Nemotron 3 Ultra" eyebrow="The market moved" title="Different open models now lead on cost, planning and multimodal work." caption="OpenRouter review captured 30 August 2026. Prices and rankings are dated evidence, not permanent facts." />
+
+[Read OpenRouter’s current review](https://openrouter.ai/blog/insights/the-open-weight-models-that-matter-june-2026/), then compare it with the [Artificial Analysis model directory](https://artificialanalysis.ai/models) and the [OpenRouter model directory](https://openrouter.ai/models).
+
+## What my own sessions show
+
+My local telemetry records cumulative input and output tokens by agent, model, provider and session. It deliberately does not publish prompts or responses.
+
+The following snapshot uses four real sessions. A GPT-5.6 Sol parent coordinated one piece of work while a GLM-5.3-Flash worker handled high-volume execution. Two OpenCode sessions used Claude Opus 5 through OpenRouter for targeted frontier work.
+
+<ArticleFigure src="/images/blog/token-maxxing/session-token-shape.svg" alt="Four real sessions showing prompt traffic greatly exceeding completion output for a GPT-5.6 Sol parent, GLM-5.3-Flash worker and two Claude Opus 5 sessions" eyebrow="Measured, not hypothetical" title="Agent work repeatedly pays to re-read its working context." caption="Cumulative Prometheus session counters captured 30 August 2026. The sessions did different jobs, so this shows traffic shape—not comparative intelligence or productivity." />
+
+The startling numbers are the input totals. The GLM worker did not write 202 million fresh words; it processed repeated instructions, tool definitions and working history across a long sequence of calls.
+
+This is why cheap capable models unlock so much volume. They make repeated context affordable. It is also why careless orchestration can erase the saving: every extra manager, reviewer and retry can re-read another large block of context.
+
+The data does **not** prove that the GLM worker produced twice as much value as the Sol parent, or that either Opus session was better. Token volume measures traffic. Accepted results, corrections, elapsed time and cost are needed to judge efficiency.
+
+For more evidence, see [the analysis of 551 Codex sessions](/blog/what-551-codex-sessions-reveal-about-real-ai-work), [the measured simplification from several orchestration layers to one agent](/blog/one-agent-two-models), and [the GLM provider-routing benchmark](/blog/i-made-glm-5-3-flash-faster-but-kept-cheap-routing).
+
+## Where orchestration becomes a wormhole
+
+Manual routing is easy. Reliable automatic routing introduces questions: Who decides that the first model is struggling? Can two models edit the same files? How are retries and partial results recorded? Is the reviewer adding independent judgment or merely repeating the first model? Which provider receives the data?
+
+The tempting response is to add a manager model, planner, reviewer, task database, message bus and several automatic gates. I tried versions of that. The telemetry showed that oversight could cost more than execution.
+
+My current position is simpler:
+
+1. One agent owns each task from plan to proof.
+2. One economical model handles the routine path.
+3. Escalation happens only for a stated reason.
+4. A second agent is used when work is genuinely independent or would swamp the first agent’s context.
+5. Model calls are measured separately from the task outcome.
+
+Automation should encode routing decisions you have already seen repeatedly. It should not invent a corporate hierarchy for three prompts.
+
+## From beginner setup to automatic coordination
+
+**Choose manually.** Use a cheap model for routine work and switch when you reach a difficult judgment. This captures most of the economic idea with almost no setup.
+
+**Put the policy in `CLAUDE.md`.** Tell Claude when to ask Codex for substantial implementation and what evidence it must inspect afterwards.
+
+**Change the workhorse.** Route delegated execution to a lower-cost model through OpenRouter or another provider. Record the resolved model and host, because an alias may hide what actually answered.
+
+**Add evidence-based escalation.** Escalate on failed tests, unresolved contradictions, repeated attempts, missing evidence or a decision explicitly marked as consequential—not because a prompt contains words such as “architecture” or “security”.
+
+**Review the economics.** Compare total cost per accepted result. Include parent, workers, retries, reviewers and human correction time.
+
+## The rules that keep this honest
+
+- Cheap per token is not cheap per job. Include output length, retries and repair.
+- Benchmarks are evidence, not instructions. Test the jobs you actually run.
+- Model names are not providers. The same model can behave differently across hosts.
+- Two models agreeing is not proof. They may share the same blind spot.
+- Do not send sensitive work everywhere. Read privacy and retention terms.
+- Keep human approval for publishing, payments, deletion and high-stakes claims.
+- Record missing prices, model names or token counters as unknown, not zero.
+
+## The point
+
+Token maxxing is not a competition to burn the largest number of tokens. It is the decision to buy abundant routine intelligence cheaply and scarce judgment selectively.
+
+The first useful version needs two tiers and a written routing rule. The advanced version adds telemetry and automatic escalation after you understand where the simple version fails. Otherwise, the coordination machinery becomes the product and the actual work becomes an afterthought.
+
+## Sources and further reading
+
+- [OpenAI: Codex plugin for Claude Code](https://github.com/openai/codex-plugin-cc)
+- [Anthropic: discover and install Claude Code plugins](https://code.claude.com/docs/en/discover-plugins)
+- [FrugalGPT](https://arxiv.org/abs/2305.05176)
+- [A Unified Approach to Routing and Cascading for LLMs](https://arxiv.org/abs/2410.10347)
+- [Artificial Analysis: GLM-5.2 assessment](https://artificialanalysis.ai/articles/glm-5-2-is-the-new-leading-open-weights-model-on-the-artificial-analysis-intelligence-index/)
+- [OpenRouter: significant open-weight models in June 2026](https://openrouter.ai/blog/insights/the-open-weight-models-that-matter-june-2026/)
+- [OpenRouter provider routing](https://openrouter.ai/docs/guides/routing/provider-selection)
+
