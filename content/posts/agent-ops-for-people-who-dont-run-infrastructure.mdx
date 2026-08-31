@@ -28,11 +28,11 @@ The most common beginner mistake is thinking Agent Ops is a monitoring problem: 
 
 <Figure
   src="/images/blog/agent-ops/agent-ops-operating-loop.svg"
-  alt="Three-band draw.io loop showing the Agent Ops operating sequence: the daily band runs worktree, contract, session and scoped tools into acceptance and merge; the drift band routes failure through one alert channel, one runbook and a cause fix; the learning band feeds telemetry back into budget and routing rules, and the keeper restarts what died"
-  caption="The full loop. The daily band is what you do every time work runs: worktree, contract, session, scoped tools, then acceptance proof and merge-or-discard. The drift band is what happens when anything shows up wrong: one alert channel, one runbook, and a fix aimed at the cause rather than this instance. The learning band is what most people skip: the fix, the contract miss, and the routing decision all feed back into the rules that govern the next run. Solid lines are the work path; dashed lines are what telemetry records; orange and red are the incident path; purple is the learning path."
+  alt="The Agent Ops operating loop: work is handed off and done in a bounded worktree, the acceptance gate closes the loop by merging or discarding, failures branch into recovery through one runbook and a cause fix, and both outcomes feed a learning path that changes the contract and routing rule for the next run"
+  caption="The loop, reduced to the three paths that decide whether your rig gets better or just busier. Green is the work path. Orange is the acceptance gate — the merge-or-discard close that turns a run into finished or thrown-away work. Red is the incident path: one runbook, one cause fix, back into the loop. The purple path is the close most people skip: what went wrong updates three rules — contract, routing, permissions — before the next hand-off."
   slug="agent-ops-operating-loop"
-  editableHref="/downloads/agent-ops-operating-loop.drawio"
-  editableLabel="Download the editable draw.io source"
+  editableHref="/downloads/agent-ops-operating-loop.excalidraw"
+  editableLabel="Download the editable Excalidraw source"
   date="31 August 2026"
 />
 

@@ -25,8 +25,6 @@ The execution shipped three merged PRs: `#31` (`9d67b0c`) — the portfolio solu
 
 ## The loop, and why the boundaries matter
 
-<Figure src="/images/editorial/ma-execution-boundaries.svg" alt="Three-column boundary map: supervisor writes contracts but never article files, GLM worker owns bounded writes in an isolated worktree, reviewer reads the rendered site and returns verdicts without edit access" caption="Responsibility boundaries: supervision, bounded implementation, and review are deliberately separated so a failure in one lane cannot silently propagate." slug="ma-execution-boundaries" date="30 August 2026" />
-
 The contract sent to the GLM worker named the exact durable runbook paths to read, the writable scope (article, figures, index and metadata integration only), and the acceptance checks it had to satisfy before opening a PR. The worktree isolation is not ceremony: it meant a worker mistake could never disturb the main checkout, and a rejected PR could be discarded without archaeology.
 
 Monitoring was bounded, not a polling loop. The supervisor waited on the task, read its final summary, and sent a corrective message only when the worker's own summary or the PR evidence showed a gap — the corrective pass that produced PR `#33` after the first merge left the solution inventory incomplete, and the remediation contract that produced PR `#35` after parent QA rejected the first batch of figures.
