@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="t d">
-<title id="t">The execution loop that survived</title><desc id="d">The five-hop loop the rig kept is drawn as a cycle. The lanes that were built and then deleted are shown faded and struck through, because they are the point: every one of them cost tokens without repaying the cost.</desc>
+<title id="t">The execution loop that survived</title><desc id="d">The three-step core every multi-agent task needs, the two-step judgement extension this editorial batch added, and the lanes that were removed on traced overhead and operational evidence. A2A is shown separately as a kept optional capability for a different problem, not as a removed lane.</desc>
 <defs><pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.1" fill="#e7e2d5"/></pattern><marker id="arrowEnd" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M 0 0 L 9 5 L 0 10 z" fill="#566174"/></marker><marker id="arrowFade" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M 0 0 L 9 5 L 0 10 z" fill="#9aa3ae"/></marker></defs>
 <rect width="1280" height="720" fill="#fbfaf5"/><rect width="1280" height="720" fill="url(#dots)" opacity=".6"/>
 <text x="48" y="52" font-size="28" font-weight="700" fill="#172033" font-family="Georgia, serif">The execution loop that survived</text>
-<text x="48" y="84" font-size="16" fill="#566174" font-family="Georgia, serif">Five hops, kept because each pays its way. The struck-through lanes were built first — then deleted on evidence.</text>
+<text x="48" y="84" font-size="16" fill="#566174" font-family="Georgia, serif">Three steps are the general core. Two more are a conditional extension. Three lanes were removed on traced overhead; A2A stays optional for a different problem.</text>
 
 <rect x="70" y="130" width="200" height="88" rx="16" fill="#dce8ff" stroke="#4f6fad" stroke-width="3"/>
 <text x="92" y="166" font-size="18" font-weight="700" fill="#172033" font-family="Comic Sans MS, cursive">Supervisor</text>
@@ -16,10 +16,10 @@
 <text x="382" y="192" font-size="13" fill="#566174" font-family="Comic Sans MS, cursive">bounded slice · isolated</text>
 <text x="382" y="210" font-size="13" fill="#566174" font-family="Comic Sans MS, cursive">worktree · writes the bulk</text>
 
-<rect x="660" y="130" width="210" height="88" rx="16" fill="#fff0c9" stroke="#a97921" stroke-width="3"/>
+<rect x="660" y="130" width="210" height="88" rx="16" fill="#fff" stroke="#566174" stroke-width="2.5" stroke-dasharray="7 5"/>
 <text x="682" y="166" font-size="18" font-weight="700" fill="#172033" font-family="Comic Sans MS, cursive">Opus review</text>
-<text x="682" y="192" font-size="13" fill="#566174" font-family="Comic Sans MS, cursive">read-only · judges what</text>
-<text x="682" y="210" font-size="13" fill="#566174" font-family="Comic Sans MS, cursive">a reader sees, changes nothing</text>
+<text x="682" y="192" font-size="13" fill="#566174" font-family="Comic Sans MS, cursive">read-only · conditional</text>
+<text x="682" y="210" font-size="13" fill="#566174" font-family="Comic Sans MS, cursive">when judgement matters</text>
 
 <rect x="960" y="130" width="230" height="88" rx="16" fill="#f3e8ff" stroke="#7459a8" stroke-width="3"/>
 <text x="982" y="166" font-size="18" font-weight="700" fill="#172033" font-family="Comic Sans MS, cursive">Parent acceptance</text>
@@ -34,11 +34,11 @@
 <path d="M 270 174 L 352 174" fill="none" stroke="#566174" stroke-width="2.5" marker-end="url(#arrowEnd)"/>
 <text x="294" y="162" font-size="11" font-weight="700" fill="#4f6fad" font-family="Comic Sans MS, cursive">contract</text>
 <path d="M 570 174 L 652 174" fill="none" stroke="#566174" stroke-width="2.5" marker-end="url(#arrowEnd)"/>
-<text x="586" y="162" font-size="11" font-weight="700" fill="#3f8460" font-family="Comic Sans MS, cursive">rendered work</text>
+<text x="580" y="162" font-size="11" font-weight="700" fill="#3f8460" font-family="Comic Sans MS, cursive">rendered work</text>
 <path d="M 870 174 L 952 174" fill="none" stroke="#566174" stroke-width="2.5" marker-end="url(#arrowEnd)"/>
 <text x="886" y="162" font-size="11" font-weight="700" fill="#a97921" font-family="Comic Sans MS, cursive">verdicts</text>
 <path d="M 960 218 C 820 330, 640 340, 578 366" fill="none" stroke="#7459a8" stroke-width="2.5" marker-end="url(#arrowEnd)"/>
-<text x="560" y="258" font-size="12" font-weight="700" fill="#7459a8" font-family="Comic Sans MS, cursive">routed to the worker</text>
+<text x="760" y="278" font-size="12" font-weight="700" fill="#7459a8" font-family="Comic Sans MS, cursive">routed to the worker</text>
 <path d="M 468 330 C 452 268, 452 240, 462 224" fill="none" stroke="#3f8460" stroke-width="2.5" marker-end="url(#arrowEnd)"/>
 <text x="470" y="290" font-size="12" font-weight="700" fill="#3f8460" font-family="Comic Sans MS, cursive">amends in scope</text>
 <path d="M 92 218 C 40 330, 30 420, 60 452" fill="none" stroke="#566174" stroke-width="2.5" marker-end="url(#arrowEnd)"/>
@@ -52,19 +52,19 @@
 
 <rect x="360" y="470" width="260" height="64" rx="16" fill="#f1f3f6" stroke="#9aa3ae" stroke-width="2.5" opacity=".75"/>
 <text x="382" y="498" font-size="15" font-weight="700" fill="#566174" font-family="Comic Sans MS, cursive" text-decoration="line-through">Lifecycle bookkeeping</text>
-<text x="382" y="520" font-size="12" fill="#9aa3ae" font-family="Comic Sans MS, cursive">state machines, ticket routing</text>
+<text x="382" y="520" font-size="12" fill="#9aa3ae" font-family="Comic Sans MS, cursive">traced overhead, no demonstrated need</text>
 <line x1="370" y1="490" x2="608" y2="490" stroke="#a45350" stroke-width="2.5" opacity=".8"/>
 
 <rect x="650" y="470" width="260" height="64" rx="16" fill="#f1f3f6" stroke="#9aa3ae" stroke-width="2.5" opacity=".75"/>
 <text x="672" y="498" font-size="15" font-weight="700" fill="#566174" font-family="Comic Sans MS, cursive" text-decoration="line-through">Inbox protocols</text>
-<text x="672" y="520" font-size="12" fill="#9aa3ae" font-family="Comic Sans MS, cursive">coordination with no payoff</text>
+<text x="672" y="520" font-size="12" fill="#9aa3ae" font-family="Comic Sans MS, cursive">operational cost, no payoff observed</text>
 <line x1="660" y1="490" x2="898" y2="490" stroke="#a45350" stroke-width="2.5" opacity=".8"/>
 
-<rect x="940" y="470" width="250" height="64" rx="16" fill="#f1f3f6" stroke="#9aa3ae" stroke-width="2.5" opacity=".75"/>
-<text x="962" y="498" font-size="15" font-weight="700" fill="#566174" font-family="Comic Sans MS, cursive" text-decoration="line-through">A2A mesh wiring</text>
-<text x="962" y="520" font-size="12" fill="#9aa3ae" font-family="Comic Sans MS, cursive">useful across trust domains,</text>
-<text x="962" y="534" font-size="12" fill="#9aa3ae" font-family="Comic Sans MS, cursive">not inside one repo</text>
-<line x1="950" y1="490" x2="1180" y2="490" stroke="#a45350" stroke-width="2.5" opacity=".8"/>
+<rect x="940" y="470" width="250" height="70" rx="16" fill="#dcf3e5" stroke="#3f8460" stroke-width="2.5" stroke-dasharray="7 5" opacity=".9"/>
+<text x="962" y="494" font-size="14" font-weight="700" fill="#3f8460" font-family="Comic Sans MS, cursive">A2A — kept optional</text>
+<text x="962" y="514" font-size="11" fill="#566174" font-family="Comic Sans MS, cursive">different problem: cross-runtime /</text>
+<text x="962" y="528" font-size="11" fill="#566174" font-family="Comic Sans MS, cursive">trust-domain discovery, proven on loopback</text>
 
-<text x="70" y="592" font-size="13" fill="#a45350" font-family="Comic Sans MS, cursive">Removed on measured evidence — not opinion: traces showed cost without quality return</text>
+<text x="70" y="592" font-size="13" fill="#a45350" font-family="Comic Sans MS, cursive">Removed on traced overhead and operational evidence — not a quality benchmark</text>
+<text x="640" y="700" text-anchor="middle" font-size="14" font-style="italic" fill="#566174" font-family="Georgia, serif">A2A is not a removed lane — it is a capability kept for a different problem · Evidence date: 31 Aug 2026</text>
 </svg>
