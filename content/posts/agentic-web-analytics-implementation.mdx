@@ -26,6 +26,8 @@ What does **not** change: the decision about which events matter, what consent m
 
 <Figure src="/images/editorial/agentic-analytics-loop.png" alt="Four-band draw.io loop: measurement contract, agentic GTM and GA4 build, browser-real QA verification with a dashed feedback arrow back to build, and reconciled reporting" caption="Two human gates: nothing is built until the measurement contract is approved, and nothing ships until the QA harness has fired the real consent journey in a browser and measured the configured-versus-firing gap. The dashed amber arrow is the loop the traditional process skipped — QA findings feeding straight back into a revised build." slug="agentic-analytics-loop" date="29 August 2026" />
 
+The loop has exactly two human gates, and both sit in front of the automation rather than behind it: nothing is built until the measurement contract is approved, and nothing ships until the QA harness has replayed the real consent journey in a browser and measured the gap between what was configured and what actually fired. The dashed amber arrow is the path traditional implementations skipped — QA findings feed straight back into a revised build instead of dying in a meeting. Everything between the gates is agent work; the gates themselves stay human.
+
 ## From business question to deployed property
 
 Here is the concrete sequence, taken from the [GA4 property pass on this site](/blog/how-we-finished-the-ga4-property-setup-on-rajeevg-com) and reshaped into the repeatable method it should have been from the start.
@@ -77,6 +79,8 @@ Not everything automates, and some of what automates has real cost:
 - **DebugView is not proof for production traffic.** It only shows debug-flagged devices. Using it as the sole verification surface silently proves nothing about the live property.
 
 ## Where to go next
+
+That closes the loop this article opened with: implementation gets cheaper not because judgment was automated, but because the expensive, skippable middle — configuration and QA — became provable. The governance did not move; it got sharper, because every claim now arrives with browser-real evidence attached. Where you go next depends on which layer you want to make provable first:
 
 - [Agentic data collection and warehousing](/blog/agentic-data-collection-and-warehousing) — when the collection layer itself should get heavier, and when it should not
 - [Proof, not prompts](/blog/proof-not-prompts) — the delivery standard this loop feeds

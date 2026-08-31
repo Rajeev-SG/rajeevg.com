@@ -104,6 +104,10 @@ Honest limits, stated plainly:
 - **It is single-rig evidence.** Everything here is measured on one operator's machine and one remote host. It says nothing about your workload until you reproduce the same discipline on your own.
 - **Correlation is not causation.** A model that appears cheaper may simply have been used on easier tasks. Attribution requires the routing decision to be recorded alongside the usage, not inferred afterwards.
 
+## Field notes that fed this article
+
+This is the canonical description. Two earlier articles cover pieces of the journey and remain useful as field notes: [One door for every token](/blog/one-door-for-every-token) covers the routing gateway and cost feed, and [why I made my agent token usage public](/blog/why-i-made-my-agent-token-usage-public) covers the public summary pipeline. Where they describe older paths, this article is the current truth. [How I built one control room for six AI agents](/blog/how-i-built-one-control-room-for-six-ai-agents) and [how I made Codex subagents measurable](/blog/how-i-made-codex-subagents-measurable) describe the multi-agent surface the telemetry sits underneath; the stack itself has not changed shape since those were written, only the attribution and dedup rules have matured.
+
 ## A practical adoption path
 
 If you are starting from nothing, resist the urge to install everything at once. Each step is independently useful:
@@ -116,10 +120,6 @@ If you are starting from nothing, resist the urge to install everything at once.
 6. **Add dashboards and a public view last.** Visibility is the reward, not the starting point, and the public/private split is a decision to make deliberately, not by accident.
 
 A beginner can stop after step 2 and already be ahead of most teams. A team should not skip step 3.
-
-## Field notes that fed this article
-
-This is the canonical description. Two earlier articles cover pieces of the journey and remain useful as field notes: [One door for every token](/blog/one-door-for-every-token) covers the routing gateway and cost feed, and [why I made my agent token usage public](/blog/why-i-made-my-agent-token-usage-public) covers the public summary pipeline. Where they describe older paths, this article is the current truth. [How I built one control room for six AI agents](/blog/how-i-built-one-control-room-for-six-ai-agents) and [how I made Codex subagents measurable](/blog/how-i-made-codex-subagents-measurable) describe the multi-agent surface the telemetry sits underneath; the stack itself has not changed shape since those were written, only the attribution and dedup rules have matured.
 
 ## Where to go next
 
