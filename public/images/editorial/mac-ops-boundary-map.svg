@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 850" width="1280" height="850" role="img" aria-labelledby="t d">
+<title id="t">What can reach what — the Mac operations-centre boundary</title>
+<desc id="d">Four reachability zones. The Mac's own services, agents and OrbStack containers live on loopback; the Tailscale mesh is the only credentialed way in; Vercel and Telegram face the internet, and Telegram is reached by outbound connection only.</desc>
+<defs><marker id="arrowEnd" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M 0 0 L 9 5 L 0 10 z" fill="#334155"/></marker></defs>
+<rect width="1280" height="850" fill="#ffffff"/>
+<rect x="40" y="30" width="1200" height="56" rx="8" fill="#0f172a"/>
+<text x="60" y="65" font-family="Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#ffffff">What can reach what — the Mac operations-centre boundary</text>
+<text x="42" y="106" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#64748b">Every listener is reachable only along the paths drawn. If a path is not drawn, it does not exist.</text>
+<rect x="40" y="120" width="640" height="400" rx="12" fill="#dbeafe" fill-opacity="0.55" stroke="#2563eb" stroke-width="2"/>
+  <text x="56" y="144" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#2563eb">THE MAC · 127.0.0.1 — nothing here is reachable from outside</text>
+<rect x="40" y="570" width="640" height="200" rx="12" fill="#ede9fe" fill-opacity="0.55" stroke="#7c3aed" stroke-width="2"/>
+  <text x="56" y="594" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#7c3aed">CONTAINERS · OrbStack — isolated, state in volumes</text>
+<rect x="720" y="120" width="250" height="650" rx="12" fill="#dcfce7" fill-opacity="0.55" stroke="#16a34a" stroke-width="2"/>
+  <text x="736" y="144" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#16a34a">TAILSCALE MESH · private · credential-gated</text>
+<rect x="1010" y="120" width="240" height="650" rx="12" fill="#fef3c7" fill-opacity="0.55" stroke="#d97706" stroke-width="2"/>
+  <text x="1026" y="144" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#d97706">PUBLIC · the only internet-facing surface</text>
+<path d="M 310 215 L 380 215" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrowEnd)"/>
+  <text x="345" y="196" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#475569" paint-order="stroke" stroke="#ffffff" stroke-width="4">boot +</text>
+  <text x="345" y="211" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#475569" paint-order="stroke" stroke="#ffffff" stroke-width="4">restart</text>
+<path d="M 430 300 L 430 390 L 310 390" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrowEnd)"/>
+  <text x="442" y="352" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#475569" paint-order="stroke" stroke="#ffffff" stroke-width="4">call local APIs</text>
+<path d="M 560 300 L 560 620" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrowEnd)"/>
+  <text x="572" y="474" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#475569" paint-order="stroke" stroke="#ffffff" stroke-width="4">query dashboards</text>
+<path d="M 200 620 L 200 480" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrowEnd)"/>
+  <text x="212" y="558" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#475569" paint-order="stroke" stroke="#ffffff" stroke-width="4">publish to 127.0.0.1</text>
+<path d="M 790 270 L 790 310" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrowEnd)"/>
+  <text x="798" y="298" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#475569" paint-order="stroke" stroke="#ffffff" stroke-width="4">credentials</text>
+<path d="M 895 270 L 895 405 L 840 405 L 840 440" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrowEnd)"/>
+  <text x="907" y="414" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#475569" paint-order="stroke" stroke="#ffffff" stroke-width="4">credentials</text>
+<path d="M 650 280 L 700 280 L 700 690 L 1130 690 L 1130 440" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrowEnd)"/>
+  <text x="905" y="678" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#475569" paint-order="stroke" stroke="#ffffff" stroke-width="4">outbound long-poll — Telegram never dials in</text>
+<rect x="60" y="160" width="250" height="110" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+  <text x="185" y="188" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">launchd keepers</text>
+  <text x="185" y="214" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">start at boot · restart what dies</text>
+  <text x="185" y="234" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">the layer every other service trusts</text>
+<rect x="380" y="160" width="270" height="140" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+  <text x="515" y="188" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">Agent sessions</text>
+  <text x="515" y="214" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">Codex · OpenClaw · Hermes · OMP</text>
+  <text x="515" y="234" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">A2A endpoints 127.0.0.1:8391–8394</text>
+  <text x="515" y="254" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">bounded tools · worktree writes</text>
+<rect x="60" y="320" width="250" height="160" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+  <text x="185" y="348" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">Local listeners</text>
+  <text x="185" y="374" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">ops board · session index ·</text>
+  <text x="185" y="394" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">local APIs — every one bound</text>
+  <text x="185" y="414" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">to 127.0.0.1 only</text>
+<rect x="70" y="620" width="580" height="120" rx="10" fill="#ffffff" stroke="#7c3aed" stroke-width="2"/>
+  <text x="360" y="648" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">Coolify stack</text>
+  <text x="360" y="674" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">VictoriaMetrics · Grafana · small apps</text>
+  <text x="360" y="694" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">ports published to loopback only · volumes persist state</text>
+<rect x="740" y="160" width="210" height="110" rx="10" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+  <text x="845" y="188" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">Your devices</text>
+  <text x="845" y="214" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">phone · laptop</text>
+  <text x="845" y="234" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">tailnet members</text>
+<rect x="740" y="310" width="200" height="90" rx="10" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+  <text x="840" y="338" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">SSH</text>
+  <text x="840" y="364" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">terminal into the Mac,</text>
+  <text x="840" y="384" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">key-based</text>
+<rect x="740" y="440" width="200" height="120" rx="10" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+  <text x="840" y="468" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">Ops boards</text>
+  <text x="840" y="494" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">Grafana · agent mail</text>
+  <text x="840" y="514" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">reachable over the tailnet,</text>
+  <text x="840" y="534" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">nowhere else</text>
+<rect x="1030" y="160" width="200" height="110" rx="10" fill="#ffffff" stroke="#d97706" stroke-width="2"/>
+  <text x="1130" y="188" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">Vercel</text>
+  <text x="1130" y="214" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">rajeevg.com · static + serverless</text>
+  <text x="1130" y="234" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">nothing here can open a connection</text>
+  <text x="1130" y="254" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">to the Mac</text>
+<rect x="1030" y="310" width="200" height="130" rx="10" fill="#ffffff" stroke="#d97706" stroke-width="2"/>
+  <text x="1130" y="338" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">Telegram</text>
+  <text x="1130" y="364" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">operator chat surface,</text>
+  <text x="1130" y="384" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">reached by outbound connection</text>
+  <text x="1130" y="404" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">only</text>
+<text x="640" y="825" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="14" font-style="italic" fill="#64748b">Bands show reachability zones · solid arrows are real network paths · absence of an arrow means no path exists · Evidence date: 31 Aug 2026</text>
+</svg>
