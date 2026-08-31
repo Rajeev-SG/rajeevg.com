@@ -2,42 +2,87 @@
 title: "AI for agency operations: seven workflows that are already useful"
 slug: ai-for-agency-operations
 date: 2026-08-29
-description: Seven AI workflows I have run inside real agency operations — taxonomy governance, tag QA, attribution reconciliation, guidelines, rollouts, scoping, and turning calls into assets — described anonymised.
+description: Seven AI workflows run inside real agency operations — briefing, taxonomy governance, QA, evidence packs, reporting, knowledge retrieval, handoffs — with honest limits, human gates, and a map of where the machine earns and where it must stop.
 tags: [ai, martech, agency, measurement, governance, qa, workflows]
 draft: false
-image: /images/editorial/seven-agency-workflows-map.svg
+image: /images/editorial/ai-for-agency-operations-operating-model.svg
 ---
 
-Most "AI for agencies" content describes pilots. This article describes seven workflows I have run inside real operations, with the unglamorous details: what they replace, what they still need a human for, and where they fall short. Client details are anonymised throughout.
+Most "AI for agencies" writing describes pilots. This article describes seven workflows that run inside real agency operations, with the unglamorous parts kept in: what they replaced, what still needs a person, and where they fall short. Client details are anonymised throughout. The thesis is deliberately narrow: AI in an agency is most defensible where it removes retrieval and checking labour, useful where it reshapes ambiguity into checkable structure, and out of its depth entirely where a person must be accountable to another person. The figure below is that boundary on one page.
 
-<Figure src="/images/editorial/seven-agency-workflows-map.svg" alt="Three grouped panels showing the seven agency workflows: data trust, consistency at scale, and commercial clarity" caption="The seven workflows grouped by what they replace: data trust, consistency at scale, commercial clarity. AI removes retrieval and checking labour; humans keep contracts, discrepancies, and client-facing sign-off." slug="seven-agency-workflows-map" date="29 August 2026" />
+<Figure src="/images/editorial/ai-for-agency-operations-operating-model.svg" alt="Left-to-right agency delivery loop: brief, measurement and taxonomy contract, build and execute, browser and data QA, evidence pack, status and handoff, reporting; three human gate callouts sit above, a dashed QA return path loops back to the contract, and three risk notes sit below" caption="One agency delivery loop. Solid is the machine path; dashed amber marks the three points where a person must decide; dashed rose marks the failure each stage exists to prevent. The teaching point is not the steps — it is that every step between the gates is either deterministic or agent-shaped, and the gates are not." slug="ai-for-agency-operations-operating-model" editableHref="/downloads/ai-for-agency-operations-operating-model.excalidraw" editableLabel="Download the editable Excalidraw source" date="31 August 2026" />
+
+## Why the thesis holds
+
+Agency operations has a specific shape of work: many small, repeated judgments across parallel clients, each individually too small to warrant a process and collectively large enough to eat a week. Traditional automation struggles here because the inputs are messy — a recorded call, a stale deck, a Slack thread that contains the real requirement. Classical automation needs enumerated inputs; agencies mostly have unenumerated ones.
+
+That is exactly where agentic systems change the economics. They turn ambiguous input into structured output with a checkable trail: a brief becomes a scoped document, a taxonomy change becomes a diff, a QA run becomes a recorded journey. The value is not "AI did the work." The value is that the output is now reviewable at the speed a person can read it, rather than produced at the speed a person can type it. Deterministic automation then takes over on the structured side — it checks, records, and formats without needing judgment at all.
+
+What does not follow is that judgment automates. A client-facing number, a discrepancy between two measurement systems, a scope decision that commits a team for a quarter: these stay human not because machines fail at them but because accountability is the product. An agency sells, in part, a person who will stand behind a recommendation. The workflows below are designed around that fact rather than in spite of it.
 
 ## The seven workflows
 
-**1. Global taxonomy governance.** One event contract — names, properties, owners — maintained across markets. AI drafts and checks taxonomy changes against the contract; humans approve. What it replaced: spreadsheet archaeology and Slack archaeology.
+**1. Briefing and scoping.** Messy calls and decks become structured briefs with explicit open questions. An agent reads the transcript, extracts the requirement, and produces a document a human can approve or challenge in minutes. What it replaced: the "we'll figure it out during the build" meeting, and the week of silence after it.
 
-**2. Tag and pixel QA.** Automated browser journeys exercise real consent flows and record what actually fires, compared against the contract. What it replaced: spot checks that missed consent-blocked tags for weeks.
+**2. Taxonomy and tagging governance.** One event contract — names, properties, owners, consent model — maintained across markets. AI drafts changes as diffs against the contract; humans approve the diff. What it replaced: spreadsheet archaeology and Slack archaeology as the maintenance mechanism.
 
-**3. Attribution reconciliation.** Platform-reported conversions versus backend truth, with the gap measured and explained rather than argued about. What it replaced: trusting the platform number by default.
+**3. QA of tags and pixels.** Automated browser journeys exercise real consent flows and record what actually fires, compared against the contract rather than against the tag manager's UI. What it replaced: spot checks that missed consent-blocked tags for weeks at a time.
 
-**4. Guidelines maintenance.** Living standards documents with named owners and review dates, checked automatically for drift. What it replaced: PDF guidelines nobody opened twice.
+**4. Evidence packs.** Every QA run produces the same auditable artifact set — journey, diff, screenshots — per release, generated rather than hand-assembled. What it replaced: per-market improvisation and screenshots-as-truth.
 
-**5. Rollout packs.** One governance change produces the same deployable, auditable artifact set for every market. What it replaced: per-market improvisation.
+**5. Reporting reconciliation.** Platform-reported conversions versus backend truth, with the gap measured, explained, and filed rather than argued about. What it replaced: trusting the platform number by default and discovering the gap in a client meeting.
 
-**6. Product and commercial scoping.** Messy calls and decks become structured PRDs and scoped decisions with explicit open questions. What it replaced: the "we'll figure it out during the build" meeting.
+**6. Knowledge retrieval.** Answers to "how did we do this before?" arrive with citations to the repo of past work rather than with confident guesses. What it replaced: the tribal memory of whoever happened to be in the room two years ago.
 
-**7. Workshops and calls into operating assets.** A call ends with an artifact, not just minutes. What it replaced: recordings nobody rewatched.
+**7. Status and handoffs.** A project's state — what shipped, what is open, who owes what — is a generated artifact, not a memory. What it replaced: the Friday status update that quietly omitted the risky item.
 
-## A rollout end to end
+A worked sequence, anonymised: a mid-size martech agency inherited three client accounts with three inconsistent GA4 conventions and no shared contract. Week one, the existing property vocabulary was extracted into a single contract document — events, parameters, consent posture, named owner per property. Week two, an agent was pointed at the contract and produced proposed tag changes per property as reviewable diffs; a human approved each one. Week three, browser-real QA ran each consent path and produced evidence packs; two consent-blocked tags that had been silently under-counting surfaced in the process. Week four, reporting was rebuilt on reconciled platform-plus-backend numbers, with the measured gap documented per client. The total elapsed time was roughly six weeks for what had been quoted as a quarter of consultant time — and, more importantly, the estate was left in a state where the next change takes hours rather than weeks.
 
-## When platform and backend disagree
+## What the automation actually does, mechanically
 
-## What the human still does
+The mechanical picture matters because "agentic" gets used loosely. Each workflow splits into two halves:
 
-Approve contracts. Decide which discrepancies matter. Sign off anything client-facing. The workflows remove retrieval, checking, and formatting labour; they do not remove judgment. That is the design, not a limitation.
+- **Agentic context work.** Reading a transcript, extracting structure, drafting a diff, producing a scoped document. This is where a model earns its cost — it converts unenumerated input into enumerated output. It is also where failure is most likely, because a model can produce a plausible structure for input that was never actually coherent. That is why each agentic stage ends in a human gate, not a suggestion.
+- **Deterministic checking and formatting.** Comparing a tag's actual firing against the contract, measuring the platform-versus-backend gap, packaging the evidence. These are scripts, not agents. Same input, same output, every run. They are reliable precisely because they require no interpretation, and they are the reason the agentic output can be trusted at all — the agent proposes, the deterministic layer verifies, the human decides.
 
-## Where to go next
+The distinction is practical, not pedantic. Teams that try to make the checking layer "smarter" end up with unverifiable pipelines; teams that try to make the agentic layer do the checking end up trusting a model's self-report. Keeping the two halves separate is what makes the whole loop auditable.
 
-- [Agentic web analytics implementation](/blog/agentic-web-analytics-implementation) — the deepest of the seven, end to end
-- [Proof, not prompts](/blog/proof-not-prompts) — the delivery standard behind all seven
+## Evidence and its limits
 
+The value above is real but bounded. What can be claimed directly: all seven workflows have run in live agency contexts, client names removed. What can be claimed with confidence but not precision: the six-week sequence replaced work previously scoped at a quarter, and the recurring tax and QA workflows removed retrieval and checking labour that previously consumed specialist hours weekly. What cannot be claimed, honestly: a controlled before-and-after on the same estate, per-workflow hour savings, or a generalisation to any agency type. The worked sequence involved one agency, one measurement stack (GA4 and GTM across three properties), and one team that already had an engineering-minded operator in the loop. An agency without that operator would need to hire or contract one before any of this transfers.
+
+Two further limitations deserve plain language. First, the QA layer only verifies what the contract says to verify — a tag that fires correctly but measures the wrong thing passes QA cleanly. The contract is where correctness actually lives, and contracts are only as good as the person who wrote them. Second, evidence packs prove what happened on the run, not what happens continuously; they are a point-in-time audit, not a monitoring guarantee.
+
+## Where the machine must stop
+
+The three gates in the figure are not decorative:
+
+**Scope approval.** The gate between a brief and real work. An agent can draft a scope; it cannot decide that a client's request is the wrong request, or that a two-week build is worth a quarter of a relationship. This is a commercial judgment with an internal consistency check at best.
+
+**Discrepancy judgement.** When platform and backend disagree, the machine can measure the gap precisely. Which gap matters, which explanation the client needs, and whether the honest answer is "we do not know yet" — these are judgment calls, and automating them produces confident reports from uncertain foundations.
+
+**Client sign-off.** Anything client-facing keeps a human name on it. This is not sentiment; it is the design. A pipeline that "signs off" removes exactly the accountability an agency is paid to provide.
+
+Inside the gates, the machine path is real: tags built and versioned, journeys run and recorded, evidence packaged, statuses compiled. The loop's dashed return matters as much as the forward path — QA failures and reconciliation gaps route back to the contract, not to a workaround. That single routing decision is what separates a governed operation from an accumulating one.
+
+## Failures observed
+
+Three failure modes recur, and the figure marks each:
+
+- **The tidy answer.** An agent produces a clean, structured output for input that was never actually coherent. It reads as competence and is actually plausible fiction. The gate is not paranoia — it is the only reliable filter.
+- **The skipped QA.** Because the tag "looked fine" in the tag manager, the browser journey gets deferred. The under-counting then surfaces in a client meeting months later. QA is the stage that pays for itself precisely when it is least convenient to run.
+- **The screenshot ritual.** Evidence packs degrade into screenshots collected after the fact, proving what the pipeline was supposed to prove automatically. The artifact survives; the verification does not.
+
+Each failure has the same shape: the machine is asked to perform a stage that was actually a judgment in disguise. The fix is not better prompting. It is moving the judgment back into a gate and letting the machine do only what is checkable.
+
+## Governance that is honest instead of ceremonial
+
+Governance in agency operations usually means a PDF nobody opens twice. The workflows here make governance a byproduct rather than a document: the contract is versioned, the diffs are reviewable, the QA journeys are recorded, the evidence packs are generated, and the reconciliation gap is measured rather than asserted. Review becomes a diff review, same as code. Nobody has to trust an unverifiable claim that "the tags are set up right" — they can read the run.
+
+The human gates are part of the governance, not an exception to it. Scope approval, discrepancy judgement, and client sign-off are recorded decisions with a name attached, not vibes. When something goes wrong later, the question "who decided this?" has an answer.
+
+## Where this fits
+
+For an agency or an in-house team running measurement across multiple clients or markets, the practical entry point is not all seven at once. Taxonomy governance plus tag QA is the highest-leverage pair — it produces the contract and the evidence loop everything else depends on. Reporting reconciliation follows naturally once the contract exists. Briefing, retrieval, and handoffs are useful but lower-stakes; they can come last without weakening the system. The [agentic web analytics implementation article](/blog/agentic-web-analytics-implementation) covers the deepest of the seven end to end; [proof, not prompts](/blog/proof-not-prompts) is the delivery standard the whole loop feeds.
+
+What this article claims, finally, is modest and load-bearing: the checking and retrieval labour is now cheap, the accountability is not, and the agencies that thrive will be the ones that design around that asymmetry rather than pretending it away.
