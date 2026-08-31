@@ -36,25 +36,25 @@ export const currentSolutions: PortfolioProject[] = [
     detailLinks: [{ label: "Mac operations centre", href: "/blog/your-mac-as-an-ai-operations-centre" }],
   },
   {
-    slug: "coding-agent-observatory",
-    title: "Coding Agent Observatory",
+    slug: "agent-routing-and-lifecycle-system",
+    title: "Agent Routing and Lifecycle System",
     category: "AI & Agent Systems",
-    tagline: "Token, cost, latency and session telemetry across every coding agent I run.",
+    tagline: "Role-aware routing from the cheap workhorse to frontier help, with A2A as a discovery capability.",
     summary:
-      "The observatory normalises Codex, Claude Code, Hermes, OMP, OpenClaw and OpenCode session stores, deduplicates cumulative provider totals, and publishes both a public privacy-safe summary and a private full-detail Grafana room. Unknown values stay unknown instead of becoming zero.",
+      "A thin routing layer decides which model and which agent handle each request: GLM-5.3-Flash as the workhorse, frontier models for genuinely hard work, and A2A endpoints so agents can discover each other without custom plumbing.",
     howItWorks:
-      "Python exporters read local session JSONL and SQLite, reconcile cumulative counters by provider and session, push metrics to local Prometheus and a private VictoriaMetrics deployment, and publish a small allowlisted rolling summary to Vercel Blob.",
-    imagePath: "/images/solutions/coding-agent-observatory.svg",
-    imageAlt: "Diagram of the coding agent observatory telemetry path from local session stores to public and private views.",
-    liveUrl: "https://tokenmaxxing.rajeevg.com",
-    lastUpdated: "2026-08-28",
-    tech: ["Python", "OpenTelemetry", "Prometheus", "VictoriaMetrics", "Grafana", "Vercel Blob"],
+      "Codex stays the primary operator, OpenCode handles fast execution, and a bounded escalation rule moves genuinely hard work to frontier models. A2A agent cards and JSON-RPC complete the discovery path between loopback agents.",
+    imagePath: "/images/solutions/agent-routing-and-lifecycle-system.svg",
+    imageAlt: "Diagram of the agent routing lifecycle showing role-aware models and A2A discovery.",
+    liveUrl: "/blog/why-agent-systems-become-slow-expensive-and-fragile",
+    lastUpdated: "2026-08-29",
+    tech: ["Codex", "OpenCode", "A2A", "OpenRouter", "GLM-5.3-Flash", "loopback"],
     repoVisibility: "PRIVATE",
-    inclusionReason: "Public dashboard backed by measured session telemetry; private control room handles full detail.",
+    inclusionReason: "Daily routing system, with a public A2A mesh write-up.",
     detailLinks: [
-      { label: "Private control room", href: "/blog/how-i-built-one-control-room-for-six-ai-agents" },
-      { label: "How the public feed works", href: "/blog/why-i-made-my-agent-token-usage-public" },
-      { label: "Cost routing article", href: "/blog/one-door-for-every-token" },
+      { label: "Multi-agent journey", href: "/blog/the-multi-agent-journey-what-survived-contact-with-reality" },
+      { label: "A2A mesh write-up", href: "/blog/how-i-got-four-ai-agents-talking-to-each-other" },
+      { label: "Routing benchmark", href: "/blog/i-made-glm-5-3-flash-faster-but-kept-cheap-routing" },
     ],
   },
   {
@@ -76,28 +76,6 @@ export const currentSolutions: PortfolioProject[] = [
     detailLinks: [
       { label: "Agentic data collection", href: "/blog/agentic-data-collection-and-warehousing" },
       { label: "Measurement reality", href: "/blog/why-browser-consent-and-source-blending-make-marketing-measurement-harder" },
-    ],
-  },
-  {
-    slug: "agent-routing-and-lifecycle-system",
-    title: "Agent Routing and Lifecycle System",
-    category: "AI & Agent Systems",
-    tagline: "Role-aware routing from the cheap workhorse to frontier help, with A2A as a discovery capability.",
-    summary:
-      "A thin routing layer decides which model and which agent handle each request: GLM-5.3-Flash as the workhorse, frontier models for genuinely hard work, and A2A endpoints so agents can discover each other without custom plumbing.",
-    howItWorks:
-      "Codex stays the primary operator, OpenCode handles fast execution, and a bounded escalation rule moves genuinely hard work to frontier models. A2A agent cards and JSON-RPC complete the discovery path between loopback agents.",
-    imagePath: "/images/solutions/agent-routing-and-lifecycle-system.svg",
-    imageAlt: "Diagram of the agent routing lifecycle showing role-aware models and A2A discovery.",
-    liveUrl: "/blog/why-agent-systems-become-slow-expensive-and-fragile",
-    lastUpdated: "2026-08-29",
-    tech: ["Codex", "OpenCode", "A2A", "OpenRouter", "GLM-5.3-Flash", "loopback"],
-    repoVisibility: "PRIVATE",
-    inclusionReason: "Daily routing system, with a public A2A mesh write-up.",
-    detailLinks: [
-      { label: "Multi-agent journey", href: "/blog/the-multi-agent-journey-what-survived-contact-with-reality" },
-      { label: "A2A mesh write-up", href: "/blog/how-i-got-four-ai-agents-talking-to-each-other" },
-      { label: "Routing benchmark", href: "/blog/i-made-glm-5-3-flash-faster-but-kept-cheap-routing" },
     ],
   },
   {
@@ -138,6 +116,28 @@ export const currentSolutions: PortfolioProject[] = [
     inclusionReason: "Operational workflow used for client-side scoping, described anonymised in the agency article.",
     detailLinks: [
       { label: "Knowledge systems article", href: "/blog/building-maintainable-knowledge-systems" },
+    ],
+  },
+  {
+    slug: "coding-agent-observatory",
+    title: "Coding Agent Observatory",
+    category: "AI & Agent Systems",
+    tagline: "Token, cost, latency and session telemetry across every coding agent I run.",
+    summary:
+      "The observatory normalises Codex, Claude Code, Hermes, OMP, OpenClaw and OpenCode session stores, deduplicates cumulative provider totals, and publishes both a public privacy-safe summary and a private full-detail Grafana room. Unknown values stay unknown instead of becoming zero.",
+    howItWorks:
+      "Python exporters read local session JSONL and SQLite, reconcile cumulative counters by provider and session, push metrics to local Prometheus and a private VictoriaMetrics deployment, and publish a small allowlisted rolling summary to Vercel Blob.",
+    imagePath: "/images/solutions/coding-agent-observatory.svg",
+    imageAlt: "Diagram of the coding agent observatory telemetry path from local session stores to public and private views.",
+    liveUrl: "https://tokenmaxxing.rajeevg.com",
+    lastUpdated: "2026-08-28",
+    tech: ["Python", "OpenTelemetry", "Prometheus", "VictoriaMetrics", "Grafana", "Vercel Blob"],
+    repoVisibility: "PRIVATE",
+    inclusionReason: "Public dashboard backed by measured session telemetry; private control room handles full detail.",
+    detailLinks: [
+      { label: "Private control room", href: "/blog/how-i-built-one-control-room-for-six-ai-agents" },
+      { label: "How the public feed works", href: "/blog/why-i-made-my-agent-token-usage-public" },
+      { label: "Cost routing article", href: "/blog/one-door-for-every-token" },
     ],
   },
   {
@@ -447,11 +447,11 @@ export function getPortfolioProject(slug: string) {
 
 const publicProjectOrder = [
   "agent-operations-control-plane",
-  "coding-agent-observatory",
-  "global-measurement-governance-system",
   "agent-routing-and-lifecycle-system",
+  "global-measurement-governance-system",
   "media-qa-attribution-toolkit",
   "ai-assisted-product-definition-system",
+  "coding-agent-observatory",
   "model-routing-performance-lab",
   "local-llm-lab",
   "open-gtm-index",

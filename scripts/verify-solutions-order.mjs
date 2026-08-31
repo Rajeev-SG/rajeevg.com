@@ -7,7 +7,7 @@ const fail = (msg) => {
   process.exitCode = 1
 }
 
-function blockSlugs(name) {
+function blockEntries(name) {
   const start = src.indexOf(`export const ${name}`)
   if (start === -1) {
     fail(`missing export ${name}`)
@@ -15,11 +15,14 @@ function blockSlugs(name) {
   }
   const nextExport = src.indexOf("export ", start + 1)
   const block = src.slice(start, nextExport === -1 ? src.length : nextExport)
-  return [...block.matchAll(/slug: "([^"]+)"/g)].map((m) => m[1])
+  return [...block.matchAll(/slug: "([^"]+)"[\s\S]*?lastUpdated: "([^"]+)"/g)]
+    .map((m) => ({ slug: m[1], lastUpdated: m[2] }))
 }
 
-const current = blockSlugs("currentSolutions")
-const earlier = blockSlugs("earlierPortfolioProjects")
+const currentEntries = blockEntries("currentSolutions")
+const earlierEntries = blockEntries("earlierPortfolioProjects")
+const current = currentEntries.map((e) => e.slug)
+const earlier = earlierEntries.map((e) => e.slug)
 
 const all = [...current, ...earlier]
 const dupes = all.filter((slug, i) => all.indexOf(slug) !== i)
@@ -27,11 +30,11 @@ if (dupes.length > 0) fail(`duplicate slugs: ${[...new Set(dupes)].join(", ")}`)
 
 const publicProjectOrder = [
   "agent-operations-control-plane",
-  "coding-agent-observatory",
-  "global-measurement-governance-system",
   "agent-routing-and-lifecycle-system",
+  "global-measurement-governance-system",
   "media-qa-attribution-toolkit",
   "ai-assisted-product-definition-system",
+  "coding-agent-observatory",
   "model-routing-performance-lab",
   "local-llm-lab",
   "open-gtm-index",
@@ -62,6 +65,14 @@ if (current.join(",") !== publicProjectOrder.join(","))
 
 if (earlier.join(",") !== expectedEarlier.join(","))
   fail(`earlierPortfolioProjects slugs mismatch:\n  got:      ${earlier.join(", ")}\n  expected: ${expectedEarlier.join(", ")}`)
+
+let prevDate = null
+for (const e of currentEntries) {
+  const d = new Date(e.lastUpdated).getTime()
+  if (Number.isNaN(d)) fail(`invalid lastUpdated for ${e.slug}: ${e.lastUpdated}`)
+  if (prevDate !== null && d > prevDate) fail(`recency order violated: ${e.slug} (${e.lastUpdated}) is newer than the previous entry`)
+  prevDate = d
+}
 
 for (const m of src.matchAll(/liveUrl: "([^"]+)"[\s\S]*?detailLinks: \[([\s\S]*?)\]\s*,?\n\s*\}/g)) {
   const [, liveUrl, links] = m
