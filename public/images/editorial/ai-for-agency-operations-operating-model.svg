@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="20 400 1910 535" role="img" aria-labelledby="t d">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="20 200 1910 735" role="img" aria-labelledby="t d">
 <title id="t">Agency delivery operating loop</title><desc id="d">Left-to-right delivery loop with three human gates and a dashed QA return path.</desc>
 <defs><marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M 0 0 L 9 5 L 0 10 z" fill="#566174"/></marker></defs>
-<rect x="20" y="400" width="1910" height="535" fill="#fbfaf5"/>
+<rect x="20" y="200" width="1910" height="735" fill="#fbfaf5"/>
 <rect x="60" y="356" width="170" height="88" rx="14" fill="#f2f0ea" stroke="#566174" stroke-width="2" />
 <text x="145.0" y="415" font-size="15" text-anchor="middle" fill="#172033" font-family="Georgia, serif">Brief</text>
 <rect x="290" y="345" width="220" height="110" rx="14" fill="#fff0c9" stroke="#a97921" stroke-width="3" />
