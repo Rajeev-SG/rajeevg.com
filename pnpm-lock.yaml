@@ -190,7 +190,7 @@ importers:
         specifier: ^0.5.16
         version: 0.5.19(tailwindcss@4.2.2)
       '@types/node':
-        specifier: ^20
+        specifier: 20.19.37
         version: 20.19.37
       '@types/pg':
         specifier: ^8.20.0
@@ -220,7 +220,7 @@ importers:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@4.2.2)
       typescript:
-        specifier: ^5
+        specifier: 5.9.3
         version: 5.9.3
 
 packages:
