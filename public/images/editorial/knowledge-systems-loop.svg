@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 760" role="img" aria-labelledby="ksT ksD">
+<title id="ksT">Knowledge systems lifecycle</title>
+<desc id="ksD">Excalidraw-style lifecycle: changed sources flow through extraction into a dominant governed markdown layer; the layer branches into a conflict diamond that holds two disagreeing sources for human resolution, and a dashed scheduled-refresh loop returns lapsed review dates back into extraction; traceable answers flow out. Solid arrows are the query path; dashed purple is maintenance; dashed red is conflict resolution.</desc>
+<defs><marker id="aS" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L9,3 L0,6 Z" fill="#172033"/></marker><marker id="aP" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L9,3 L0,6 Z" fill="#6d28d9"/></marker><marker id="aR" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L9,3 L0,6 Z" fill="#b91c1c"/></marker></defs>
+<style>.bx{stroke-width:3;rx:12}.t1{font-family:Cascadia,Segoe UI,sans-serif;font-size:22px;font-weight:700;fill:#172033}.t2{font-family:Cascadia,Segoe UI,sans-serif;font-size:14px;fill:#475569}.t3{font-family:Cascadia,Segoe UI,sans-serif;font-size:13px;fill:#64748b}</style>
+<rect width="1280" height="760" fill="#fbfaf5"/>
+<rect x="56" y="150" width="218" height="92" rx="12" fill="#fff4e0" stroke="#b45309" stroke-width="3"/>
+<rect x="400" y="150" width="218" height="92" rx="12" fill="#e7f0ff" stroke="#4f6fad" stroke-width="3"/>
+<rect x="744" y="118" width="320" height="156" rx="12" fill="#dcf5ea" stroke="#0d7a55" stroke-width="4"/>
+<rect x="84" y="560" width="248" height="96" rx="12" fill="#e7f0ff" stroke="#4f6fad" stroke-width="3"/>
+<rect x="560" y="560" width="240" height="96" rx="12" fill="transparent" stroke="#6d28d9" stroke-width="2" stroke-dasharray="7 5"/>
+<polygon points="1144,372 1244.0,424 1144,476 1044.0,424" fill="#fff1f2" stroke="#b91c1c" stroke-width="3"/>
+<text x="56" y="40" class="t1" style="font-size:30px">The knowledge systems loop</text>
+<text x="56" y="86" class="t2">Two closing paths make it durable</text>
+<text x="74" y="178" class="t1" style="font-size:18px">Changed sources</text>
+<text x="74" y="204" class="t2">files · email · decks</text>
+<text x="74" y="224" class="t2">review debt surfaces</text>
+<text x="418" y="178" class="t1" style="font-size:18px">Extraction</text>
+<text x="418" y="204" class="t2">entities · dates</text>
+<text x="418" y="224" class="t2">provenance attached</text>
+<text x="764" y="148" class="t1" style="font-size:22px">Governed markdown</text>
+<text x="764" y="178" class="t2">one version per fact</text>
+<text x="764" y="198" class="t2">named owner · review date</text>
+<text x="764" y="218" class="t2">the only queryable truth</text>
+<text x="764" y="238" class="t2">indexed by qmd</text>
+<text x="1082" y="412" class="t1" style="font-size:18px;fill:#b91c1c">Conflict?</text>
+<text x="1102" y="436" class="t2">two sources</text>
+<text x="1102" y="454" class="t2">human decides</text>
+<text x="102" y="588" class="t1" style="font-size:18px">Traceable answers</text>
+<text x="102" y="614" class="t2">file · date · provenance</text>
+<text x="102" y="634" class="t2">auditable after the fact</text>
+<text x="578" y="588" class="t1" style="font-size:18px;fill:#6d28d9">Scheduled refresh</text>
+<text x="578" y="614" class="t2">weekly scan</text>
+<text x="578" y="634" class="t2">lapsed dates queue re-entry</text>
+<text x="56" y="730" class="t3">Evidence date: 31 Aug 2026 · rajeevg.com rig; business flows anonymised</text>
+<text x="56" y="750" class="t3">Solid = query path · dashed purple = maintenance loop · dashed red = conflict resolution</text>
+<path d="M 276,196 L 398,196" fill="none" stroke="#172033" stroke-width="3" marker-end="url(#aS)"/>
+<path d="M 620,196 L 742,196" fill="none" stroke="#172033" stroke-width="3" marker-end="url(#aS)"/>
+<path d="M 1066,196 L 1096,196 L 1096,240 L 1144,240 L 1144,372" fill="none" stroke="#172033" stroke-width="3" marker-end="url(#aS)"/>
+<path d="M 886,276 L 886,610 L 340,610" fill="none" stroke="#172033" stroke-width="3" marker-end="url(#aS)"/>
+<path d="M 558,596 L 340,596 L 340,290 L 400,244" fill="none" stroke="#6d28d9" stroke-width="3" stroke-dasharray="7 5" marker-end="url(#aP)"/>
+<path d="M 1000,430 L 1064,320" fill="none" stroke="#b91c1c" stroke-width="3" stroke-dasharray="6 5" marker-end="url(#aR)"/>
+</svg>
