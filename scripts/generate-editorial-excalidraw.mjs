@@ -50,22 +50,25 @@ const diagrams = [
   // Agent or code — real decision tree
   {
     slug: "agent-or-code-tree",
+    canvasW: 1240,
     title: "Agent, or normal code? Work the tree honestly",
     subtitle: "Five questions, in order. Most tasks resolve to code before the third.",
     date: "2026-08-31",
     type: "tree",
     nodes: [
-      { id: "q1", x: 420, y: 100, w: 300, h: 100, label: "1 · Is the input ambiguous?", lines: ["input varies in ways rules", "cannot enumerate?"], fill: "blue" },
-      { id: "q4", x: 900, y: 100, w: 280, h: 100, label: "4 · Is it real work?", lines: ["exploration → answer by hand,", "before spending any build"], fill: "rose" },
-      { id: "q2", x: 50, y: 300, w: 270, h: 100, label: "2 · Does the work repeat?", lines: ["same input → same output,", "every time?"], fill: "purple" },
-      { id: "q3", x: 500, y: 300, w: 280, h: 100, label: "3 · What does failure cost?", lines: ["who notices, how fast,", "what breaks downstream?"], fill: "amber" },
-      { id: "q5", x: 880, y: 300, w: 280, h: 100, label: "5 · Who must audit it?", lines: ["traceable after the fact?", "→ full provenance or no agent"], fill: "blue" },
-      { id: "code1", x: 40, y: 500, w: 250, h: 96, label: "NORMAL CODE / WORKFLOW", lines: ["deterministic · cheap · auditable", "failures are bugs, not surprises"], fill: "green" },
-      { id: "agent1", x: 350, y: 500, w: 280, h: 96, label: "AGENT — SCOPED + LOGGED", lines: ["cheap failure tolerates variance", "acceptance check after every run"], fill: "amber" },
-      { id: "guard", x: 700, y: 500, w: 270, h: 96, label: "CODE + GUARDRAILS + GATE", lines: ["expensive failure needs", "deterministic paths"], fill: "green" },
+      { id: "q1", x: 500, y: 100, w: 300, h: 80, label: "1 · Is the input ambiguous?", lines: ["input varies in ways rules cannot enumerate?"], fill: "blue" },
+      { id: "q2", x: 60, y: 250, w: 250, h: 80, label: "2 · Does it repeat?", lines: ["same input, same output, every run?"], fill: "purple" },
+      { id: "q3", x: 830, y: 250, w: 250, h: 80, label: "3 · What does failure cost?", lines: ["who notices, how fast, what breaks?"], fill: "amber" },
+      { id: "q4", x: 520, y: 400, w: 260, h: 80, label: "4 · Is it real, repeating work?", lines: ["worth a build, not a one-off?"], fill: "rose" },
+      { id: "q5", x: 860, y: 400, w: 260, h: 80, label: "5 · Independently verifiable?", lines: ["deterministic check or audit trail?"], fill: "blue" },
+      { id: "code1", x: 40, y: 550, w: 225, h: 110, label: "NORMAL CODE", lines: ["deterministic · cheap · auditable", "failures are bugs, not surprises"], fill: "green" },
+      { id: "human1", x: 280, y: 550, w: 235, h: 110, label: "HUMAN ONE-OFF", lines: ["do not build — answer by hand,", "once, with no automation"], fill: "amber" },
+      { id: "agent1", x: 545, y: 550, w: 230, h: 110, label: "LOGGED AGENT", lines: ["bounded tools · acceptance check", "after every run"], fill: "amber" },
+      { id: "guard", x: 805, y: 550, w: 230, h: 110, label: "CODE + GATE", lines: ["agent may assist, code decides,", "human approves before it ships"], fill: "green" },
+      { id: "human2", x: 1075, y: 550, w: 135, h: 110, label: "HUMAN CALL", lines: ["agent assists only", "— no autonomy"], fill: "rose" },
     ],
-    edges: [["q1","q2","no"],["q1","q4","yes"],["q4","q3","real work"],["q1","q5","cheap or novel"],["q2","code1","yes"],["q3","agent1","cheap failure"],["q3","guard","expensive failure"]],
-    footer: "Five questions in order · the honest answer is usually code, with an agent at the edges · Evidence date: 31 Aug 2026",
+    edges: [["q1","q2","no"],["q1","q3","yes"],["q2","code1","yes"],["q2","human1","no"],["q3","q4","cheap"],["q3","q5","expensive"],["q4","agent1","yes"],["q4","human1","no"],["q5","guard","yes"],["q5","human2","no"]],
+    footer: "Five questions in order · every question resolves to a destination · the honest answer is usually code, with an agent at the edges · Evidence date: 31 Aug 2026",
   },
   // Proof loop — circular, not linear
   {
@@ -177,20 +180,21 @@ function buildSvg(d){
   const body = (()=>{
     if(d.type==="timeline") return d.phases.map((p,i)=>`<line x1="120" y1="170" x2="140" y2="590" stroke="${palette.muted}" stroke-width="3"/>` ).slice(0,1).join("") + d.phases.map(p=>`<circle cx="120" cy="${p.y}" r="18" fill="${palette[p.fill]}" stroke="${palette[p.fill+"Stroke"]}" stroke-width="3"/><text x="180" y="${p.y-8}" font-size="18" font-weight="700" fill="${palette.ink}" font-family="Comic Sans MS, cursive">${esc(p.label)}</text><text x="180" y="${p.y+16}" font-size="14" fill="${palette.muted}" font-family="Comic Sans MS, cursive">${esc(p.detail)}</text><text x="760" y="${p.y}" font-size="14" font-weight="700" fill="${palette[p.fill+"Stroke"]}" font-family="Comic Sans MS, cursive">${esc(p.verdict)}</text>`).join("") + `<line x1="120" y1="170" x2="120" y2="560" stroke="${palette.muted}" stroke-width="3"/>`
     if(d.type==="waterfall") return d.steps.map((s,i)=>{const x=100+i*280,w=250;return `<rect x="${x}" y="${s.y}" width="${w}" height="${490-s.y}" rx="10" fill="${palette[s.fill]}" stroke="${palette[s.fill+"Stroke"]}" stroke-width="3"/><text x="${x+16}" y="${s.y+28}" font-size="16" font-weight="700" fill="${palette.ink}" font-family="Comic Sans MS, cursive">${esc(s.label)}</text><text x="${x+w/2-24}" y="${s.y+62}" font-size="26" font-weight="700" fill="${palette[s.fill+"Stroke"]}" font-family="Comic Sans MS, cursive">${esc(s.cost)}</text><text x="${x+16}" y="${s.y+104}" font-size="13" fill="${palette.muted}" font-family="Comic Sans MS, cursive">${esc(s.detail)}</text>`}).join("")
-    if(d.type==="tree") return d.edges.map(([a,b,lab])=>{const na=d.nodes.find(n=>n.id===a),nb=d.nodes.find(n=>n.id===b);const x1=na.x+na.w/2,y1=na.y+na.h,x2=nb.x+nb.w/2,y2=nb.y;return `<path d="M ${x1} ${y1} C ${x1} ${(y1+y2)/2}, ${x2} ${(y1+y2)/2}, ${x2} ${y2}" fill="none" stroke="${palette.muted}" stroke-width="2.5" marker-end="url(#arrowEnd)"/><text x="${(x1+x2)/2-30}" y="${(y1+y2)/2-8}" font-size="13" fill="${palette.muted}" font-family="Comic Sans MS, cursive">${esc(lab)}</text>`}).join("") + d.nodes.map(n=>{const h=Math.max(n.h, 44+n.lines.length*22);return `<rect x="${n.x}" y="${n.y}" width="${n.w}" height="${h}" rx="14" fill="${palette[n.fill]||"#fff"}" stroke="${palette[(n.fill||"blue")+"Stroke"]}" stroke-width="3"/><text x="${n.x+16}" y="${n.y+28}" font-size="16" font-weight="700" fill="${palette.ink}" font-family="Comic Sans MS, cursive">${esc(n.label)}</text>${n.lines.map((l,i)=>`<text x="${n.x+16}" y="${n.y+52+i*22}" font-size="13" fill="${palette.muted}" font-family="Comic Sans MS, cursive">${esc(l)}</text>`).join("")}`}).join("")
+    if(d.type==="tree") return d.edges.map(([a,b,lab])=>{const na=d.nodes.find(n=>n.id===a),nb=d.nodes.find(n=>n.id===b);const x1=na.x+na.w/2,y1=na.y+na.h,x2=nb.x+nb.w/2,y2=nb.y;return `<path d="M ${x1} ${y1} C ${x1} ${(y1+y2)/2}, ${x2} ${(y1+y2)/2}, ${x2} ${y2}" fill="none" stroke="${palette.muted}" stroke-width="2.5" marker-end="url(#arrowEnd)"/><text x="${x2+(x2<x1?-72:12)}" y="${(y1+y2)/2+4}" font-size="13" fill="${palette.muted}" font-family="Comic Sans MS, cursive">${esc(lab)}</text>`}).join("") + d.nodes.map(n=>{const h=Math.max(n.h, 44+n.lines.length*22);return `<rect x="${n.x}" y="${n.y}" width="${n.w}" height="${h}" rx="14" fill="${palette[n.fill]||"#fff"}" stroke="${palette[(n.fill||"blue")+"Stroke"]}" stroke-width="3"/><text x="${n.x+16}" y="${n.y+28}" font-size="16" font-weight="700" fill="${palette.ink}" font-family="Comic Sans MS, cursive">${esc(n.label)}</text>${n.lines.map((l,i)=>`<text x="${n.x+16}" y="${n.y+52+i*22}" font-size="13" fill="${palette.muted}" font-family="Comic Sans MS, cursive">${esc(l)}</text>`).join("")}`}).join("")
     if(d.type==="loop") return `<ellipse cx="650" cy="350" rx="350" ry="170" fill="none" stroke="${palette.muted}" stroke-width="2" stroke-dasharray="10 9"/>` + d.stages.map(s=>`<rect x="${s.x}" y="${s.y}" width="260" height="120" rx="14" fill="${palette[s.fill]}" stroke="${palette[s.fill+"Stroke"]}" stroke-width="3"/><text x="${s.x+18}" y="${s.y+32}" font-size="18" font-weight="700" fill="${palette.ink}" font-family="Comic Sans MS, cursive">${esc(s.label)}</text><text x="${s.x+18}" y="${s.y+64}" font-size="14" fill="${palette.muted}" font-family="Comic Sans MS, cursive">${esc(s.detail)}</text>`).join("")
     if(d.type==="grid") return d.groups.map((g,gi)=>{const gx=60+gi*420,gh=80+g.items.length*90;return `<rect x="${gx}" y="140" width="380" height="${gh}" rx="16" fill="${palette[g.fill]}" stroke="${palette[g.fill+"Stroke"]}" stroke-width="2" opacity=".5"/><text x="${gx+20}" y="170" font-size="17" font-weight="700" fill="${palette[g.fill+"Stroke"]}" font-family="Comic Sans MS, cursive">${esc(g.title)}</text>`+g.items.map((it,i)=>`<rect x="${gx+20}" y="${190+i*92}" width="340" height="80" rx="12" fill="#ffffff" stroke="${palette[g.fill+"Stroke"]}" stroke-width="2"/><text x="${gx+36}" y="${212+i*92}" font-size="15" font-weight="700" fill="${palette.ink}" font-family="Comic Sans MS, cursive">${esc(it[0])}</text><text x="${gx+36}" y="${238+i*92}" font-size="13" fill="${palette.muted}" font-family="Comic Sans MS, cursive">${esc(it[1])}</text>`).join("")}).join("")
     return ""
   })()
+  const canvasW = d.canvasW || 1280
   return `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="t d">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${canvasW} 720" role="img" aria-labelledby="t d">
 <title id="t">${esc(d.title)}</title><desc id="d">${esc(d.subtitle)}</desc>
 <defs><pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.1" fill="#e7e2d5"/></pattern><marker id="arrowEnd" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M 0 0 L 9 5 L 0 10 z" fill="${palette.muted}"/></marker></defs>
-<rect width="1280" height="720" fill="${palette.paper}"/><rect width="1280" height="720" fill="url(#dots)" opacity=".6"/>
+<rect width="${canvasW}" height="720" fill="${palette.paper}"/><rect width="${canvasW}" height="720" fill="url(#dots)" opacity=".6"/>
 <text x="48" y="52" font-size="28" font-weight="700" fill="${palette.ink}" font-family="Georgia, serif">${esc(d.title)}</text>
 <text x="48" y="84" font-size="16" fill="${palette.muted}" font-family="Georgia, serif">${esc(d.subtitle)}</text>
 ${body}
-<text x="640" y="700" text-anchor="middle" font-size="14" font-style="italic" fill="${palette.muted}" font-family="Georgia, serif">${esc(d.footer)}</text>
+<text x="${canvasW/2}" y="700" text-anchor="middle" font-size="14" font-style="italic" fill="${palette.muted}" font-family="Georgia, serif">${esc(d.footer)}</text>
 </svg>`
 }
 
