@@ -20,17 +20,17 @@ This rig runs exactly that setup today. Every port named below is real, every co
 The stack has four layers, and each one answers a different question.
 
 <figure className="not-prose my-10">
-  <div className="relative left-1/2 w-[min(96vw,86rem)] -translate-x-1/2 overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700">
+  <a href="/images/editorial/mac-ops-boundary-map.svg" target="_blank" rel="noopener" className="block rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700">
     <img
       src="/images/editorial/mac-ops-boundary-map.svg"
       alt="Four-zone reachability map: the Mac's launchd keepers, agent sessions and local listeners on loopback; OrbStack containers published to loopback only; the Tailscale mesh as the only credentialed path in for devices, SSH and ops boards; and the public surface holding Vercel and Telegram, where Telegram is reached by outbound long-poll and nothing public can dial into the Mac"
-      className="block min-w-[720px] w-full max-w-none sm:min-w-0"
+      className="block w-full h-auto"
     />
-  </div>
+  </a>
   <figcaption className="mx-auto mt-3 max-w-3xl text-center text-sm leading-6 text-slate-600 dark:text-slate-400">
-    <span className="block sm:hidden">Swipe sideways to inspect the full boundary. </span>
     What can reach what. Every listener is reachable only along the paths drawn: the Mac's own services, agent A2A endpoints on 127.0.0.1:8391–8394 and OrbStack containers all live inside the loopback zone; your devices, SSH and the ops boards reach them only through the Tailscale mesh with credentials; Vercel and Telegram face the internet, but Telegram is reached by an outbound connection the Mac itself opens. If a path is not drawn, it does not exist.{" "}
-    <a className="font-medium underline underline-offset-4" href="/downloads/mac-ops-boundary-map.drawio">Download the editable draw.io source</a>. <span className="text-xs">Evidence date: 31 August 2026.</span>
+    <a className="font-medium underline underline-offset-4" href="/images/editorial/mac-ops-boundary-map.svg">Open the full-size diagram</a>, or{" "}
+    <a className="font-medium underline underline-offset-4" href="/downloads/mac-ops-boundary-map.drawio">download the editable draw.io source</a>. <span className="text-xs">Evidence date: 31 August 2026.</span>
   </figcaption>
 </figure>
 
@@ -78,23 +78,6 @@ This is the practical payoff of the boundary: an incident finds you on your phon
 6. **You confirm recovery.** The telemetry — not the vibe — says the counter is moving again and the failure did not repeat.
 
 What the journey buys for a real operator: a client escalation at 11pm becomes a two-minute check instead of a night in front of a terminal, because the alarm, the board and the runbook are all reachable from the device in your pocket. The journey is the whole reason the boundary matters — it is what the perimeter is *for*.
-
-<figure className="not-prose my-10">
-  <div className="relative left-1/2 w-[min(96vw,86rem)] -translate-x-1/2 overflow-x-auto rounded-2xl border border-slate-200 bg-[#fbfaf5] shadow-sm dark:border-slate-700">
-    <img
-      src="/images/editorial/mac-ops-alarm-journey.svg"
-      alt="Six-stage hand-drawn journey of an alarm from firing to confirmed recovery, with each stage annotated with the named stall point that breaks it and the named bound that holds it together"
-      className="block min-w-[720px] w-full max-w-none sm:min-w-0"
-    />
-  </div>
-  <figcaption className="mx-auto mt-3 max-w-3xl text-center text-sm leading-6 text-slate-600 dark:text-slate-400">
-    <span className="block sm:hidden">Swipe sideways to read every stage. </span>
-    The alarm journey, and where it actually stalls. Every stage can break: alert fatigue, a sleeping Mac, a lost tailnet, a missing runbook, an agent that lost scope, or counters that look green while the cause persists. Each stall has a named bound — one human channel, launchd's restart, the loopback perimeter, a runbook written during the incident, the worktree and contract, and telemetry checked rather than vibes.{" "}
-    <a className="font-medium underline underline-offset-4" href="/downloads/mac-ops-alarm-journey.excalidraw">Download the editable Excalidraw source</a>. <span className="text-xs">Evidence date: 31 August 2026.</span>
-  </figcaption>
-</figure>
-
-What the figure adds that the numbered list cannot: the failure layer. The list narrates the happy path; the figure shows, at every stage, where this journey actually goes wrong and what holds it together when it does. That is the honest version of the journey, and it is the version worth knowing before you rely on it.
 
 ## When the boundary is wrong
 
