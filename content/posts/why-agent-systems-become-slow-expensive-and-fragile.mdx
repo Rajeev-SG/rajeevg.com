@@ -6,7 +6,7 @@ updated: 2026-08-31
 description: "The measured mechanisms behind agent bloat: context resends, oversight cost, cumulative failures, and the attribution traps that make dashboards lie about all of it."
 tags: [ai, agents, cost, observability, reliability, measurement]
 draft: false
-image: /images/editorial/agent-cost-waterfall.svg
+image: /images/editorial/agent-transcript-composition.svg
 ---
 
 <ArticleExplain term="Agent system">One or more language-model agents plus everything around them: the orchestration layers, tools, queues, and telemetry that turn a single task into a working system.</ArticleExplain>
@@ -68,13 +68,13 @@ It stands between two companion pieces. [The agent telemetry stack](/blog/the-ag
 
 Each of these has a fix, but the fix is different per mechanism, which is why one-size-fits-all "optimise the prompt" advice rarely helps.
 
-## A request through the cost machine
+## The biggest measured source of re-reading
 
-To make the mechanisms concrete, follow one request through the four layers I actually had running: the task itself, a planning layer, a review layer, and polling with retries. Each layer re-reads the context the previous layer already paid for, so the cumulative bill multiplies rather than adds.
+In the four-layer stack I actually ran, the task passed through planning, execution, review, and polling or retry logic. Per-call traces showed that these layers existed and repeatedly received earlier context. A separate audit of five heavy sessions measured what made that repeated context so costly: machine output occupied 60.5 percent of the heaviest transcript.
 
-<Figure src="/images/editorial/agent-cost-waterfall.svg" alt="Conceptual waterfall showing one request becoming four bills: actual work at one times, then planning, review, and polling layers stacking to four times the cost" caption="A conceptual explanation of cumulative rebilling: the actual work costs 1×, and each orchestration layer re-reads context and re-bills it. The orchestration layers themselves were observed in per-call traces; the exact 1×→4× staircase is conceptual, not a measured multiplier." slug="agent-cost-waterfall" date="29 August 2026" />
+<Figure src="/images/editorial/agent-transcript-composition.svg" alt="Horizontal bar chart showing machine output at 60.5 percent of the heaviest transcript and all other transcript content at 39.5 percent across five heavy sessions" caption="Measured transcript composition across five heavy sessions. The chart shows the part that repeated orchestration keeps carrying forward: machine output made up 60.5% of the heaviest transcript. It does not claim a universal cost multiplier." date="1 September 2026" />
 
-The orchestration layers in that waterfall were observed directly: the one-agent-two-models comparison ran the same tasks through both a direct path and the four-layer stack, with per-call traces on every model call. What the traces show is that those layers existed and that each re-read context and re-billed it. The exact 1×→4× staircase itself is a conceptual explanation of that cumulative rebilling, not a measured multiplier — the separate 551-session dataset shows the traffic shape that makes rebilling expensive, not a 4× result.
+That is the defensible finding: additional orchestration creates additional model calls, and those calls often re-read material already paid for. The evidence does **not** support a universal 1×→4× multiplier, so this article no longer illustrates or claims one.
 
 ## How the evidence was measured
 
