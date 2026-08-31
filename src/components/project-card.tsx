@@ -41,7 +41,7 @@ export function ProjectCard({ project, compact = false }: ProjectCardProps) {
             alt={project.imageAlt}
             fill
             sizes="(max-width: 768px) 100vw, 960px"
-            className={`${project.imagePath.endsWith(".svg") ? "object-contain p-3" : "object-cover object-top"} bg-white dark:bg-slate-900`}
+            className="object-contain p-3 bg-white dark:bg-slate-900"
             priority={false}
           />
           <div className="absolute inset-0 bg-linear-to-t from-background/22 via-background/4 to-transparent" />

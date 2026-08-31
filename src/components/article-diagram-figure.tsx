@@ -23,15 +23,22 @@ export function ArticleDiagramFigure({
 }: ArticleDiagramFigureProps) {
   return (
     <figure className={cn("my-10 overflow-hidden rounded-2xl border bg-card shadow-sm", className)}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={src}
-        alt={alt}
-        loading="lazy"
-        decoding="async"
-        className="w-full bg-background object-contain"
-      />
+      <div className="overflow-x-auto">
+        <div className="min-w-[720px] px-2 py-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={src}
+            alt={alt}
+            loading="lazy"
+            decoding="async"
+            className="mx-auto block w-full max-w-full bg-background object-contain"
+          />
+        </div>
+      </div>
       <figcaption className="border-t bg-card px-4 py-3 text-sm leading-6 text-muted-foreground">
+        <span className="block sm:hidden text-xs font-medium text-foreground/70">
+          Swipe to see the full diagram.
+        </span>
         {caption}
         {date ? <span className="text-xs"> Evidence date: {date}.</span> : null}
         {editableHref ? (
