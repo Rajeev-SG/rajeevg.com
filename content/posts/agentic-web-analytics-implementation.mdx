@@ -2,42 +2,82 @@
 title: Agentic web analytics implementation
 slug: agentic-web-analytics-implementation
 date: 2026-08-29
-description: How web analytics implementation — consent, GA4, GTM setup, QA, reporting, reconciliation — can be substantially automated while humans keep governance. Marketer-first, proof-backed.
+description: How web analytics implementation — requirements, tagging plans, GTM and GA4 configuration, QA, governance and reporting — can now be substantially automated by agents, and exactly where humans keep control. Marketer-first, proof-backed.
 tags: [analytics, ga4, gtm, consent, qa, reporting, agentic]
 draft: false
 image: /images/editorial/agentic-analytics-loop.png
 ---
 
-Web analytics implementation has a reputation problem: it is either slow and expensive (agency-led) or quietly broken (self-serve). Agentic implementation changes the economics where it matters most — the QA stage that used to get skipped becomes the stage that always runs — while governance stays explicitly human. This article shows the whole loop — plan, implement, QA, report, reconcile — and what the human still owns.
+Web analytics implementation has an economics problem. The traditional paths are either an agency project with a six-figure quote and a three-month timeline, or a self-serve install where a snippet is pasted in an afternoon and nobody ever proves it works. Agentic implementation changes the economics of exactly the parts that made both paths expensive or unreliable: requirements drafting, tagging plan generation, GTM and GA4 configuration, and — most importantly — the QA stage that used to get skipped. The governance does not move. It gets sharper, because the QA evidence is better.
 
-## Why marketers should care
+This article covers the whole loop: from a business question through a signed measurement contract, an agent-built GTM workspace and GA4 property, browser-real verification, and reporting that is reconciled before anyone trusts a number in a dashboard.
 
-The value is not "AI did the tags". It is that QA, which used to be the part that got skipped, becomes the part that always runs. A configured-but-broken implementation is worse than none — you make decisions on under-counted data with no signal that anything is wrong. Agentic QA closes exactly that gap.
+## What agents actually change
 
-## The implementation stack
+The claim is not "AI did the tags." The valuable shift is in the bottleneck stages:
 
-<Figure src="/images/editorial/agentic-analytics-loop.png" alt="Four-band draw.io loop: measurement contract, agentic GTM and GA4 build, browser-real QA verification with a feedback arrow back to build, and reconciled reporting" caption="Two human gates: nothing is built until the measurement contract is signed, and nothing ships until the QA harness has fired the real consent journey in a browser. The gap between configured and actually-firing is measured, not assumed." slug="agentic-analytics-loop" date="29 August 2026" />
+- **Requirements and tagging plans** used to be consultant weeks. An agent drafts the event vocabulary, properties, owners and consent model from a requirements conversation in hours. Humans still approve it, but approval is cheaper than authorship.
+- **GTM and GA4 configuration** used to mean clicking through hundreds of admin screens. Agents now build workspaces versioned against the contract, and publish through APIs like `gtm_mcp` and the Analytics Admin API instead of fragile manual UI work.
+- **QA** used to be the stage everyone skipped, because it needed a person to walk a browser through every consent path and check DebugView afterwards. Agents can now run those journeys in a real browser, record what actually fired, and compare it against the contract. That is the difference between "configured" and "verified" — and it is the difference a marketer can feel, because a configured-but-broken property under-counts silently and produces confident reports from incomplete data.
 
-**The measurement contract** comes first: events, properties, owners, and the consent model. AI drafts it from a requirements conversation; humans approve it. Nothing else starts until this exists.
+What does **not** change: the decision about which events matter, what consent means, whether a number is trusted, and what ships to production. Those stay human. The rest becomes substantially automatable.
 
-**The GTM workspace** is built against the contract, versioned, and reviewed before publish. Agentic tooling generates tags, triggers, and variables from the contract rather than from memory.
+## The implementation loop
 
-**GA4** receives events with consent-aware gating, so what fires depends on what the visitor allowed.
+<Figure src="/images/editorial/agentic-analytics-loop.png" alt="Four-band draw.io loop: measurement contract, agentic GTM and GA4 build, browser-real QA verification with a dashed feedback arrow back to build, and reconciled reporting" caption="Two human gates: nothing is built until the measurement contract is approved, and nothing ships until the QA harness has fired the real consent journey in a browser and measured the configured-versus-firing gap. The dashed amber arrow is the loop the traditional process skipped — QA findings feeding straight back into a revised build." slug="agentic-analytics-loop" date="29 August 2026" />
 
-**The QA harness** is the differentiator: automated browser journeys that exercise the real consent path, record what actually fired, and compare it against the contract.
+## From business question to deployed property
 
-**Reporting** joins GA4, BigQuery, and vendor data through a reconciliation pass before any number reaches a decision.
+Here is the concrete sequence, taken from the [GA4 property pass on this site](/blog/how-we-finished-the-ga4-property-setup-on-rajeevg-com) and reshaped into the repeatable method it should have been from the start.
 
-## Implementation to verified reporting
+### 1. Start with the questions, not the tool
 
-## Configured-but-broken versus verified
+The pass began with the [GA Reporting Playbook](https://cms.metricsandmotion.com/assets/downloads/GA_Reporting_Playbook_Oct2025.pdf)'s framing: GA4 has multiple reporting surfaces and they are not interchangeable. Realtime answers "is anything arriving right now?" Standard reports answer "how has content performed this quarter?" Explore answers the bespoke questions the standard reports cannot. The property exists to serve those questions, not to tick GA4 settings boxes.
 
-## What the earlier setup story got right and wrong
+### 2. Fix the property metadata first
 
-The [original GA4 setup write-up](/blog/how-we-finished-the-ga4-property-setup-on-rajeevg-com) documented a one-off property build. The setup itself was correct; the method was not repeatable. This article is the repeatable version — same destination, contract-first, with QA as a stage rather than an afterthought. [The measurement reality article](/blog/why-browser-consent-and-source-blending-make-marketing-measurement-harder) remains the best explanation of why browser-side truth is hard in the first place.
+Timezone was corrected to `Europe/London` and currency confirmed as `GBP` — the kind of detail that quietly distorts daily reporting for months if wrong. Reporting identity was left on `Blended`, and data retention was set to `14 months` with `Reset on new user activity` enabled. None of these are exciting. All of them are the difference between a property that answers questions and one that produces confident-looking noise.
+
+### 3. Build the event vocabulary as a contract
+
+The site already had an application-owned event vocabulary: `project_click`, `post_click`, `navigation_click`, `scroll_depth`, `page_context`, `page_engagement_summary`, `blog_search`, `copy_code`. In the original setup, that vocabulary came from an agent that understood the site's code; the work was wiring it into the property. In the repeatable method, the contract is written first — events, properties, owners, the consent model — and the tags are generated against it. Enhanced-measurement defaults that would muddy that vocabulary (outbound-click auto collection, scroll auto collection) are deliberately disabled so the site's own terms stay authoritative.
+
+### 4. Promote key events and custom definitions
+
+An unpromoted parameter is second-class inside reporting. The pass promoted `contact_click`, `project_click` and `profile_click` as key events, then promoted the important parameters into custom definitions — `analytics_consent_state`, `content_slug`, `content_tags`, `page_type`, `site_section`, `search_term`, and the engagement metrics like `scroll_depth_percent` and `engaged_seconds_total`. This is the move that turns a nice `dataLayer` into a property that can answer content and portfolio questions later.
+
+### 5. Publish through the API, then prove it in a real browser
+
+GTM changes were published through `gtm_mcp` rather than hand-clicked. The proof was not a screenshot of the workspace — it was a live run: an agent opened the production projects page, clicked a project GitHub link, visited the live analytics article and used a code-copy button. The GA4 Realtime overview then showed `project_click` with a count of `2`, plus `page_context`, `section_view`, `scroll_depth`, `page_engagement_summary`, `engaged_time` and `copy_code` — the site-owned vocabulary, not generic auto-collected noise. The Analytics realtime API cross-checked the same mix from the machine side.
+
+The proof surfaces were chosen deliberately. DebugView was empty during the pass because none of the sessions were flagged as GA debug devices; Realtime was the correct surface for live production validation. Standard reports lag by design and were confirmed on their normal timeline. That ordering — interaction first, Realtime second, DebugView only when debug traffic is intentionally part of the flow, standard reports last — is now part of the method rather than a lucky guess.
+
+## Where the automation actually helps a marketing team
+
+For a marketing team without a dedicated analytics engineer, the practical value shows up in three places:
+
+- **Speed of onboarding a new property or campaign surface.** What used to take a consultant weeks of requirements-and-configuration now takes a day or two of contract drafting plus agent-driven build and QA. The bottleneck moves from "find someone who knows GA4" to "decide what you want to measure."
+- **Confidence in the numbers.** The QA harness closes the configured-but-broken gap. A tag that exists but is silently blocked by consent under-counts without a signal — that is the failure mode that makes dashboards quietly lie. With agent-run browser verification, the gap between "the tag exists" and "the tag fires under consent" is measured, not assumed.
+- **Governance that is honest instead of ceremonial.** Because the agent produces a versioned GTM workspace against a contract, the review is a diff review — same as code. Nobody has to trust an unverifiable claim that "the tags are set up right."
+
+## What the earlier setup story got right, and what the flagship replaces
+
+The [original GA4 setup write-up](/blog/how-we-finished-the-ga4-property-setup-on-rajeevg-com) documented the March 2026 one-off property build: correct settings, real screenshots, a genuine proof trail, and an honest account of what went wrong (a Google sign-in wall that forced a browser switch, an empty DebugView, a legacy `purchase` key event that could not be cleanly removed through the Admin API). As a field note it was accurate and useful.
+
+What it was not was repeatable. It described one property on one site on one day, with the method buried inside the incident log. This article is the extraction: the same destination, rebuilt contract-first, with QA as a stage that always runs rather than an afterthought. The older post stays live as historical proof and as the worked example behind the sequence above. The [measurement reality article](/blog/why-browser-consent-and-source-blending-make-marketing-measurement-harder) remains the best explanation of why browser-side truth is hard in the first place.
+
+## Limitations, honestly
+
+Not everything automates, and some of what automates has real cost:
+
+- **Consent-adjacent judgment stays human.** Deciding whether an event is essential enough to fire under partial consent is a policy and legal decision, not a technical one. Agents can enforce the policy; they should not invent it.
+- **Agent access to live authenticated surfaces is the awkward part.** The original pass hit a Google sign-in wall in Playwright and had to switch to Chrome DevTools against an already-authenticated session. That is a real operational dependency — agents need the right browser path, and that path is often the one with human sign-in state behind it.
+- **Legacy configuration leaks.** The `purchase` key event from an earlier experiment could not be cleanly removed through the Admin API in the same pass. Real estates have cruft; documentation beats pretending it is gone.
+- **Realtime is fast, standard reports are not.** The property can be correct and the live event flow correct while standard reporting surfaces lag by design. That expectation gap is normal and needs to be set with stakeholders up front.
+- **DebugView is not proof for production traffic.** It only shows debug-flagged devices. Using it as the sole verification surface silently proves nothing about the live property.
 
 ## Where to go next
 
-- [Agentic data collection and warehousing](/blog/agentic-data-collection-and-warehousing) — when the collection layer itself should get heavier
+- [Agentic data collection and warehousing](/blog/agentic-data-collection-and-warehousing) — when the collection layer itself should get heavier, and when it should not
 - [Proof, not prompts](/blog/proof-not-prompts) — the delivery standard this loop feeds
-
+- [The consent and measurement reality article](/blog/why-browser-consent-and-source-blending-make-marketing-measurement-harder) — why browser-side truth is hard before anyone automates anything
