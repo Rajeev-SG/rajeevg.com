@@ -61,8 +61,6 @@ What survives is a two-part model. The **general core** — three roles, each ju
 
 1. **Codex as supervisor** — understands the request, writes the worker contract, holds the acceptance bar, and edits nothing itself. The role matters more than the model name; the point is that the actor writing the contract is not the actor doing the work.
 2. **GLM-5.3-Flash as the workhorse, via native Codex task rotation** — bounded implementation inside an isolated worktree, fresh context per task. Rotation is a trigger, not a timer: context pressure or a genuine stall, not token counts or phase-complete events.
-3. **Targeted Claude Opus through OpenCode for expensive narrative review** — read-only, bounded, judging what a reader sees. The case study measured one such review at 56,747 tokens and $0.47 — cheap *because* it was bounded, not because Opus is cheap.
-4. **GLM amendments inside the worker's own scope** — review verdicts become edits through the same disciplined channel that produced the original work, never by a reviewer reaching into the tree.
 3. **Independent parent acceptance** — the same supervisor re-checks the rendered result with criteria it did not inherit from the worker's summary. In the case study this gate caught all three real failures: an insufficient visual gate, stale editable-source links, and a homepage regression that rode in on an otherwise reasonable evidence commit.
 
 The **conditional extension** — two more steps this editorial batch added on top of the core — applies when the work needs expensive narrative or design judgement:
