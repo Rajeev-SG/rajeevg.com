@@ -2,50 +2,100 @@
 title: "The multi-agent journey: what survived contact with reality"
 slug: the-multi-agent-journey-what-survived-contact-with-reality
 date: 2026-08-29
-description: Every multi-agent architecture I tried, what the telemetry said about each one, and why the system I actually use now is simpler than anything I built first.
+updated: 2026-08-31
+description: The chronological, evidence-labelled history of one rig's multi-agent architecture — what each layer promised, what the traces said, what was kept, and what was deliberately deleted — with the current recommendation stated plainly.
 tags: [ai, agents, codex, multi-agent, a2a, observability, opencode]
 draft: false
 image: /images/editorial/multi-agent-journey-map.svg
 ---
 
-This is the honest version of two years of multi-agent work: what was built, what the measurements said, and why the current system is one agent with two models rather than the orchestration layer I once thought was the point.
+This is the honest version of the multi-agent journey on this rig, told in the order it happened: what was built first, why each layer was added, what the measurements said about it, and what the next design changed as a result. The story matters because it ends somewhere most multi-agent writing never goes: the current system is *less* than the sum of what was built. Layers were removed on evidence, not opinion, and knowing why each one earned its deletion is the transferable part.
 
-<Figure src="/images/editorial/multi-agent-journey-map.svg" alt="Timeline of five multi-agent phases with verdicts: native subagents kept the instinct, measurable workers kept measurement, the Codex and OpenCode split and lifecycle experiments were deleted, and role-aware routing is the current system" caption="Two years of multi-agent work on one map: five phases, two deliberate deletions, and the one lesson that survived — measurement. The current system is the simplest thing on the timeline." slug="multi-agent-journey-map" date="29 August 2026" />
+<Figure src="/images/editorial/multi-agent-journey-map.svg" alt="The surviving execution loop — supervisor, GLM workhorse, Opus review, amendments, parent acceptance — drawn as a cycle, with the deleted lanes (middleman layer, lifecycle bookkeeping, inbox protocols, A2A mesh wiring) struck through below" caption="Five hops kept because each pays its way; four lanes struck through because traces showed cost without quality return. The deletions are the point — every removed layer was a real system first." date="31 August 2026" />
 
-## Phase by phase
+Every claim below carries one of three labels. **Measured** means a number from local telemetry, trace, or session store. **Directional** means observed consistently enough to guide a decision, but not isolated enough to quote as a clean delta. **Recommendation** means what this rig would do again, with the reasoning attached. Where a field-note article owns the underlying evidence, it is linked rather than repeated.
 
-**Native subagents.** The first instinct was parallelism: spawn a worker per task, let them run. It worked — and produced no evidence. When two workers disagreed, there was no trace to settle it.
+## Phase 1 — native Codex subagents: parallelism without evidence
 
-**Measurable workers.** The fix was telemetry: per-worker traces, recoverable handoffs, tokens attributed to the worker that spent them. This made the next conclusion possible, because now overhead was visible instead of assumed.
+The first instinct was the one almost everyone has: spawn a worker per task, let them run in parallel, harvest the results. On a 2026 Codex subscription the native subagent route made this a one-line operation, and for a while the rig ran exactly that way. The instinct was not wrong — parallel work genuinely moves bounded slices off the main model's context — but the execution had a structural blind spot: no shared memory, no per-worker trace, no attribution of tokens to the worker that spent them.
 
-**Codex + OpenCode.** Splitting planner and executor into two tools with two models looked like an architecture win. Per-call traces showed the planning and review layers costing more than the work itself.
+**Measured.** An audit of the historical sessions that fed [what 551 Codex sessions revealed](/blog/what-551-codex-sessions-reveal-about-real-ai-work) showed the shape of the problem clearly: one GPT-5.6 parent recorded 25,980,767 measured tokens against 45,741,825 from its children, and the bulk of that child volume came not from the bounded DeepSeek workers (1,590,714 tokens across three of them) but from two oversized GPT-5.6 recovery children — one of which had effectively become a second orchestrator. The parent called `wait_agent` 93 times. Parallelism worked; supervision was invisible and expensive.
 
-**Lifecycle experiments.** Beads, BVR, and NTM added state machines, ticket routing, and formal lifecycle bookkeeping. Every one of them added coordination cost that the traces showed was not being repaid in quality.
+The failure that surfaced was operational, not theoretical: when two workers disagreed, there was no trace to settle the disagreement. No recoverable handoff existed. The lesson carried forward into phase 2 was specific — the instinct to delegate survives, but delegation without measurement is unfalsifiable, and unfalsifiable delegation cannot be improved.
 
-**Simplified roles.** The current system: one agent (Codex as operator), a role-aware routing rule to GLM-5.3-Flash as workhorse with frontier escalation, and A2A as an optional discovery capability. Everything else was deleted, deliberately.
+**What phase 2 changed:** per-worker traces, token attribution, and recoverable handoffs became the design priority before any further layer was added.
 
-## What the middleman tax actually cost
+## Phase 2 — measurable workers: telemetry as a first-class citizen
 
-*(The cost mechanism behind this section is owned by [Why agent systems become slow, expensive and fragile](/blog/why-agent-systems-become-slow-expensive-and-fragile); this article owns the architectural decision that followed.)*
+The fix was not a new orchestration tool. It was instrumentation: portable traces per parent and child transcript, tokens attributed to the worker that spent them, bounded work packets, and handoffs that could resume from a checkpoint instead of replaying a chat. [How I made Codex subagents measurable](/blog/how-i-made-codex-subagents-measurable) owns the full build and the reliability incident that motivated part of it — a persistent Chrome debugging endpoint used as a dependable shared resource, which it was not, and which produced error 1006 on a WebSocket that had never been properly owned. The repair work (flock-locked ownership, bounded packets, queue states, queue teardown on health-check failure) mattered because it made the *next* conclusion possible.
 
-## The current stack, dated
+**Measured.** With attribution in place, the same historical audit could finally ask *where* the tokens went. The answer was uncomfortable: bounded workers were cheap, but the supervision and recovery path — the part designed to keep workers on task — was where the volume concentrated. That is the finding that reframes everything that follows: the problem was never "do we delegate?" but "who pays for the coordination, and does the coordination repay itself?" Without phase 2's traces, no subsequent layer could have been judged at all.
 
-What follows names specific tools. They are the evidence, not the recommendation: as of **29 August 2026**, the rig runs Codex as operator, OpenCode as fast executor, GLM-5.3-Flash as workhorse with frontier escalation, and A2A on loopback. The durable conclusion — role-aware routing beats model loyalty — will outlive all of these names.
+**Directional.** Reliability of the browser-control path went from intermittent failure to stable once ownership and health checks existed — consistently observed across subsequent runs, not isolated to a matched pair.
 
-## What survived
+**What phase 3 changed:** with visibility in place, the next question became structural rather than observational — should planning and execution live in the same tool at all?
 
-Three things: measurement as a first-class citizen (per-call traces so every architectural claim can be checked), role-aware routing instead of model loyalty (cheap workhorse by default, frontier only for genuinely hard work), and A2A as a companion capability — agents that can discover each other without custom plumbing. Everything else — the orchestration layers, the lifecycle bookkeeping, the inbox protocols — was removed after the telemetry showed it cost more than it returned.
+## Phase 3 — the Codex/OpenCode split and the middleman tax
 
-## Field notes this consolidates
+Splitting planner and executor into two tools with two models looked like an architecture win: the expensive model stays on the control plane, a cheaper executor carries the bulk, and each side specialises. The rig built exactly this — Codex as parent, OpenCode Go as the bounded execution worker, Beads and BVR for durable task state, NTM as scheduler, Agent Mail as the message channel — and it worked. Identity chains joined one task to its Codex thread, NTM worker, Bead, mail thread, OpenCode session, and usage record. The system was auditable in a way phase 1 never was.
 
-The long-form evidence lives in earlier articles, which remain valuable as the paper trail: [what 551 Codex sessions revealed](/blog/what-551-codex-sessions-reveal-about-real-ai-work), [the OpenRouter-backed AI team](/blog/how-i-built-an-openrouter-backed-ai-team), [making subagents measurable](/blog/how-i-made-codex-subagents-measurable), [one agent, two models](/blog/one-agent-two-models), [the A2A mesh](/blog/how-i-got-four-ai-agents-talking-to-each-other), and [Sol/OpenCode split](/blog/how-i-split-sol-planning-from-opencode-go-execution). This article is the through-line.
+**Measured.** The specific case study and its economics belong to [How I split Sol planning from OpenCode Go execution](/blog/how-i-split-sol-planning-from-opencode-go-execution), which measured one completed delegation-heavy bounded task: the Codex parent used 4,997,110 tokens, the OpenCode Go worker 11,967,667, for a known total of 16,964,777 — the worker held 70.54% of the known total, and the article is explicit that this shows where work occurred, not what Codex would have spent alone. The finding that mattered architecturally came from per-call traces across the whole split: the planning and review layers — the middleman hops themselves — cost more than the work they coordinated. [Why agent systems become slow, expensive and fragile](/blog/why-agent-systems-become-slow-expensive-and-fragile) owns the cost mechanism (context resends on every hop, oversight cost, cumulative failure probability); this article owns the decision that followed from it.
+
+**Directional.** Recovery worked as designed — one worker touched an unrelated coordination path and the controller rejected the result, which was the correct outcome. But every hop added a resend, and the traces showed the hops were not paying for themselves on single-repo editorial work.
+
+**What phase 4 changed:** the lifecycle plumbing that made the split auditable became the next suspect, because the traces could now price it.
+
+## Phase 4 — Beads, BVR, NTM: lifecycle bookkeeping priced and removed
+
+With per-hop costs visible, the rig tried the most disciplined possible answer: formal lifecycle bookkeeping. Beads kept the durable task list. BVR enforced task-ownership and state rules. NTM scheduled and watched workers. Every reservation, lease, and handoff was recorded. On paper this was the most professional version of the system yet — and it was exactly the version the traces condemned.
+
+**Measured.** Each lifecycle layer added coordination cost that the per-call traces showed was not repaid in quality. The bookkeeping was real work: records to write, states to transition, leases to expire, message threads to carry. None of it changed what the *worker* produced. When the traces priced the bookkeeping against the work it protected, the return was negative for single-operator, single-repo work — the exact regime this rig actually lives in. The layers were not wrong in general; they were wrong at this scale, for this operator, on this workload.
+
+**Directional.** The complexity itself created new failure modes: the recovery incident in the linked case study (a worker touching an unrelated coordination path) only existed *because* there was a coordination surface to touch. Removing the surface removes the failure class, not just its cost.
+
+**What phase 5 changed:** the design stopped asking "how should agents coordinate?" and started asking "what is the minimum set of hops that still catches real failures?"
+
+## Phase 5 — the current model: five hops, each paying its way
+
+<Figure src="/images/editorial/multi-agent-journey-map.svg" alt="Close reference: the surviving five-hop loop and the four deleted lanes" caption="The current recommendation in one picture: the loop is short, the deletions are deliberate, and the acceptance gate closes the cycle." date="31 August 2026" />
+
+What survives is a loop with five roles, none of them optional, each one justified by a specific failure it catches:
+
+1. **Codex as supervisor** — understands the request, writes the worker contract, holds the acceptance bar, and edits nothing itself. The role matters more than the model name; the point is that the actor writing the contract is not the actor doing the work.
+2. **GLM-5.3-Flash as the workhorse, via native Codex task rotation** — bounded implementation inside an isolated worktree, fresh context per task. Rotation is a trigger, not a timer: context pressure or a genuine stall, not token counts or phase-complete events.
+3. **Targeted Claude Opus through OpenCode for expensive narrative review** — read-only, bounded, judging what a reader sees. The case study measured one such review at 56,747 tokens and $0.47 — cheap *because* it was bounded, not because Opus is cheap.
+4. **GLM amendments inside the worker's own scope** — review verdicts become edits through the same disciplined channel that produced the original work, never by a reviewer reaching into the tree.
+5. **Independent parent acceptance** — the same supervisor re-checks the rendered result with criteria it did not inherit from the worker's summary. In the case study this gate caught all three real failures: an insufficient visual gate, stale editable-source links, and a homepage regression that rode in on an otherwise reasonable evidence commit.
+
+**Measured.** The full execution behind [The multi-agent execution behind one rebuild](/blog/multi-agent-execution-behind-one-rebuild) — this same loop applied to a real 13-article rebuild — is the case study, and its economics are stated there with their provenance and caveats. This article does not repeat the numbers; it states the structural claim the numbers support: the expensive model is affordable when its task is judgement, the cheap workhorse absorbs the volume, and the acceptance gate is what converts all of it from "the agent said it worked" into a shippable result.
+
+**Recommendation.** For a single operator running single-repo work: supervisor, workhorse, bounded frontier review, amendments in scope, independent acceptance. Anything more — a second coordinator, a message protocol between the hops, lifecycle state machines — needs to show a failure it prevents that this loop does not already prevent. Nothing in the measured history did.
+
+## Where A2A fits — and why this batch did not need it
+
+The rig did build an A2A plane — [How I got four AI agents talking to each other](/blog/how-i-got-four-ai-agents-talking-to-each-other) proved all 12 directed routes between Codex, OpenClaw, OMP, and Hermes on loopback. That experiment was a genuine capability test, and it succeeded at what A2A is for: agents that live in different runtimes discovering each other, exchanging stable task and context identifiers, and negotiating work without custom plumbing. A2A is not an inferior design; it is a *different* problem's solution.
+
+The editorial batch that produced this article ran through native Codex task creation plus the OpenCode review path, and that was the right call — not because A2A fails, but because the discovery problem A2A solves did not exist here. One supervisor, one worker, one reviewer, three hops, one repository, one parent's line of sight. There was nothing to discover. Adding an A2A plane would have added endpoints, envelopes, and a second control surface to maintain, in exchange for zero capability the loop did not already have.
+
+**Recommendation.** Reach for A2A when participants live in different trust domains, different runtimes, or different organisations — or when the question "who exists, what can they do, how do I reach them" is itself the hard problem. Reach for native tasks plus OpenCode when the participants are one operator's tools on one machine. The comparison is about fit, not rank: both paths appeared in this journey's measured history, and both earned their place.
+
+## What survived, stated plainly
+
+Three things carried through every phase, and none of them is a tool:
+
+- **Measurement as a first-class citizen.** Every architectural claim in this article is checkable against a trace, a session store, or a published article's evidence pack. That habit — built in phase 2 — is what made every later deletion possible. Without it, the story would be a sequence of opinions.
+- **Role-aware routing instead of model loyalty.** Cheap workhorse by default, frontier escalation only for genuinely hard judgement. The conclusion outlives the specific model names on this page.
+- **The minimum loop that catches real failures.** Five hops, each justified by a failure it prevents. Everything else was removed after the traces priced it.
+
+The older field notes remain as the paper trail — [the OpenRouter-backed AI team](/blog/how-i-built-an-openrouter-backed-ai-team), [making subagents measurable](/blog/how-i-made-codex-subagents-measurable), [one agent, two models](/blog/one-agent-two-models), [the A2A mesh](/blog/how-i-got-four-ai-agents-talking-to-each-other), and [the Sol/OpenCode split](/blog/how-i-split-sol-planning-from-opencode-go-execution). They are evidence, not the through-line; this article is the through-line.
 
 ## Why this matters outside the terminal
 
-If you build anything with AI tools, the subtractive arc is the useful part: every layer you add to make agents coordinate has a cost that is measurable, and most of them do not repay it. That finding applies to agency automation stacks as directly as it applies to coding agents.
+If you build anything with AI tools, the subtractive arc is the useful part, and it generalises further than coding agents. Every layer you add so that agents can coordinate has a cost that becomes measurable the moment you instrument for it — and most coordination layers, at single-operator scale, do not repay that cost. The honest sequence is not "build more" but "instrument, then subtract until the loop is as short as the failure modes demand." That is what happened here: parallelism first, measurement second, then the discipline to delete what the measurements condemned.
 
 ## Where to go next
 
+- [The multi-agent execution behind one rebuild](/blog/multi-agent-execution-behind-one-rebuild) — the case study this article's current model descends from, with the measured economics
+- [How I split Sol planning from OpenCode Go execution](/blog/how-i-split-sol-planning-from-opencode-go-execution) — the specific website-remediation case study and its token economics
 - [Why agent systems become slow, expensive and fragile](/blog/why-agent-systems-become-slow-expensive-and-fragile) — the mechanism behind the middleman tax
 - [What should be an agent — and what should be normal code?](/blog/what-should-be-an-agent) — the decision rule this journey produced
-
