@@ -2,38 +2,104 @@
 title: What should be an agent — and what should be normal code?
 slug: what-should-be-an-agent
 date: 2026-08-29
-description: Four questions — ambiguity, repetition, failure cost, auditability — that decide whether a task deserves an agent or a script, with the measured evidence from this rig's own routing decisions.
+updated: 2026-08-31
+description: A five-question decision rule — ambiguity, repetition, failure cost, real work, auditability — that decides whether a task deserves an agent, a workflow, plain code, or a human decision, worked through real examples from this rig and anonymised agency operations.
 tags: [ai, architecture, agents, engineering, decision-making]
 draft: false
 image: /images/editorial/agent-or-code-tree.svg
 ---
 
-The most expensive mistake in agent work is using an agent where a script belongs. It is also the most common one, because agents are exciting and scripts are not. This article offers four questions that settle it, and the evidence from this rig's own decisions.
+The most expensive mistake in agent work is using an agent where a script belongs. The second most expensive is the opposite: writing automation for a task that changes shape every time it runs, then watching people route around it. Both mistakes come from the same place — deciding what to build before deciding what kind of work the task actually is.
 
-## The four questions
+This article offers a decision rule that settles it, five questions in a fixed order, and then applies the rule to real tasks: the routing decisions on this rig and workflows drawn from anonymised live agency operations — taxonomy governance, tag QA, and turning messy client calls into scoped work. Every claim carries a label — **measured** for numbers from local telemetry or traces, **directional** for observations consistent enough to guide a decision but not isolated into a clean delta, and **recommendation** for what this rig would do again with the reasoning attached. There are no benchmarks here that I cannot reproduce, because invented benchmarks are how decision frameworks rot.
 
-**Is it ambiguous?** If the input varies in ways rules cannot enumerate — a messy brief, an unclear spec, a weird repo state — judgment is required, and that is an agent's home turf.
+<Figure src="/images/editorial/agent-or-code-tree.svg" alt="Decision tree asking five questions in order — input ambiguity, repetition, failure cost, whether the work is real, and who must audit it — resolving to normal code or workflow, a scoped and logged agent, or code with guardrails and a human gate" caption="The decision rule as a tree. Questions run in a fixed order because later questions are meaningless until earlier ones are answered; most tasks resolve to code before the third question." slug="agent-or-code-tree" date="31 August 2026" />
 
-**Does it repeat?** Same input, same output, every time. Repetition is a script's home turf. An agent on a deterministic job burns tokens for variance you did not want.
+## The five questions
 
-**What does failure cost?** Cheap failure (a draft nobody ships, a suggestion nobody takes) tolerates agents. Expensive failure (payments, publishing, anything client-facing) needs deterministic paths and guardrails.
+**1. Is the input ambiguous?** Ambiguity is the property that justifies a language model at all. If the input varies in ways rules cannot enumerate — a messy client brief, a half-finished repo state, a call transcript that meanders — judgment is required, and judgment is the agent's home turf. If the input is a fixed schema, skip to question two, because no amount of model cleverness will beat a function that validates and transforms it. The subtlety worth naming: ambiguity is a property of the *task*, not the tool. A brief that arrives "roughly like the last one" with two fields changing is not ambiguous — it is templated, and templated work wants a workflow.
 
-**Who must audit it?** If a decision needs to be traced after the fact — compliance, billing, client disputes — you need either normal code or a fully logged agent with provenance attached.
+**2. Does the work repeat?** Same input, same output, every time. Repetition is where agents actively hurt: the same prompt produces slightly different results on each run, so a deterministic job handed to an agent buys variance you did not want and pays for it in tokens. **Directional.** On this rig, routine canary work — an edit, a test run, a report — resolved correctly through the cheap workhorse path without a single frontier-model call, while the deliberately architectural canary earned its escalation. The lesson is not that cheap models should do everything; it is that the *shape* of the task, not the label on the ticket, decides the route.
 
-<Figure src="/images/editorial/agent-or-code-tree.svg" alt="Decision tree asking four questions in order — ambiguity, repetition, failure cost, auditability — resolving to normal code, agent OK, code with guardrails, or a logged agent" caption="The decision tree worked honestly: ambiguity first, repetition second, failure cost third, auditability last. Most tasks resolve before the third question — usually to normal code." slug="agent-or-code-tree" date="29 August 2026" />
+**3. What does failure cost?** A draft nobody ships is cheap failure. A payment processed twice is expensive failure. Cheap failure tolerates nondeterminism, because the worst case is a wasted run. Expensive failure needs deterministic paths, retries with backoff, and a human gate before anything touches money, publishing, or anything client-facing. The cost asymmetry is the useful part: the agent that saves twenty minutes on a draft cannot justify itself if a single bad publish costs a client relationship.
 
-## A decision in sequence
+**4. Is it real work?** Some "agent projects" are actually one exploration that would have been answered faster by a person opening the file and thinking for ten minutes. This question is the cheapest and the most often skipped. If a task has no repetition, no ambiguity that survives a conversation, and no failure cost that matters, the correct tool is a human doing it once by hand — not a build. **Directional.** The multi-agent journey on this rig deleted several bookkeeping lanes precisely because they automated work nobody needed done twice.
 
-## The measured before and after
+**5. Who must audit it?** If a decision needs to be traceable after the fact — compliance, billing, anything a client disputes — the answer is either normal code or a fully logged agent with provenance attached. An unlogged agent is a person operating from memory, and memory does not survive a dispute. This rig's own rule is stricter than the industry default: the escalation that promotes a task to a frontier model must state its reason, so the trail shows *why* the expensive path fired, not just that it did.
+
+## What an agent actually adds
+
+The five questions classify the task; this section explains what you are actually buying when the answer is "agent" — because an agent is not a better version of a script, it is a different machine with nine moving parts, and each part is a place where normal code has no equivalent problem to solve.
+
+**State** is the first difference. A function is stateless between calls: the same input, the same behaviour, forever. An agent carries working memory across steps — what it has read, tried, ruled out — and that memory is a design surface, not an accident. The routing layer on this rig keeps almost no state: each request is classified and dispatched, and forgetting between calls is a feature. The PRD workflow keeps state deliberately: an agent drafting structure from a call transcript must remember which open questions the client actually asked so the human reviewer can check the draft against them. Getting state wrong in either direction fails differently — a stateful agent that forgets produces a plausible draft that silently loses the client's real question; a stateless agent that remembers produces context contamination across unrelated tasks.
+
+**Tools** are what turn language into action, and they are the boundary where agents stop being text and start being operations. Normal code *is* the tool; an agent *selects among* tools, which means every tool you expose is a decision the model can get wrong. The rig's scoped choice is visible in its agents: a writer-agent can read files and run tests but cannot deploy; the browser-QA agent in the agency workflows can exercise real consent flows but writes nothing to production. The operational consequence is direct — a tool exposed to an agent is an attack surface and an error surface simultaneously, and the question "does this task need an agent" is really the question "does this task need the model to *choose* tools, or can the tool sequence be fixed in code?"
+
+**Autonomy** is the degree to which those choices compound without a human in the loop. A workflow has zero autonomy: step three runs after step two because a person wrote it that way. An agent decides what step three is, based on what it learned in steps one and two. That is the entire value proposition and the entire risk. The rig's compromise is explicit: one agent per task with a stated escalation reason, rather than a supervisory layer making autonomous routing decisions — the multi-agent experiments showed autonomous oversight layers spending more on coordination than the work cost. The practical test is whether the agent's next action can be predicted well enough that being wrong about it is survivable; if it cannot, the autonomy is a liability regardless of how well the model performs.
+
+**Uncertainty** is what the model brings and what the code must absorb. Every agent output is a sample from a distribution, not a computation. Normal code fails loudly and legibly — an exception, a non-zero exit, a failed test. An agent fails quietly and plausibly: the output looks right, reads well, and is subtly wrong. This asymmetry is why cheap-failure tasks can run through an agent bare, while expensive-failure tasks need the agent's output treated as untrusted input to a deterministic validator — the tag-QA workflow does not ask an agent to interpret what fired; it runs a deterministic browser journey and only then involves judgment. The design consequence: an agent is only as safe as the verification you put after it, and that verification is normal code.
+
+**Feedback** is how the system learns from its own outputs, and it is the element most often skipped. A script that produces wrong output fails its test and stops. An agent that produces wrong output keeps going unless something in the loop tells it otherwise. The two feedback channels that matter are the acceptance check that runs after every agent action, and the human review gate on anything client-facing. The PRD workflow uses both: the agent drafts, a structural check validates the document shape, and a human approves before it reaches the client. Without the second gate, the first becomes a formality that trains nobody.
+
+**Observability** is what makes any of this debuggable. Because an agent's decisions are emergent rather than authored, you cannot read the code to understand why it did what it did — you have to read the trace. The rig's answer is a telemetry side-channel: every model call lands in Langfuse with the resolved model, token counts, cost, latency, and whether it was part of a retry, and Prometheus and Grafana aggregate those traces into queryable counters. The operational difference from normal code is stark: when a function misbehaves you debug the function; when an agent misbehaves you debug the trace, and if the trace is incomplete you are guessing. An agent without observability is not just unauditable, it is unimprovable.
+
+**Retries** behave differently because failure is stochastic. A script retries the same deterministic path and gets the same deterministic result; retrying is pointless. An agent can legitimately retry because a different sample may succeed — but that same property makes retry loops dangerous, because the agent may also "succeed" on retry by producing a *different, equally wrong* answer that happens to pass a weak check. The rig's discipline is bounded retries with the reason recorded, and a hard stop when the retry budget is spent, so a flailing agent surfaces as a failure rather than as a plausible-looking artefact produced on the fifth attempt.
+
+**Permissions** are the mechanical expression of the autonomy question: what may this agent actually do, on which systems, with whose approval. The distinction from normal code is that a script's permissions are the deployment's permissions — they are static and reviewed as code — while an agent's permissions are the union of every tool it can reach plus every credential that tool carries. The rig keeps this narrow deliberately: scoped file access inside an isolated worktree, read-only telemetry, and explicit human gate for anything that publishes. In the agency workflows the same principle appears as a client-facing sign-off step: the agent can prepare, the human must approve, and no tool exists that lets the agent approve itself.
+
+**Acceptance** is the gate that decides whether the run counts as done. For a script, acceptance is the test suite, and it is written once. For an agent, acceptance must be defined per task, because the agent can produce an indefinitely varied set of outputs that all technically complete the instruction. The practical pattern on this rig is an acceptance check that runs after every agent action — build passes, tests pass, the file the agent claimed to edit actually changed — with the acceptance result recorded alongside the trace. The distinction from workflows is that a workflow's acceptance is baked into its steps, while an agent's acceptance is an independent observer of whatever the agent decided to do.
+
+Taken together, the nine elements are why the hybrid pattern dominates: normal code already owns state, tools, autonomy, uncertainty, feedback, observability, retries, permissions, and acceptance in their simplest, most auditable forms. An agent earns its place only when the task genuinely needs the model's judgment inside one or more of those elements — and when it does, each element you hand to the model is one you must also instrument, bound, and gate.
+
+## The worked classification sequence
+
+The rule earns its keep when it is applied to real tasks in order. Here is the sequence, worked against tasks that actually exist on this rig and in anonymised agency operations.
+
+**Task one: telemetry export.** Agent or code? The input is a fixed set of Prometheus and Langfuse endpoints; the transformation is deterministic; the output is a dashboard. Question one fails immediately — there is no ambiguity — so the answer is normal code, and the rig's telemetry is exactly that: a `coding-agent-metrics` exporter pushing model-call traces into Prometheus and Grafana, no language model involved. The agent version was never built, which is the point: the rule kills the project before the build, which is where most of the savings live.
+
+**Task two: turning a call transcript into a scoped PRD.** The input is a transcript that varies in length, structure, and what the client actually asked for — genuinely ambiguous. The output is a structured document, and the work repeats across engagements with the same shape. Question one passes, question two passes, so this is a workflow with an agent at the edges: an agent drafts the structure and flags open questions, a human reviews before anything client-facing ships. In the agency workflows this is real: messy calls and decks become structured PRDs with explicit open questions, and what it replaced was the "we'll figure it out during the build" meeting.
+
+**Task three: choosing which of two model routes handles a request.** The input is a request with known properties; the routing rule is small and deterministic. This is normal code — the rig's routing layer is exactly this, with GLM-5.3-Flash on the everyday path and a single stated-reason escalation to a frontier model when the task genuinely needs judgment. **Measured.** The one-agent-two-models article records the canary evidence: the routine edit-and-test canary ran through GLM-5.3-Flash in roughly two and a half minutes at about 50k tokens of session traffic for pennies, and no escalation was needed. The escalation canary went to a frontier model, cost more, and produced a materially sharper judgment — the point is not that one tier is better, but that the tier decision is itself a deterministic rule with a logged reason.
+
+**Task four: investigating why a deployment failed.** The input is unknown until the investigation starts; the work does not repeat; failure cost is time, not money. Questions one and two and four all point the same way: a human or an agent in interactive mode, not an automation. Building a "deployment failure responder" agent here would automate an exploration that changes shape every time.
+
+**Task five: consent-aware tag and pixel QA.** The input is a browser journey against a real consent flow; the check is deterministic; the work repeats per market; failure cost is a compliance gap that nobody notices for weeks. This is a workflow with automated browser proof, and in agency operations it replaced spot checks that missed consent-blocked tags for weeks. The agent-shaped instinct — "let an agent figure out what fired" — would have been slower and less reliable than the deterministic browser journey the rule calls for.
+
+Five tasks, five different answers. The rule did not produce a preference for agents or for code; it produced the *correct* answer per task, which is the only thing a decision rule can honestly promise.
 
 ## The hybrid pattern that usually wins
 
-Most real work is a script with an agent at the edges: deterministic pipeline for the 90% that repeats, agent for the 10% that needs judgment, with the handoff explicit.
+Most real work is not "agent or code" but a script with an agent at the edges: the deterministic 90% that repeats, the agent handling the 10% that needs judgment, with the handoff explicit and logged. The rig's own routing layer is a working instance: cheap workhorse for routine work, frontier escalation only when the questions above say the judgment is real, every call carrying a trace in Langfuse and a reason recorded alongside it.
+
+The hybrid fails in a specific and reproducible way when the handoff is implicit. **Directional.** On this rig, the multi-agent experiment that added oversight layers between request and work spent more on coordination than on the work itself — the per-call traces showed oversight layers re-reading context, re-billing the same tokens, and adding latency without catching errors that were actually happening. The current system removed those lanes on evidence, not opinion, and the removal is the transferable lesson: a hybrid without an explicit, logged handoff is just an agent with extra steps.
+
+## Failure modes and where an agent is the wrong answer
+
+The rule catches the common mistakes before they are built, but the failures worth naming are the ones that survive past the decision:
+
+- **Agent for templated work.** The same prompt, the same fields, every run. The variance buys nothing, the tokens cost real money, and the output is no better than the function you did not write. The failure is silent: the run completes, the output looks plausible, and nobody notices the agent was the wrong tool.
+- **Workflow for exploratory work.** The workflow hard-codes last month's shape of a problem that has already changed. The failure is visible but misread as "the workflow is broken", when the honest answer is that the work was never repetitive.
+- **Agent where failure is expensive.** The publish path, the payment path, anything client-facing. One bad run can cost more than every saved minute, and the audit trail cannot reconstruct *why* the agent chose what it chose.
+- **Agent where nobody audits.** The agent writes to a system with no trace, so a dispute three weeks later has nothing to point at. The fix is provenance or plain code, not better prompts.
+
+Each failure mode maps to a question the rule asks, which is the useful property: the questions are not abstract, they are the specific things that go wrong when the decision is made by enthusiasm instead.
+
+## Limits of the rule
+
+The five questions are a heuristic, not a proof. Three limits worth stating:
+
+**Ambiguity is partly a design choice.** A messy brief is ambiguous until someone writes the intake template, at which point it becomes workflow-shaped. The rule reads the task as it arrives; if you are willing to reshape the task first, you can sometimes move it leftward on the diagram — and sometimes that reshape is worth more than any automation.
+
+**Failure cost is a distribution, not a number.** The rule asks "what does failure cost" as if it were one value, but real tasks have a distribution: the tag QA workflow is cheap failure on a single market and expensive failure across ten. The honest application of the rule asks about the tail, not the average.
+
+**The rule says nothing about capability.** It classifies the *task*; it does not tell you whether your agent can actually do it. A task that classifies as agent-shaped can still fail on capability, and the acceptance check that catches that failure is a separate article's subject.
+
+One landing the rule reaches deliberately: when a task is high-ambiguity, high-consequence, and weakly verifiable — a strategic call, a client relationship, a judgment where no deterministic check exists — the answer is a human decision with agent assistance, not an autonomous agent. The agent's role there is preparation and retrieval: it drafts, gathers, and structures; the human decides. That is not a limitation of current models to be engineered away later; it is the correct design for that class of work, and the agency workflows in this article are built on exactly that boundary.
 
 ## Where to go next
 
-This site's own routing system is a working instance of the hybrid pattern: cheap workhorse for routine work, frontier escalation only when the questions above say the judgment is real.
+This article is the decision rule; the rest of the site is the evidence behind it. The routing system described in task three is a working instance of the hybrid pattern, and the telemetry that made the oversight-layer deletion possible is what turns any version of this rule from opinion into evidence.
 
-- [The multi-agent journey](/blog/the-multi-agent-journey-what-survived-contact-with-reality) — the architectural history behind this heuristic
-- [Proof, not prompts](/blog/proof-not-prompts) — how auditability attaches to whatever you choose
-
+- [The multi-agent journey](/blog/the-multi-agent-journey-what-survived-contact-with-reality) — the architectural history behind this heuristic, including the layers the traces deleted
+- [Agent Ops for people who don't run infrastructure](/blog/agent-ops-for-people-who-dont-run-infrastructure) — the operational answer to "who must audit it" and "what happens when the agent fails"
+- [Proof, not prompts](/blog/proof-not-prompts) — how auditability and provenance attach to whatever you choose to build
