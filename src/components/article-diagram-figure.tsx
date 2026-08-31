@@ -6,6 +6,8 @@ type ArticleDiagramFigureProps = {
   caption: string
   slug?: string
   date?: string
+  editableHref?: string
+  editableLabel?: string
   className?: string
 }
 
@@ -15,6 +17,8 @@ export function ArticleDiagramFigure({
   caption,
   slug,
   date,
+  editableHref,
+  editableLabel,
   className,
 }: ArticleDiagramFigureProps) {
   return (
@@ -30,7 +34,15 @@ export function ArticleDiagramFigure({
       <figcaption className="border-t bg-card px-4 py-3 text-sm leading-6 text-muted-foreground">
         {caption}
         {date ? <span className="text-xs"> Evidence date: {date}.</span> : null}
-        {slug ? (
+        {editableHref ? (
+          <>
+            {" "}
+            <a className="font-medium underline underline-offset-4" href={editableHref}>
+              {editableLabel ?? "Download the editable source"}
+            </a>
+            .
+          </>
+        ) : slug ? (
           <>
             {" "}
             <a className="font-medium underline underline-offset-4" href={`/downloads/${slug}.excalidraw`}>
