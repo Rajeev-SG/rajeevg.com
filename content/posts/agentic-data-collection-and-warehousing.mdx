@@ -2,38 +2,120 @@
 title: Agentic data collection and warehousing
 slug: agentic-data-collection-and-warehousing
 date: 2026-08-29
-description: Server-side GTM, first-party collection, warehouse destinations, and consent — with an honest account of cost, complexity, and when the heavy stack is the wrong answer.
-tags: [analytics, sgtm, bigquery, consent, privacy, data-engineering, measurement]
+updated: 2026-08-31
+description: The full first-party measurement stack — consent, browser and server-side GTM, collection endpoints, BigQuery modelling, quality checks, privacy and activation — with an honest account of when the heavy stack is the wrong answer.
+tags: [analytics, sgtm, bigquery, consent, privacy, data-engineering, measurement, agentic]
 draft: false
 image: /images/editorial/agentic-collection-warehousing.png
 ---
 
-Server-side tagging and a warehouse are powerful. They are also optional, and the industry's habit of treating them as mandatory has cost more projects than it has helped. This article covers what the heavy stack does, what it costs, and how to decide.
+Most advice about "modern analytics architecture" skips the only question that matters: what business decisions would break if you didn't build it? Server-side tagging, first-party collection endpoints, and a warehouse are genuinely powerful — and genuinely optional. This article covers the whole system for marketers and technical readers who want to understand it end to end: consent, browser and server-side GTM, collection endpoints, warehouse modelling, quality checks, observability, privacy governance, and activation. It also makes the argument that the industry too often buries: for many organisations, the heavy stack is the wrong answer, and knowing why is worth more than knowing how to build it.
 
 ## The stack, honestly
 
-<Figure src="/images/editorial/agentic-collection-warehousing.png" alt="Draw.io comparison: consented browser collection splitting into a heavy sGTM path on Cloud Run into BigQuery, and a lighter client-side plus GA4 export path, both feeding reconciled reporting" caption="The heavy stack (sGTM on Cloud Run into BigQuery) buys first-party cookie control and event transformation. Without that requirement, client-side collection plus the GA4 BigQuery export answers the same questions with one stack to maintain instead of two." slug="agentic-collection-warehousing" date="29 August 2026" />
+<Figure src="/images/editorial/agentic-collection-warehousing.png" alt="Draw.io system diagram with four bands: a blue collection band containing a consent-gated browser, an orange heavy path through a first-party sGTM endpoint, Cloud Run and raw BigQuery, a green light path through client-side GA4 with a BigQuery export, and a purple use band with reconciled reporting; a footer note states the decision variable is first-party control and event transformation, not volume" caption="One consent decision, two possible paths, one destination that matters. The heavy path buys first-party cookie control and event transformation — capabilities most content sites never need. The light path answers the same questions with one stack to maintain. Both end at the same place: reconciled reporting where platform claims meet backend truth. Evidence date: 29 August 2026. <a class='font-medium underline underline-offset-4' href='/downloads/agentic-collection-warehousing.drawio'>Download the editable draw.io source</a>." slug="agentic-collection-warehousing" date="29 August 2026" />
 
-**Consented collection** starts in the browser. Consent state gates what fires; nothing heavy changes that, it only changes where the event goes next.
+**Consented collection** starts in the browser. A consent manager decides what may fire before any tag runs; nothing downstream — not server-side GTM, not the warehouse — changes that decision. It only changes where the event travels next.
 
-**Server-side GTM** is a first-party endpoint that receives events, transforms them, and routes them onward. Its real benefits are control (you decide exactly what leaves) and cookie lifetime on your own domain.
+**Server-side GTM** is a first-party endpoint that receives events, transforms them, and routes them onward. Its two real benefits are control — you decide exactly what leaves, and can strip or enrich payloads with server-side secrets — and cookie lifetime on your own domain. Both benefits are conditional on traffic mix and business model, not automatic.
 
-**Cloud Run** hosts the sGTM container, and it is where the bill and the operational burden live. It is also the component most teams do not actually need.
+**Cloud Run** (or an equivalent container host) runs the sGTM container, and it is where the bill and the operational burden live. On a warm, always-on deployment the cost is fixed infrastructure, not usage. That cost shape matters more than any per-event pricing.
 
-**BigQuery** is the warehouse: raw events, queryable, joinable to backend truth. For most organisations this is the component that survives even when sGTM does not.
+**BigQuery** is the warehouse: raw, queryable events joined to backend truth. For most organisations this is the component that survives even when sGTM does not. The GA4 BigQuery export delivers a structurally identical event stream without any custom infrastructure at all.
 
 ## One event's full journey
 
-## When NOT to use the heavy stack
+Concrete sequence, using a fictional content site that sells a paid newsletter. A visitor arrives on an article about pricing strategy. Consent is already granted from a previous visit, so the consent manager passes `analytics_consent_state=granted` into the application's event context.
 
-The decision variable is not volume — it is whether you need **first-party cookie control and event transformation**. If you do, sGTM earns its operational cost. If you do not, the other criteria apply: low event volume, no engineering owner, questions answerable by client-side plus the GA4 BigQuery export. Volume alone rarely justifies the heavy stack. The [cost autopsy](/blog/when-not-to-use-server-side-tagging) measured the Cloud Run bill and the maintenance load before removing the stack for exactly these reasons. The [consented first-party stack article](/blog/how-we-built-a-consented-first-party-analytics-stack) documents when the heavy stack was the right call — consent-gated collection into BigQuery with a reporting layer on top — and both lessons are folded in here.
+1. **The application pushes a structured event.** `post_read` enters the `dataLayer` with `content_slug`, `page_type=article`, `engaged_seconds_total`, and the consent state. The application — not GTM — owns this vocabulary, so the same fields mean the same thing next month and next year.
+2. **Web GTM matches the event to its tag configuration.** The tag for `post_read` fires, sending the payload to the site's collection path. Under the light path that is GA4's default collection endpoint. Under the heavy path it is `https://thesite.com/metrics`, a same-origin endpoint that proxies to server-side GTM.
+3. **The heavy path transforms before it forwards.** The sGTM container strips an internal query parameter, stamps a server-side timestamp, and forwards to GA4 and to a first-party logging destination. Nothing in this step is possible from the browser, because it depends on a server-side secret that never leaves the container.
+4. **GA4 receives the event either way.** Custom definitions promote `content_slug`, `analytics_consent_state` and engagement metrics into reportable dimensions. The property is configured, verified in a real browser, and reconciled against a backend measure of actual newsletter signups.
+5. **The warehouse gets the same stream.** Under the light path, the GA4 BigQuery export lands raw events in a dataset once a day. Under the heavy path, sGTM routes events to a raw BigQuery table directly, adding server-side enrichment fields the browser never saw.
+6. **A nightly model reconciles the two truths.** A scheduled query joins platform-reported conversions against the newsletter system's own signup records, keyed on a shared identifier. Where the numbers disagree, the disagreement is recorded, not silently overwritten.
+
+The critical structural point: steps 3 and 5 differ between the paths, but steps 1, 2, 4 and 6 do not. The measurement discipline is identical. What changes is the amount of infrastructure standing between the browser and the warehouse — and that infrastructure is only justified when the transformations it enables have business value.
+
+## Warehouse modelling without the jargon
+
+A warehouse earns its keep through three layers, and only one of them is glamorous.
+
+- **Raw layer.** Append-only event streams, exactly as collected, kept untouched. The GA4 BigQuery export produces this automatically: one table per day, nested event and user dimensions, every parameter preserved. Nothing is edited here — ever — because the raw layer is your audit trail when a downstream model misbehaves.
+- **Modelled layer.** SQL views or materialised tables that reshape the raw layer into business questions: sessions by content type, signup funnels by referrer classification, engagement cohorts by consent state. This is where joins to backend truth happen — the platform's claim about a conversion meets the billing or CRM record that says the conversion actually occurred.
+- **Reporting layer.** The surface people look at. Looker Studio, a Metabase dashboard, or a weekly email. It reads only from the modelled layer, never from raw, so a schema change upstream does not silently break the dashboard that the marketing team checks every Monday.
+
+The layering exists to keep change survivable. When a tracking bug corrupts a week of events, the raw layer records what actually happened and the modelled layer can be rebuilt without losing history. When a business question changes, only the modelled layer changes. Teams that skip the modelled layer end up with dozens of half-duplicated ad-hoc queries that nobody dares to delete — the same technical debt as any unmaintained codebase, except the interest is paid in wrong numbers.
+
+## Quality checks that catch silent breakage
+
+Analytics breakage is almost always silent: a tag stops firing, a consent default changes, a site redesign renames a `dataLayer` field, and dashboards keep rendering from stale or missing data without complaint. The checks that catch this are cheap and boring.
+
+- **Volume anomaly checks.** A daily query counts events per type and compares against a trailing 28-day baseline. A sudden drop to zero on a previously steady event — or a spike after a release — is a signal worth paging on.
+- **Schema conformance checks.** Every event type has a contract: required fields, types, allowed values. A nightly query scans the day's raw events for missing required fields and reports the percentage. Anything above a small threshold blocks the weekly reporting refresh.
+- **Consent-state reconciliation.** The percentage of events with `analytics_consent_state=granted` versus `denied` should track the consent banner's own acceptance rate. A divergence means consent state is not propagating correctly — a privacy failure, not just a measurement failure.
+- **Platform-versus-backend reconciliation.** GA4's reported conversion count versus the newsletter system's actual signups, compared weekly. Some gap is expected and permanent — different identifiers, different timing, different dedup rules. A growing gap is a defect; a stable, understood gap is a measurement characteristic you can reason about.
+
+The last check deserves emphasis because it is the one most teams skip. A marketer who trusts a dashboard without reconciliation has no way to know whether the number is real. A marketer who has seen the reconciliation report — even a simple table showing "platform said 412, backend said 388, gap explained by identifier mismatch and consent-denied cross-device journeys" — has grounds for justified confidence. That is the difference between a dashboard and a measurement system.
+
+## Where the heavy stack is the wrong answer
+
+The decision variable is not volume. It is whether you need **first-party cookie control and event transformation** — server-side secrets, PII scrubbing, vendor fan-out, durable same-origin identifiers. If you do not, the heavy stack is expensive complexity with no payoff.
+
+The [cost autopsy](/blog/when-not-to-use-server-side-tagging) on this site is the concrete case: a March 2026 Cloud Run bill of £8.42 for the measured period, almost entirely from instance-based CPU on an always-on service, extrapolating to roughly £31 net per month. The request volume during that period was effectively zero; the cost was driven by keeping the container warm, not by traffic. Combined with a 4.6% Safari/iOS share, no visible paid media, and an already-disciplined client-side setup, the economics were unambiguous: the stack was removed and the site reverted to client-side GTM and GA4.
+
+The general decision table, adapted from that autopsy:
+
+| Signal | Stay client-side when... | Test server-side when... |
+| --- | --- | --- |
+| Paid media | absent or small | a real ongoing channel, and the warm-runtime cost is under about 1% of monthly ad spend |
+| Safari + iOS share | combined share in low single digits | above roughly 20%, and much more compelling above 30% |
+| Conversion value | missed attribution is annoying, not costly | each recovered lead or sale is worth enough that £30-50/month is invisible |
+| Data control needs | simple GA4 and light pixels suffice | server-only secrets, PII scrubbing, enrichment, or vendor fan-out are required |
+| Ops tolerance | lowest-maintenance setup preferred | comfortable owning Cloud Run, GTM web + server containers, routing, and proof workflows |
+
+Multiple implementation patterns fit different organisations, and pretending one stack fits all is how projects fail:
+
+- **Client-side only.** GTM + GA4 + consent mode. One surface, no infrastructure, full measurement discipline. Correct for most content sites, portfolios, and small businesses.
+- **Client-side + warehouse.** Adds the GA4 BigQuery export. Still no custom infrastructure, but now joins to backend truth are possible. The default recommendation for any organisation that needs to reconcile platform claims against reality.
+- **Server-side + warehouse.** Adds sGTM on a container host between the browser and the warehouse. Justified when first-party control is a requirement, not a preference — typically larger paid-media programmes, consent-heavy ecommerce, or multi-vendor fan-out.
+- **Full event pipeline.** Custom collection endpoints, schema validation, streaming ingestion, and warehouse-native modelling. The right answer for product-led companies with engineering ownership of measurement, and overkill for everyone else.
+
+[The consented first-party stack article](/blog/how-we-built-a-consented-first-party-analytics-stack) documents when the heavy stack was the right call on this site: consent-gated collection into BigQuery with a reporting layer on top, built and proven in March 2026, retired a week later when the cost and traffic profile became clear. Both lessons belong to the same flagship article because they are two halves of one decision.
 
 ## The backend-truth reconciliation
 
-The point of a warehouse is not storage; it is the join. Platform-reported conversions versus backend-measured outcomes, reconciled so neither is silently overwritten — that is what turns collection into decisions. [The consent and blending article](/blog/why-browser-consent-and-source-blending-make-marketing-measurement-harder) explains why the sources disagree in the first place.
+The point of a warehouse is not storage; it is the join. Platform-reported conversions and backend-measured outcomes disagree for structural reasons — different identifiers, different consent coverage, different attribution windows, different deduplication — and pretending otherwise is how teams end up with two versions of the truth and no way to choose between them.
+
+[The consent and source-blending article](/blog/why-browser-consent-and-source-blending-make-marketing-measurement-harder) explains the mechanism: consent-denied sessions still exist and still matter, but they cannot be joined to platform identifiers, so any warehouse query that ignores them produces a number that looks clean and is wrong. The reconciliation layer makes the disagreement visible and attributable: which portion of the gap comes from consent-denied traffic, which from cross-device journeys that backend systems see but platforms cannot, and which from genuine tracking defects that should be fixed before the next reporting cycle.
+
+A useful practice is to publish the reconciliation itself. A weekly summary — "GA4 reported 412 signups, backend recorded 388, gap of 24: 11 consent-denied cross-device, 9 identifier mismatches under investigation, 4 tracking defects now fixed" — turns an uncomfortable technical reality into a governance artefact. Stakeholders stop asking "is the number right?" and start asking "what changed in the gap this week?", which is a much better question.
+
+## Privacy and governance are not optional extras
+
+Everything above assumes a consent model that is explicit, durable, and technically enforced. The collection endpoint does not create a privacy exemption; the warehouse does not launder consent-denied data into something usable. Three governance practices keep the system defensible:
+
+- **Consent state is a first-class field on every event.** Not a flag bolted on afterwards, but a required part of the event contract, promoted into the warehouse, and queryable. Any analysis that excludes or includes consent-denied data does so deliberately and documents why.
+- **PII never reaches the warehouse by accident.** The schema conformance checks include negative tests: known PII patterns in free-text fields, user identifiers in query parameters, email addresses in custom dimensions. A raw layer that quietly accumulates PII is a compliance liability that no amount of downstream discipline can undo.
+- **Retention is explicit, not default.** GA4's 14-month retention with reset-on-activity is a deliberate choice, documented. Warehouse tables have their own retention policy, aligned to the organisation's data governance standard, and the raw layer is not kept forever "just in case" without a named reason.
+
+Agentic tooling changes the speed of implementation — contract drafting, GTM configuration, browser-real QA — but it does not change who is accountable. The human decisions about what to measure, what consent means, and what number is trusted stay exactly where they were. [The agentic implementation article](/blog/agentic-web-analytics-implementation) covers that governance loop in detail; this article's claim is narrower: the infrastructure decisions underneath it are also decisions, not defaults, and they deserve the same scrutiny.
+
+## Activation: what the warehouse actually buys
+
+A warehouse that only answers reporting questions is half-used. The modelled layer becomes genuinely valuable when it feeds activation: audiences pushed back into ad platforms, lifecycle emails triggered by warehouse-computed engagement scores, or content recommendations driven by warehouse-joined behaviour and CRM data. The light path supports basic activation through GA4's native audience export; the heavy path supports richer activation because the modelled layer can compute segments that depend on server-side enrichment or backend joins — lifetime value by first-touch content, churn risk by engagement pattern, lookalike seeds built from reconciled converters rather than platform-attributed ones.
+
+The activation loop closes the system: warehouse insights shape what the site measures next, which reshapes the event contract, which reshapes the warehouse models. That loop, not any single technology choice, is what "modern measurement" actually means.
+
+## Earned conclusion
+
+The heavy stack — server-side GTM on a container host, feeding a warehouse — is a real architecture with real benefits, and it is also a rent payment for capabilities most organisations do not need. The decision variable is specific: first-party cookie control and event transformation. Everything else — volume, team size, industry, ambition — is noise.
+
+What survives regardless of that decision: an application-owned event contract, explicit consent state on every event, a raw warehouse layer that is never edited, a modelled layer that joins platform claims to backend truth, quality checks that catch silent breakage, and a reconciliation practice that makes disagreement visible instead of hidden. Those are the components of a measurement system. Server-side GTM is an implementation detail — sometimes worth it, usually not, and never a substitute for the discipline underneath.
 
 ## Where to go next
 
-- [Agentic web analytics implementation](/blog/agentic-web-analytics-implementation) — the lighter half of the measurement loop
+- [Agentic web analytics implementation](/blog/agentic-web-analytics-implementation) — the lighter half of the measurement loop: how agents draft contracts, build GTM workspaces, and run browser-real QA
+- [When not to use server-side tagging](/blog/when-not-to-use-server-side-tagging) — the full cost autopsy behind the decision table above
+- [How we built a consented first-party analytics stack](/blog/how-we-built-a-consented-first-party-analytics-stack) — the historical heavy-stack build, kept as evidence of when it was the right call
+- [Why browser consent and source blending make marketing measurement harder](/blog/why-browser-consent-and-source-blending-make-marketing-measurement-harder) — the mechanism behind the reconciliation gap
 - [The agent telemetry stack](/blog/the-agent-telemetry-stack) — the unifying claim of this site: the same collection, reconciliation, and honest-unknowns discipline governs AI systems and marketing data. The tools differ; the method is one method.
-
