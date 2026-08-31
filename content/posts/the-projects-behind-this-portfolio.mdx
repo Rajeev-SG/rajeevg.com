@@ -2,30 +2,92 @@
 title: "From projects to solutions: how this portfolio is organised"
 slug: the-projects-behind-this-portfolio
 date: 2026-03-22
-updated: 2026-08-29
-description: "The portfolio was reorganised from a flat projects list into grouped solutions with evidence dates, live links, and a separate record for earlier experiments. This is what changed and why."
+updated: 2026-08-31
+description: "The portfolio moved from a flat projects list to a grouped solutions model with evidence dates, controlled links, and a separate record for earlier experiments. Here is what the inventory actually contains and why the framing matters if you are hiring, contracting, or buying."
 tags: [portfolio, solutions, products, governance]
 draft: false
 ---
 
-This site's portfolio was originally a flat list of projects: a screenshot, a tagline, a stack badge, a link. It worked as a gallery. It did not work as evidence.
+This site's portfolio was originally a flat list of projects: a screenshot, a tagline, a stack badge, a link. It worked as a gallery. It did not work as evidence, because evidence needs four things a gallery cannot carry: a real recency claim, a route you can actually follow, an honest account of what is no longer current, and a framing that explains why the work matters together rather than one screenshot at a time.
 
-<Figure src="/images/articles-2026-08/earlier-products-lessons.svg" alt="Diagram grouping nine earlier products by the lesson each one taught and what survived into current work" caption="The earlier products, each mapped to the lesson it taught." slug="earlier-products-lessons" date="29 August 2026" />
+This article is the authoritative explanation of the [solutions and capabilities](/solutions) model: what the inventory contains as of the end of August 2026, how it is ordered, how it is grouped, what every entry must prove, and why that structure should matter to someone deciding whether the systems behind it can be trusted with real work.
 
-## What changed
+## What the solutions inventory actually contains
 
-The list is now the [solutions index](/solutions), grouped into three capabilities: **AI & Agent Systems**, **Martech & Measurement**, and **Products & Operational Tools**. Every entry carries a real evidence date, a working live, article, or GitHub link, and a detail page that says what it is and how it actually works.
+The current inventory holds **13 solutions across three categories**, ordered by genuine last-updated date everywhere the ordering is shown. Every date is the date the evidence behind that entry was last checked or changed, not the date the entry was written. The current solution entries are:
 
-Sorting is by genuine recency, not by which project photographs best. A small featured area is curated; the complete inventory underneath is date-ordered.
+- **Agent Operations Control Plane** — 29 August 2026
+- **Agent Routing and Lifecycle System** — 29 August 2026
+- **Global Measurement Governance System** — 29 August 2026
+- **Media QA and Attribution Reconciliation Toolkit** — 29 August 2026
+- **AI-Assisted Product Definition System** — 29 August 2026
+- **Coding Agent Observatory** — 28 August 2026
+- **Model Routing Performance Lab** — 28 August 2026
+- **Local LLM Lab** — 20 August 2026
+- **Open GTM Index** — 20 July 2026
+- **Model Intelligence Maintainer** — 10 July 2026
+- **Creative Observatory** — 15 June 2026
+- **Hackathon Voting App** — 30 May 2026
+- **Agent Orchestra** — 1 May 2026
+
+That ordering is deliberate and mechanical, not editorial. It is the same order used on the solutions index, on the grouped cards, and on the detail pages that carry a visible evidence date. Two dates dominate the top of the list — 29 August and 28 August — because those are the dates the agent operations, routing, and measurement governance work was last reviewed as part of the portfolio's own rewrite. Nothing claims to be fresher than it is, and nothing claims to be current that has not been touched since spring.
+
+The three groupings are:
+
+- **AI and Agent Systems** — systems that keep agents running, measured, and honest about cost.
+- **Martech and Measurement** — governance, QA, and reconciliation that make marketing data trustworthy.
+- **Products and Operational Tools** — working products that support real operations, not demos.
+
+The grouping is a claim about what the work is *for*, not just what technology it uses. One solution can plausibly belong in more than one group — Local LLM Lab is both an AI capability and a research product — and it is placed where it serves the capability narrative best rather than where its tech stack happens to sit.
+
+## What every solution must prove
+
+Each entry carries a real evidence route before it is allowed into the current inventory. That route takes one of three forms:
+
+1. **A live product URL** — something you can open, use, and form your own judgement about, such as the hackathon voting app, the Local LLM Lab guide, or the Open GTM Index rankings.
+2. **A write-up** — a published article that explains the system's mechanism, constraints, and trade-offs, which is how the operations-heavy solutions that run on this Mac are evidenced.
+3. **A public GitHub repository** — source code that can be inspected, including the scoring method behind Open GTM Index and the benchmark data behind Model Intelligence Maintainer.
+
+Every current solution has at least one of these. Many have more. The one deliberate constraint on how links are presented: when a "live site" link and an "article" link would resolve to the same destination, only one is rendered. Redundant links do not add evidence; they add noise and signal that the inventory has not been reviewed.
+
+The evidence date on each entry is a commitment as much as a label. It says the claim was checked on that date against something concrete — a running deployment, a working telemetry feed, a repository state — rather than being inherited from a previous rewrite. When a solution has not been touched in months, the date says so openly rather than hiding behind a vague "recent work" framing.
 
 ## What happened to the older work
 
 Nine earlier products and experiments — Choice Compass, Proof Pack, Mark Notes, GitHub Canvas Monitor, Singulyr PACT, the OpenReview deployment, the Singulyr launch site, Workflow Garden, and this site itself — moved to [Earlier products and experiments](/solutions/earlier-products). Nothing was deleted. Each carries the specific lesson it taught, and several of those lessons became current capabilities: proof discipline became [Proof, not prompts](/blog/proof-not-prompts), governance thinking became [the measurement governance system](/solutions/global-measurement-governance-system), and the local-first constraint shaped [Local LLM Lab](/solutions/local-llm-lab).
 
+Keeping them in a separate, demoted area is a deliberate choice about what the current page argues. A buyer scanning the top of the solutions index should see capability, not history. Mixing retired experiments into the current list would dilute that claim and make the inventory harder to read without adding anything the earlier-products page does not already do better, with room for the actual lesson rather than a half-line of context squeezed between live links.
+
+## How the capability system connects
+
+The solutions are not thirteen unrelated things. They form a connected capability system across AI and agents, martech and measurement, and agency operations, and the connections matter more than any single entry.
+
+The agent spine starts with the **Agent Operations Control Plane**, which keeps a multi-agent fleet running through launchd, exposes state on an operations board, routes alarms through Alertmanager, and puts runbooks next to each failure mode. **Coding Agent Observatory** and **Tokenmaxxing** sit on top of that as the measurement layer: they normalise session stores from Codex, Claude Code, Hermes, OMP, OpenClaw, and OpenCode, deduplicate cumulative provider totals, and publish a privacy-safe public summary alongside a private full-detail Grafana room. **Agent Routing and Lifecycle System** is the decision layer that uses those measurements to route work between a cheap workhorse model and frontier escalation, with A2A as a discovery capability so agents can find each other without bespoke plumbing. **Model Routing Performance Lab** and **Model Intelligence Maintainer** supply the benchmark evidence behind those routing decisions, and **Local LLM Lab** extends the same measured comparison onto Apple Silicon, where the runtime and quantisation choices are as consequential as the model choice.
+
+The measurement side is not separate from the agent side. **Global Measurement Governance System** applies the same discipline to marketing data: a taxonomy contract, automated QA that compares the live implementation against it, and reconciliation flows that align GA4, BigQuery, vendor pixels, and backend truth before anyone makes a reporting decision. **Media QA and Attribution Reconciliation Toolkit** is the browser-facing part of that loop, exercising the real consent journey and comparing what actually fires against the vendor story. **AI-Assisted Product Definition System** turns the same governance mindset into agency operations — turning source material into PRDs, plans, and scoped decisions with explicit review gates rather than generic documents.
+
+The connective tissue is a single idea: **every claim should be checkable, every check should produce evidence, and every piece of evidence should be current enough to matter.** The agent work proves it on infrastructure. The measurement work proves it on marketing data. The product work proves it on shipping real interfaces. That is the capability model a buyer is actually buying, even when they arrive through a single project link.
+
+## The card and figure treatment
+
+The solutions cards use two different image treatments, because the two kinds of images need different things. Diagram-like solution cards — the Excalidraw-sourced diagrams used by the agent, measurement, and operational capability entries — render **contained** with padding, so no information is cropped at the edges. Screenshot-based product cards — the Local LLM Lab guide, the Creative Observatory workbench, the hackathon voting app, and similar live deployments — may use cover cropping, because the edges of a screenshot are safe to cut and containment would leave dead space around the live UI.
+
+There is no separate diagram inside this article, because the live cards on the solutions index already do that teaching job better than any additional figure would. The article's job is to explain the model in prose; the inventory's job is to show the model in the same place the evidence lives.
+
 ## The canonical URLs
 
 Old `/projects` links still work. They permanently redirect to `/solutions`, and the two analytics sub-routes redirect to their governing solution pages. Nothing external breaks; the structure just got honest about what is current and what is history.
 
-## What survives from the original article
+## The trade-offs and limitations
 
-The original argument — that a portfolio should be a map of shipped systems, not a screenshot gallery — is unchanged. What changed is the evidence standard behind it: every claim now carries a date and a link, which is the same discipline [the flagship articles](/blog) hold themselves to.
+The inventory is honest about its constraints, and it would be dishonest to present the model as costless.
+
+**Recency dates are self-reported.** They reflect when evidence was last checked against a real surface, not independent verification by a third party. That is the same standard every portfolio faces, and the mitigation is that every claim is linked to something checkable rather than being left to assertion.
+
+**Nine earlier products remain live.** Some of those deployments are older and depend on free-tier services that may not stay alive indefinitely. They are kept because the lessons are real and the URLs are useful context, not because they are meant to represent current capability. If one of them goes dark, the earlier-products page still carries what it taught, which is the part that survives.
+
+**Some capability is evidenced by write-up rather than running software.** The operations-heavy solutions on this Mac — the control plane, the routing layer, the measurement governance work — do not ship as deployable products, because their real substrate is a local agent fleet and a client-side practice, not a SaaS surface. The articles are the honest evidence for those, and the articles carry their own evidence dates and data.
+
+## What survives from the original argument
+
+The original argument — that a portfolio should be a map of shipped systems, not a screenshot gallery — is unchanged. What changed is the standard behind it: every claim now carries a date, a real link, a category that says what the work is for, and a place in a connected capability story that a buyer can follow from any single entry to the whole system. That is the difference between showing work and defending it.
