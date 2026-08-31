@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 800" role="img" aria-labelledby="ksT ksD">
+<title id="ksT">Knowledge systems lifecycle</title>
+<desc id="ksD">A conceptual Excalidraw-style loop: messy material flows through extraction with provenance into a governed markdown layer with owners and review dates; the layer is indexed and queried by agents and people; answers trace back to sources; a dashed scheduled-refresh path feeds changed sources back into extraction, and a conflict flag records disagreement instead of silently resolving it.</desc>
+<defs>
+<marker id="ksArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L9,3 L0,6 Z" fill="#334155"/></marker>
+<marker id="ksArrowPurple" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L9,3 L0,6 Z" fill="#7c3aed"/></marker>
+<marker id="ksArrowAmber" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L9,3 L0,6 Z" fill="#b45309"/></marker>
+</defs>
+<style>
+.ks-box{fill:#fff;stroke:#334155;stroke-width:2;rx:14}
+.ks-title{font-family:'Trebuchet MS','Segoe UI',sans-serif;font-size:26px;font-weight:700;fill:#0f172a}
+.ks-sub{font-family:'Trebuchet MS','Segoe UI',sans-serif;font-size:16px;fill:#475569}
+.ks-h{font-family:'Trebuchet MS','Segoe UI',sans-serif;font-size:19px;font-weight:700;fill:#0f172a}
+.ks-b{font-family:'Trebuchet MS','Segoe UI',sans-serif;font-size:14.5px;fill:#334155}
+.ks-edge{font-family:'Trebuchet MS','Segoe UI',sans-serif;font-size:13px;fill:#475569}
+.ks-foot{font-family:'Trebuchet MS','Segoe UI',sans-serif;font-size:13px;fill:#64748b}
+</style>
+<rect x="0" y="0" width="1280" height="800" fill="#fdfdfb"/>
+<text x="56" y="52" class="ks-title">The knowledge systems loop</text>
+<text x="56" y="82" class="ks-sub">Material in, governed layer in the middle, answers out — and the two paths most setups skip.</text>
+
+<!-- Raw material -->
+<rect x="56" y="160" width="230" height="112" rx="14" fill="#fff7ed" stroke="#c2700a" stroke-width="2"/>
+<text x="76" y="192" class="ks-h">Raw material</text>
+<text x="76" y="220" class="ks-b">files · email · decks</text>
+<text x="76" y="243" class="ks-b">sheets · meetings</text>
+<text x="76" y="261" class="ks-foot">never edited in place</text>
+
+<!-- Extraction -->
+<rect x="392" y="160" width="238" height="112" rx="14" fill="#eff6ff" stroke="#1d4ed8" stroke-width="2"/>
+<text x="412" y="192" class="ks-h">Extraction</text>
+<text x="412" y="220" class="ks-b">entities · dates · owners</text>
+<text x="412" y="243" class="ks-b">provenance on every claim</text>
+<text x="412" y="261" class="ks-foot">source file, meeting or email</text>
+
+<!-- Governed layer -->
+<rect x="736" y="160" width="262" height="130" rx="14" fill="#ecfdf5" stroke="#047857" stroke-width="2.5"/>
+<text x="756" y="192" class="ks-h">Governed markdown layer</text>
+<text x="756" y="220" class="ks-b">one canonical version per fact</text>
+<text x="756" y="243" class="ks-b">named owner · review date</text>
+<text x="756" y="266" class="ks-b">the only thing anyone queries</text>
+
+<!-- Conflict flag -->
+<rect x="1046" y="164" width="184" height="118" rx="14" fill="#fffbeb" stroke="#b45309" stroke-width="2" stroke-dasharray="6 5"/>
+<text x="1062" y="194" class="ks-h" fill="#b45309">Conflict?</text>
+<text x="1062" y="222" class="ks-b">record both positions</text>
+<text x="1062" y="245" class="ks-b">flag for a human —</text>
+<text x="1062" y="266" class="ks-b">never auto-pick a winner</text>
+<line x1="1046" y1="223" x2="1002" y2="223" stroke="#b45309" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#ksArrowAmber)"/>
+
+<!-- qmd index -->
+<rect x="736" y="376" width="262" height="92" rx="14" fill="#f5f3ff" stroke="#6d28d9" stroke-width="2"/>
+<text x="756" y="408" class="ks-h">qmd index</text>
+<text x="756" y="436" class="ks-b">keyword · semantic · hyde</text>
+<text x="756" y="456" class="ks-foot">agents query via MCP</text>
+
+<!-- Agents and people -->
+<rect x="412" y="556" width="258" height="100" rx="14" fill="#eff6ff" stroke="#1d4ed8" stroke-width="2"/>
+<text x="432" y="590" class="ks-h">Agents and people</text>
+<text x="432" y="618" class="ks-b">ask the layer, not the folder</text>
+<text x="432" y="640" class="ks-foot">“the layer says” not “the AI said”</text>
+
+<!-- Trace to sources -->
+<rect x="92" y="556" width="244" height="100" rx="14" fill="#fff7ed" stroke="#c2700a" stroke-width="2"/>
+<text x="112" y="590" class="ks-h">Trace to source</text>
+<text x="112" y="618" class="ks-b">file · date · provenance</text>
+<text x="112" y="640" class="ks-foot">every answer auditable</text>
+
+<!-- Arrows -->
+<line x1="288" y1="216" x2="388" y2="216" stroke="#334155" stroke-width="2.5" marker-end="url(#ksArrow)"/>
+<line x1="632" y1="216" x2="732" y2="216" stroke="#334155" stroke-width="2.5" marker-end="url(#ksArrow)"/>
+<line x1="867" y1="292" x2="867" y2="372" stroke="#6d28d9" stroke-width="2.5" marker-end="url(#ksArrowPurple)"/>
+<line x1="736" y1="452" x2="676" y2="552" stroke="#6d28d9" stroke-width="2.5" marker-end="url(#ksArrowPurple)"/>
+<line x1="410" y1="606" x2="340" y2="606" stroke="#334155" stroke-width="2.5" marker-end="url(#ksArrow)"/>
+
+<!-- Refresh loop (dashed) -->
+<path d="M 512 554 C 512 420, 505 330, 508 276" fill="none" stroke="#7c3aed" stroke-width="2.5" stroke-dasharray="7 6" marker-end="url(#ksArrowPurple)"/>
+<text x="300" y="392" class="ks-edge" fill="#7c3aed" transform="rotate(-90 300 392)"> </text>
+<text x="524" y="392" class="ks-edge" fill="#7c3aed">scheduled refresh:</text>
+<text x="524" y="414" class="ks-edge" fill="#7c3aed">changed sources + lapsed</text>
+<text x="524" y="436" class="ks-edge" fill="#7c3aed">review dates re-enter here</text>
+
+<text x="56" y="738" class="ks-foot">Evidence date: 31 August 2026 · mechanism observed on the rajeevg.com rig; business flows anonymised</text>
+<text x="56" y="762" class="ks-foot">Conceptual map — solid lines are the query path, dashed purple is the maintenance loop</text>
+</svg>

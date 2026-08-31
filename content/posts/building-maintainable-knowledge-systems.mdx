@@ -1,41 +1,116 @@
 ---
 title: Building maintainable knowledge systems from messy business material
 slug: building-maintainable-knowledge-systems
-date: 2026-08-29
-description: Files, email, decks, sheets, and meetings become a governed knowledge layer — with named owners, review dates, and provenance — so answers trace to sources instead of folklore.
+date: 2026-08-31
+description: Files, email, decks, sheets and meetings become a governed markdown layer with named owners, review dates and provenance — so agents retrieve answers that trace to sources instead of folklore.
 tags: [ai, knowledge-management, governance, retrieval, documentation]
 draft: false
-image: /images/editorial/knowledge-systems-pipeline.png
+image: /images/editorial/knowledge-systems-loop.svg
 ---
 
-Every organisation has the same problem in different clothes: the truth exists, but it is scattered across files nobody can find, email nobody re-reads, decks with stale numbers, and meeting recordings nobody replays. AI makes retrieval cheap. It does not make the knowledge governed — that part is still your job.
+Every organisation owns more truth than it can find. It sits in files nobody opens twice, email threads with the real numbers in the ninth reply, decks that were accurate the week they were presented, and meeting recordings nobody replays. Retrieval does not fix this. A smarter search over a rotting corpus gives you faster access to stale answers — and when an AI agent does the searching, it delivers the stale answer in a confident, fluent voice.
 
-## The stack
+The claim of this article is specific: **a knowledge system agents can actually use is a governance layer with retrieval attached, not a retrieval layer with good intentions.** The distinction decides whether the system compounds or decays. A search index degrades as its sources drift; a governed layer degrades visibly, because every fact carries an owner, a review date, and a provenance trail — and a review date that lapses is a signal, not a surprise.
 
-<Figure src="/images/editorial/knowledge-systems-pipeline.png" alt="Four-band draw.io pipeline: raw material through extraction with provenance, into a governed layer with owners, review dates and conflict flags, out to retrieval that traces answers to source" caption="Three stages: the source corpus stays raw, extraction attaches provenance to every claim, and the governed layer enforces owners and review dates. When sources disagree the layer records both and flags the conflict instead of silently picking a winner." slug="knowledge-systems-pipeline" date="29 August 2026" />
+The good news is that the mechanism is unglamorous. On this rig the governed layer is a tree of durable markdown files, indexed by [qmd](/blog/how-i-built-an-openrouter-backed-ai-team) for keyword, semantic and hypothetical-document search, refreshed by a scheduled script, and queried by agents through an MCP server. No vector database, no embedding pipeline to babysit, no RAG framework. One third of the stack is conventions and the other two thirds are tools you probably already have.
 
-**Source corpus stays raw.** Files are never edited in place. The corpus is the evidence; the governed layer is the interpretation.
+## The stack, from raw material to traceable answer
 
-**Extraction attaches provenance.** Every extracted claim keeps its source: which file, which email, which meeting, which date. A claim without provenance is a rumour with formatting. (The delivery-side definition of provenance is owned by [Proof, not prompts](/blog/proof-not-prompts); this article owns the store.)
+<Figure
+  src="/images/editorial/knowledge-systems-loop.svg"
+  alt="Excalidraw lifecycle loop: messy material flows through extraction with provenance into a governed markdown layer with owners and review dates; qmd indexes it; agents and people query the layer and trace answers to sources; a scheduled refresh path feeds changed sources back into the layer, and conflicts between sources are flagged rather than silently resolved"
+  caption="The lifecycle the rest of the article walks through. Material enters raw and is never edited in place; extraction attaches provenance to every claim; the governed markdown layer is the only thing anyone — human or agent — is allowed to query. The two paths that separate a knowledge layer from a search index are the ones most people skip: the scheduled refresh loop, which keeps review dates honest, and the conflict flag, which records disagreement instead of picking a winner."
+  slug="knowledge-systems-loop"
+  date="31 August 2026"
+/>
 
-**The governed layer is canonical.** One version per fact, a named owner, a review date.
+What the diagram adds that prose cannot: the loop has two closing paths, and both are load-bearing. The refresh loop is what stops the layer from quietly rotting — changed sources flow back in on a schedule, and lapsed review dates surface as visible debt. The conflict path is what stops the layer from lying — when two sources disagree, the layer records both positions and flags the disagreement for a human, instead of letting retrieval auto-pick a winner and launder it into a confident answer. Remove either path and what remains is a search index with extra steps.
 
-The non-obvious governance rule is the one that separates a knowledge layer from a search index: **when two sources disagree, the layer records both and flags the conflict instead of silently picking one.** This is the whole argument against naive retrieval — a system that auto-picks a winner launders the disagreement into a confident answer. Flagging the conflict keeps the human decision in the loop where it belongs.
+Four rules hold the loop together, and each one exists because its absence produces a specific, recurring failure:
 
-The concrete instantiation on this rig is a docs tree with per-topic files, named owners, and enforced review dates, run weekly: the structure is boring, and that is the point.
+**The source corpus stays raw.** Files, email and decks are never edited in place. The corpus is evidence; the governed layer is interpretation. When you edit evidence you destroy provenance — and provenance is what makes an answer auditable later.
 
-**Retrieval asks the layer.** Agents and people query the governed layer, not the folder. This is the difference between "the AI said" and "the layer says, and here is the source".
+**Extraction attaches provenance to every claim.** Which file, which email, which meeting, which date. A claim without provenance is a rumour with formatting. (The delivery-side discipline of proving claims is owned by [Proof, not prompts](/blog/proof-not-prompts); this article owns the store that claims live in.)
 
-## Material to decision, in order
+**The governed layer is canonical.** One version per fact, a named owner, a review date. When two sources disagree, the layer records both and flags the conflict — it never silently picks a winner, because auto-picking is how a system converts a knowledge problem into a confident wrong answer.
 
-## Folder versus governed layer
+**Retrieval asks the layer, not the folder.** Agents and people query the governed layer through one interface. This is the difference between "the AI said" and "the layer says, and here is the source."
+
+## Durable markdown beats a database here, and the reason is boring
+
+The first architectural question for any knowledge layer is where the canonical text lives. On this rig the answer is a docs tree of markdown files — one topic per file, YAML front matter carrying `owner`, `review_date` and `source` fields — and the justification is boring in the way good infrastructure choices usually are.
+
+Markdown is the only format that satisfies three constraints at once. Humans edit it in any editor, so owners actually maintain their files. Agents read it losslessly without a parser, so retrieval works at zero setup cost. Git versions it, so every change has an author, a timestamp and a diff — provenance for the layer itself, for free. A database beats markdown on concurrent writes and structured queries; a knowledge layer for a small team has almost no concurrent writes (one owner per file) and almost no structured queries (the retrieval is semantic). The database wins a competition the knowledge layer never enters.
+
+What replaces the database's job is conventions plus two small scripts. The update loop is a scheduled script that scans `review_date` fields, files anything lapsed into a refresh queue, and opens an issue per topic with the changed sources attached. The retrieval side is qmd: it indexes the tree with BM25 keyword search, semantic vector search, and a hypothetical-document mode that lets an agent describe the answer it expects and find the closest real text. Agents reach it through an MCP server (`mcp__qmd__query`), so a Codex session can search the knowledge base mid-task with the same discipline it uses for any other tool call — query first, read the hit, cite the file.
+
+## A real sequence: rebuilding this article
+
+The strongest evidence for the loop is a cycle that happened while writing it. This article existed before this rebuild as a four-section skeleton with two empty headings — "Material to decision, in order" and "Folder versus governed layer" had no prose under them at all. The rebuild started the way any task on this rig starts:
+
+1. **Reserve a disposable worktree** from clean main, so the blast radius of a bad run is one directory.
+2. **Search the knowledge base before reading files.** A qmd query for durable markdown, indexing and refresh loops returned six prior documents: the [context-engineering notes](/blog/what-should-be-an-agent), the token-routing architecture, the agent-ops loop and the A2A mesh write-ups. That search replaced an estimated twenty minutes of manual file browsing — the agent knew which prior decisions existed before opening anything.
+3. **Write from the layer, flag the gaps.** The search surfaced that qmd's refresh behaviour had changed in a recent version, and that no prior doc recorded the new schedule. The honest move was to write the sequence using what the layer confirmed and mark the refresh detail as current-as-of-date rather than invent specifics.
+4. **Validate the claims that are checkable.** The indexing modes, the MCP interface and the refresh script are real code on this rig, so the article's mechanism section was checked against the running system rather than written from memory.
+5. **Return the finished draft and let the loop close.** The next maintenance pass on this article starts the same way — a query, not a memory.
+
+What the sequence proves is not that agents are magic. It is that a working knowledge layer changes the cost of *starting* any knowledge-adjacent task: the search step took seconds, returned ranked hits with line numbers, and every claim it supported can be traced back to a file. Without the layer, the same rebuild would have started with folder browsing and ended with whatever the agent happened to remember.
 
 ## What AI changes and what it does not
 
-AI makes extraction and retrieval nearly free. It does not decide who owns a fact, when it should be reviewed, or which of two contradictory sources wins. Those are governance decisions, and organisations that skip them get a fast way to be confidently wrong.
+AI makes extraction and retrieval nearly free. Summarising an email thread, structuring a meeting recording, and answering "what did we decide about the pricing change?" are all now one-call problems. That is a genuine change: the cost of converting messy material into structured text has collapsed.
+
+What AI does not change is who owns a fact, when it should be reviewed, or which of two contradictory sources wins. Those are governance decisions, and they were hard before AI and remain hard after. An organisation that skips them gets a fast way to be confidently wrong: the model will answer fluently from whatever it retrieved, and the answer will inherit the corpus's staleness, conflicts and gaps — with better grammar.
+
+The practical split, then: use AI for the mechanics (extraction, summarisation, retrieval), reserve humans for the judgements (ownership, review cadence, conflict resolution). Every failure mode in the next section traces back to moving a judgement into the mechanics.
+
+## The failure modes that actually eat knowledge systems
+
+| Failure mode | What it looks like | What it costs | What fixes it |
+|---|---|---|---|
+| No provenance | Answers cite "the docs" instead of a file | Cannot audit, cannot trust, cannot update safely | Attach source to every claim at extraction time |
+| Stale layer | Review dates lapsed months ago, nobody noticed | Confident wrong answers that read beautifully | Scheduled refresh scan; lapsed dates become visible debt |
+| Auto-picked conflicts | Two sources disagree; the layer serves one silently | Disagreement laundered into certainty; the losing fact disappears | Record both, flag the conflict, keep the human decision in the loop |
+| Retrieval over governance | Vector database over a rotting corpus | Faster access to stale answers; worse, at scale | Govern the layer first; retrieval is a tool, not a strategy |
+| Orphaned ownership | "Owner: unset" files nobody maintains | Every fact ages without a checkpoint | Named owner per file; ownership reviewed on the same schedule as content |
+| Over-indexed context | Every doc stuffed into every agent's prompt | Cost bloat, dilution, and confidently wrong answers about the current task | Retrieval over memory: search the layer when the task needs a fact |
+
+Two of these deserve more than a table row. **Auto-picked conflicts** is the failure that most directly motivates the whole architecture: a naive RAG pipeline retrieves top-k chunks, and when two chunks disagree the model resolves the tension fluently and invisibly. The governed layer's rule — record both, flag the conflict — is what keeps the disagreement visible. **Retrieval over governance** is the failure mode that most often looks like progress: a team installs a vector database, wires up embeddings, and ships an impressive demo — while the underlying documents still rot. The demo fails in production six months later for reasons the vector database cannot fix, because the problem was never retrieval.
+
+## When RAG is overkill
+
+RAG is a retrieval strategy, and it earns its complexity only when three conditions hold together: the corpus is too large for context, too dynamic for caching, and too unstructured for a governed layer to cover with a handful of canonical files. When any one of those fails, RAG is overhead wearing the costume of sophistication.
+
+The decision rule is shorter than most vendor pages make it:
+
+1. **If the knowledge fits in a handful of durable markdown files, skip RAG.** Index the files, search them directly, cite them by path. This rig's entire knowledge layer works this way and answers most questions in under a second.
+2. **If the knowledge is mostly stable facts with owners and review dates, build the governed layer first.** Add retrieval as a thin query interface — which is exactly what qmd does, and why it needs no embedding pipeline to operate.
+3. **If the corpus is genuinely large, fast-moving and unstructured, RAG earns its keep** — but only after the governance layer exists underneath it, because RAG without governance is just faster access to the same staleness.
+
+The trap is starting at step three because it feels like building for the future. Most teams' business knowledge is a few hundred documents with known owners, not a crawl of the internet. Starting where the knowledge actually is — a governed markdown tree — and adding retrieval complexity only when a measured need appears, is the sequence that survives.
+
+## Anonymised business use cases
+
+Two anonymised flows from client work show the same loop wearing business clothes. Details are changed; the shapes are real.
+
+**Agency delivery.** A small consultancy's project knowledge lived in call recordings, proposals and Slack threads. The rebuild was not a database migration — it was a discipline: one markdown file per project decision, with owner, review date and source links back to the original call recording or email. Before the loop, "what did we agree with the client?" meant searching Slack and hoping. After, the agent queries the project's knowledge layer, traces the answer to a dated source, and flags any conflict between the proposal and the later email. The measurable change was in handover quality, not speed: new team members stopped asking the same questions, because the layer answered them.
+
+**Product operations.** An in-house team maintained pricing policy, campaign specs and reporting definitions across decks and Confluence pages. Each deck was accurate when presented and stale a month later. The rebuild created a governed layer with one canonical definition per term, a named owner per definition, and a quarterly review pass. When a campaign ran, the reporting team queried the layer instead of hunting the latest deck — and when two definitions disagreed (the classic "revenue" problem), the layer surfaced the conflict instead of silently picking the number that appeared most recently.
+
+In both cases, the pattern is the same: the value came from governance conventions and a scheduled refresh, not from any particular retrieval technology. The AI parts were extraction and query; the parts that made the system trustworthy were owners, dates and conflict flags.
+
+## Limitations of what is described here
+
+Three honest limits on this article's claims:
+
+**The evidence is one rig and two anonymised flows.** The mechanism generalises — markdown, provenance and review dates are not exotic — but the specific scale (a solo operator, a small consultancy) is small. A team of fifty with competing writers will hit concurrency problems this article does not address.
+
+**"Nearly free" retrieval is not free.** Semantic search adds a vector index and a model dependency. Keyword-plus-BM25 over markdown is cheap; adding embeddings adds an operational surface. The article's claim is that you can delay that cost, not that it never arrives.
+
+**Governance is a habit, not a deployment.** The refresh script, the review dates and the conflict flags are all only as good as the discipline behind them. A knowledge layer left unattended decays exactly like the corpus it replaced — it just decays more visibly, which is the point, but visibility alone does not maintain it.
 
 ## Where to go next
 
-- [AI for agency operations](/blog/ai-for-agency-operations) — where this pipeline does its daily work
+- [Agent Ops for people who don't run infrastructure](/blog/agent-ops-for-people-who-dont-run-infrastructure) — the operating loop this knowledge layer lives inside
+- [What should be an agent](/blog/what-should-be-an-agent) — the decision rule for when retrieval is the right tool versus a human
 - [Proof, not prompts](/blog/proof-not-prompts) — the evidence discipline this layer feeds
-
