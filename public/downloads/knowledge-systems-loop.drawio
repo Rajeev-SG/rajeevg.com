@@ -1,0 +1,89 @@
+<mxfile host="opus-visual-remediation-72" agent="claude-opus-5" version="26.0.3">
+  <diagram id="knowledgeloop" name="Knowledge systems loop">
+    <mxGraphModel dx="1600" dy="1000" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1300" pageHeight="900" math="0" shadow="0" background="#ffffff">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="eIngest" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#0f766e;strokeWidth=2.5;endArrow=blockThin;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="in1" target="in2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eToHub" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#0f766e;strokeWidth=2.5;endArrow=blockThin;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="in2" target="hub">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eQuery" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#0f766e;strokeWidth=2.5;endArrow=blockThin;endFill=1;exitX=1;exitY=0.75;entryX=0;entryY=0.5;" edge="1" parent="1" source="hub" target="q">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="865" y="452" />
+              <mxPoint x="865" y="620" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="eConflict" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;dashPattern=4 4;strokeColor=#b91c1c;strokeWidth=2.5;endArrow=blockThin;endFill=1;startArrow=blockThin;startFill=1;exitX=1;exitY=0.25;entryX=0;entryY=0.5;" edge="1" parent="1" source="hub" target="cf">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="865" y="348" />
+              <mxPoint x="865" y="255" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="eMaint" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;dashPattern=8 6;strokeColor=#7c3aed;strokeWidth=2.5;endArrow=blockThin;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="hub" target="mt">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eRail" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;dashPattern=8 6;strokeColor=#7c3aed;strokeWidth=2.5;endArrow=blockThin;endFill=1;exitX=0;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="mt" target="in1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="30" y="680" />
+              <mxPoint x="30" y="255" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="title" value="&lt;b style=&quot;font-size:23px&quot;&gt;One layer everyone queries, and two paths that keep it true&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:15px;color:#cbd5e1&quot;&gt;Raw material is never edited in place. Every claim carries its provenance. Only the governed layer is queryable.&lt;/span&gt;" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#0f172a;strokeColor=#0f172a;fontColor=#ffffff;align=left;spacingLeft=22;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="30" y="30" width="1210" height="84" as="geometry" />
+        </mxCell>
+
+        <mxCell id="hINGEST" value="&lt;b&gt;INGEST &amp;mdash; NEVER EDITED IN PLACE&lt;/b&gt;" style="text;html=1;align=left;verticalAlign=middle;fontSize=13;fontColor=#0f766e;" vertex="1" parent="1">
+          <mxGeometry x="60" y="164" width="340" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="hCONF" value="&lt;b&gt;THE ONE HUMAN DECISION&lt;/b&gt;" style="text;html=1;align=left;verticalAlign=middle;fontSize=13;fontColor=#b91c1c;" vertex="1" parent="1">
+          <mxGeometry x="900" y="164" width="340" height="24" as="geometry" />
+        </mxCell>
+
+        <mxCell id="in1" value="&lt;b style=&quot;font-size:18px&quot;&gt;Changed sources&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:14px&quot;&gt;files &amp;middot; email &amp;middot; decks&lt;br&gt;review debt surfaces here first&lt;/span&gt;" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#f0fdfa;strokeColor=#0f766e;strokeWidth=2;align=left;spacingLeft=18;verticalAlign=middle;fontColor=#134e4a;" vertex="1" parent="1">
+          <mxGeometry x="60" y="200" width="330" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="in2" value="&lt;b style=&quot;font-size:18px&quot;&gt;Extraction&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:14px&quot;&gt;entities &amp;middot; dates&lt;br&gt;provenance attached to every claim&lt;/span&gt;" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#f0fdfa;strokeColor=#0f766e;strokeWidth=2;align=left;spacingLeft=18;verticalAlign=middle;fontColor=#134e4a;" vertex="1" parent="1">
+          <mxGeometry x="60" y="380" width="330" height="110" as="geometry" />
+        </mxCell>
+
+        <mxCell id="hub" value="&lt;b style=&quot;font-size:21px&quot;&gt;Governed markdown&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:15px&quot;&gt;one version per fact&lt;br&gt;named owner &amp;middot; review date&lt;br&gt;indexed by qmd&lt;br&gt;&lt;br&gt;&lt;b&gt;the only thing anyone &amp;mdash; human&lt;br&gt;or agent &amp;mdash; is allowed to query&lt;/b&gt;&lt;/span&gt;" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#dcfce7;strokeColor=#15803d;strokeWidth=3;align=left;spacingLeft=20;verticalAlign=middle;fontColor=#14532d;" vertex="1" parent="1">
+          <mxGeometry x="470" y="300" width="360" height="204" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cf" value="&lt;b style=&quot;font-size:18px&quot;&gt;Conflict&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:14px&quot;&gt;two sources disagree &amp;mdash; a person&lt;br&gt;decides, and the layer is written&lt;br&gt;back once, with the reason&lt;/span&gt;" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#fef2f2;strokeColor=#b91c1c;strokeWidth=2;dashed=1;dashPattern=4 4;align=left;spacingLeft=18;verticalAlign=middle;fontColor=#7f1d1d;" vertex="1" parent="1">
+          <mxGeometry x="900" y="200" width="340" height="110" as="geometry" />
+        </mxCell>
+
+        <mxCell id="q" value="&lt;b style=&quot;font-size:18px&quot;&gt;Traceable answers&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:14px&quot;&gt;file &amp;middot; date &amp;middot; provenance returned&lt;br&gt;with the answer, so it stays&lt;br&gt;auditable after the fact&lt;/span&gt;" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#f0fdfa;strokeColor=#0f766e;strokeWidth=2;align=left;spacingLeft=18;verticalAlign=middle;fontColor=#134e4a;" vertex="1" parent="1">
+          <mxGeometry x="900" y="560" width="340" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="mt" value="&lt;b style=&quot;font-size:18px&quot;&gt;Scheduled refresh&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:14px&quot;&gt;weekly scan &amp;middot; lapsed review dates&lt;br&gt;queue their source for re-entry&lt;/span&gt;" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#f5f3ff;strokeColor=#7c3aed;strokeWidth=2;dashed=1;dashPattern=8 6;align=left;spacingLeft=18;verticalAlign=middle;fontColor=#4c1d95;" vertex="1" parent="1">
+          <mxGeometry x="470" y="620" width="360" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="annQ" value="&lt;span style=&quot;font-size:14px;color:#0f766e&quot;&gt;&lt;b&gt;closing path 1&lt;/b&gt;&lt;br&gt;an answer can always be walked&lt;br&gt;back to the file and date it came from&lt;/span&gt;" style="text;html=1;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="900" y="470" width="340" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="annM" value="&lt;span style=&quot;font-size:14px;color:#7c3aed&quot;&gt;&lt;b&gt;closing path 2&lt;/b&gt;&lt;br&gt;a fact whose review date lapses re-enters&lt;br&gt;ingest on its own, without anyone noticing it&lt;br&gt;had gone stale&lt;/span&gt;" style="text;html=1;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="60" y="530" width="400" height="86" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend" value="&lt;span style=&quot;font-size:15px&quot;&gt;&lt;b style=&quot;color:#0f766e&quot;&gt;Solid teal&lt;/b&gt; = the query path. &amp;nbsp; &lt;b style=&quot;color:#7c3aed&quot;&gt;Dashed purple&lt;/b&gt; = the maintenance loop. &amp;nbsp; &lt;b style=&quot;color:#b91c1c&quot;&gt;Dashed red, two-headed&lt;/b&gt; = a conflict raised by the layer and written back by a person.&lt;br&gt;Both closing paths end at the same governed layer, which is why an answer and its provenance cannot drift apart. &amp;nbsp; rajeevg.com rig; business flows anonymised. &amp;nbsp; Evidence date: 31 August 2026.&lt;/span&gt;" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#f8fafc;strokeColor=#cbd5e1;align=left;spacingLeft=18;verticalAlign=middle;fontColor=#334155;" vertex="1" parent="1">
+          <mxGeometry x="30" y="782" width="1210" height="72" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

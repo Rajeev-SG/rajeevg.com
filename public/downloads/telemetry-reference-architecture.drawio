@@ -1,2 +1,109 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<mxfile host="app.diagrams.net" modified="2026-08-30" agent="codex" version="24.7.8"><diagram id="telemetry-reference-architecture" name="telemetry-reference-architecture"><mxGraphModel dx="1600" dy="1000" grid="0" gridSize="10" guides="1" page="1" pageScale="1" pageWidth="1720" pageHeight="1080" math="0" shadow="0" adaptiveColors="auto"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="bandL" value="SOURCES" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#6c8ebf;fontStyle=1;verticalAlign=bottom;fontSize=14;" vertex="1" parent="1"><mxGeometry x="20" y="20" width="260" height="1020" as="geometry"/></mxCell><mxCell id="bandC" value="PIPELINE AND STORES" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d6b656;fontStyle=1;verticalAlign=bottom;fontSize=14;" vertex="1" parent="1"><mxGeometry x="320" y="20" width="820" height="1020" as="geometry"/></mxCell><mxCell id="bandR" value="VIEWS AND RECONCILIATION" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#82b366;fontStyle=1;verticalAlign=bottom;fontSize=14;" vertex="1" parent="1"><mxGeometry x="1180" y="20" width="520" height="1020" as="geometry"/></mxCell><mxCell id="agents" value="Agent fleet&lt;br&gt;agents / gateway&lt;br&gt;OTLP sources" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="60" y="60" width="220" height="90" as="geometry"/></mxCell><mxCell id="sessions" value="Raw session stores&lt;br&gt;JSONL / SQLite" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="60" y="270" width="220" height="90" as="geometry"/></mxCell><mxCell id="collector" value="OpenTelemetry Collector&lt;br&gt;batches, retries, routes metrics / traces&lt;br&gt;dedup + attribution in exporter and query logic" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="400" y="190" width="380" height="110" as="geometry"/></mxCell><mxCell id="prom" value="Prometheus&lt;br&gt;live scrape store&lt;br&gt;stores / exposes deduped labelled series" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1"><mxGeometry x="400" y="360" width="280" height="100" as="geometry"/></mxCell><mxCell id="victoria" value="VictoriaMetrics&lt;br&gt;long-term archive (remote host)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1"><mxGeometry x="790" y="365" width="280" height="90" as="geometry"/></mxCell><mxCell id="langfuse" value="Langfuse app&lt;br&gt;trace ingestion and queries" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="400" y="520" width="260" height="90" as="geometry"/></mxCell><mxCell id="clickhouse" value="ClickHouse&lt;br&gt;analytical trace store" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="440" y="660" width="260" height="80" as="geometry"/></mxCell><mxCell id="redis" value="Redis&lt;br&gt;queue" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1"><mxGeometry x="750" y="660" width="150" height="80" as="geometry"/></mxCell><mxCell id="pg" value="Postgres&lt;br&gt;app state" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1"><mxGeometry x="380" y="800" width="170" height="70" as="geometry"/></mxCell><mxCell id="minio" value="MinIO&lt;br&gt;blobs / exports" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1"><mxGeometry x="610" y="800" width="190" height="70" as="geometry"/></mxCell><mxCell id="grafana" value="Grafana&lt;br&gt;public view: Prometheus + Langfuse aggregates&lt;br&gt;private view: full detail" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1300" y="80" width="330" height="120" as="geometry"/></mxCell><mxCell id="referee" value="Reconciliation / referee&lt;br&gt;raw sessions settle disagreements&lt;br&gt;between metric, trace and raw paths" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d6b656;fontStyle=1;dashed=1;" vertex="1" parent="1"><mxGeometry x="1300" y="420" width="330" height="110" as="geometry"/></mxCell><mxCell id="e1" edge="1" parent="1" source="agents" target="collector" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="e2" edge="1" parent="1" source="collector" target="prom" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;exitX=0.15;exitY=1;entryX=0.5;entryY=0;"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="457" y="330"/><mxPoint x="540" y="330"/></Array></mxGeometry></mxCell><mxCell id="e3" edge="1" parent="1" source="collector" target="langfuse" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;exitX=0.15;exitY=1;entryX=0;entryY=0.5;"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="457" y="340"/><mxPoint x="360" y="340"/><mxPoint x="360" y="565"/></Array></mxGeometry></mxCell><mxCell id="e4" edge="1" parent="1" source="prom" target="victoria" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;strokeColor=#b85450;exitX=1;exitY=0.5;entryX=0;entryY=0.5;"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="e5" edge="1" parent="1" source="langfuse" target="clickhouse" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;exitX=0.3;exitY=1;entryX=0.5;entryY=0;"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="478" y="630"/><mxPoint x="570" y="630"/></Array></mxGeometry></mxCell><mxCell id="e6" edge="1" parent="1" source="redis" target="langfuse" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;strokeColor=#9673a6;exitX=0.5;exitY=0;entryX=0.8;entryY=1;"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="825" y="620"/><mxPoint x="608" y="620"/></Array></mxGeometry></mxCell><mxCell id="e7" edge="1" parent="1" source="langfuse" target="minio" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;strokeColor=#82b366;exitX=0.7;exitY=1;entryX=0.5;entryY=0;"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="582" y="640"/><mxPoint x="705" y="640"/><mxPoint x="705" y="770"/></Array></mxGeometry></mxCell><mxCell id="e8" edge="1" parent="1" source="prom" target="grafana" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;exitX=0.5;exitY=0;entryX=0;entryY=0.5;"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="540" y="330"/><mxPoint x="1230" y="330"/><mxPoint x="1230" y="140"/></Array></mxGeometry></mxCell><mxCell id="e9" edge="1" parent="1" source="langfuse" target="grafana" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;exitX=1;exitY=0.5;entryX=0;entryY=0.85;"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="960" y="565"/><mxPoint x="1245" y="565"/><mxPoint x="1245" y="182"/></Array></mxGeometry></mxCell><mxCell id="legend" value="Dashed = raw-session / reconciliation path; solid = live pipeline flow" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#999999;dashed=1;fontSize=12;fontColor=#555555;" vertex="1" parent="1"><mxGeometry x="1300" y="600" width="330" height="60" as="geometry"/></mxCell><mxCell id="e12" edge="1" parent="1" source="langfuse" target="pg" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;exitX=0.25;exitY=1;entryX=0.5;entryY=0;"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="465" y="645"/><mxPoint x="465" y="760"/></Array></mxGeometry></mxCell><mxCell id="e13" edge="1" parent="1" source="sessions" target="referee" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;strokeWidth=2;exitX=1;exitY=0.5;entryX=0;entryY=0.25;"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="170" y="315"/><mxPoint x="170" y="560"/><mxPoint x="260" y="560"/><mxPoint x="260" y="920"/><mxPoint x="1560" y="970"/><mxPoint x="1560" y="530"/></Array></mxGeometry></mxCell><mxCell id="e11" edge="1" parent="1" source="grafana" target="referee" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;strokeColor=#6c8ebf;exitX=0.5;exitY=1;entryX=0.5;entryY=0;"><mxGeometry relative="1" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>
+<mxfile host="opus-visual-remediation-72" agent="claude-opus-5" version="26.0.3">
+  <diagram id="telemetryref" name="Agent telemetry reference architecture">
+    <mxGraphModel dx="1800" dy="1200" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1460" pageHeight="990" math="0" shadow="0" background="#ffffff">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="z1" value="" style="rounded=1;html=1;fillColor=#eff6ff;strokeColor=#93c5fd;pointerEvents=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="170" width="300" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="z2" value="" style="rounded=1;html=1;fillColor=#f8fafc;strokeColor=#cbd5e1;pointerEvents=0;" vertex="1" parent="1">
+          <mxGeometry x="380" y="170" width="620" height="560" as="geometry" />
+        </mxCell>
+        <mxCell id="z3" value="" style="rounded=1;html=1;fillColor=#f0fdf4;strokeColor=#86efac;pointerEvents=0;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="170" width="360" height="430" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#1d4ed8;strokeWidth=2.5;endArrow=blockThin;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="src1" target="col">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#1d4ed8;strokeWidth=2.5;endArrow=blockThin;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="col" target="prom">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#1d4ed8;strokeWidth=2.5;endArrow=blockThin;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="prom" target="vm">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#7c3aed;strokeWidth=2.5;endArrow=blockThin;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="col" target="lf">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#7c3aed;strokeWidth=2.5;endArrow=blockThin;endFill=1;exitX=0.25;exitY=1;entryX=0.25;entryY=0;" edge="1" parent="1" source="lf" target="stores">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#1d4ed8;strokeWidth=2.5;endArrow=blockThin;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.25;" edge="1" parent="1" source="prom" target="graf">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#7c3aed;strokeWidth=2.5;endArrow=blockThin;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.7;" edge="1" parent="1" source="lf" target="graf">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1020" y="490" />
+              <mxPoint x="1020" y="315" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;dashPattern=8 6;strokeColor=#b45309;strokeWidth=2.5;endArrow=blockThin;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=1;" edge="1" parent="1" source="src2" target="ref">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="170" y="828" />
+              <mxPoint x="1200" y="828" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e9" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;dashPattern=8 6;strokeColor=#b45309;strokeWidth=2.5;endArrow=blockThin;endFill=1;startArrow=blockThin;startFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="graf" target="ref">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="title" value="&lt;b style=&quot;font-size:23px&quot;&gt;Four stores, four different questions &amp;mdash; and one referee&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:15px;color:#cbd5e1&quot;&gt;The metric path and the trace path are measured separately on purpose. When they disagree, the raw sessions decide.&lt;/span&gt;" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#0f172a;strokeColor=#0f172a;fontColor=#ffffff;align=left;spacingLeft=22;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="30" width="1360" height="84" as="geometry" />
+        </mxCell>
+
+        <mxCell id="h1" value="&lt;b&gt;SOURCES&lt;/b&gt;" style="text;html=1;align=left;verticalAlign=middle;fontSize=13;fontColor=#1d4ed8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="138" width="300" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="h2" value="&lt;b&gt;PIPELINE AND STORES&lt;/b&gt;" style="text;html=1;align=left;verticalAlign=middle;fontSize=13;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="380" y="138" width="400" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="h3" value="&lt;b&gt;VIEWS AND RECONCILIATION&lt;/b&gt;" style="text;html=1;align=left;verticalAlign=middle;fontSize=13;fontColor=#15803d;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="138" width="360" height="24" as="geometry" />
+        </mxCell>
+
+        <mxCell id="src1" value="&lt;b style=&quot;font-size:17px&quot;&gt;Agent fleet&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:14px&quot;&gt;agents and gateway&lt;br&gt;emit OTLP metrics and traces&lt;/span&gt;" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;align=left;spacingLeft=16;verticalAlign=middle;fontColor=#1e3a8a;" vertex="1" parent="1">
+          <mxGeometry x="60" y="210" width="260" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="src2" value="&lt;b style=&quot;font-size:17px&quot;&gt;Raw session stores&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:14px&quot;&gt;JSONL and SQLite written&lt;br&gt;by the agents themselves &amp;mdash;&lt;br&gt;the only unaggregated record&lt;/span&gt;" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#fffbeb;strokeColor=#b45309;strokeWidth=2;align=left;spacingLeft=16;verticalAlign=middle;fontColor=#7c2d12;" vertex="1" parent="1">
+          <mxGeometry x="60" y="345" width="260" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="col" value="&lt;b style=&quot;font-size:17px&quot;&gt;OpenTelemetry Collector&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:14px&quot;&gt;batches, retries and routes&lt;br&gt;metrics one way, traces the other&lt;/span&gt;" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#fff7ed;strokeColor=#c2410c;strokeWidth=2.5;align=left;spacingLeft=16;verticalAlign=middle;fontColor=#7c2d12;" vertex="1" parent="1">
+          <mxGeometry x="400" y="210" width="280" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="prom" value="&lt;b style=&quot;font-size:17px&quot;&gt;Prometheus&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:14px&quot;&gt;&lt;i&gt;what is happening now?&lt;/i&gt;&lt;br&gt;live scrape store; deduped&lt;br&gt;labelled series&lt;/span&gt;" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;align=left;spacingLeft=16;verticalAlign=middle;fontColor=#1e3a8a;" vertex="1" parent="1">
+          <mxGeometry x="700" y="210" width="280" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="vm" value="&lt;b style=&quot;font-size:17px&quot;&gt;VictoriaMetrics&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:14px&quot;&gt;&lt;i&gt;what happened last month?&lt;/i&gt;&lt;br&gt;long-term archive on a&lt;br&gt;remote host&lt;/span&gt;" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;align=left;spacingLeft=16;verticalAlign=middle;fontColor=#1e3a8a;" vertex="1" parent="1">
+          <mxGeometry x="700" y="360" width="280" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="lf" value="&lt;b style=&quot;font-size:17px&quot;&gt;Langfuse app&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:14px&quot;&gt;&lt;i&gt;what did this one call do?&lt;/i&gt;&lt;br&gt;trace ingestion and queries&lt;/span&gt;" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#f5f3ff;strokeColor=#7c3aed;strokeWidth=2;align=left;spacingLeft=16;verticalAlign=middle;fontColor=#4c1d95;" vertex="1" parent="1">
+          <mxGeometry x="400" y="430" width="280" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="stores" value="&lt;b style=&quot;font-size:16px&quot;&gt;Langfuse backing stores&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:14px&quot;&gt;ClickHouse &amp;mdash; analytical traces &amp;nbsp;&amp;middot;&amp;nbsp; Postgres &amp;mdash; app state&lt;br&gt;Redis &amp;mdash; queue &amp;nbsp;&amp;middot;&amp;nbsp; MinIO &amp;mdash; blobs and exports&lt;/span&gt;" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#faf5ff;strokeColor=#a78bfa;strokeWidth=1.5;align=left;spacingLeft=16;verticalAlign=middle;fontColor=#5b21b6;" vertex="1" parent="1">
+          <mxGeometry x="400" y="580" width="580" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="graf" value="&lt;b style=&quot;font-size:17px&quot;&gt;Grafana&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:14px&quot;&gt;&lt;b&gt;public view:&lt;/b&gt; Prometheus and&lt;br&gt;Langfuse aggregates only&lt;br&gt;&lt;b&gt;private view:&lt;/b&gt; full detail&lt;/span&gt;" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#dcfce7;strokeColor=#15803d;strokeWidth=2.5;align=left;spacingLeft=16;verticalAlign=middle;fontColor=#14532d;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="210" width="320" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="ref" value="&lt;b style=&quot;font-size:17px&quot;&gt;Reconciliation referee&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:14px&quot;&gt;when the metric path and the&lt;br&gt;trace path disagree, the raw&lt;br&gt;sessions settle it &amp;mdash; and an&lt;br&gt;unknown stays unknown, never&lt;br&gt;a zero&lt;/span&gt;" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#fffbeb;strokeColor=#b45309;strokeWidth=2.5;dashed=1;dashPattern=8 6;align=left;spacingLeft=16;verticalAlign=middle;fontColor=#7c2d12;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="420" width="320" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="ann3" value="&lt;span style=&quot;font-size:14px;color:#b45309&quot;&gt;&lt;b&gt;raw path&lt;/b&gt; &amp;mdash; never aggregated, and therefore never wrong about what a session actually contained&lt;/span&gt;" style="text;html=1;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="380" y="752" width="1000" height="26" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend" value="&lt;span style=&quot;font-size:15px&quot;&gt;&lt;b style=&quot;color:#1d4ed8&quot;&gt;Solid blue&lt;/b&gt; = the metric path &amp;mdash; aggregated, cheap to keep, loses detail. &amp;nbsp; &lt;b style=&quot;color:#7c3aed&quot;&gt;Solid purple&lt;/b&gt; = the trace path &amp;mdash; per-call detail, heavier to keep. &amp;nbsp; &lt;b style=&quot;color:#b45309&quot;&gt;Dashed amber&lt;/b&gt; = the raw-session reconciliation path, which runs outside the pipeline on purpose.&lt;br&gt;Dedup and attribution live in the exporter and query logic, not in the stores, which is why the same call is never counted twice. &amp;nbsp; Evidence date: 31 August 2026.&lt;/span&gt;" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#f8fafc;strokeColor=#cbd5e1;align=left;spacingLeft=18;verticalAlign=middle;fontColor=#334155;" vertex="1" parent="1">
+          <mxGeometry x="40" y="866" width="1360" height="78" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
