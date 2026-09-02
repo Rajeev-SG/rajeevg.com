@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 800" width="1400" height="800" role="img" aria-labelledby="t2 d2">
+<title id="t2">What an agent actually needs to ship a site</title>
+<desc id="d2">You ask the coding agent. The agent holds a scoped auth token stored as an environment variable. It reaches the vendor through a CLI, MCP server or API. The vendor produces a production or preview URL. Logs let the agent check success. Rollback returns the previous good version if needed.</desc>
+<defs><marker id="arrowEnd2" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M 0 0 L 9 5 L 0 10 z" fill="#334155"/></marker></defs>
+<rect width="1400" height="800" fill="#ffffff"/>
+<rect x="40" y="30" width="1320" height="52" rx="8" fill="#0f172a"/>
+<text x="60" y="65" font-family="Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#ffffff">What an agent actually needs to ship a site</text>
+<path d="M 260 185 L 340 200" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrowEnd2)"/>
+<path d="M 470 270 L 470 360" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrowEnd2)" stroke-dasharray="8 6"/>
+<path d="M 470 270 L 470 185 L 840 185 L 840 100" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrowEnd2)"/>
+<path d="M 470 270 L 470 250 L 840 250 L 840 230" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrowEnd2)"/>
+<path d="M 470 270 L 470 315 L 840 315 L 840 360" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrowEnd2)"/>
+<path d="M 980 150 L 1070 160" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrowEnd2)"/>
+<path d="M 840 330 L 840 215 L 1210 215 L 1210 100" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrowEnd2)"/>
+<path d="M 840 460 L 840 280 L 1210 280 L 1210 100" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrowEnd2)"/>
+<path d="M 1210 220 L 1210 260" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrowEnd2)"/>
+<path d="M 470 270 L 470 315 L 150 315 L 150 360" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrowEnd2)" stroke-dasharray="8 6"/>
+<path d="M 150 480 L 150 560" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrowEnd2)" stroke-dasharray="8 6"/>
+<rect x="40" y="130" width="220" height="110" rx="10" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+  <text x="150" y="158" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">You</text>
+  <text x="150" y="184" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">ask for a change or</text>
+  <text x="150" y="204" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">a new deployment</text>
+<rect x="340" y="130" width="260" height="140" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+  <text x="470" y="158" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">Coding agent</text>
+  <text x="470" y="184" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">CLI · MCP · API</text>
+  <text x="470" y="204" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">runs on your machine</text>
+  <text x="470" y="224" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">or a cloud runner</text>
+<rect x="340" y="360" width="260" height="120" rx="10" fill="#ffffff" stroke="#d97706" stroke-width="2"/>
+  <text x="470" y="388" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">Auth token</text>
+  <text x="470" y="414" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">scoped key, stored as an</text>
+  <text x="470" y="434" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">environment variable</text>
+  <text x="470" y="454" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">never committed to git</text>
+<rect x="700" y="100" width="280" height="100" rx="10" fill="#ffffff" stroke="#7c3aed" stroke-width="2"/>
+  <text x="840" y="128" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">CLI</text>
+  <text x="840" y="154" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">terminal commands</text>
+  <text x="840" y="174" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">e.g. vercel deploy</text>
+<rect x="700" y="230" width="280" height="100" rx="10" fill="#ffffff" stroke="#7c3aed" stroke-width="2"/>
+  <text x="840" y="258" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">MCP server</text>
+  <text x="840" y="284" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">a tool surface the agent</text>
+  <text x="840" y="304" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">discovers and calls</text>
+<rect x="700" y="360" width="280" height="100" rx="10" fill="#ffffff" stroke="#7c3aed" stroke-width="2"/>
+  <text x="840" y="388" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">API</text>
+  <text x="840" y="414" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">direct HTTPS calls</text>
+  <text x="840" y="434" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">when no CLI or MCP exists</text>
+<rect x="1070" y="100" width="280" height="120" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <text x="1210" y="128" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">Vendor</text>
+  <text x="1210" y="154" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">Vercel · Cloudflare ·</text>
+  <text x="1210" y="174" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">Hetzner · Coolify</text>
+  <text x="1210" y="194" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">the service doing the work</text>
+<rect x="1070" y="260" width="280" height="110" rx="10" fill="#ffffff" stroke="#0d9488" stroke-width="2"/>
+  <text x="1210" y="288" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">Result</text>
+  <text x="1210" y="314" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">production URL</text>
+  <text x="1210" y="334" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">or preview URL</text>
+<rect x="40" y="360" width="220" height="120" rx="10" fill="#ffffff" stroke="#0891b2" stroke-width="2"/>
+  <text x="150" y="388" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">Logs</text>
+  <text x="150" y="414" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">what the agent reads</text>
+  <text x="150" y="434" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">to know if it worked</text>
+<rect x="40" y="560" width="220" height="110" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <text x="150" y="588" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">Rollback</text>
+  <text x="150" y="614" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">put the previous good</text>
+  <text x="150" y="634" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">version back</text>
+<text x="700" y="762" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" font-style="italic" fill="#64748b">Solid arrows: the deployment path · Dashed arrows: the safety path (scoped token, logs, rollback) · Evidence date: 2 Sep 2026</text>
+</svg>
