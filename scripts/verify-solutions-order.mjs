@@ -29,6 +29,7 @@ const dupes = all.filter((slug, i) => all.indexOf(slug) !== i)
 if (dupes.length > 0) fail(`duplicate slugs: ${[...new Set(dupes)].join(", ")}`)
 
 const publicProjectOrder = [
+  "llm-pareto-frontier",
   "agent-operations-control-plane",
   "agent-routing-and-lifecycle-system",
   "global-measurement-governance-system",
@@ -56,9 +57,9 @@ const expectedEarlier = [
   "rajeevg-com",
 ]
 
-if (current.length !== 13) fail(`expected 13 current solutions, found ${current.length}`)
+if (current.length !== 14) fail(`expected 14 current solutions, found ${current.length}`)
 if (earlier.length !== 9) fail(`expected 9 earlier products, found ${earlier.length}`)
-if (all.length !== 22) fail(`expected 22 total projects, found ${all.length}`)
+if (all.length !== 23) fail(`expected 23 total projects, found ${all.length}`)
 
 if (current.join(",") !== publicProjectOrder.join(","))
   fail(`currentSolutions order does not match publicProjectOrder:\n  got:      ${current.join(", ")}\n  expected: ${publicProjectOrder.join(", ")}`)

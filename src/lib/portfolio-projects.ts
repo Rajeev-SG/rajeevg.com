@@ -8,15 +8,37 @@ export type PortfolioProject = {
   imagePath: string
   imageAlt: string
   liveUrl?: string
+  liveLabel?: string
   githubUrl?: string
   lastUpdated: string
   tech: string[]
   repoVisibility: "PUBLIC" | "PRIVATE"
   inclusionReason: string
   detailLinks?: { label: string; href: string }[]
+  editableAsset?: { label: string; href: string }
 }
 
 export const currentSolutions: PortfolioProject[] = [
+  {
+    slug: "llm-pareto-frontier",
+    title: "LLM Pareto Frontier",
+    category: "AI & Agent Systems",
+    tagline: "A live quality-versus-cost map of major language models, with the efficient frontier calculated in the browser.",
+    summary:
+      "The dashboard joins current benchmark, price and community-preference data so model choices can be inspected as a trade-off rather than reduced to a single leaderboard. Filters expose the frontier for different model cohorts, while unmatched records remain visible instead of being silently dropped.",
+    howItWorks:
+      "A typed Next.js data pipeline normalises official structured feeds from Artificial Analysis, OpenRouter and LM Arena, resolves conservative model aliases, and computes the non-dominated quality-and-cost frontier. Four chart implementations make rendering weight and interaction trade-offs directly comparable.",
+    imagePath: "/images/solutions/llm-pareto-frontier.svg",
+    imageAlt: "LLM Pareto Frontier chart plotting model quality against cost, with efficient frontier models connected across the upper-left edge.",
+    liveUrl: "/solutions/pareto-frontier",
+    liveLabel: "Open dashboard",
+    lastUpdated: "2026-09-02",
+    tech: ["Next.js", "TypeScript", "ECharts", "OpenRouter", "Artificial Analysis", "LM Arena"],
+    repoVisibility: "PUBLIC",
+    inclusionReason: "Live dashboard with deterministic source joins, visible provenance and tested frontier calculations.",
+    detailLinks: [{ label: "Why and how I built it", href: "/blog/why-i-built-an-llm-pareto-frontier" }],
+    editableAsset: { label: "Download the editable draw.io source", href: "/downloads/llm-pareto-frontier-how-it-works.drawio" },
+  },
   {
     slug: "agent-operations-control-plane",
     title: "Agent Operations Control Plane",
@@ -446,6 +468,7 @@ export function getPortfolioProject(slug: string) {
 }
 
 const publicProjectOrder = [
+  "llm-pareto-frontier",
   "agent-operations-control-plane",
   "agent-routing-and-lifecycle-system",
   "global-measurement-governance-system",

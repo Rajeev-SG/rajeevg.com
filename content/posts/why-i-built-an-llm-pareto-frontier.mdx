@@ -1,0 +1,164 @@
+---
+title: I Built an LLM Pareto Frontier Because Leaderboards Hide the Trade-Off
+slug: why-i-built-an-llm-pareto-frontier
+date: 2026-09-02
+updated: 2026-09-02
+description: Why I built a live LLM quality-versus-cost dashboard, how it joins Artificial Analysis, OpenRouter and LM Arena data, and what its Pareto frontier actually means.
+tags: [llm, pareto frontier, model selection, artificial analysis, openrouter, lm arena, data visualisation]
+draft: false
+image: /images/blog/llm-pareto-frontier/how-it-works.svg
+---
+
+<div className="not-prose mb-8 flex flex-wrap gap-2">
+  <span className="inline-flex items-center rounded-md border px-2 py-1 text-xs font-medium">Model selection</span>
+  <span className="inline-flex items-center rounded-md border px-2 py-1 text-xs font-medium">Quality versus cost</span>
+  <span className="inline-flex items-center rounded-md border px-2 py-1 text-xs font-medium">Deterministic data joins</span>
+  <span className="inline-flex items-center rounded-md border px-2 py-1 text-xs font-medium">Chart library comparison</span>
+</div>
+
+I kept running into the same problem when choosing language models: every source answered a slightly different question, and each answer was easy to overread.
+
+A benchmark might say which model scored highest. A provider catalogue might say what the model costs per token. A community leaderboard might say which output people preferred. None of those, on its own, answered the question I actually had:
+
+> Which models give me the most quality for the money, and which ones are strictly worse than another available option?
+
+That is why I built the [LLM Pareto Frontier dashboard](/solutions/pareto-frontier). It combines official structured data from Artificial Analysis, OpenRouter and LM Arena, then plots quality against cost. The models on the frontier are the ones that cannot be beaten on both dimensions at once.
+
+This sounds like a charting exercise. Most of the work was really data identity, missing values and refusing to make confident matches that the source data did not support.
+
+<div className="not-prose my-6 flex flex-wrap gap-2">
+  <ArticleExplain term="Pareto frontier">The set of options for which no other option is both better on the selected quality measure and cheaper on the selected cost measure.</ArticleExplain>
+  <ArticleExplain term="Dominated model">A model for which another available model has equal or higher quality, equal or lower cost, and is strictly better on at least one of those dimensions.</ArticleExplain>
+  <ArticleExplain term="Canonical model">The dashboard's stable internal identity for one model, used to join the different names and IDs published by each source.</ArticleExplain>
+  <ArticleExplain term="Unmatched record">A source record the dashboard cannot join with enough confidence. It stays visible in diagnostics instead of being guessed into the chart.</ArticleExplain>
+</div>
+
+## Why another model dashboard?
+
+There are already excellent model leaderboards. The problem is not a lack of scores. It is that the scores live in separate systems with different naming, release cadences and assumptions.
+
+[Artificial Analysis](https://artificialanalysis.ai/) publishes broad quality indexes and a cost-per-task measure. [OpenRouter's models API](https://openrouter.ai/docs/api/reference/list-available-models) publishes current model IDs and per-token prices across its catalogue. [LM Arena's leaderboard dataset](https://huggingface.co/datasets/lmarena-ai/leaderboard-dataset) publishes preference-based results for areas such as web development and agent tasks. I use all three, but I do not use them interchangeably.
+
+The dashboard exists because model selection is a trade-off, not a coronation. The best-scoring model may be sensible for a difficult architecture review and absurd for a high-volume classification job. The cheapest model may save almost nothing if it needs repeated attempts. A useful view has to keep both axes visible.
+
+I also wanted the awkward records to remain awkward. If a model name from one source does not map cleanly to the corresponding model in another, the safe answer is "unmatched". Quietly dropping it makes the chart look cleaner than the data deserves. Fuzzy-matching it can be worse because a plausible name is not proof of model identity.
+
+## What the frontier means
+
+For the selected quality measure `Q` and cost measure `C`, model A dominates model B when:
+
+```text
+Q(A) ≥ Q(B)
+C(A) ≤ C(B)
+and at least one comparison is strict
+```
+
+In plain English, A is at least as good, costs no more, and wins outright on quality or cost. If such an A exists, B is not on the frontier.
+
+This does not mean B is a bad model. It means B has no advantage under the two measures currently on screen. Change the quality measure, use output price instead of blended price, or restrict the cohort to models available through OpenRouter, and the frontier can change.
+
+That sensitivity is useful. It stops the red frontier line from becoming another universal ranking. The line is an answer to a specific question configured by the reader.
+
+## How the data becomes a chart
+
+The figure below shows the part that is hard to see in the interface. Three source feeds arrive with different identifiers and fields. The pipeline keeps their measurements separate, joins only identities declared in a checked-in alias map, retains source freshness, and sends unmatched records to a visible diagnostic path. The frontier calculation only receives models that have both selected metrics.
+
+<Figure
+  src="/images/blog/llm-pareto-frontier/how-it-works.svg"
+  alt="Architecture diagram showing Artificial Analysis, OpenRouter and LM Arena feeds passing through source-specific adapters, an explicit alias map and canonical model records before branching into unmatched diagnostics, Pareto calculation and four chart renderers."
+  caption="One model can have three public names and several incompatible measurements. The dashboard preserves those distinctions, joins only declared identities, and calculates a frontier from the metric pair the reader selects."
+  date="2 September 2026"
+  editableHref="/downloads/llm-pareto-frontier-how-it-works.drawio"
+  editableLabel="Download the editable draw.io source"
+/>
+
+### 1. Fetch each source on its own terms
+
+The server-side adapters do not treat the sources as three versions of the same table.
+
+- Artificial Analysis supplies its own quality indexes, benchmark metadata and cost-per-task values. Its API is paginated and requires an API key.
+- OpenRouter supplies model catalogue IDs and input/output token prices. The adapter converts provider values into dollars per million tokens so the units are legible.
+- LM Arena's published Hugging Face dataset supplies preference results. WebDev uses Bradley-Terry ratings, while the agent subset publishes inverse-propensity-scored results. The dashboard keeps those statistical meanings separate.
+
+Each adapter returns matched candidates, unmatched records and a fetch timestamp. A failed source does not have to blank the entire dashboard. When a last-known successful snapshot exists, the page can retain it and mark the source stale or errored.
+
+That status strip at the top of the dashboard is not decoration. It tells you whether the point you are looking at came from a current fetch, a retained snapshot or a source that has not been configured.
+
+### 2. Resolve identity without fuzzy matching
+
+Model naming is messier than it looks. One system may use a product name, another a provider-qualified slug, and another a display label with a date or experimental suffix.
+
+The dashboard uses a checked-in alias map with a stable canonical ID and the exact accepted identifier for each source. Matching is case-insensitive but otherwise exact. There is no edit distance, embedding search or language-model guess in the join.
+
+That is deliberately conservative. Accidentally joining two similarly named model releases can create a convincing but false point: the quality score from one model paired with the price of another. I would rather omit a point and show the unresolved source row than publish a precise-looking fiction.
+
+### 3. Keep nulls as nulls
+
+A model can exist in the canonical dataset without having every measure. It may have an OpenRouter price but no Artificial Analysis score, or an Arena WebDev rating but no agent score.
+
+Missing data remains `null`. It does not become zero, because zero is a real and usually dramatic claim. When the reader chooses a metric pair, the frontier function excludes models missing either selected value. The model still remains available elsewhere in the dataset and unmatched diagnostics remain visible below the chart.
+
+### 4. Calculate the frontier in the browser
+
+Once the server has delivered the normalised snapshot, the selected filters and frontier calculation run in the client. That makes changing quality, cost, cohort or token mix immediate.
+
+The blended OpenRouter cost is explicit:
+
+```text
+blended cost = input share × input price + output share × output price
+```
+
+The default is 80% input and 20% output, but the reader can change it. That matters because two models with similar blended prices can have very different input/output economics. A coding agent with long prompts and short patches does not have the same token shape as a model generating pages of prose.
+
+The frontier implementation is intentionally boring: compare every eligible point with every other eligible point and mark it dominated when another point meets the rule. At this dataset size, clarity is worth more than a clever algorithm.
+
+## Why the dashboard contains four chart libraries
+
+The page renders the same filtered points with ECharts, Vega-Lite, Observable Plot and Plotly. This is partly a visualisation feature and partly a small engineering experiment.
+
+I wanted to compare four things using a real dataset rather than a synthetic demo:
+
+- how much client-side code each option adds
+- how naturally it handles tooltips, labels and responsive sizing
+- how much custom work the frontier line needs
+- whether the interaction feels proportionate to a public article-style dashboard
+
+The production build records the measured gzip size of each lazy chart chunk. In this build, Observable Plot is the lightest of the four by a wide margin, while Plotly carries substantially more code. That does not make Plotly "bad". It has a much broader feature surface. It does make the cost visible for a page that only needs a scatter plot.
+
+ECharts is the default view because it gives the current dashboard a good balance of interaction and implementation control. The other renderers remain available so the comparison is inspectable rather than reduced to my opinion.
+
+## How to read the dashboard
+
+Start with a question, not a model name.
+
+If you are choosing a general-purpose model, compare the Artificial Analysis Intelligence Index with cost per task. For coding-heavy work, switch to a coding or Arena WebDev measure. If your workloads run through OpenRouter, filter to models available there and choose the cost axis that resembles your actual token mix.
+
+Then inspect three things:
+
+1. The frontier models show the current efficient choices under that setup.
+2. Nearby dominated models may still be reasonable if they have operational advantages the chart does not encode, such as context length, tool reliability, regional availability or a provider relationship.
+3. The source freshness and unmatched panels tell you how much confidence to place in the visible cohort.
+
+The model table is often more useful than the plot for the final decision. A scatter plot reveals the shape of the trade-off. The table gives you the exact values and lets you check whether two points that look close are actually close.
+
+## What the dashboard does not prove
+
+The frontier is only as relevant as its axes.
+
+Public benchmarks are not a substitute for testing your own workload. They compress many tasks into one number, and even specialist subsets may not resemble the prompts, tools, latency constraints and failure costs in your system. Provider prices can also change faster than benchmark releases.
+
+The chart currently does not include latency, context-window constraints, rate limits, privacy requirements, tool-calling reliability or the cost of retries. Those can move the practical decision even when one model dominates another on the visible chart.
+
+It also cannot make different methodologies commensurate by wishing hard enough. An Artificial Analysis index, an Arena Bradley-Terry rating and an Arena agent IPS score answer different questions. The interface lets you select them as alternative quality axes; it does not blend them into a grand universal score.
+
+The honest use of the dashboard is as a shortlist generator. It identifies options that deserve testing and points out options that appear inefficient under a chosen comparison. The final answer still belongs to a measured workload.
+
+## What I would add next
+
+The most useful extension would be a workload layer: save a task profile, attach measured latency and success-rate evidence, then calculate an internal frontier alongside the public one. That would connect broad market evidence to the jobs I actually run.
+
+I would also like historical snapshots. A moving frontier is more informative than a current one because it shows whether gains came from better models, lower prices or both. It would make source freshness and model-release timing easier to inspect as well.
+
+For now, the dashboard does one job. It turns three useful but separate public datasets into a transparent quality-versus-cost view without hiding uncertain joins or pretending the result is a permanent ranking.
+
+You can [open the live LLM Pareto Frontier](/solutions/pareto-frontier), change the axes and see which models survive your version of the question.
