@@ -39,7 +39,7 @@ export async function GET(
 
   try {
     const file = await fs.readFile(filePath)
-    return new NextResponse(file, {
+    return new NextResponse(new Uint8Array(file), {
       headers: {
         "Content-Type": inferContentType(filename),
         "Cache-Control": "public, max-age=60",

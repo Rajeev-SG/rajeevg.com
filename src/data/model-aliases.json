@@ -1,0 +1,108 @@
+{
+  "$comment": "Explicit alias map keyed by canonical internal ID. Each canonical model declares its source IDs. Only models appearing here participate in the canonical set; unknown source records go to UNMATCHED. Never auto-merge by fuzzy or edit-distance matching.",
+  "openai-gpt-5": {
+    "displayName": "GPT-5",
+    "organisation": "OpenAI",
+    "aaSlug": "gpt-5",
+    "openrouterId": "openai/gpt-5",
+    "arenaNames": ["GPT-5"]
+  },
+  "openai-gpt-5-mini": {
+    "displayName": "GPT-5 Mini",
+    "organisation": "OpenAI",
+    "aaSlug": "gpt-5-mini",
+    "openrouterId": "openai/gpt-5-mini",
+    "arenaNames": ["GPT-5 Mini"]
+  },
+  "anthropic-claude-opus-4-1": {
+    "displayName": "Claude Opus 4.1",
+    "organisation": "Anthropic",
+    "aaSlug": "claude-opus-4.1",
+    "openrouterId": "anthropic/claude-opus-4.1",
+    "arenaNames": ["Claude Opus 4.1"]
+  },
+  "anthropic-claude-sonnet-4-5": {
+    "displayName": "Claude Sonnet 4.5",
+    "organisation": "Anthropic",
+    "aaSlug": "claude-sonnet-4.5",
+    "openrouterId": "anthropic/claude-sonnet-4.5",
+    "arenaNames": ["Claude Sonnet 4.5"]
+  },
+  "google-gemini-2-5-pro": {
+    "displayName": "Gemini 2.5 Pro",
+    "organisation": "Google",
+    "aaSlug": "gemini-2.5-pro",
+    "openrouterId": "google/gemini-2.5-pro",
+    "arenaNames": ["Gemini 2.5 Pro"]
+  },
+  "google-gemini-2-5-flash": {
+    "displayName": "Gemini 2.5 Flash",
+    "organisation": "Google",
+    "aaSlug": "gemini-2.5-flash",
+    "openrouterId": "google/gemini-2.5-flash",
+    "arenaNames": ["Gemini 2.5 Flash"]
+  },
+  "deepseek-v3-1": {
+    "displayName": "DeepSeek V3.1",
+    "organisation": "DeepSeek",
+    "aaSlug": "deepseek-v3.1",
+    "openrouterId": "deepseek/deepseek-v3.1",
+    "arenaNames": ["DeepSeek V3.1"]
+  },
+  "deepseek-r1": {
+    "displayName": "DeepSeek R1",
+    "organisation": "DeepSeek",
+    "aaSlug": "deepseek-r1",
+    "openrouterId": "deepseek/deepseek-r1",
+    "arenaNames": ["DeepSeek R1"]
+  },
+  "xai-grok-4": {
+    "displayName": "Grok 4",
+    "organisation": "xAI",
+    "aaSlug": "grok-4",
+    "openrouterId": "x-ai/grok-4",
+    "arenaNames": ["Grok 4"]
+  },
+  "xai-grok-4-fast": {
+    "displayName": "Grok 4 Fast",
+    "organisation": "xAI",
+    "aaSlug": "grok-4-fast",
+    "openrouterId": "x-ai/grok-4-fast",
+    "arenaNames": ["Grok 4 Fast"]
+  },
+  "meta-llama-4-maverick": {
+    "displayName": "Llama 4 Maverick",
+    "organisation": "Meta",
+    "aaSlug": "llama-4-maverick",
+    "openrouterId": "meta-llama/llama-4-maverick",
+    "arenaNames": ["Llama 4 Maverick"]
+  },
+  "meta-llama-4-scout": {
+    "displayName": "Llama 4 Scout",
+    "organisation": "Meta",
+    "aaSlug": "llama-4-scout",
+    "openrouterId": "meta-llama/llama-4-scout",
+    "arenaNames": ["Llama 4 Scout"]
+  },
+  "qwen3-235b-a22b": {
+    "displayName": "Qwen3 235B A22B",
+    "organisation": "Alibaba",
+    "aaSlug": "qwen3-235b-a22b",
+    "openrouterId": "qwen/qwen3-235b-a22b",
+    "arenaNames": ["Qwen3 235B A22B"]
+  },
+  "mistral-large-2411": {
+    "displayName": "Mistral Large 2 (Nov 2024)",
+    "organisation": "Mistral AI",
+    "aaSlug": "mistral-large-2",
+    "openrouterId": "mistralai/mistral-large-2411",
+    "arenaNames": ["Mistral Large 2"]
+  },
+  "moonshotai-kimi-k2": {
+    "displayName": "Kimi K2",
+    "organisation": "Moonshot AI",
+    "aaSlug": "kimi-k2",
+    "openrouterId": "moonshotai/kimi-k2",
+    "arenaNames": ["Kimi K2"]
+  }
+}
