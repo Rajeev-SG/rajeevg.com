@@ -10,6 +10,9 @@ if (!process.env.VELITE_STARTED && isDev) {
 }
 
 const nextConfig: NextConfig = {
+  // mermaid-isomorphic must stay a real Node require: bundling it breaks
+  // `path.resolve` ({} shim) during page-data collection.
+  serverExternalPackages: ["mermaid-isomorphic", "rehype-mermaid"],
   async rewrites() {
     return []
   },
