@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 // Measured from the production build's lazy client chunks (gzip size, Next 15.4.10 webpack).
 const BUNDLE_SIZES: Record<string, string> = {
   echarts: "189K gzip",
-  "vega-lite": "76K gzip",
+  "vega-lite": "170K gzip",
   "observable-plot": "37K gzip",
   plotly: "1197K gzip",
 };

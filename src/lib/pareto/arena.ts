@@ -64,16 +64,16 @@ export async function fetchArenaPage(
   signal?: AbortSignal
 ): Promise<{ response: ArenaRowsResponse; headers: Headers }> {
   const url = `${DATASET_SERVER}/rows?dataset=lmarena-ai/leaderboard-dataset&config=${encodeURIComponent(config)}&split=latest&offset=${offset}&length=${PAGE_LENGTH}`;
-  const maxAttempts = 4;
+  const maxAttempts = 6;
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     const res = await fetch(url, {
       headers: { Accept: "application/json" },
       signal,
       cache: "no-store",
     });
-    if (res.status === 429 && attempt < maxAttempts) {
+    if ((res.status === 429 || res.status === 502 || res.status === 503) && attempt < maxAttempts) {
       const retryAfter = res.headers.get("Retry-After");
-      const delayMs = (retryAfter ? parseInt(retryAfter, 10) : 30) * 1000;
+      const delayMs = (retryAfter ? parseInt(retryAfter, 10) : attempt === 1 ? 5 : 15) * 1000;
       await new Promise((r) => setTimeout(r, delayMs));
       continue;
     }
@@ -141,7 +141,7 @@ export function mapArenaModels(
 ): { matched: Map<string, Partial<CanonicalModel>>; unmatched: UnmatchedRecord[]; arenaPublishedAt: string | null } {
   const matched = new Map<string, Partial<CanonicalModel>>();
   const unmatched: UnmatchedRecord[] = [];
-  let arenaPublishedAt: string | null = null;
+  const publishDates: string[] = [];
 
   const mergeBt = (
     canonicalId: string,
@@ -160,9 +160,7 @@ export function mapArenaModels(
       publishedAt: row.leaderboard_publish_date,
     };
     arena[slot] = bt;
-    if (slot === "webdev" && row.leaderboard_publish_date) {
-      arenaPublishedAt = arenaPublishedAt ?? row.leaderboard_publish_date;
-    }
+    if (row.leaderboard_publish_date) publishDates.push(row.leaderboard_publish_date);
     matched.set(canonicalId, { ...existing, canonicalId, arena });
   };
 
@@ -217,11 +215,10 @@ export function mapArenaModels(
       category: row.category,
       publishedAt: row.leaderboard_publish_date,
     };
-    if (row.leaderboard_publish_date) {
-      arenaPublishedAt = arenaPublishedAt ?? row.leaderboard_publish_date;
-    }
+    if (row.leaderboard_publish_date) publishDates.push(row.leaderboard_publish_date);
     matched.set(entry.canonicalId, { ...existing, canonicalId: entry.canonicalId, arena });
   }
 
+  const arenaPublishedAt = publishDates.length > 0 ? publishDates.sort().at(-1) ?? null : null;
   return { matched, unmatched, arenaPublishedAt };
 }

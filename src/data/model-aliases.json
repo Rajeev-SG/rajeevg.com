@@ -1,108 +1,839 @@
 {
-  "$comment": "Explicit alias map keyed by canonical internal ID. Each canonical model declares its source IDs. Only models appearing here participate in the canonical set; unknown source records go to UNMATCHED. Never auto-merge by fuzzy or edit-distance matching.",
+  "$comment": "Explicit alias map keyed by canonical internal ID. Each canonical model declares its source IDs. Only models appearing here participate in the canonical set; unknown source records go to UNMATCHED. Never auto-merge by fuzzy or edit-distance matching. IDs verified from live official responses 2026-09-02.",
   "openai-gpt-5": {
     "displayName": "GPT-5",
     "organisation": "OpenAI",
     "aaSlug": "gpt-5",
     "openrouterId": "openai/gpt-5",
-    "arenaNames": ["GPT-5"]
+    "arenaNames": [
+      "GPT-5",
+      "gpt-5-medium",
+      "gpt-5-high"
+    ]
   },
   "openai-gpt-5-mini": {
     "displayName": "GPT-5 Mini",
     "organisation": "OpenAI",
     "aaSlug": "gpt-5-mini",
     "openrouterId": "openai/gpt-5-mini",
-    "arenaNames": ["GPT-5 Mini"]
+    "arenaNames": [
+      "GPT-5 Mini",
+      "gpt-5-mini-high"
+    ]
   },
-  "anthropic-claude-opus-4-1": {
+  "openai-gpt-5-nano": {
+    "displayName": "GPT-5 Nano",
+    "organisation": "OpenAI",
+    "openrouterId": "openai/gpt-5-nano",
+    "arenaNames": [
+      "GPT-5 Nano"
+    ]
+  },
+  "openai-gpt-5-pro": {
+    "displayName": "GPT-5 Pro",
+    "organisation": "OpenAI",
+    "openrouterId": "openai/gpt-5-pro",
+    "arenaNames": [
+      "GPT-5 Pro"
+    ]
+  },
+  "openai-gpt-5.1": {
+    "displayName": "GPT-5.1",
+    "organisation": "OpenAI",
+    "aaSlug": "gpt-5-1",
+    "openrouterId": "openai/gpt-5.1",
+    "arenaNames": [
+      "GPT-5.1",
+      "gpt-5.1-high"
+    ]
+  },
+  "openai-gpt-5.2": {
+    "displayName": "GPT-5.2",
+    "organisation": "OpenAI",
+    "openrouterId": "openai/gpt-5.2",
+    "arenaNames": [
+      "GPT-5.2",
+      "gpt-5.2-high"
+    ],
+    "aaSlug": "gpt-5-2"
+  },
+  "openai-gpt-5.4": {
+    "displayName": "GPT-5.4",
+    "organisation": "OpenAI",
+    "openrouterId": "openai/gpt-5.4",
+    "arenaNames": [
+      "GPT-5.4",
+      "GPT 5.4 (High)",
+      "gpt-5.4-high"
+    ],
+    "aaSlug": "gpt-5-4"
+  },
+  "openai-gpt-5.4-mini": {
+    "displayName": "GPT-5.4 Mini",
+    "organisation": "OpenAI",
+    "openrouterId": "openai/gpt-5.4-mini",
+    "arenaNames": [
+      "GPT-5.4 Mini",
+      "gpt-5.4-mini-high"
+    ]
+  },
+  "openai-gpt-5.5": {
+    "displayName": "GPT-5.5",
+    "organisation": "OpenAI",
+    "openrouterId": "openai/gpt-5.5",
+    "arenaNames": [
+      "GPT-5.5",
+      "GPT 5.5",
+      "GPT 5.5 (High)",
+      "gpt-5.5-high"
+    ],
+    "aaSlug": "gpt-5-5"
+  },
+  "openai-gpt-5.5-pro": {
+    "displayName": "GPT-5.5 Pro",
+    "organisation": "OpenAI",
+    "openrouterId": "openai/gpt-5.5-pro",
+    "arenaNames": [
+      "GPT-5.5 Pro"
+    ]
+  },
+  "openai-gpt-5.6-sol": {
+    "displayName": "GPT-5.6 Sol",
+    "organisation": "OpenAI",
+    "openrouterId": "openai/gpt-5.6-sol",
+    "arenaNames": [
+      "GPT-5.6 Sol",
+      "GPT 5.6 Sol (xHigh)",
+      "gpt-5.6-sol-xhigh"
+    ],
+    "aaSlug": "gpt-5-6-sol"
+  },
+  "openai-gpt-5.6-terra": {
+    "displayName": "GPT-5.6 Terra",
+    "organisation": "OpenAI",
+    "openrouterId": "openai/gpt-5.6-terra",
+    "arenaNames": [
+      "GPT-5.6 Terra",
+      "GPT 5.6 Terra (xHigh)",
+      "gpt-5.6-terra-xhigh"
+    ],
+    "aaSlug": "gpt-5-6-terra"
+  },
+  "openai-gpt-5.6-luna": {
+    "displayName": "GPT-5.6 Luna",
+    "organisation": "OpenAI",
+    "openrouterId": "openai/gpt-5.6-luna",
+    "arenaNames": [
+      "GPT-5.6 Luna",
+      "GPT 5.6 Luna (xHigh)",
+      "gpt-5.6-luna-xhigh"
+    ],
+    "aaSlug": "gpt-5-6-luna"
+  },
+  "openai-gpt-5.6-sol-pro": {
+    "displayName": "GPT-5.6 Sol Pro",
+    "organisation": "OpenAI",
+    "openrouterId": "openai/gpt-5.6-sol-pro"
+  },
+  "openai-gpt-5.6-terra-pro": {
+    "displayName": "GPT-5.6 Terra Pro",
+    "organisation": "OpenAI",
+    "openrouterId": "openai/gpt-5.6-terra-pro"
+  },
+  "openai-gpt-5.6-luna-pro": {
+    "displayName": "GPT-5.6 Luna Pro",
+    "organisation": "OpenAI",
+    "openrouterId": "openai/gpt-5.6-luna-pro"
+  },
+  "openai-o3": {
+    "displayName": "OpenAI o3",
+    "organisation": "OpenAI",
+    "aaSlug": "o3",
+    "openrouterId": "openai/o3",
+    "arenaNames": [
+      "OpenAI o3",
+      "o3-2025-04-16"
+    ]
+  },
+  "openai-o3-pro": {
+    "displayName": "OpenAI o3 Pro",
+    "organisation": "OpenAI",
+    "openrouterId": "openai/o3-pro",
+    "aaSlug": "o3-pro"
+  },
+  "openai-o3-mini": {
+    "displayName": "OpenAI o3 Mini",
+    "organisation": "OpenAI",
+    "openrouterId": "openai/o3-mini",
+    "aaSlug": "o3-mini"
+  },
+  "openai-o4-mini": {
+    "displayName": "OpenAI o4 Mini",
+    "organisation": "OpenAI",
+    "openrouterId": "openai/o4-mini",
+    "aaSlug": "o4-mini"
+  },
+  "anthropic-claude-opus-4.1": {
     "displayName": "Claude Opus 4.1",
     "organisation": "Anthropic",
-    "aaSlug": "claude-opus-4.1",
+    "aaSlug": "claude-4-1-opus",
     "openrouterId": "anthropic/claude-opus-4.1",
-    "arenaNames": ["Claude Opus 4.1"]
+    "arenaNames": [
+      "Claude Opus 4.1",
+      "claude-opus-4-1-20250805"
+    ]
   },
-  "anthropic-claude-sonnet-4-5": {
+  "anthropic-claude-opus-4.5": {
+    "displayName": "Claude Opus 4.5",
+    "organisation": "Anthropic",
+    "aaSlug": "claude-opus-4-5",
+    "openrouterId": "anthropic/claude-opus-4.5",
+    "arenaNames": [
+      "Claude Opus 4.5",
+      "claude-opus-4-5-20251101",
+      "claude-opus-4-5-20251101-high-32k"
+    ]
+  },
+  "anthropic-claude-opus-4.6": {
+    "displayName": "Claude Opus 4.6",
+    "organisation": "Anthropic",
+    "openrouterId": "anthropic/claude-opus-4.6",
+    "arenaNames": [
+      "Claude Opus 4.6",
+      "claude-opus-4-6",
+      "claude-opus-4-6-high"
+    ],
+    "aaSlug": "claude-opus-4-6"
+  },
+  "anthropic-claude-opus-4.7": {
+    "displayName": "Claude Opus 4.7",
+    "organisation": "Anthropic",
+    "openrouterId": "anthropic/claude-opus-4.7",
+    "arenaNames": [
+      "Claude Opus 4.7",
+      "Claude Opus 4.7 (High)",
+      "claude-opus-4-7",
+      "claude-opus-4-7-high"
+    ],
+    "aaSlug": "claude-opus-4-7"
+  },
+  "anthropic-claude-opus-4.8": {
+    "displayName": "Claude Opus 4.8",
+    "organisation": "Anthropic",
+    "openrouterId": "anthropic/claude-opus-4.8",
+    "arenaNames": [
+      "Claude Opus 4.8",
+      "Claude Opus 4.8 (High)",
+      "claude-opus-4-8",
+      "claude-opus-4-8-high"
+    ],
+    "aaSlug": "claude-opus-4-8"
+  },
+  "anthropic-claude-opus-5": {
+    "displayName": "Claude Opus 5",
+    "organisation": "Anthropic",
+    "openrouterId": "anthropic/claude-opus-5",
+    "arenaNames": [
+      "Claude Opus 5 (High)",
+      "claude-opus-5-high"
+    ],
+    "aaSlug": "claude-opus-5"
+  },
+  "anthropic-claude-sonnet-4.5": {
     "displayName": "Claude Sonnet 4.5",
     "organisation": "Anthropic",
-    "aaSlug": "claude-sonnet-4.5",
+    "aaSlug": "claude-35-sonnet",
     "openrouterId": "anthropic/claude-sonnet-4.5",
-    "arenaNames": ["Claude Sonnet 4.5"]
+    "arenaNames": [
+      "Claude Sonnet 4.5",
+      "claude-sonnet-4-5-20250929"
+    ]
   },
-  "google-gemini-2-5-pro": {
+  "anthropic-claude-sonnet-4.6": {
+    "displayName": "Claude Sonnet 4.6",
+    "organisation": "Anthropic",
+    "openrouterId": "anthropic/claude-sonnet-4.6",
+    "arenaNames": [
+      "Claude Sonnet 4.6",
+      "claude-sonnet-4-6"
+    ],
+    "aaSlug": "claude-sonnet-4-6"
+  },
+  "anthropic-claude-sonnet-5": {
+    "displayName": "Claude Sonnet 5",
+    "organisation": "Anthropic",
+    "openrouterId": "anthropic/claude-sonnet-5",
+    "arenaNames": [
+      "Claude Sonnet 5 (High)",
+      "claude-sonnet-5-high"
+    ],
+    "aaSlug": "claude-sonnet-5"
+  },
+  "anthropic-claude-fable-5": {
+    "displayName": "Claude Fable 5",
+    "organisation": "Anthropic",
+    "openrouterId": "anthropic/claude-fable-5",
+    "arenaNames": [
+      "Claude Fable 5",
+      "claude-fable-5"
+    ],
+    "aaSlug": "claude-fable-5"
+  },
+  "anthropic-claude-fable-5.1": {
+    "displayName": "Claude Fable 5.1",
+    "organisation": "Anthropic",
+    "openrouterId": "anthropic/claude-fable-5.1",
+    "arenaNames": [
+      "Claude Fable 5.1"
+    ],
+    "aaSlug": "claude-fable-5-1"
+  },
+  "anthropic-claude-haiku-4.5": {
+    "displayName": "Claude Haiku 4.5",
+    "organisation": "Anthropic",
+    "aaSlug": "claude-4-5-haiku",
+    "openrouterId": "anthropic/claude-haiku-4.5",
+    "arenaNames": [
+      "Claude Haiku 4.5",
+      "claude-haiku-4-5-20251001"
+    ]
+  },
+  "google-gemini-2.5-pro": {
     "displayName": "Gemini 2.5 Pro",
     "organisation": "Google",
-    "aaSlug": "gemini-2.5-pro",
+    "aaSlug": "gemini-2-5-pro",
     "openrouterId": "google/gemini-2.5-pro",
-    "arenaNames": ["Gemini 2.5 Pro"]
+    "arenaNames": [
+      "Gemini 2.5 Pro",
+      "gemini-2.5-pro"
+    ]
   },
-  "google-gemini-2-5-flash": {
+  "google-gemini-2.5-flash": {
     "displayName": "Gemini 2.5 Flash",
     "organisation": "Google",
-    "aaSlug": "gemini-2.5-flash",
+    "aaSlug": "gemini-2-5-flash",
     "openrouterId": "google/gemini-2.5-flash",
-    "arenaNames": ["Gemini 2.5 Flash"]
+    "arenaNames": [
+      "Gemini 2.5 Flash",
+      "gemini-2.5-flash"
+    ]
   },
-  "deepseek-v3-1": {
+  "google-gemini-2.5-flash-lite": {
+    "displayName": "Gemini 2.5 Flash Lite",
+    "organisation": "Google",
+    "openrouterId": "google/gemini-2.5-flash-lite",
+    "arenaNames": [
+      "Gemini 2.5 Flash Lite",
+      "gemini-2.5-flash-lite"
+    ]
+  },
+  "google-gemini-3-pro": {
+    "displayName": "Gemini 3 Pro",
+    "organisation": "Google",
+    "aaSlug": "gemini-3-pro",
+    "arenaNames": [
+      "Gemini 3 Pro",
+      "gemini-3-pro"
+    ]
+  },
+  "google-gemini-3-flash": {
+    "displayName": "Gemini 3 Flash",
+    "organisation": "Google",
+    "aaSlug": "gemini-3-flash",
+    "arenaNames": [
+      "Gemini 3 Flash",
+      "gemini-3-flash"
+    ]
+  },
+  "google-gemini-3.1-pro-preview": {
+    "displayName": "Gemini 3.1 Pro Preview",
+    "organisation": "Google",
+    "openrouterId": "google/gemini-3.1-pro-preview",
+    "arenaNames": [
+      "Gemini 3.1 Pro Preview",
+      "gemini-3.1-pro-preview"
+    ],
+    "aaSlug": "gemini-3-1-pro-preview"
+  },
+  "google-gemini-3.1-flash-lite": {
+    "displayName": "Gemini 3.1 Flash Lite",
+    "organisation": "Google",
+    "openrouterId": "google/gemini-3.1-flash-lite",
+    "arenaNames": [
+      "Gemini 3.1 Flash Lite"
+    ]
+  },
+  "google-gemini-3.5-flash": {
+    "displayName": "Gemini 3.5 Flash",
+    "organisation": "Google",
+    "openrouterId": "google/gemini-3.5-flash",
+    "arenaNames": [
+      "Gemini 3.5 Flash",
+      "gemini-3.5-flash-high"
+    ],
+    "aaSlug": "gemini-3-5-flash"
+  },
+  "google-gemini-3.5-flash-lite": {
+    "displayName": "Gemini 3.5 Flash Lite",
+    "organisation": "Google",
+    "openrouterId": "google/gemini-3.5-flash-lite",
+    "arenaNames": [
+      "Gemini 3.5 Flash Lite",
+      "gemini-3.5-flash-lite"
+    ]
+  },
+  "google-gemini-3.6-flash": {
+    "displayName": "Gemini 3.6 Flash",
+    "organisation": "Google",
+    "openrouterId": "google/gemini-3.6-flash",
+    "arenaNames": [
+      "Gemini 3.6 Flash",
+      "gemini-3.6-flash-high"
+    ],
+    "aaSlug": "gemini-3-6-flash"
+  },
+  "google-gemini-3.7-flash": {
+    "displayName": "Gemini 3.7 Flash",
+    "organisation": "Google",
+    "openrouterId": "google/gemini-3.7-flash",
+    "arenaNames": [
+      "Gemini 3.7 Flash",
+      "Gemini 3.7 Flash (High)",
+      "gemini-3.7-flash-high"
+    ],
+    "aaSlug": "gemini-3-7-flash"
+  },
+  "google-gemini-3.8-flash": {
+    "displayName": "Gemini 3.8 Flash",
+    "organisation": "Google",
+    "openrouterId": "google/gemini-3.8-flash",
+    "arenaNames": [
+      "Gemini 3.8 Flash"
+    ],
+    "aaSlug": "gemini-3-8-flash"
+  },
+  "xai-grok-4": {
+    "displayName": "Grok 4",
+    "organisation": "xAI",
+    "aaSlug": "grok-4",
+    "arenaNames": [
+      "Grok 4"
+    ]
+  },
+  "xai-grok-4-fast": {
+    "displayName": "Grok 4 Fast",
+    "organisation": "xAI",
+    "aaSlug": "grok-4-fast",
+    "arenaNames": [
+      "Grok 4 Fast"
+    ]
+  },
+  "xai-grok-4.3": {
+    "displayName": "Grok 4.3",
+    "organisation": "xAI",
+    "openrouterId": "x-ai/grok-4.3",
+    "arenaNames": [
+      "Grok 4.3",
+      "Grok 4.3 (High)",
+      "grok-4.3"
+    ],
+    "aaSlug": "grok-4-3"
+  },
+  "xai-grok-4.5": {
+    "displayName": "Grok 4.5",
+    "organisation": "xAI",
+    "openrouterId": "x-ai/grok-4.5",
+    "arenaNames": [
+      "Grok 4.5",
+      "grok-4.5"
+    ],
+    "aaSlug": "grok-4-5"
+  },
+  "xai-grok-4.6": {
+    "displayName": "Grok 4.6",
+    "organisation": "xAI",
+    "openrouterId": "x-ai/grok-4.6",
+    "arenaNames": [
+      "Grok 4.6 (xHigh)",
+      "grok-4.6-high"
+    ],
+    "aaSlug": "grok-4-6"
+  },
+  "deepseek-v3.1": {
     "displayName": "DeepSeek V3.1",
     "organisation": "DeepSeek",
-    "aaSlug": "deepseek-v3.1",
-    "openrouterId": "deepseek/deepseek-v3.1",
-    "arenaNames": ["DeepSeek V3.1"]
+    "aaSlug": "deepseek-v3-1",
+    "arenaNames": [
+      "DeepSeek V3.1"
+    ]
+  },
+  "deepseek-v3.2": {
+    "displayName": "DeepSeek V3.2",
+    "organisation": "DeepSeek",
+    "openrouterId": "deepseek/deepseek-v3.2",
+    "arenaNames": [
+      "DeepSeek V3.2",
+      "deepseek-v3.2"
+    ],
+    "aaSlug": "deepseek-v3-2"
   },
   "deepseek-r1": {
     "displayName": "DeepSeek R1",
     "organisation": "DeepSeek",
     "aaSlug": "deepseek-r1",
     "openrouterId": "deepseek/deepseek-r1",
-    "arenaNames": ["DeepSeek R1"]
+    "arenaNames": [
+      "DeepSeek R1"
+    ]
   },
-  "xai-grok-4": {
-    "displayName": "Grok 4",
-    "organisation": "xAI",
-    "aaSlug": "grok-4",
-    "openrouterId": "x-ai/grok-4",
-    "arenaNames": ["Grok 4"]
+  "deepseek-v4-flash-0731": {
+    "displayName": "DeepSeek V4 Flash",
+    "organisation": "DeepSeek",
+    "openrouterId": "deepseek/deepseek-v4-flash-0731",
+    "arenaNames": [
+      "Deepseek V4 Flash (High) (20260731)",
+      "deepseek-v4-flash",
+      "deepseek-v4-flash-high"
+    ],
+    "aaSlug": "deepseek-v4-flash"
   },
-  "xai-grok-4-fast": {
-    "displayName": "Grok 4 Fast",
-    "organisation": "xAI",
-    "aaSlug": "grok-4-fast",
-    "openrouterId": "x-ai/grok-4-fast",
-    "arenaNames": ["Grok 4 Fast"]
+  "deepseek-v4-pro-0813": {
+    "displayName": "DeepSeek V4 Pro",
+    "organisation": "DeepSeek",
+    "openrouterId": "deepseek/deepseek-v4-pro-0813",
+    "arenaNames": [
+      "DeepSeek V4 Pro",
+      "DeepSeek V4 Pro (High) (0813)",
+      "deepseek-v4-pro",
+      "deepseek-v4-pro-high-20260813"
+    ],
+    "aaSlug": "deepseek-v4-pro"
   },
   "meta-llama-4-maverick": {
     "displayName": "Llama 4 Maverick",
     "organisation": "Meta",
     "aaSlug": "llama-4-maverick",
     "openrouterId": "meta-llama/llama-4-maverick",
-    "arenaNames": ["Llama 4 Maverick"]
+    "arenaNames": [
+      "Llama 4 Maverick"
+    ]
   },
   "meta-llama-4-scout": {
     "displayName": "Llama 4 Scout",
     "organisation": "Meta",
     "aaSlug": "llama-4-scout",
     "openrouterId": "meta-llama/llama-4-scout",
-    "arenaNames": ["Llama 4 Scout"]
+    "arenaNames": [
+      "Llama 4 Scout"
+    ]
+  },
+  "meta-muse-spark-1.2": {
+    "displayName": "Muse Spark 1.2",
+    "organisation": "Meta",
+    "openrouterId": "meta/muse-spark-1.2",
+    "arenaNames": [
+      "Muse Spark 1.2 (xHigh)",
+      "muse-spark-1.2"
+    ],
+    "aaSlug": "muse-spark-1-2"
+  },
+  "meta-muse-glimmer-30b": {
+    "displayName": "Muse Glimmer 30B",
+    "organisation": "Meta",
+    "openrouterId": "meta/muse-glimmer-30b",
+    "arenaNames": [
+      "Muse Glimmer",
+      "muse-glimmer"
+    ]
   },
   "qwen3-235b-a22b": {
     "displayName": "Qwen3 235B A22B",
     "organisation": "Alibaba",
-    "aaSlug": "qwen3-235b-a22b",
     "openrouterId": "qwen/qwen3-235b-a22b",
-    "arenaNames": ["Qwen3 235B A22B"]
+    "arenaNames": [
+      "Qwen3 235B A22B"
+    ]
   },
-  "mistral-large-2411": {
-    "displayName": "Mistral Large 2 (Nov 2024)",
+  "qwen3.7-max": {
+    "displayName": "Qwen3.7 Max",
+    "organisation": "Alibaba",
+    "openrouterId": "qwen/qwen3.7-max",
+    "arenaNames": [
+      "Qwen3.7 Max",
+      "qwen3.7-max-preview"
+    ],
+    "aaSlug": "qwen3-7-max"
+  },
+  "qwen3.7-plus": {
+    "displayName": "Qwen3.7 Plus",
+    "organisation": "Alibaba",
+    "openrouterId": "qwen/qwen3.7-plus",
+    "arenaNames": [
+      "Qwen3.7 Plus",
+      "qwen3.7-plus"
+    ]
+  },
+  "qwen3.7-flash": {
+    "displayName": "Qwen3.7 Flash",
+    "organisation": "Alibaba",
+    "openrouterId": "qwen/qwen3.7-flash",
+    "arenaNames": [
+      "Qwen3.7 Flash"
+    ]
+  },
+  "qwen3.8-max": {
+    "displayName": "Qwen3.8 Max",
+    "organisation": "Alibaba",
+    "openrouterId": "qwen/qwen3.8-max",
+    "arenaNames": [
+      "Qwen3.8 Max",
+      "qwen3.8-max"
+    ],
+    "aaSlug": "qwen3-8-max"
+  },
+  "qwen3.8-27b": {
+    "displayName": "Qwen3.8 27B",
+    "organisation": "Alibaba",
+    "openrouterId": "qwen/qwen3.8-27b",
+    "arenaNames": [
+      "Qwen 3.8 27B",
+      "qwen3.8-27b"
+    ],
+    "aaSlug": "qwen3-8-27b"
+  },
+  "qwen3.8-flash": {
+    "displayName": "Qwen3.8 Flash",
+    "organisation": "Alibaba",
+    "openrouterId": "qwen/qwen3.8-flash",
+    "arenaNames": [
+      "Qwen3.8 Flash Next",
+      "qwen3.8-flash-next"
+    ]
+  },
+  "mistral-large-2512": {
+    "displayName": "Mistral Large 2 (Dec 2025)",
     "organisation": "Mistral AI",
-    "aaSlug": "mistral-large-2",
-    "openrouterId": "mistralai/mistral-large-2411",
-    "arenaNames": ["Mistral Large 2"]
+    "openrouterId": "mistralai/mistral-large-2512",
+    "arenaNames": [
+      "Mistral Large 2"
+    ]
+  },
+  "mistral-medium-3.5": {
+    "displayName": "Mistral Medium 3.5",
+    "organisation": "Mistral AI",
+    "openrouterId": "mistralai/mistral-medium-3-5",
+    "arenaNames": [
+      "Mistral Medium 3.5"
+    ]
   },
   "moonshotai-kimi-k2": {
     "displayName": "Kimi K2",
     "organisation": "Moonshot AI",
     "aaSlug": "kimi-k2",
     "openrouterId": "moonshotai/kimi-k2",
-    "arenaNames": ["Kimi K2"]
+    "arenaNames": [
+      "Kimi K2"
+    ]
+  },
+  "moonshotai-kimi-k2.6": {
+    "displayName": "Kimi K2.6",
+    "organisation": "Moonshot AI",
+    "openrouterId": "moonshotai/kimi-k2.6",
+    "arenaNames": [
+      "Kimi K2.6",
+      "kimi-k2.6"
+    ],
+    "aaSlug": "kimi-k2-6"
+  },
+  "moonshotai-kimi-k2.7-code": {
+    "displayName": "Kimi K2.7 Code",
+    "organisation": "Moonshot AI",
+    "openrouterId": "moonshotai/kimi-k2.7-code",
+    "arenaNames": [
+      "Kimi K2.7 Code",
+      "kimi-k2.7-code"
+    ]
+  },
+  "moonshotai-kimi-k3": {
+    "displayName": "Kimi K3",
+    "organisation": "Moonshot AI",
+    "openrouterId": "moonshotai/kimi-k3",
+    "arenaNames": [
+      "Kimi K3 (Max)",
+      "kimi-k3-max"
+    ],
+    "aaSlug": "kimi-k3"
+  },
+  "z-ai-glm-4.6": {
+    "displayName": "GLM 4.6",
+    "organisation": "Z.ai",
+    "openrouterId": "z-ai/glm-4.6",
+    "arenaNames": [
+      "GLM 4.6",
+      "glm-4.6"
+    ]
+  },
+  "z-ai-glm-4.7": {
+    "displayName": "GLM 4.7",
+    "organisation": "Z.ai",
+    "openrouterId": "z-ai/glm-4.7",
+    "arenaNames": [
+      "GLM 4.7",
+      "glm-4.7"
+    ]
+  },
+  "z-ai-glm-5.2": {
+    "displayName": "GLM 5.2",
+    "organisation": "Z.ai",
+    "openrouterId": "z-ai/glm-5.2",
+    "arenaNames": [
+      "GLM 5.2 (Max)",
+      "glm-5.2-max",
+      "glm-5.2"
+    ],
+    "aaSlug": "glm-5-2"
+  },
+  "z-ai-glm-5.3": {
+    "displayName": "GLM 5.3",
+    "organisation": "Z.ai",
+    "openrouterId": "z-ai/glm-5.3",
+    "arenaNames": [
+      "GLM 5.3 (Max)",
+      "glm-5.3-max",
+      "glm-5.3"
+    ],
+    "aaSlug": "glm-5-3"
+  },
+  "z-ai-glm-5.3-flash": {
+    "displayName": "GLM 5.3 Flash",
+    "organisation": "Z.ai",
+    "openrouterId": "z-ai/glm-5.3-flash",
+    "arenaNames": [
+      "GLM 5.3 Flash",
+      "glm-5.3-flash"
+    ],
+    "aaSlug": "glm-5-3-flash"
+  },
+  "tencent-hy3": {
+    "displayName": "Hunyuan Hy3",
+    "organisation": "Tencent",
+    "openrouterId": "tencent/hy3",
+    "arenaNames": [
+      "Hy3",
+      "hy3"
+    ],
+    "aaSlug": "hy3"
+  },
+  "tencent-hy4-preview": {
+    "displayName": "Hunyuan Hy4 Preview",
+    "organisation": "Tencent",
+    "openrouterId": "tencent/hy4-preview",
+    "arenaNames": [
+      "hy4-preview"
+    ]
+  },
+  "minimax-m3": {
+    "displayName": "MiniMax M3",
+    "organisation": "MiniMax",
+    "openrouterId": "minimax/minimax-m3",
+    "arenaNames": [
+      "Minimax M3",
+      "minimax-m3"
+    ],
+    "aaSlug": "minimax-m3"
+  },
+  "thinkingmachines-inkling": {
+    "displayName": "Inkling",
+    "organisation": "Thinking Machines",
+    "openrouterId": "thinkingmachines/inkling",
+    "arenaNames": [
+      "Inkling",
+      "inkling"
+    ],
+    "aaSlug": "inkling"
+  },
+  "thinkingmachines-inkling-small": {
+    "displayName": "Inkling Small",
+    "organisation": "Thinking Machines",
+    "openrouterId": "thinkingmachines/inkling-small",
+    "arenaNames": [
+      "Inkling Small",
+      "inkling-small"
+    ]
+  },
+  "amazon-nova-2-lite": {
+    "displayName": "Nova 2 Lite",
+    "organisation": "Amazon",
+    "openrouterId": "amazon/nova-2-lite-v1"
+  },
+  "amazon-nova-premier": {
+    "displayName": "Nova Premier",
+    "organisation": "Amazon",
+    "openrouterId": "amazon/nova-premier-v1"
+  },
+  "cohere-command-a": {
+    "displayName": "Command A",
+    "organisation": "Cohere",
+    "openrouterId": "cohere/command-a",
+    "aaSlug": "command-a"
+  },
+  "bytedance-seed-2.0-code": {
+    "displayName": "Seed 2.0 Code",
+    "organisation": "ByteDance Seed",
+    "openrouterId": "bytedance-seed/seed-2.0-code"
+  },
+  "bytedance-seed-2.1-turbo": {
+    "displayName": "Seed 2.1 Turbo",
+    "organisation": "ByteDance Seed",
+    "openrouterId": "bytedance-seed/seed-2-1-turbo"
+  },
+  "nvidia-nemotron-3-ultra": {
+    "displayName": "Nemotron 3 Ultra",
+    "organisation": "NVIDIA",
+    "openrouterId": "nvidia/nemotron-3-ultra-550b-a55b",
+    "arenaNames": [
+      "Nemotron 3 Ultra"
+    ]
+  },
+  "nvidia-nemotron-3.5-lightning": {
+    "displayName": "Nemotron 3.5 Lightning",
+    "organisation": "NVIDIA",
+    "openrouterId": "nvidia/nemotron-3.5-lightning"
+  },
+  "upstage-solar-pro4": {
+    "displayName": "Solar Pro 4",
+    "organisation": "Upstage",
+    "openrouterId": "upstage/solar-pro4",
+    "arenaNames": [
+      "Solar Pro 4",
+      "solar-pro4"
+    ],
+    "aaSlug": "solar-pro4"
+  },
+  "poolside-laguna-s-2.1": {
+    "displayName": "Laguna S 2.1",
+    "organisation": "Poolside",
+    "openrouterId": "poolside/laguna-s-2.1"
+  },
+  "inception-mercury-2.5-preview": {
+    "displayName": "Mercury 2.5 Preview",
+    "organisation": "Inception",
+    "openrouterId": "inception/mercury-2.5-preview"
+  },
+  "openai-gpt-4o": {
+    "displayName": "GPT-4o",
+    "organisation": "OpenAI",
+    "aaSlug": "gpt-4o",
+    "openrouterId": "openai/gpt-4o",
+    "arenaNames": [
+      "GPT-4o",
+      "chatgpt-4o-latest-20250326"
+    ]
+  },
+  "openai-gpt-4o-mini": {
+    "displayName": "GPT-4o Mini",
+    "organisation": "OpenAI",
+    "aaSlug": "gpt-4o-mini",
+    "openrouterId": "openai/gpt-4o-mini"
   }
 }

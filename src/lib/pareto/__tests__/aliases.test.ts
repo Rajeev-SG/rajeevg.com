@@ -9,7 +9,7 @@ describe("deterministic alias resolution", () => {
 
   it("resolves a known OpenRouter id", () => {
     expect(resolveOpenRouterId("openai/gpt-5")?.canonicalId).toBe("openai-gpt-5");
-    expect(resolveOpenRouterId("x-ai/grok-4")?.canonicalId).toBe("xai-grok-4");
+    expect(resolveOpenRouterId("x-ai/grok-4.5")?.canonicalId).toBe("xai-grok-4.5");
   });
 
   it("resolves a known Arena name", () => {
