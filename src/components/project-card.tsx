@@ -114,7 +114,7 @@ export function ProjectCard({ project, compact = false }: ProjectCardProps) {
                   data-analytics-destination="article"
                 >
                   <ArrowRight className="size-4" />
-                  Read article
+                  {project.liveLabel ?? "Read article"}
                 </Link>
               </Button>
             ) : (
@@ -132,7 +132,7 @@ export function ProjectCard({ project, compact = false }: ProjectCardProps) {
                   data-analytics-destination="live_site"
                 >
                   <ArrowUpRight className="size-4" />
-                  Live site
+                  {project.liveLabel ?? "Live site"}
                 </a>
               </Button>
             )

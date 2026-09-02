@@ -65,7 +65,10 @@ export default async function SolutionDetailPage({ params }: { params: Promise<{
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={`/images/solutions/${project.slug}.svg`} alt={project.imageAlt} className="w-full bg-background object-contain" loading="lazy" decoding="async" />
         <figcaption className="border-t bg-card px-4 py-3 text-sm leading-6 text-muted-foreground">
-          {project.imageAlt} <a className="font-medium underline underline-offset-4" href={`/downloads/${project.slug}.excalidraw`}>Download the editable Excalidraw source</a>.
+          {project.imageAlt}{" "}
+          <a className="font-medium underline underline-offset-4" href={project.editableAsset?.href ?? `/downloads/${project.slug}.excalidraw`}>
+            {project.editableAsset?.label ?? "Download the editable Excalidraw source"}
+          </a>.
         </figcaption>
       </figure>
 
@@ -88,13 +91,13 @@ export default async function SolutionDetailPage({ params }: { params: Promise<{
               {project.liveUrl?.startsWith("/") ? (
                 <Button asChild size="sm">
                   <Link href={project.liveUrl}>
-                    <ArrowRight className="size-4" /> Read article
+                    <ArrowRight className="size-4" /> {project.liveLabel ?? "Read article"}
                   </Link>
                 </Button>
               ) : project.liveUrl ? (
                 <Button asChild size="sm">
                   <a href={project.liveUrl} target="_blank" rel="noreferrer noopener">
-                    <ArrowUpRight className="size-4" /> Live site
+                    <ArrowUpRight className="size-4" /> {project.liveLabel ?? "Live site"}
                   </a>
                 </Button>
               ) : null}
