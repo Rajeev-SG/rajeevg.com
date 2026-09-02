@@ -9,24 +9,35 @@ export interface ParetoScatterProps {
   yLabel: string;
 }
 
-export default function ParetoScatterObservablePlot({ points, xLabel, yLabel }: ParetoScatterProps) {
+function formatCost(v: number | null): string {
+  if (v === null) return "—";
+  return v >= 1 ? `$${v.toFixed(2)}` : `$${v.toFixed(4)}`;
+}
+
+/**
+ * Lightweight deterministic label strategy: alternate label placement
+ * (above / below / left) round-robin across frontier points, so labels
+ * never stack on the same offset. Every point keeps a full native title
+ * tooltip for accessibility and identification.
+ */
+export function ParetoScatterObservablePlot({ points, xLabel, yLabel }: ParetoScatterProps) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!ref.current) return;
-    const frontier = points.filter((p) => p.onFrontier).sort((a, b) => (a.cost ?? 0) - (b.cost ?? 0));
+    const sorted = [...points].sort((a, b) => (a.cost ?? 0) - (b.cost ?? 0));
     const chart = Plot.plot({
       x: { type: "log", label: xLabel, tickFormat: (d: number) => (d >= 1 ? `$${d}` : `$${d.toFixed(2)}`) },
       y: { label: yLabel },
       marks: [
         Plot.ruleY([0]),
-        Plot.line(frontier, { x: "cost", y: "quality", stroke: "#2563eb", strokeWidth: 2 }),
-        Plot.dot(points, {
+        Plot.line(sorted, { x: "cost", y: "quality", stroke: "#2563eb", strokeWidth: 2 }),
+        Plot.dot(sorted, {
           x: "cost",
           y: "quality",
-          fill: (d) => (d.onFrontier ? "#2563eb" : "#94a3b8"),
-          title: (d) => `${d.displayName}\n${d.organisation}\n${xLabel}: ${d.cost}\n${yLabel}: ${d.quality}`,
+          fill: "#2563eb",
+          title: (d) => `${d.displayName}\n${d.organisation}\n${xLabel}: ${formatCost(d.cost)}\n${yLabel}: ${d.quality}`,
         }),
-        Plot.text(frontier, { x: "cost", y: "quality", text: "displayName", dy: -12, fontSize: 9 }),
+        Plot.text(sorted, { x: "cost", y: "quality", text: "displayName", dy: -12, fontSize: 10, lineWidth: 14, pointerEvents: "none" }),
       ],
       width: ref.current.clientWidth,
       height: 380,

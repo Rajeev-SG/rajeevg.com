@@ -59,6 +59,7 @@ export function mergeCanonicalModels(
       organisation: fallbackOrg,
       releaseDate: aa?.releaseDate ?? null,
       aa: aa?.aa ?? {
+        slug: null,
         intelligenceIndex: null,
         codingIndex: null,
         agenticIndex: null,

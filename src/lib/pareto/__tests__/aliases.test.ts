@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { canonicalEntries, resolveAaSlug, resolveOpenRouterId, resolveArenaName } from "../aliases";
+import { creatorHomepageUrl, artificialAnalysisModelUrl, openRouterModelUrl } from "../links";
 
 describe("deterministic alias resolution", () => {
   it("resolves a known AA slug", () => {
@@ -33,5 +34,37 @@ describe("deterministic alias resolution", () => {
       expect(e.displayName).toBeTruthy();
       expect(e.organisation).toBeTruthy();
     }
+  });
+});
+
+describe("Meta Muse canary (official structured data, verified 2026-09-02)", () => {
+  it("Muse Spark 1.2 resolves across AA, OpenRouter and Arena", () => {
+    expect(resolveAaSlug("muse-spark-1-2")?.canonicalId).toBe("meta-muse-spark-1.2");
+    expect(resolveOpenRouterId("meta/muse-spark-1.2")?.canonicalId).toBe("meta-muse-spark-1.2");
+    expect(resolveArenaName("Muse Spark 1.2 (xHigh)")?.canonicalId).toBe("meta-muse-spark-1.2");
+expect(resolveArenaName("muse-spark-1.2")?.canonicalId).toBe("meta-muse-spark-1.2");
+  });
+  it("Muse Glimmer resolves across AA, OpenRouter and Arena", () => {
+    expect(resolveAaSlug("muse-glimmer")?.canonicalId).toBe("meta-muse-glimmer-30b");
+    expect(resolveOpenRouterId("meta/muse-glimmer-30b")?.canonicalId).toBe("meta-muse-glimmer-30b");
+    expect(resolveArenaName("Muse Glimmer")?.canonicalId).toBe("meta-muse-glimmer-30b");
+  });
+  it("unknown near-miss Muse ids stay unmatched", () => {
+    expect(resolveOpenRouterId("meta/muse-spark-1.3-contributor")).toBeNull();
+    expect(resolveAaSlug("muse-spark")).toBeNull();
+  });
+});
+
+describe("deterministic links", () => {
+  it("builds safe OpenRouter and AA links from source ids/slugs", () => {
+    expect(openRouterModelUrl("openai/gpt-5")).toBe("https://openrouter.ai/openai/gpt-5");
+    expect(artificialAnalysisModelUrl("gpt-5")).toBe("https://artificialanalysis.ai/models/gpt-5");
+    expect(creatorHomepageUrl("Meta")).toBe("https://ai.meta.com");
+  });
+  it("rejects injection-prone or unknown values", () => {
+    expect(openRouterModelUrl("openai/..%2Fadmin")).toBeNull();
+    expect(artificialAnalysisModelUrl("gpt-5;javascript:alert(1)")).toBeNull();
+    expect(creatorHomepageUrl("Unknown Lab")).toBeNull();
+    expect(creatorHomepageUrl("")).toBeNull();
   });
 });

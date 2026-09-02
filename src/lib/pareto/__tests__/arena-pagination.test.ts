@@ -70,7 +70,6 @@ describe("Arena Bradley-Terry vs IPS field distinction", () => {
     const agentRows = mkIpsRows(1);
     const snapshot = {
       webdev: webdevRows,
-      textStyleControl: [],
       agent: agentRows,
       fetchedAt: "2026-09-02T00:00:00Z",
     };
@@ -92,7 +91,6 @@ describe("Arena Bradley-Terry vs IPS field distinction", () => {
   it("surfaces unmatched Arena models", async () => {
     const snapshot = {
       webdev: mkBtRows(2) as ArenaBradleyTerryRow[],
-      textStyleControl: [],
       agent: mkIpsRows(1) as ArenaIpsRow[],
       fetchedAt: "2026-09-02T00:00:00Z",
     };

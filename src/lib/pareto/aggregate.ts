@@ -125,7 +125,7 @@ export async function buildParetoSnapshot(options?: {
   }
 
   const models = mergeCanonicalModels(aaMatched, orMatched, arMatched);
-  const unmatched = [...aaUnmatched, ...orUnmatched, ...arUnmatched];
+  void [aaUnmatched, orUnmatched, arUnmatched]; // unmatched records stay server-side only
   const freshness: SourceFreshness = {
     aaFetchedAt,
     aaStatus,
@@ -136,7 +136,22 @@ export async function buildParetoSnapshot(options?: {
     arenaPublishedAt,
   };
 
-  const snapshot: ParetoSnapshot = { generatedAt: now, freshness, models, unmatched };
+  // Compact client payload: drop unmatched records and unused AA performance
+  // fields; the browser never needs them.
+  const modelsCompact = models.map((m) => ({
+    ...m,
+    aa: {
+      slug: m.aa.slug,
+      intelligenceIndex: m.aa.intelligenceIndex,
+      codingIndex: m.aa.codingIndex,
+      agenticIndex: m.aa.agenticIndex,
+      costPerTaskUsd: m.aa.costPerTaskUsd,
+      throughputTokensPerSecond: null,
+      latencyTtfbSeconds: null,
+      intelligenceIndexVersion: m.aa.intelligenceIndexVersion,
+    },
+  }));
+  const snapshot: ParetoSnapshot = { generatedAt: now, freshness, models: modelsCompact, unmatched: [] };
   // Retain only if at least one source is ok (don't cache a fully broken snapshot).
   if (freshness.aaStatus === "ok" || freshness.openrouterStatus === "ok" || freshness.arenaStatus === "ok") {
     lastGoodSnapshot = snapshot;

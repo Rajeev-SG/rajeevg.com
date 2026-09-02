@@ -16,14 +16,6 @@ export const metadata: Metadata = {
   },
 };
 
-// Measured from the production build's lazy client chunks (gzip size, Next 15.4.10 webpack).
-const BUNDLE_SIZES: Record<string, string> = {
-  echarts: "189K gzip",
-  "vega-lite": "170K gzip",
-  "observable-plot": "37K gzip",
-  plotly: "1197K gzip",
-};
-
 export default async function ParetoFrontierPage() {
   const { snapshot, errors } = await getParetoSnapshot();
   return (
@@ -41,7 +33,7 @@ export default async function ParetoFrontierPage() {
           </p>
         ) : null}
       </header>
-      <ParetoDashboard snapshot={snapshot} bundleSizes={BUNDLE_SIZES} />
+      <ParetoDashboard snapshot={snapshot} />
     </section>
   );
 }

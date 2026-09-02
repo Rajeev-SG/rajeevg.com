@@ -7,7 +7,6 @@ export interface FilterState {
   cost: CostMetric;
   inputShare: number;
   outputShare: number;
-  onlyFrontier: boolean;
   onlyOpenRouter: boolean;
   search: string;
 }
@@ -77,10 +76,6 @@ export function FilterBar({ state, onChange }: { state: FilterState; onChange: (
         </fieldset>
       ) : null}
 
-      <label className="flex items-center gap-2 text-sm">
-        <input type="checkbox" checked={state.onlyFrontier} onChange={(e) => patch({ onlyFrontier: e.target.checked })} className="accent-primary" />
-        Only Pareto-efficient
-      </label>
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" checked={state.onlyOpenRouter} onChange={(e) => patch({ onlyOpenRouter: e.target.checked })} className="accent-primary" />
         Only on OpenRouter

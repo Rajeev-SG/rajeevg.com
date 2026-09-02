@@ -3,13 +3,11 @@ import { useMemo, useState } from "react";
 import type { ParetoSnapshot } from "@/lib/pareto/types";
 import { computePareto } from "@/lib/pareto/pareto";
 import { FilterBar, FilterState } from "./filter-bar";
-import { ChartLibraryLab } from "./chart-library-lab";
+import { ParetoScatterObservablePlot } from "./pareto-scatter-observable-plot";
 import { ModelTable } from "./model-table";
-import { UnmatchedPanel } from "./unmatched-panel";
 
 export interface DashboardProps {
   snapshot: ParetoSnapshot;
-  bundleSizes: Record<string, string>;
 }
 
 const QUALITY_LABEL: Record<string, string> = {
@@ -38,19 +36,19 @@ function StatusBadge({ status }: { status: string }) {
   return <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${map[status] ?? ""}`}>{status}</span>;
 }
 
-export function ParetoDashboard({ snapshot, bundleSizes }: DashboardProps) {
+export function ParetoDashboard({ snapshot }: DashboardProps) {
   const [filters, setFilters] = useState<FilterState>({
     mode: "general",
     quality: "aa_intelligence",
     cost: "aa_cost_per_task",
     inputShare: 0.8,
     outputShare: 0.2,
-    onlyFrontier: false,
     onlyOpenRouter: false,
     search: "",
   });
 
-  const result = useMemo(() => {
+  // Memoised pure client computation over the compact server payload.
+  const frontierPoints = useMemo(() => {
     let models = snapshot.models;
     if (filters.onlyOpenRouter) models = models.filter((m) => m.openrouter !== null);
     if (filters.search.trim()) {
@@ -58,10 +56,8 @@ export function ParetoDashboard({ snapshot, bundleSizes }: DashboardProps) {
       models = models.filter((m) => m.displayName.toLowerCase().includes(q) || m.organisation.toLowerCase().includes(q));
     }
     const pareto = computePareto(models, filters.quality, filters.cost, filters.inputShare, filters.outputShare);
-    if (filters.onlyFrontier) {
-      return { ...pareto, points: pareto.points.filter((p) => p.onFrontier) };
-    }
-    return pareto;
+    // Only Pareto-efficient models render in graph and table.
+    return pareto.points.filter((p) => p.onFrontier);
   }, [snapshot, filters]);
 
   const freshness = snapshot.freshness;
@@ -87,27 +83,25 @@ export function ParetoDashboard({ snapshot, bundleSizes }: DashboardProps) {
 
       <FilterBar state={filters} onChange={setFilters} />
 
-      {result.points.length === 0 ? (
+      {frontierPoints.length === 0 ? (
         <div className="rounded-xl border border-dashed p-8 text-center text-muted-foreground">
           No models match the current filter combination. Loosen filters or wait for a source to populate.
         </div>
       ) : (
         <>
-          <ChartLibraryLab points={result.points} xLabel={xLabel} yLabel={yLabel} bundleSizes={bundleSizes} />
+          <ParetoScatterObservablePlot points={frontierPoints} xLabel={xLabel} yLabel={yLabel} />
           <section aria-label="Model table" className="space-y-2">
             <h2 className="text-2xl font-semibold tracking-tight">Model table</h2>
-            <ModelTable points={result.points} xLabel={xLabel} yLabel={yLabel} />
+            <ModelTable points={frontierPoints} xLabel={xLabel} yLabel={yLabel} />
           </section>
         </>
       )}
 
-      <UnmatchedPanel unmatched={snapshot.unmatched} />
-
       <section aria-label="Methodology" className="space-y-2 text-sm text-muted-foreground">
         <h2 className="text-lg font-medium text-foreground">Methodology</h2>
-        <p>Pareto dominance: model A dominates B iff Q(A) ≥ Q(B) and C(A) ≤ C(B) and at least one inequality is strict. Models missing the selected metric are excluded from that frontier.</p>
+        <p>Pareto dominance: model A dominates B iff Q(A) ≥ Q(B) and C(A) ≤ C(B) and at least one inequality is strict. Models missing the selected metric are excluded from that frontier. The graph and table show only the currently selected Pareto-efficient models.</p>
         <p>Blended OpenRouter cost = inputShare × input $/1M + outputShare × output $/1M (visible and editable above when selected).</p>
-        <p>Arena WebDev and overall use Bradley-Terry Arena Scores (rating ± bounds, vote counts). Arena Agent uses IPS scores (score ± CI, observation and session counts). These methodologies are kept semantically separate and are never merged into a single &quot;Elo&quot;.</p>
+        <p>Arena WebDev uses Bradley-Terry Arena Scores (rating ± bounds, vote counts). Arena Agent uses IPS scores (score ± CI, observation and session counts). These methodologies are kept semantically separate and are never merged into a single &quot;Elo&quot;.</p>
       </section>
     </div>
   );
