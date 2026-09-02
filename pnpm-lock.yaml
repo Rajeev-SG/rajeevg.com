@@ -192,9 +192,6 @@ importers:
       '@types/pg':
         specifier: ^8.20.0
         version: 8.20.0
-      '@types/plotly.js':
-        specifier: 3.0.13
-        version: 3.0.13
       '@types/react':
         specifier: ^19
         version: 19.2.14
@@ -2221,9 +2218,6 @@ packages:
 
   '@types/pg@8.20.0':
     resolution: {integrity: sha512-bEPFOaMAHTEP1EzpvHTbmwR8UsFyHSKsRisLIHVMXnpNefSbGA1bD6CVy+qKjGSqmZqNqBDV2azOBo8TgkcVow==}
-
-  '@types/plotly.js@3.0.13':
-    resolution: {integrity: sha512-mWI1NZRDHDoiFiPEvUjR0P12fv21kmT8XSLrEjfNwIDahELaXXkSz38n6o+5SYsq0YEGxkK3ANqqM0cRl8uZdg==}
 
   '@types/react-dom@19.2.3':
     resolution: {integrity: sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==}
@@ -7831,8 +7825,6 @@ snapshots:
       '@types/node': 20.19.37
       pg-protocol: 1.13.0
       pg-types: 2.2.0
-
-  '@types/plotly.js@3.0.13': {}
 
   '@types/react-dom@19.2.3(@types/react@19.2.14)':
     dependencies:
