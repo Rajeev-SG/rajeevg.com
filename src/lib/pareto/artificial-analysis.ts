@@ -204,6 +204,7 @@ export function mapAaModels(
       organisation: entry.organisation,
       releaseDate: m.releaseDate,
       aa: {
+        slug: m.slug,
         intelligenceIndex: m.intelligenceIndex,
         codingIndex: m.codingIndex,
         agenticIndex: m.agenticIndex,

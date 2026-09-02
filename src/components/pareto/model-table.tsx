@@ -1,6 +1,7 @@
 "use client";
 import { useMemo, useState } from "react";
 import type { ParetoPoint } from "@/lib/pareto/types";
+import { creatorHomepageUrl, artificialAnalysisModelUrl, openRouterModelUrl } from "@/lib/pareto/links";
 
 export interface ModelTableProps {
   points: ParetoPoint[];
@@ -8,8 +9,12 @@ export interface ModelTableProps {
   yLabel: string;
 }
 
-type SortKey = "displayName" | "quality" | "cost" | "organisation";
+type SortKey = "displayName" | "quality" | "cost" | "organisation" | "orInputPerMillion" | "orOutputPerMillion";
 type SortDir = "asc" | "desc";
+
+function fmtMoney(v: number | null): string {
+  return v !== null ? (v >= 1 ? `$${v.toFixed(2)}` : `$${v.toFixed(4)}`) : "—";
+}
 
 export function ModelTable({ points, xLabel, yLabel }: ModelTableProps) {
   const [sortKey, setSortKey] = useState<SortKey>("quality");
@@ -41,26 +46,39 @@ export function ModelTable({ points, xLabel, yLabel }: ModelTableProps) {
 
   return (
     <div className="overflow-x-auto rounded-xl border" role="region" aria-label="Model data table">
-      <table className="w-full min-w-[720px] text-sm">
+      <table className="w-full min-w-[880px] text-sm">
         <thead className="bg-muted/50">
           <tr>
             {header("displayName", "Model")}
             {header("organisation", "Creator")}
             {header("quality", yLabel)}
             {header("cost", xLabel)}
-            <th scope="col" className="px-3 py-2 text-left font-medium">Frontier</th>
+            {header("orInputPerMillion", "OR input $/1M")}
+            {header("orOutputPerMillion", "OR output $/1M")}
+            <th scope="col" className="px-3 py-2 text-left font-medium">Links</th>
           </tr>
         </thead>
         <tbody>
-          {sorted.map((p) => (
-            <tr key={p.canonicalId} className="border-t">
-              <td className="px-3 py-2 font-medium">{p.displayName}</td>
-              <td className="px-3 py-2 text-muted-foreground">{p.organisation}</td>
-              <td className="px-3 py-2 tabular-nums">{p.quality ?? "—"}</td>
-              <td className="px-3 py-2 tabular-nums">{p.cost !== null ? (p.cost >= 1 ? `$${p.cost.toFixed(2)}` : `$${p.cost.toFixed(4)}`) : "—"}</td>
-              <td className="px-3 py-2">{p.onFrontier ? <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">On frontier</span> : <span className="text-xs text-muted-foreground">Dominated</span>}</td>
-            </tr>
-          ))}
+          {sorted.map((p) => {
+            const orUrl = openRouterModelUrl(p.openrouterModelId);
+            const aaUrl = artificialAnalysisModelUrl(p.aaSlug);
+            const homeUrl = creatorHomepageUrl(p.organisation);
+            return (
+              <tr key={p.canonicalId} className="border-t">
+                <td className="px-3 py-2 font-medium">{p.displayName}</td>
+                <td className="px-3 py-2 text-muted-foreground">{p.organisation}</td>
+                <td className="px-3 py-2 tabular-nums">{p.quality ?? "—"}</td>
+                <td className="px-3 py-2 tabular-nums">{fmtMoney(p.cost)}</td>
+                <td className="px-3 py-2 tabular-nums">{fmtMoney(p.orInputPerMillion)}</td>
+                <td className="px-3 py-2 tabular-nums">{fmtMoney(p.orOutputPerMillion)}</td>
+                <td className="px-3 py-2 whitespace-nowrap text-xs">
+                  {orUrl ? <a className="underline" href={orUrl} target="_blank" rel="noopener noreferrer">OpenRouter</a> : null}
+                  {aaUrl ? <a className="ml-2 underline" href={aaUrl} target="_blank" rel="noopener noreferrer">AA</a> : null}
+                  {homeUrl ? <a className="ml-2 underline" href={homeUrl} target="_blank" rel="noopener noreferrer">Lab</a> : null}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

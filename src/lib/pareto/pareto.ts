@@ -94,6 +94,8 @@ export function computePareto(
     canonicalId: e.model.canonicalId,
     displayName: e.model.displayName,
     organisation: e.model.organisation,
+    aaSlug: e.model.aa.slug,
+    openrouterModelId: e.model.openrouter?.modelId ?? null,
     quality: e.q,
     cost: e.c,
     onFrontier: frontierSet.has(entries.indexOf(e)),

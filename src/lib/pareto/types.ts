@@ -46,6 +46,7 @@ export interface ArenaIpsMetric {
 }
 
 export interface AaData {
+  slug: string | null;
   intelligenceIndex: number | null;
   codingIndex: number | null;
   agenticIndex: number | null;
@@ -115,6 +116,8 @@ export interface ParetoPoint {
   canonicalId: string;
   displayName: string;
   organisation: string;
+  aaSlug: string | null;
+  openrouterModelId: string | null;
   quality: number | null;
   cost: number | null;
   onFrontier: boolean;
