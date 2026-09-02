@@ -1,0 +1,532 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1460" viewBox="0 0 1800 1460">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#23395D" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrow-1A73E8" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1A73E8"/>
+    </marker>
+    <marker id="arrow-CBD5E1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#CBD5E1"/>
+    </marker>
+    <marker id="arrow-188038" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#188038"/>
+    </marker>
+    <marker id="arrow-7B3FC6" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#7B3FC6"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1800" height="1460" fill="#F4F7FB"/>
+  <rect x="20" y="240" width="1280" height="805" rx="112.7" fill="#FFFFFF" stroke="#D7DFEB" stroke-width="1" opacity="1.0" filter="url(#shadow)"/>
+  <rect x="38" y="253" width="32" height="32" rx="7.68" fill="#EAF2FE" stroke="none" stroke-width="1" opacity="1.0"/>
+  <text x="54" y="274.6" fill="#1558B0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="14" font-weight="700" text-anchor="middle">
+    <tspan x="54" dy="0">1</tspan>
+  </text>
+  <text x="81" y="275.4" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="start">
+    <tspan x="81" dy="0">Interactive attribution flow</tspan>
+  </text>
+  <rect x="20" y="295" width="1280" height="1" rx="0" fill="#D7DFEB" stroke="none" stroke-width="1" opacity="1.0"/>
+  <rect x="30" y="300" width="1240" height="700" rx="98" fill="#FBFCFE" stroke="#D7DFEB" stroke-width="1" opacity="1.0"/>
+  <rect x="1320" y="240" width="460" height="805" rx="64.4" fill="#FFFFFF" stroke="#D7DFEB" stroke-width="1" opacity="1.0" filter="url(#shadow)"/>
+  <rect x="20" y="1080" width="870" height="315" rx="44.1" fill="#FFFFFF" stroke="#D7DFEB" stroke-width="1" opacity="1.0" filter="url(#shadow)"/>
+  <rect x="910" y="1080" width="870" height="315" rx="44.1" fill="#FFFFFF" stroke="#D7DFEB" stroke-width="1" opacity="1.0" filter="url(#shadow)"/>
+  <path d="M 517.0 446.0 Q 360.0 475.0 300.0 472.5 Q 240.0 470.0 212.2 500.0 T 184.5 530.0" fill="none" stroke="#B69BD3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.72" stroke-dasharray="6 7"/>
+  <path d="M 586.0 446.0 Q 420.0 520.0 367.5 540.0 Q 315.0 560.0 249.8 597.5 T 184.5 635.0" fill="none" stroke="#B69BD3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.72" stroke-dasharray="6 7"/>
+  <path d="M 655.0 446.0 Q 460.0 590.0 395.0 630.0 Q 330.0 670.0 257.2 705.0 T 184.5 740.0" fill="none" stroke="#B69BD3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.72" stroke-dasharray="6 7"/>
+  <path d="M 770.0 446.0 Q 800.0 475.0 850.0 475.0 Q 900.0 475.0 922.5 507.5 T 945.0 540.0" fill="none" stroke="#B69BD3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.72" stroke-dasharray="6 7"/>
+  <path d="M 297.0 566.5 Q 320.0 566.0 323.5 581.5 Q 327.0 597.0 341.0 605.8 T 355.0 614.5" fill="none" stroke="#1A73E8" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" marker-end="url(#arrow-1A73E8)"/>
+  <path d="M 297.0 671.5 Q 324.0 671.0 326.5 660.5 Q 329.0 650.0 342.0 645.0 T 355.0 640.0" fill="none" stroke="#CBD5E1" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" opacity="0.45" marker-end="url(#arrow-CBD5E1)"/>
+  <path d="M 297.0 776.5 Q 321.0 776.0 326.0 730.5 Q 331.0 685.0 343.0 675.2 T 355.0 665.5" fill="none" stroke="#CBD5E1" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" opacity="0.45" marker-end="url(#arrow-CBD5E1)"/>
+  <path d="M 533.0 617.5 Q 550.0 610.0 552.5 592.0 Q 555.0 574.0 567.5 570.2 T 580.0 566.5" fill="none" stroke="#188038" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" marker-end="url(#arrow-188038)"/>
+  <path d="M 533.0 640.0 Q 550.0 640.0 554.0 655.5 Q 558.0 671.0 569.0 671.2 T 580.0 671.5" fill="none" stroke="#CBD5E1" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" opacity="0.45" marker-end="url(#arrow-CBD5E1)"/>
+  <path d="M 533.0 662.5 Q 550.0 684.0 554.5 730.0 Q 559.0 776.0 569.5 776.2 T 580.0 776.5" fill="none" stroke="#CBD5E1" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" opacity="0.45" marker-end="url(#arrow-CBD5E1)"/>
+  <path d="M 792.0 566.5 Q 820.0 566.0 826.0 581.5 Q 832.0 597.0 846.0 604.5 T 860.0 612.0" fill="none" stroke="#188038" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" marker-end="url(#arrow-188038)"/>
+  <path d="M 792.0 671.5 Q 820.0 671.0 827.0 659.5 Q 834.0 648.0 847.0 644.0 T 860.0 640.0" fill="none" stroke="#CBD5E1" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" opacity="0.45" marker-end="url(#arrow-CBD5E1)"/>
+  <path d="M 792.0 776.5 Q 822.0 776.0 830.0 733.0 Q 838.0 690.0 849.0 679.0 T 860.0 668.0" fill="none" stroke="#CBD5E1" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" opacity="0.45" marker-end="url(#arrow-CBD5E1)"/>
+  <path d="M 1030.0 640.0 Q 1048.0 640.0 1052.0 640.0 Q 1056.0 640.0 1065.5 641.0 T 1075.0 642.0" fill="none" stroke="#1A73E8" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" marker-end="url(#arrow-1A73E8)"/>
+  <path d="M 1152.5 719.0 Q 1152.0 762.0 1134.0 777.5 Q 1116.0 793.0 1084.2 804.0 T 1052.4 815.0" fill="none" stroke="#7B3FC6" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" marker-end="url(#arrow-7B3FC6)"/>
+  <text x="73" y="496.4" fill="#738199" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11" font-weight="700" text-anchor="start">
+    <tspan x="73" dy="0">01  SERVING ACCOUNT</tspan>
+  </text>
+  <text x="356" y="496.4" fill="#738199" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11" font-weight="700" text-anchor="start">
+    <tspan x="356" dy="0">02  AD SIGNAL</tspan>
+  </text>
+  <text x="581" y="496.4" fill="#738199" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11" font-weight="700" text-anchor="start">
+    <tspan x="581" dy="0">03  MARKET WEBSITE</tspan>
+  </text>
+  <text x="866" y="496.4" fill="#738199" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11" font-weight="700" text-anchor="start">
+    <tspan x="866" dy="0">04  SHARED TAG + EVENT</tspan>
+  </text>
+  <text x="1083" y="496.4" fill="#738199" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11" font-weight="700" text-anchor="start">
+    <tspan x="1083" dy="0">05  MATCH + CREDIT</tspan>
+  </text>
+  <rect x="425" y="334" width="460" height="112" rx="20.16" fill="#F2EAFB" stroke="#7B3FC6" stroke-width="3" opacity="1.0" filter="url(#shadow)"/>
+  <rect x="445" y="354" width="48" height="48" rx="9.6" fill="#7B3FC6" stroke="none" stroke-width="1" opacity="1.0"/>
+  <polygon points="469.0,367.0 480.0,391.0 458.0,391.0" fill="#FFFFFF" stroke="none" stroke-width="1" opacity="1.0"/>
+  <ellipse cx="469" cy="393" rx="4" ry="4" fill="#FFFFFF" stroke="none" stroke-width="1" opacity="1.0"/>
+  <text x="513" y="365.4" fill="#7B3FC6" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11" font-weight="700" text-anchor="start">
+    <tspan x="513" dy="0">GLOBAL MANAGER ACCOUNT</tspan>
+  </text>
+  <text x="513" y="393.6" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="14" font-weight="700" text-anchor="start">
+    <tspan x="513" dy="0">MCC owns the shared conversion actions</tspan>
+  </text>
+  <text x="513" y="412" fill="#607089" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="400" text-anchor="start">
+    <tspan x="513" dy="0">Child accounts select this manager as their conversion account</tspan>
+  </text>
+  <rect x="752" y="348" width="118" height="24" rx="5.76" fill="#F2EAFB" stroke="#B99BDD" stroke-width="1" opacity="1.0"/>
+  <text x="811" y="364" fill="#7B3FC6" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="700" text-anchor="middle">
+    <tspan x="811" dy="0">CENTRAL OWNER</tspan>
+  </text>
+  <rect x="72" y="530" width="225" height="73" rx="13.14" fill="#F4F8FF" stroke="#1A73E8" stroke-width="3" opacity="1.0" filter="url(#shadow)"/>
+  <ellipse cx="97" cy="555" rx="9" ry="9" fill="#1A73E8" stroke="none" stroke-width="1" opacity="1.0"/>
+  <text x="118" y="554" fill="#1558B0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="700" text-anchor="start">
+    <tspan x="118" dy="0">CHILD ACCOUNT</tspan>
+  </text>
+  <text x="118" y="578.6" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="14" font-weight="700" text-anchor="start">
+    <tspan x="118" dy="0">France Google Ads</tspan>
+  </text>
+  <text x="118" y="596" fill="#607089" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="400" text-anchor="start">
+    <tspan x="118" dy="0">Serves the ad</tspan>
+  </text>
+  <rect x="217" y="542" width="66" height="22" rx="4.84" fill="#EAF2FE" stroke="#A9C6F2" stroke-width="1" opacity="1.0"/>
+  <text x="250" y="556.2" fill="#1558B0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="8" font-weight="700" text-anchor="middle">
+    <tspan x="250" dy="0">MCC GOALS</tspan>
+  </text>
+  <rect x="72" y="635" width="225" height="73" rx="13.14" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.6" opacity="1.0" filter="url(#shadow)"/>
+  <ellipse cx="97" cy="660" rx="9" ry="9" fill="#64748B" stroke="none" stroke-width="1" opacity="1.0"/>
+  <text x="118" y="659" fill="#738199" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="700" text-anchor="start">
+    <tspan x="118" dy="0">CHILD ACCOUNT</tspan>
+  </text>
+  <text x="118" y="683.6" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="14" font-weight="700" text-anchor="start">
+    <tspan x="118" dy="0">UK Google Ads</tspan>
+  </text>
+  <text x="118" y="701" fill="#607089" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="400" text-anchor="start">
+    <tspan x="118" dy="0">Serves the ad</tspan>
+  </text>
+  <rect x="217" y="647" width="66" height="22" rx="4.84" fill="#EEF2F7" stroke="#D4DCE7" stroke-width="1" opacity="1.0"/>
+  <text x="250" y="661.2" fill="#526078" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="8" font-weight="700" text-anchor="middle">
+    <tspan x="250" dy="0">MCC GOALS</tspan>
+  </text>
+  <rect x="72" y="740" width="225" height="73" rx="13.14" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.6" opacity="1.0" filter="url(#shadow)"/>
+  <ellipse cx="97" cy="765" rx="9" ry="9" fill="#64748B" stroke="none" stroke-width="1" opacity="1.0"/>
+  <text x="118" y="764" fill="#738199" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="700" text-anchor="start">
+    <tspan x="118" dy="0">CHILD ACCOUNT</tspan>
+  </text>
+  <text x="118" y="788.6" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="14" font-weight="700" text-anchor="start">
+    <tspan x="118" dy="0">Germany Google Ads</tspan>
+  </text>
+  <text x="118" y="806" fill="#607089" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="400" text-anchor="start">
+    <tspan x="118" dy="0">Serves the ad</tspan>
+  </text>
+  <rect x="217" y="752" width="66" height="22" rx="4.84" fill="#EEF2F7" stroke="#D4DCE7" stroke-width="1" opacity="1.0"/>
+  <text x="250" y="766.2" fill="#526078" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="8" font-weight="700" text-anchor="middle">
+    <tspan x="250" dy="0">MCC GOALS</tspan>
+  </text>
+  <rect x="355" y="565" width="178" height="150" rx="27" fill="#F4F8FF" stroke="#1A73E8" stroke-width="3" opacity="1.0" filter="url(#shadow)"/>
+  <ellipse cx="444" cy="608" rx="23" ry="23" fill="#EAF2FE" stroke="#A9C6F2" stroke-width="1" opacity="1.0"/>
+  <polygon points="434.0,596.0 454.0,608.0 434.0,620.0" fill="#1A73E8" stroke="none" stroke-width="1" opacity="1.0"/>
+  <text x="444" y="656.4" fill="#1558B0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11" font-weight="700" text-anchor="middle">
+    <tspan x="444" dy="0">INTERACTION SIGNAL</tspan>
+  </text>
+  <text x="444" y="679.6" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="14" font-weight="700" text-anchor="middle">
+    <tspan x="444" dy="0">Ad click + GCLID</tspan>
+  </text>
+  <text x="444" y="695" fill="#607089" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="9" font-weight="400" text-anchor="middle">
+    <tspan x="444" dy="0">Identifies campaign and click</tspan>
+    <tspan x="444" dy="10.8">attributes</tspan>
+  </text>
+  <rect x="580" y="530" width="212" height="73" rx="13.14" fill="#F0F8F2" stroke="#188038" stroke-width="3" opacity="1.0" filter="url(#shadow)"/>
+  <rect x="600" y="546" width="34" height="28" rx="5.04" fill="#188038" stroke="none" stroke-width="1" opacity="1.0"/>
+  <rect x="605" y="553" width="24" height="2" rx="0" fill="#FFFFFF" stroke="none" stroke-width="1" opacity="1.0"/>
+  <rect x="605" y="560" width="19" height="2" rx="0" fill="#FFFFFF" stroke="none" stroke-width="1" opacity="1.0"/>
+  <rect x="605" y="567" width="13" height="2" rx="0" fill="#FFFFFF" stroke="none" stroke-width="1" opacity="1.0"/>
+  <text x="649" y="553.4" fill="#0F652D" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="8.5" font-weight="700" text-anchor="start">
+    <tspan x="649" dy="0">MARKET WEBSITE</tspan>
+  </text>
+  <text x="649" y="578.6" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="14" font-weight="700" text-anchor="start">
+    <tspan x="649" dy="0">French site</tspan>
+  </text>
+  <text x="649" y="596" fill="#607089" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="400" text-anchor="start">
+    <tspan x="649" dy="0">Conversion occurs here</tspan>
+  </text>
+  <rect x="738" y="543" width="43" height="20" rx="4.4" fill="#E6F4EA" stroke="#B8DFC4" stroke-width="1" opacity="1.0"/>
+  <text x="759.5" y="555.6" fill="#0F652D" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="6.5" font-weight="700" text-anchor="middle">
+    <tspan x="759.5" dy="0">SAME TAG</tspan>
+  </text>
+  <rect x="580" y="635" width="212" height="73" rx="13.14" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.6" opacity="1.0" filter="url(#shadow)"/>
+  <rect x="600" y="651" width="34" height="28" rx="5.04" fill="#64748B" stroke="none" stroke-width="1" opacity="1.0"/>
+  <rect x="605" y="658" width="24" height="2" rx="0" fill="#FFFFFF" stroke="none" stroke-width="1" opacity="1.0"/>
+  <rect x="605" y="665" width="19" height="2" rx="0" fill="#FFFFFF" stroke="none" stroke-width="1" opacity="1.0"/>
+  <rect x="605" y="672" width="13" height="2" rx="0" fill="#FFFFFF" stroke="none" stroke-width="1" opacity="1.0"/>
+  <text x="649" y="658.4" fill="#738199" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="8.5" font-weight="700" text-anchor="start">
+    <tspan x="649" dy="0">MARKET WEBSITE</tspan>
+  </text>
+  <text x="649" y="683.6" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="14" font-weight="700" text-anchor="start">
+    <tspan x="649" dy="0">UK site</tspan>
+  </text>
+  <text x="649" y="701" fill="#607089" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="400" text-anchor="start">
+    <tspan x="649" dy="0">Conversion occurs here</tspan>
+  </text>
+  <rect x="738" y="648" width="43" height="20" rx="4.4" fill="#EEF2F7" stroke="#D4DCE7" stroke-width="1" opacity="1.0"/>
+  <text x="759.5" y="660.6" fill="#526078" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="6.5" font-weight="700" text-anchor="middle">
+    <tspan x="759.5" dy="0">SAME TAG</tspan>
+  </text>
+  <rect x="580" y="740" width="212" height="73" rx="13.14" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.6" opacity="1.0" filter="url(#shadow)"/>
+  <rect x="600" y="756" width="34" height="28" rx="5.04" fill="#64748B" stroke="none" stroke-width="1" opacity="1.0"/>
+  <rect x="605" y="763" width="24" height="2" rx="0" fill="#FFFFFF" stroke="none" stroke-width="1" opacity="1.0"/>
+  <rect x="605" y="770" width="19" height="2" rx="0" fill="#FFFFFF" stroke="none" stroke-width="1" opacity="1.0"/>
+  <rect x="605" y="777" width="13" height="2" rx="0" fill="#FFFFFF" stroke="none" stroke-width="1" opacity="1.0"/>
+  <text x="649" y="763.4" fill="#738199" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="8.5" font-weight="700" text-anchor="start">
+    <tspan x="649" dy="0">MARKET WEBSITE</tspan>
+  </text>
+  <text x="649" y="788.6" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="14" font-weight="700" text-anchor="start">
+    <tspan x="649" dy="0">German site</tspan>
+  </text>
+  <text x="649" y="806" fill="#607089" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="400" text-anchor="start">
+    <tspan x="649" dy="0">Conversion occurs here</tspan>
+  </text>
+  <rect x="738" y="753" width="43" height="20" rx="4.4" fill="#EEF2F7" stroke="#D4DCE7" stroke-width="1" opacity="1.0"/>
+  <text x="759.5" y="765.6" fill="#526078" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="6.5" font-weight="700" text-anchor="middle">
+    <tspan x="759.5" dy="0">SAME TAG</tspan>
+  </text>
+  <rect x="860" y="540" width="170" height="200" rx="30.6" fill="#F4F8FF" stroke="#1A73E8" stroke-width="3" opacity="1.0" filter="url(#shadow)"/>
+  <rect x="913" y="563" width="64" height="64" rx="15.36" fill="#1A73E8" stroke="none" stroke-width="1" opacity="1.0"/>
+  <rect x="927" y="594" width="36" height="5" rx="2.5" fill="#FFFFFF" stroke="none" stroke-width="1" opacity="1.0"/>
+  <rect x="942" y="578" width="5" height="36" rx="2.5" fill="#FFFFFF" stroke="none" stroke-width="1" opacity="1.0"/>
+  <text x="945" y="658.4" fill="#1558B0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11" font-weight="700" text-anchor="middle">
+    <tspan x="945" dy="0">ON EVERY SITE</tspan>
+  </text>
+  <text x="945" y="683.2" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="13" font-weight="700" text-anchor="middle">
+    <tspan x="945" dy="0">One MCC Google tag</tspan>
+  </text>
+  <text x="945" y="704" fill="#607089" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="400" text-anchor="middle">
+    <tspan x="945" dy="0">+ shared conversion event</tspan>
+  </text>
+  <rect x="888" y="711" width="114" height="22" rx="4.84" fill="#EAF2FE" stroke="#A9C6F2" stroke-width="1" opacity="1.0"/>
+  <text x="945" y="725.2" fill="#1558B0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="8" font-weight="700" text-anchor="middle">
+    <tspan x="945" dy="0">SENDS TO MCC ACTION</tspan>
+  </text>
+  <rect x="1075" y="565" width="155" height="154" rx="27.72" fill="#F4F8FF" stroke="#1A73E8" stroke-width="3" opacity="1.0" filter="url(#shadow)"/>
+  <ellipse cx="1152" cy="605" rx="22" ry="22" fill="#F2EAFB" stroke="#C8ABE7" stroke-width="1" opacity="1.0"/>
+  <text x="1152" y="613" fill="#7B3FC6" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="20" font-weight="700" text-anchor="middle">
+    <tspan x="1152" dy="0">✓</tspan>
+  </text>
+  <text x="1152.5" y="653.4" fill="#1558B0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11" font-weight="700" text-anchor="middle">
+    <tspan x="1152.5" dy="0">GOOGLE ADS</tspan>
+  </text>
+  <text x="1152.5" y="677.7" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="13" font-weight="700" text-anchor="middle">
+    <tspan x="1152.5" dy="0">Match + attribute</tspan>
+  </text>
+  <text x="1152.5" y="700" fill="#607089" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="400" text-anchor="middle">
+    <tspan x="1152.5" dy="0">Eligible interaction wins</tspan>
+  </text>
+  <rect x="860" y="815" width="370" height="120" rx="21.6" fill="#F0F8F2" stroke="#188038" stroke-width="3" opacity="1.0" filter="url(#shadow)"/>
+  <ellipse cx="896" cy="854" rx="18" ry="18" fill="#E6F4EA" stroke="#A7D6B4" stroke-width="1" opacity="1.0"/>
+  <text x="896" y="861.2" fill="#188038" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="18" font-weight="700" text-anchor="middle">
+    <tspan x="896" dy="0">✓</tspan>
+  </text>
+  <text x="926" y="843.4" fill="#0F652D" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11" font-weight="700" text-anchor="start">
+    <tspan x="926" dy="0">CONVERSION CREDIT</tspan>
+  </text>
+  <text x="926" y="870.5" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="start">
+    <tspan x="926" dy="0">France child account + campaign</tspan>
+  </text>
+  <text x="881" y="901.5" fill="#607089" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="400" text-anchor="start">
+    <tspan x="881" dy="0">Because the French account served the credited ad.</tspan>
+  </text>
+  <text x="881" y="921.5" fill="#607089" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="400" text-anchor="start">
+    <tspan x="881" dy="0">The French domain is not what selected the account.</tspan>
+  </text>
+  <rect x="72" y="855" width="720" height="80" rx="14.4" fill="#FFFFFF" stroke="#D7DFEB" stroke-width="1" opacity="1.0"/>
+  <text x="92" y="882.4" fill="#283650" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11" font-weight="700" text-anchor="start">
+    <tspan x="92" dy="0">KEY RULE</tspan>
+  </text>
+  <text x="92" y="909" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="start">
+    <tspan x="92" dy="0">Serving account + eligible ad interaction determine attribution.</tspan>
+  </text>
+  <text x="92" y="928" fill="#66758D" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="400" text-anchor="start">
+    <tspan x="92" dy="0">Website country, visitor location and the shared tag alone do not select a child account.</tspan>
+  </text>
+  <ellipse cx="44" cy="46" rx="9" ry="9" fill="#EAF2FE" stroke="none" stroke-width="1" opacity="1.0"/>
+  <ellipse cx="44" cy="46" rx="4" ry="4" fill="#1A73E8" stroke="none" stroke-width="1" opacity="1.0"/>
+  <text x="63" y="50.8" fill="#1558B0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" font-weight="700" text-anchor="start">
+    <tspan x="63" dy="0">GOOGLE ADS MEASUREMENT ARCHITECTURE</tspan>
+  </text>
+  <text x="31" y="92" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="30" font-weight="700" text-anchor="start">
+    <tspan x="31" dy="0">How one global MCC tag attributes conversions to the correct country account</tspan>
+  </text>
+  <text x="31" y="133" fill="#607089" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="start">
+    <tspan x="31" dy="0">The country website does not choose the account. Google Ads matches the conversion to the eligible earlier ad interaction, then credits the child account and</tspan>
+    <tspan x="31" dy="18">campaign that served that ad.</tspan>
+  </text>
+  <rect x="1435" y="46" width="335" height="42" rx="16.8" fill="#E6F4EA" stroke="#B9DFC3" stroke-width="1" opacity="1.0"/>
+  <ellipse cx="1460" cy="67" rx="10" ry="10" fill="#188038" stroke="none" stroke-width="1" opacity="1.0"/>
+  <text x="1460" y="71.8" fill="#FFFFFF" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" font-weight="700" text-anchor="middle">
+    <tspan x="1460" dy="0">✓</tspan>
+  </text>
+  <text x="1479" y="71.8" fill="#0F5F2A" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" font-weight="700" text-anchor="start">
+    <tspan x="1479" dy="0">Official Google sources checked 2 Sep 2026</tspan>
+  </text>
+  <rect x="30" y="184" width="252" height="44" rx="9.68" fill="#EAF2FE" stroke="#B8D0F5" stroke-width="1" opacity="1.0"/>
+  <rect x="40" y="193" width="26" height="26" rx="7.28" fill="#1A73E8" stroke="none" stroke-width="1" opacity="1.0"/>
+  <text x="53" y="210" fill="#FFFFFF" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="700" text-anchor="middle">
+    <tspan x="53" dy="0">FR</tspan>
+  </text>
+  <text x="75" y="210.8" fill="#1558B0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" font-weight="700" text-anchor="start">
+    <tspan x="75" dy="0">French ad → French site</tspan>
+  </text>
+  <rect x="292" y="184" width="223" height="44" rx="9.68" fill="#FFFFFF" stroke="#D7DFEB" stroke-width="1" opacity="1.0"/>
+  <rect x="302" y="193" width="26" height="26" rx="7.28" fill="#E7ECF4" stroke="none" stroke-width="1" opacity="1.0"/>
+  <text x="315" y="210" fill="#516078" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="700" text-anchor="middle">
+    <tspan x="315" dy="0">UK</tspan>
+  </text>
+  <text x="337" y="210.8" fill="#48566D" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" font-weight="700" text-anchor="start">
+    <tspan x="337" dy="0">UK ad → UK site</tspan>
+  </text>
+  <rect x="525" y="184" width="245" height="44" rx="9.68" fill="#FFFFFF" stroke="#D7DFEB" stroke-width="1" opacity="1.0"/>
+  <rect x="535" y="193" width="26" height="26" rx="7.28" fill="#E7ECF4" stroke="none" stroke-width="1" opacity="1.0"/>
+  <text x="548" y="210" fill="#516078" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="700" text-anchor="middle">
+    <tspan x="548" dy="0">X</tspan>
+  </text>
+  <text x="570" y="210.8" fill="#48566D" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" font-weight="700" text-anchor="start">
+    <tspan x="570" dy="0">French ad → UK site</tspan>
+  </text>
+  <rect x="780" y="184" width="220" height="44" rx="9.68" fill="#FFFFFF" stroke="#D7DFEB" stroke-width="1" opacity="1.0"/>
+  <rect x="790" y="193" width="26" height="26" rx="7.28" fill="#E7ECF4" stroke="none" stroke-width="1" opacity="1.0"/>
+  <text x="803" y="210" fill="#516078" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="700" text-anchor="middle">
+    <tspan x="803" dy="0">V</tspan>
+  </text>
+  <text x="825" y="210.8" fill="#48566D" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" font-weight="700" text-anchor="start">
+    <tspan x="825" dy="0">French view-through</tspan>
+  </text>
+  <rect x="1010" y="184" width="172" height="44" rx="9.68" fill="#FFFFFF" stroke="#D7DFEB" stroke-width="1" opacity="1.0"/>
+  <rect x="1020" y="193" width="26" height="26" rx="7.28" fill="#E7ECF4" stroke="none" stroke-width="1" opacity="1.0"/>
+  <text x="1033" y="210" fill="#516078" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="700" text-anchor="middle">
+    <tspan x="1033" dy="0">D</tspan>
+  </text>
+  <text x="1055" y="210.8" fill="#48566D" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" font-weight="700" text-anchor="start">
+    <tspan x="1055" dy="0">Direct visit</tspan>
+  </text>
+  <rect x="1192" y="184" width="218" height="44" rx="9.68" fill="#FFFFFF" stroke="#D7DFEB" stroke-width="1" opacity="1.0"/>
+  <rect x="1202" y="193" width="26" height="26" rx="7.28" fill="#E7ECF4" stroke="none" stroke-width="1" opacity="1.0"/>
+  <text x="1215" y="210" fill="#516078" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="700" text-anchor="middle">
+    <tspan x="1215" dy="0">!</tspan>
+  </text>
+  <text x="1237" y="210.8" fill="#48566D" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" font-weight="700" text-anchor="start">
+    <tspan x="1237" dy="0">Child not opted in</tspan>
+  </text>
+  <rect x="1420" y="184" width="128" height="44" rx="9.68" fill="#FFFFFF" stroke="#D7DFEB" stroke-width="1" opacity="1.0"/>
+  <text x="1484" y="210.4" fill="#48566D" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11" font-weight="700" text-anchor="middle">
+    <tspan x="1484" dy="0">Logic + setup</tspan>
+  </text>
+  <rect x="1558" y="184" width="100" height="44" rx="9.68" fill="#FFFFFF" stroke="#D7DFEB" stroke-width="1" opacity="1.0"/>
+  <text x="1608" y="210.4" fill="#48566D" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11" font-weight="700" text-anchor="middle">
+    <tspan x="1608" dy="0">Sources</tspan>
+  </text>
+  <rect x="1342" y="258" width="110.8" height="25" rx="6" fill="#EAF2FE" stroke="#B8D0F5" stroke-width="1" opacity="1.0"/>
+  <ellipse cx="1354.5" cy="270.5" rx="4.5" ry="4.5" fill="#1558B0" stroke="none" stroke-width="1" opacity="1.0"/>
+  <text x="1365" y="274.5" fill="#1558B0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="700" text-anchor="start">
+    <tspan x="1365" dy="0">Click-through</tspan>
+  </text>
+  <rect x="1459.8" y="258" width="143.8" height="25" rx="6" fill="#F2EAFB" stroke="#D5C1EB" stroke-width="1" opacity="1.0"/>
+  <ellipse cx="1472.3" cy="270.5" rx="4.5" ry="4.5" fill="#7B3FC6" stroke="none" stroke-width="1" opacity="1.0"/>
+  <text x="1482.8" y="274.5" fill="#7B3FC6" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="700" text-anchor="start">
+    <tspan x="1482.8" dy="0">Ad account: France</tspan>
+  </text>
+  <rect x="1610.6" y="258" width="104.2" height="25" rx="6" fill="#E6F4EA" stroke="#B9DFC3" stroke-width="1" opacity="1.0"/>
+  <ellipse cx="1623.1" cy="270.5" rx="4.5" ry="4.5" fill="#0F652D" stroke="none" stroke-width="1" opacity="1.0"/>
+  <text x="1633.6" y="274.5" fill="#0F652D" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="700" text-anchor="start">
+    <tspan x="1633.6" dy="0">Site: France</tspan>
+  </text>
+  <text x="1343" y="315" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="22" font-weight="700" text-anchor="start">
+    <tspan x="1343" dy="0">French ad click, French-site</tspan>
+    <tspan x="1343" dy="26.4">purchase</tspan>
+  </text>
+  <text x="1343" y="372" fill="#607089" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" font-weight="400" text-anchor="start">
+    <tspan x="1343" dy="0">The standard same-market case. The shared tag records the</tspan>
+    <tspan x="1343" dy="14.4">purchase, and Google Ads matches it to the French account's</tspan>
+    <tspan x="1343" dy="14.4">earlier ad click.</tspan>
+  </text>
+  <rect x="1342" y="432" width="416" height="78" rx="12.48" fill="#EAF2FE" stroke="#B8D0F5" stroke-width="1" opacity="1.0"/>
+  <text x="1357" y="453" fill="#1558B0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="700" text-anchor="start">
+    <tspan x="1357" dy="0">WHY THE CREDIT GOES THERE</tspan>
+  </text>
+  <text x="1357" y="471" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" font-weight="700" text-anchor="start">
+    <tspan x="1357" dy="0">The French child account served the click that is linked</tspan>
+    <tspan x="1357" dy="14.4">to the conversion.</tspan>
+  </text>
+  <ellipse cx="1356" cy="539" rx="14" ry="14" fill="#EAF2FE" stroke="#B8D0F5" stroke-width="1" opacity="1.0"/>
+  <text x="1356" y="543.4" fill="#1558B0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11" font-weight="700" text-anchor="middle">
+    <tspan x="1356" dy="0">1</tspan>
+  </text>
+  <text x="1382" y="532" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" font-weight="700" text-anchor="start">
+    <tspan x="1382" dy="0">France serves the ad</tspan>
+  </text>
+  <text x="1382" y="552" fill="#607089" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="400" text-anchor="start">
+    <tspan x="1382" dy="0">A campaign in the French child account produces the eligible ad</tspan>
+    <tspan x="1382" dy="12">click.</tspan>
+  </text>
+  <ellipse cx="1356" cy="609" rx="14" ry="14" fill="#EAF2FE" stroke="#B8D0F5" stroke-width="1" opacity="1.0"/>
+  <text x="1356" y="613.4" fill="#1558B0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11" font-weight="700" text-anchor="middle">
+    <tspan x="1356" dy="0">2</tspan>
+  </text>
+  <text x="1382" y="602" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" font-weight="700" text-anchor="start">
+    <tspan x="1382" dy="0">Auto-tagging identifies the click</tspan>
+  </text>
+  <text x="1382" y="622" fill="#607089" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="400" text-anchor="start">
+    <tspan x="1382" dy="0">The landing URL carries ad-click information such as the GCLID.</tspan>
+  </text>
+  <ellipse cx="1356" cy="679" rx="14" ry="14" fill="#EAF2FE" stroke="#B8D0F5" stroke-width="1" opacity="1.0"/>
+  <text x="1356" y="683.4" fill="#1558B0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11" font-weight="700" text-anchor="middle">
+    <tspan x="1356" dy="0">3</tspan>
+  </text>
+  <text x="1382" y="672" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" font-weight="700" text-anchor="start">
+    <tspan x="1382" dy="0">The user converts on the French site</tspan>
+  </text>
+  <text x="1382" y="692" fill="#607089" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="400" text-anchor="start">
+    <tspan x="1382" dy="0">The same manager-level Google tag and purchase event are installed</tspan>
+    <tspan x="1382" dy="12">there.</tspan>
+  </text>
+  <ellipse cx="1356" cy="749" rx="14" ry="14" fill="#EAF2FE" stroke="#B8D0F5" stroke-width="1" opacity="1.0"/>
+  <text x="1356" y="753.4" fill="#1558B0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11" font-weight="700" text-anchor="middle">
+    <tspan x="1356" dy="0">4</tspan>
+  </text>
+  <text x="1382" y="742" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" font-weight="700" text-anchor="start">
+    <tspan x="1382" dy="0">Google matches the event</tspan>
+  </text>
+  <text x="1382" y="762" fill="#607089" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="400" text-anchor="start">
+    <tspan x="1382" dy="0">The conversion event is associated with the stored French ad-click</tspan>
+    <tspan x="1382" dy="12">information.</tspan>
+  </text>
+  <ellipse cx="1356" cy="819" rx="14" ry="14" fill="#EAF2FE" stroke="#B8D0F5" stroke-width="1" opacity="1.0"/>
+  <text x="1356" y="823.4" fill="#1558B0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11" font-weight="700" text-anchor="middle">
+    <tspan x="1356" dy="0">5</tspan>
+  </text>
+  <text x="1382" y="812" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" font-weight="700" text-anchor="start">
+    <tspan x="1382" dy="0">France receives credit</tspan>
+  </text>
+  <text x="1382" y="832" fill="#607089" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="400" text-anchor="start">
+    <tspan x="1382" dy="0">The conversion is reported against the French serving account and</tspan>
+    <tspan x="1382" dy="12">campaign.</tspan>
+  </text>
+  <rect x="1342" y="872" width="416" height="64" rx="10.24" fill="#E6F4EA" stroke="#B9DFC3" stroke-width="1" opacity="1.0"/>
+  <text x="1357" y="891.5" fill="#0F652D" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="700" text-anchor="start">
+    <tspan x="1357" dy="0">OUTCOME</tspan>
+  </text>
+  <text x="1357" y="909" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" font-weight="700" text-anchor="start">
+    <tspan x="1357" dy="0">France receives the conversion credit.</tspan>
+  </text>
+  <rect x="1342" y="943" width="128" height="29" rx="5.8" fill="#F8FAFC" stroke="#D7DFEB" stroke-width="1" opacity="1.0"/>
+  <text x="1406" y="961.5" fill="#48566D" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="700" text-anchor="middle">
+    <tspan x="1406" dy="0">Logic + setup</tspan>
+  </text>
+  <rect x="1478" y="943" width="96" height="29" rx="5.8" fill="#F8FAFC" stroke="#D7DFEB" stroke-width="1" opacity="1.0"/>
+  <text x="1526" y="961.5" fill="#48566D" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="700" text-anchor="middle">
+    <tspan x="1526" dy="0">Sources</tspan>
+  </text>
+  <text x="43" y="1116" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="18" font-weight="700" text-anchor="start">
+    <tspan x="43" dy="0">The distinction that resolves the country-routing question</tspan>
+  </text>
+  <rect x="42" y="1148" width="398" height="218" rx="34.88" fill="#F0F8F2" stroke="#B9DFC3" stroke-width="1" opacity="1.0"/>
+  <text x="61" y="1182" fill="#0F652D" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="start">
+    <tspan x="61" dy="0">Correct mental model</tspan>
+  </text>
+  <ellipse cx="67" cy="1210" rx="7" ry="7" fill="#188038" stroke="none" stroke-width="1" opacity="1.0"/>
+  <text x="67" y="1213.2" fill="#FFFFFF" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="8" font-weight="700" text-anchor="middle">
+    <tspan x="67" dy="0">✓</tspan>
+  </text>
+  <text x="85" y="1209" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11" font-weight="400" text-anchor="start">
+    <tspan x="85" dy="0">The MCC is the central owner of the shared conversion</tspan>
+    <tspan x="85" dy="13.2">action.</tspan>
+  </text>
+  <ellipse cx="67" cy="1250" rx="7" ry="7" fill="#188038" stroke="none" stroke-width="1" opacity="1.0"/>
+  <text x="67" y="1253.2" fill="#FFFFFF" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="8" font-weight="700" text-anchor="middle">
+    <tspan x="67" dy="0">✓</tspan>
+  </text>
+  <text x="85" y="1249" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11" font-weight="400" text-anchor="start">
+    <tspan x="85" dy="0">The market websites all fire the same manager-level</tspan>
+    <tspan x="85" dy="13.2">tag/event.</tspan>
+  </text>
+  <ellipse cx="67" cy="1290" rx="7" ry="7" fill="#188038" stroke="none" stroke-width="1" opacity="1.0"/>
+  <text x="67" y="1293.2" fill="#FFFFFF" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="8" font-weight="700" text-anchor="middle">
+    <tspan x="67" dy="0">✓</tspan>
+  </text>
+  <text x="85" y="1289" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11" font-weight="400" text-anchor="start">
+    <tspan x="85" dy="0">Google Ads matches the conversion to an eligible prior ad</tspan>
+    <tspan x="85" dy="13.2">interaction.</tspan>
+  </text>
+  <ellipse cx="67" cy="1330" rx="7" ry="7" fill="#188038" stroke="none" stroke-width="1" opacity="1.0"/>
+  <text x="67" y="1333.2" fill="#FFFFFF" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="8" font-weight="700" text-anchor="middle">
+    <tspan x="67" dy="0">✓</tspan>
+  </text>
+  <text x="85" y="1329" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11" font-weight="400" text-anchor="start">
+    <tspan x="85" dy="0">Credit appears against the child account and campaign</tspan>
+    <tspan x="85" dy="13.2">that served that interaction.</tspan>
+  </text>
+  <rect x="468" y="1148" width="398" height="218" rx="34.88" fill="#FFF5F4" stroke="#EFAAA7" stroke-width="1" opacity="1.0"/>
+  <text x="487" y="1182" fill="#C5221F" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="start">
+    <tspan x="487" dy="0">Incorrect mental model</tspan>
+  </text>
+  <ellipse cx="493" cy="1210" rx="7" ry="7" fill="#C5221F" stroke="none" stroke-width="1" opacity="1.0"/>
+  <text x="493" y="1213.6" fill="#FFFFFF" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="9" font-weight="700" text-anchor="middle">
+    <tspan x="493" dy="0">×</tspan>
+  </text>
+  <text x="511" y="1209" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11" font-weight="400" text-anchor="start">
+    <tspan x="511" dy="0">The French domain automatically routes data to the French</tspan>
+    <tspan x="511" dy="13.2">account.</tspan>
+  </text>
+  <ellipse cx="493" cy="1250" rx="7" ry="7" fill="#C5221F" stroke="none" stroke-width="1" opacity="1.0"/>
+  <text x="493" y="1253.6" fill="#FFFFFF" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="9" font-weight="700" text-anchor="middle">
+    <tspan x="493" dy="0">×</tspan>
+  </text>
+  <text x="511" y="1249" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11" font-weight="400" text-anchor="start">
+    <tspan x="511" dy="0">Google selects an account from the visitor's IP country.</tspan>
+  </text>
+  <ellipse cx="493" cy="1290" rx="7" ry="7" fill="#C5221F" stroke="none" stroke-width="1" opacity="1.0"/>
+  <text x="493" y="1293.6" fill="#FFFFFF" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="9" font-weight="700" text-anchor="middle">
+    <tspan x="493" dy="0">×</tspan>
+  </text>
+  <text x="511" y="1289" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11" font-weight="400" text-anchor="start">
+    <tspan x="511" dy="0">Each market needs a unique tag purely to stop</tspan>
+    <tspan x="511" dy="13.2">cross-market attribution.</tspan>
+  </text>
+  <ellipse cx="493" cy="1330" rx="7" ry="7" fill="#C5221F" stroke="none" stroke-width="1" opacity="1.0"/>
+  <text x="493" y="1333.6" fill="#FFFFFF" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="9" font-weight="700" text-anchor="middle">
+    <tspan x="493" dy="0">×</tspan>
+  </text>
+  <text x="511" y="1329" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11" font-weight="400" text-anchor="start">
+    <tspan x="511" dy="0">The MCC hierarchy alone determines which account receives</tspan>
+    <tspan x="511" dy="13.2">credit.</tspan>
+  </text>
+  <text x="933" y="1116" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="18" font-weight="700" text-anchor="start">
+    <tspan x="933" dy="0">Attribution logic in one formula</tspan>
+  </text>
+  <rect x="932" y="1152" width="128" height="52" rx="7.28" fill="#EAF2FE" stroke="#B8D0F5" stroke-width="1" opacity="1.0"/>
+  <text x="996" y="1182.4" fill="#1558B0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11" font-weight="700" text-anchor="middle">
+    <tspan x="996" dy="0">COLLECTION</tspan>
+  </text>
+  <text x="1079" y="1175.6" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" font-weight="400" text-anchor="start">
+    <tspan x="1079" dy="0">Shared MCC tag + the configured conversion event records the action on whichever participating site it</tspan>
+    <tspan x="1079" dy="14.4">happens.</tspan>
+  </text>
+  <rect x="932" y="1225" width="128" height="52" rx="7.28" fill="#EAF2FE" stroke="#B8D0F5" stroke-width="1" opacity="1.0"/>
+  <text x="996" y="1255.4" fill="#1558B0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11" font-weight="700" text-anchor="middle">
+    <tspan x="996" dy="0">MATCHING</tspan>
+  </text>
+  <text x="1079" y="1248.6" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" font-weight="400" text-anchor="start">
+    <tspan x="1079" dy="0">Google Ads links that action to a prior eligible click, engaged view or impression using available</tspan>
+    <tspan x="1079" dy="14.4">measurement signals.</tspan>
+  </text>
+  <rect x="932" y="1298" width="128" height="52" rx="7.28" fill="#EAF2FE" stroke="#B8D0F5" stroke-width="1" opacity="1.0"/>
+  <text x="996" y="1328.4" fill="#1558B0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11" font-weight="700" text-anchor="middle">
+    <tspan x="996" dy="0">CREDIT</tspan>
+  </text>
+  <text x="1079" y="1321.6" fill="#142033" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" font-weight="400" text-anchor="start">
+    <tspan x="1079" dy="0">The eligible serving account/campaign receives credit according to the conversion action's attribution</tspan>
+    <tspan x="1079" dy="14.4">settings and window.</tspan>
+  </text>
+  <text x="900" y="1435" fill="#6F7C90" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="10" font-weight="400" text-anchor="middle">
+    <tspan x="900" dy="0">Conceptual architecture for stakeholder explanation. Exact reporting can be affected by consent, browser restrictions, attribution settings, conversion windows and cross-domain implementation quality.</tspan>
+  </text>
+</svg>

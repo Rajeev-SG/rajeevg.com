@@ -9,6 +9,7 @@ import { ArticleExplain } from "@/components/article-explain"
 import { ArticleFigure } from "@/components/article-figure"
 import { ArticleDiagramFigure } from "@/components/article-diagram-figure"
 import { GoArchitectureGuide } from "@/components/go-architecture-guide"
+import { DrawioArticleViewer } from "@/components/drawio-article-viewer"
 import {
   ReviewPill,
   TerminalLine,
@@ -253,4 +254,5 @@ export const mdxComponents: Record<string, React.ComponentType<any>> = {
   ArticleExplain,
   ArticleFigure,
   GoArchitectureGuide,
+  DrawioArticleViewer,
 }
