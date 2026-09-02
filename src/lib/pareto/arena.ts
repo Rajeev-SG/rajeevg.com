@@ -7,7 +7,7 @@
  * Slices max 100 rows; paginate until fewer than `length` rows return.
  *
  * Methodology distinction (critical):
- * - webdev / text_style_control configs: Bradley-Terry Arena Scores.
+ * - webdev config: Bradley-Terry Arena Scores.
  *   Fields: rating, rating_lower, rating_upper, vote_count, rank.
  * - agent config: IPS scores (NOT Bradley-Terry/Elo).
  *   Fields: score, score_ci_lower, score_ci_upper, observation_count, session_count, rank.
@@ -18,7 +18,7 @@ import type { CanonicalModel, UnmatchedRecord } from "./types";
 import { resolveArenaName } from "./aliases";
 
 const DATASET_SERVER = "https://datasets-server.huggingface.co";
-export const ARENA_CONFIGS = ["webdev", "text_style_control", "agent"] as const;
+export const ARENA_CONFIGS = ["webdev", "agent"] as const;
 export type ArenaConfig = (typeof ARENA_CONFIGS)[number];
 const PAGE_LENGTH = 100;
 
@@ -109,18 +109,15 @@ export async function fetchArenaAllRows(
 }
 
 /**
- * Fetch all three required latest subsets and return structured data.
+ * Fetch the required latest subsets (webdev BT + agent IPS) and return structured data.
  */
 export async function fetchArenaSnapshot(): Promise<ArenaSnapshotData> {
   // Space out configs as well as pages: datasets-server enforces per-IP quota.
   const webdevRows = await fetchArenaAllRows("webdev");
   await new Promise((r) => setTimeout(r, 2000));
-  const textStyleRows = await fetchArenaAllRows("text_style_control");
-  await new Promise((r) => setTimeout(r, 2000));
   const agentRows = await fetchArenaAllRows("agent");
   return {
     webdev: webdevRows.map((r) => r.row as unknown as ArenaBradleyTerryRow),
-    textStyleControl: textStyleRows.map((r) => r.row as unknown as ArenaBradleyTerryRow),
     agent: agentRows.map((r) => r.row as unknown as ArenaIpsRow),
     fetchedAt: new Date().toISOString(),
   };
@@ -128,7 +125,6 @@ export async function fetchArenaSnapshot(): Promise<ArenaSnapshotData> {
 
 export interface ArenaSnapshotData {
   webdev: ArenaBradleyTerryRow[];
-  textStyleControl: ArenaBradleyTerryRow[];
   agent: ArenaIpsRow[];
   fetchedAt: string;
 }
@@ -163,20 +159,6 @@ export function mapArenaModels(
     if (row.leaderboard_publish_date) publishDates.push(row.leaderboard_publish_date);
     matched.set(canonicalId, { ...existing, canonicalId, arena });
   };
-
-  for (const row of snapshot.textStyleControl) {
-    const entry = resolveArenaName(row.model_name);
-    if (!entry) {
-      unmatched.push({
-        source: "arena",
-        sourceId: row.model_name,
-        displayName: row.model_name,
-        reason: `Arena name "${row.model_name}" (text_style_control) not in explicit alias map`,
-      });
-      continue;
-    }
-    mergeBt(entry.canonicalId, row, "overall");
-  }
 
   for (const row of snapshot.webdev) {
     const entry = resolveArenaName(row.model_name);

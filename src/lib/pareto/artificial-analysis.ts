@@ -51,11 +51,11 @@ interface AaRawModel {
   release_date?: string;
   model_creator?: { name?: string };
   evaluations?: {
-    artificial_analysis_intelligence_index?: number;
-    artificial_analysis_coding_index?: number;
-    artificial_analysis_agentic_index?: number;
+    intelligence_index?: number;
+    coding_index?: number;
+    agentic_index?: number;
   };
-  artificial_analysis_intelligence_index_cost?: {
+  intelligence_index_cost?: {
     total_cost?: number;
     cost_per_task?: { total_cost?: number };
   };
@@ -83,12 +83,12 @@ function mapAaModel(raw: AaRawModel): AaFetchResult["models"][number] {
     slug: raw.slug,
     releaseDate: raw.release_date ?? null,
     creatorName: raw.model_creator?.name ?? null,
-    intelligenceIndex: raw.evaluations?.artificial_analysis_intelligence_index ?? null,
-    codingIndex: raw.evaluations?.artificial_analysis_coding_index ?? null,
-    agenticIndex: raw.evaluations?.artificial_analysis_agentic_index ?? null,
+    intelligenceIndex: raw.evaluations?.intelligence_index ?? null,
+    codingIndex: raw.evaluations?.coding_index ?? null,
+    agenticIndex: raw.evaluations?.agentic_index ?? null,
     costPerTaskUsd:
-      raw.artificial_analysis_intelligence_index_cost?.cost_per_task?.total_cost ??
-      raw.artificial_analysis_intelligence_index_cost?.total_cost ??
+      raw.intelligence_index_cost?.cost_per_task?.total_cost ??
+      raw.intelligence_index_cost?.total_cost ??
       null,
     inputPerMillion: raw.pricing?.price_1m_input_tokens ?? null,
     outputPerMillion: raw.pricing?.price_1m_output_tokens ?? null,
