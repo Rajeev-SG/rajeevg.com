@@ -544,7 +544,8 @@
     "arenaNames": [
       "Muse Glimmer",
       "muse-glimmer"
-    ]
+    ],
+    "aaSlug": "muse-glimmer"
   },
   "qwen3-235b-a22b": {
     "displayName": "Qwen3 235B A22B",

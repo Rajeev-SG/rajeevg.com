@@ -35,3 +35,21 @@ describe("deterministic alias resolution", () => {
     }
   });
 });
+
+describe("Meta Muse canary (official structured data, verified 2026-09-02)", () => {
+  it("Muse Spark 1.2 resolves across AA, OpenRouter and Arena", () => {
+    expect(resolveAaSlug("muse-spark-1-2")?.canonicalId).toBe("meta-muse-spark-1.2");
+    expect(resolveOpenRouterId("meta/muse-spark-1.2")?.canonicalId).toBe("meta-muse-spark-1.2");
+    expect(resolveArenaName("Muse Spark 1.2 (xHigh)")?.canonicalId).toBe("meta-muse-spark-1.2");
+expect(resolveArenaName("muse-spark-1.2")?.canonicalId).toBe("meta-muse-spark-1.2");
+  });
+  it("Muse Glimmer resolves across AA, OpenRouter and Arena", () => {
+    expect(resolveAaSlug("muse-glimmer")?.canonicalId).toBe("meta-muse-glimmer-30b");
+    expect(resolveOpenRouterId("meta/muse-glimmer-30b")?.canonicalId).toBe("meta-muse-glimmer-30b");
+    expect(resolveArenaName("Muse Glimmer")?.canonicalId).toBe("meta-muse-glimmer-30b");
+  });
+  it("unknown near-miss Muse ids stay unmatched", () => {
+    expect(resolveOpenRouterId("meta/muse-spark-1.3-contributor")).toBeNull();
+    expect(resolveAaSlug("muse-spark")).toBeNull();
+  });
+});
