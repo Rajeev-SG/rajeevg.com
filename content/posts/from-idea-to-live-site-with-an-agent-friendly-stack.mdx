@@ -3,7 +3,7 @@ title: "From idea to live website: the agent-friendly shipping guide"
 slug: from-idea-to-live-site-with-an-agent-friendly-stack
 date: 2026-09-02
 updated: 2026-09-02
-description: A plain-English guide for anyone who has an idea and a coding agent but no infrastructure experience — how a domain, DNS, hosting and a scoped token turn a prompt into a live website, with verification and rollback built in.
+description: A plain-English guide for anyone who has an idea and a coding agent but no infrastructure experience — jargon explained, tokens stored safely, AGENTS.md doing the operational lifting, and a vendor-neutral way to ship a live website.
 tags: [ai, agents, deployment, dns, vercel, cloudflare, hetzner, coolify, shipping]
 draft: false
 image: /images/blog/agent-friendly-shipping/agent-friendly-shipping-jargon-map.svg
@@ -11,9 +11,17 @@ image: /images/blog/agent-friendly-shipping/agent-friendly-shipping-jargon-map.s
 
 Over the last week I shipped so much that I lost count. A friend asked what he would need to do the same thing without becoming a developer or a part-time infrastructure engineer.
 
-The answer was surprisingly short. You need a name people can visit, somewhere for the website to run, and a safe way for a coding agent to control that hosting. Once those pieces are connected, “build this and put it online” becomes a realistic instruction rather than wishful thinking.
+The answer was surprisingly short. You need a name people can visit, somewhere for the website to run, and a safe way for a coding agent to control that hosting. Once those pieces are connected, "build this and put it online" becomes a realistic instruction rather than wishful thinking.
 
 This article is the bridge. It explains what a domain, DNS, nameservers, records, hosting, deployment, build, environments, SSL/TLS, CLI, API, MCP, authentication tokens, environment variables, logs, rollback and a custom domain actually mean — not as a glossary but as the order you encounter them when you ship something real.
+
+<div className="not-prose my-6 flex flex-wrap gap-2">
+  <ArticleExplain term="CLI">A command-line interface. A terminal program the agent can run — for example `vercel deploy` — to do work that would otherwise need clicks in a browser.</ArticleExplain>
+  <ArticleExplain term="API">An application programming interface. A documented set of HTTPS endpoints the agent can call directly to create, read or change things on a service.</ArticleExplain>
+  <ArticleExplain term="MCP server">Model Context Protocol server. A purpose-built tool surface an agent can discover and call — like an API, but shaped for coding agents.</ArticleExplain>
+  <ArticleExplain term="Auth token">A scoped credential the agent uses to prove it is allowed to act. Treat it like a password: store it safely, never commit it.</ArticleExplain>
+  <ArticleExplain term="Environment variable">A value supplied to a program when it runs rather than written into the source. The standard way to keep tokens out of code and git history.</ArticleExplain>
+</div>
 
 The thesis is one sentence: **agent-friendly vendors expose a straightforward CLI, MCP server or API with clear setup and authentication instructions, so your agent can do work that would otherwise require repeated manual clicks.** A vendor can have an excellent dashboard and still be awkward for an agent. The useful test is whether it offers a documented credential, a documented way to act and a documented way to inspect what happened.
 
@@ -26,7 +34,7 @@ The thesis is one sentence: **agent-friendly vendors expose a straightforward CL
   date="2 September 2026"
 />
 
-The jargon, in context:
+## The jargon, in the order you meet it
 
 - A **domain** is the human-readable name people type into a browser (`yourname.com`). A **registrar** is where you buy and renew it — Cloudflare, Namecheap, Hover and many others sell domains.
 - **DNS** is the internet's address book. **Nameservers** identify the service that is authoritative for your domain's DNS. **DNS records** are the entries held by that service — for example, an `A` record pointing to an IP address or a `CNAME` record pointing one hostname at another.
@@ -49,9 +57,9 @@ If the answer to all three is yes, your agent can deploy, update, check logs and
 
 Three examples from my own stack illustrate the range:
 
-- **Vercel** is where this site is deployed. It has a CLI (`vercel`), a documented REST API, and clear token management. The agent can deploy a preview, inspect logs and promote to production from a terminal.
-- **Cloudflare** is another deployment and DNS surface I use. Its `wrangler` CLI deploys Workers and Pages, its API is documented, and its DNS service can hold the records that point a domain at Cloudflare or at another host.
-- **Hetzner** provides the server; **Coolify** provides the deployment layer on top of it. Coolify has an API, a CLI, and an MCP server, so the agent can restart a container or check health without SSH-ing in manually.
+- **Vercel** is where this site is deployed. It has a CLI (`vercel`), a documented REST API, and a hosted MCP server at `mcp.vercel.com`. The agent can deploy a preview, inspect logs and promote to production from a terminal.
+- **Cloudflare** is another deployment and DNS surface I use. Its `wrangler` CLI deploys Workers and Pages, its API is documented, and it runs managed MCP servers for its own products. Its DNS service can hold the records that point a domain at Cloudflare or at another host.
+- **Hetzner** provides the server; **Coolify** provides the deployment layer on top of it. Coolify has a documented API, a CLI, and community MCP servers built on top of that API, so the agent can restart a container or check health without SSH-ing in manually.
 
 None of these is a recommendation over the others. Netlify, Railway, Render, Fly.io, DigitalOcean and many other providers expose some combination of CLI, API, Git integration and deployment logs. They are different shapes of the same answer: give the agent a safe control surface and the work becomes automatable.
 
@@ -65,6 +73,20 @@ Pick a registrar, search for the name you want and buy it. Registrars differ in 
 
 Some vendors expose domain APIs too, but buying a domain should still be a human approval point. Check the spelling, renewal price and account before money changes hands.
 
+Short agent prompt for this stage:
+
+```text
+Help me choose a domain name for <your idea>. Suggest three options, check they
+are likely available, and tell me what to look for before I buy (renewal price,
+top-level domain, registrar reputation).
+```
+
+Registrar references:
+
+- [Namecheap: how to change DNS for a domain](https://www.namecheap.com/support/knowledgebase/article.aspx/767/10/how-to-change-dns-for-a-domain/)
+- [Hover domains](https://www.hover.com/domains)
+- [Cloudflare DNS setup (full setup)](https://developers.cloudflare.com/dns/zone-setups/full-setup/setup/)
+
 ### 2. Choose hosting
 
 Choose where the site will live. This is a trade-off between simplicity and control:
@@ -74,17 +96,103 @@ Choose where the site will live. This is a trade-off between simplicity and cont
 
 Both are valid. If you have never deployed before, start with the managed platform. You can move later.
 
+Short agent prompt for this stage:
+
+```text
+I have no hosting yet. Compare managed platforms (Vercel, Netlify, Cloudflare
+Pages) with self-hosted stacks (Hetzner + Coolify) for a static site like mine.
+Recommend one and explain why in plain English.
+```
+
+Host references:
+
+- [Vercel: deploy from the CLI](https://vercel.com/docs/projects/deploy-from-cli)
+- [Cloudflare: Wrangler commands for Workers](https://developers.cloudflare.com/workers/wrangler/commands/)
+- [Coolify documentation](https://coolify.io/docs/)
+- [Coolify installation](https://coolify.io/docs/get-started/installation)
+- [Netlify docs](https://www.netlify.com/docs/)
+- [Railway docs](https://docs.railway.app/)
+- [Render API](https://docs.render.com/api)
+- [DigitalOcean App Platform](https://docs.digitalocean.com/products/app-platform/)
+- [GitHub Pages](https://docs.github.com/en/pages)
+- [Fly.io docs](https://fly.io/docs/)
+
 ### 3. Get an authentication token
 
 Log in to your hosting provider's dashboard. Find the section for API tokens, personal access tokens or CLI authentication. Create or authorise the narrowest credential that still allows the required deployment work. Avoid account-wide administrator access when a project-scoped credential will do.
 
-This token is the key to the whole approach. Treat it like a password.
+Short agent prompt for this stage:
+
+```text
+Walk me through creating the narrowest useful token on <my hosting provider>.
+What scope do I need just to deploy this project? Tell me what to click and
+what to avoid.
+```
+
+Token references:
+
+- [Vercel account tokens](https://vercel.com/account/tokens)
+- [Cloudflare API tokens (create)](https://developers.cloudflare.com/fundamentals/api/get-started/create-token/)
+- [Hetzner Cloud API tokens](https://docs.hetzner.cloud/#creating-an-api-token)
+- [Coolify API reference](https://coolify.io/docs/api-reference)
 
 ### 4. Store the credential outside the code
 
 Do not paste the token into the source code, a prompt, a screenshot or git history. Prefer the vendor CLI's secure login flow, your operating system's credential store, a secret manager, or encrypted deployment settings.
 
 An **environment variable** is a value supplied to a program when it runs rather than written into the program's source files. Deployment systems commonly inject secrets this way. The important point is that the credential stays outside the files the agent edits and commits.
+
+#### macOS Terminal (zsh)
+
+```bash
+# Run once, in Terminal. This sets the variable only for this session.
+export VERCEL_TOKEN=your-token-here
+
+# To persist it across sessions, add the same line to ~/.zshrc
+echo 'export VERCEL_TOKEN=your-token-here' >> ~/.zshrc
+```
+
+What this does: `export VERCEL_TOKEN=your-token-here` creates an environment variable called `VERCEL_TOKEN` holding your token. The agent (or any process it spawns) can read it as `$VERCEL_TOKEN`. The `echo … >> ~/.zshrc` line appends the export to your shell startup file so it survives closing the terminal.
+
+Session vs persistence: the bare `export` lasts only until you close that terminal. The `~/.zshrc` line makes it permanent.
+
+How the agent reads it: the vendor CLI (for example `vercel`) automatically picks up `VERCEL_TOKEN` from the environment. You never paste the token into a prompt.
+
+#### Windows PowerShell
+
+```powershell
+# Run once, in PowerShell. This sets the variable only for this session.
+$env:VERCEL_TOKEN = "your-token-here"
+
+# To persist it for your user account across sessions:
+[Environment]::SetEnvironmentVariable("VERCEL_TOKEN", "your-token-here", "User")
+```
+
+What this does: `$env:VERCEL_TOKEN = "…"` creates the variable for the current PowerShell session. `SetEnvironmentVariable` writes it to the Windows registry so it survives reopening PowerShell. PowerShell's documentation on [environment variables](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_environment_variables) covers both forms.
+
+Session vs persistence: the first line disappears when the window closes. The second persists until you change or remove it.
+
+#### Windows Command Prompt (cmd.exe)
+
+```bat
+:: Run once, in cmd.exe. This sets the variable only for this session.
+set VERCEL_TOKEN=your-token-here
+
+:: To persist it permanently for your user account:
+setx VERCEL_TOKEN "your-token-here"
+```
+
+What this does: `set VERCEL_TOKEN=…` creates the variable for the current `cmd.exe` session. Microsoft's documentation for [`set`](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/set_1) and [`setx`](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/setx) explains both. `setx` writes it to the registry so it survives reopening cmd.exe — but note that `setx` does **not** make it available in the window where you just ran it; you must open a new window.
+
+Session vs persistence: the bare `set` lasts until the window closes. `setx` persists and only takes effect in a new window.
+
+#### How to avoid leaking secrets
+
+- **Never paste the raw token into a prompt or chat.** The agent reads it from the environment variable.
+- **Never echo it in a screenshot or a code block that gets committed.**
+- **Never add it to `.env` files that are committed.** If the vendor uses a `.env` file, add it to `.gitignore` first.
+- **If you think it leaked, rotate it immediately.** Most vendors make this a one-click action.
+- **Prefer the vendor's own secure login flow when it exists** (for example `vercel login`). A CLI-managed token never touches a file you can edit.
 
 ### 5. Connect the agent to the vendor
 
@@ -95,6 +203,19 @@ The agent needs a way to call the vendor. This is where "agent-friendly" becomes
 - **API route**: the agent makes HTTPS requests directly to the vendor's documented REST API. This is the fallback when no CLI or MCP server exists.
 
 For a first deployment, the CLI route is usually the simplest. The agent can read the vendor's getting-started docs, install the CLI, and run the deploy command.
+
+Short agent prompt for this stage:
+
+```text
+Connect to <my hosting provider>. Install the CLI if needed, confirm I have a
+token in the environment, and report what account and project it can see.
+Do not deploy anything yet.
+```
+
+MCP references:
+
+- [Vercel MCP](https://vercel.com/docs/agent-resources/vercel-mcp)
+- [Cloudflare managed MCP servers](https://developers.cloudflare.com/agents/model-context-protocol/cloudflare/servers-for-cloudflare/)
 
 ### 6. Connect the domain to the hosting
 
@@ -109,6 +230,26 @@ Neither method is inherently better. Use the hosting provider's exact instructio
 
 Vercel, Cloudflare and Coolify all give you the exact value to enter. Add it. DNS propagation can take minutes to hours.
 
+Short agent prompt for this stage:
+
+```text
+I want my domain <yourname.com> to point at <my hosting>. Tell me which DNS
+records or nameservers to add, where to add them, and how to check it worked.
+Do not change anything yet.
+```
+
+DNS and nameserver references:
+
+- [Cloudflare: what DNS is and how authoritative nameservers work](https://developers.cloudflare.com/dns/)
+- [Cloudflare: DNS record types](https://developers.cloudflare.com/dns/manage-dns-records/reference/dns-record-types/)
+- [Cloudflare: add DNS records](https://developers.cloudflare.com/dns/manage-dns-records/)
+- [Vercel: add a custom domain](https://vercel.com/docs/domains/working-with-domains/add-a-domain)
+- [Vercel: nameservers](https://vercel.com/docs/domains/working-with-nameservers)
+- [Hetzner DNS console](https://docs.hetzner.com/dns-console/)
+- [Hetzner: delegate a zone to Hetzner](https://docs.hetzner.com/networking/dns/getting-started/delegate-to-hetzner)
+- [Hetzner: add records](https://docs.hetzner.com/networking/dns/getting-started/adding-records)
+- [Hetzner: nameserver FAQ](https://docs.hetzner.com/networking/dns/faq/nameservers)
+
 ### 7. Deploy
 
 Now the agent does the work. For a first deployment, ask the agent to:
@@ -117,15 +258,24 @@ Now the agent does the work. For a first deployment, ask the agent to:
 2. Deploy to a **preview environment** first — a temporary URL the agent can check.
 3. If the preview looks right, promote to **production**.
 
-On Vercel, later CLI deployments without `--prod` normally create previews and `vercel deploy --prod` creates a production deployment; Vercel documents that a new project's first deployment is a special case and is production. Cloudflare uses `wrangler deploy` for Workers and `wrangler pages deploy` for a direct Pages upload. Coolify can trigger deployments through its CLI or API, and its CLI can expose an MCP server.
+On Vercel, later CLI deployments without `--prod` normally create previews and `vercel deploy --prod` creates a production deployment; Vercel documents that a new project's first deployment is a special case and is production. Cloudflare uses `wrangler deploy` for Workers and `wrangler pages deploy` for a direct Pages upload. Coolify can trigger deployments through its CLI or API.
 
 The preview-then-production pattern is the single most useful safety habit in this whole article. A mistake caught on a preview URL costs nothing. A mistake on production is public.
 
+Short agent prompt for this stage:
+
+```text
+Deploy a preview of this project. Give me the preview URL. Do not promote to
+production until I check it and say so.
+```
+
 ### 8. Check the result
 
-Ask the agent to read the deployment logs. Did the build succeed? Did the site deploy to the expected environment? Can you open the URL in a browser and see your site?
+Ask the agent to read the deployment logs once. Did the build succeed? Did the site deploy to the expected environment? Can you open the URL in a browser and see your site?
 
 If the answer is yes, you are done. If not, the logs tell you (and the agent) what went wrong.
+
+You do not need to ask this after every deployment. A short AGENTS.md rule (below) makes verification the default so the agent does it without being asked each time.
 
 <ArticleDiagramFigure
   src="/images/blog/agent-friendly-shipping/agent-friendly-shipping-control-surface.svg"
@@ -135,6 +285,45 @@ If the answer is yes, you are done. If not, the logs tell you (and the agent) wh
   editableLabel="Download the editable draw.io source"
   date="2 September 2026"
 />
+
+## AGENTS.md: stop repeating yourself
+
+An **AGENTS.md** file is a plain-text instruction file that lives in your repository. Coding agents read it automatically at the start of every task. It is the right place for rules you would otherwise repeat in every prompt.
+
+Think of it as the standing orders for the agent working in this project. Every time the agent opens the repo, those orders are already in context.
+
+A concise example for a personal website project:
+
+```text
+# AGENTS.md — project rules
+
+## Deploys
+- Always deploy a preview first.
+- Never promote to production without showing the preview URL and asking.
+- Production deploys go through the vendor CLI with the scoped token in the
+  environment. Never paste the token.
+
+## Verification
+- After any deploy, read the logs once and confirm the build succeeded.
+- Open the preview or production URL and confirm the site loads.
+- Check navigation, links and forms if the change touched them.
+
+## Secrets
+- Never commit tokens, API keys or passwords.
+- If a secret appears in a diff, stop and rotate it immediately.
+
+## Rollback
+- If production breaks, roll back to the previous good deployment first.
+- Then report what happened and what you did.
+
+## Style
+- Keep prose human. No bullet-point-only sections.
+- Do not add decorative figures without a teaching objective.
+```
+
+The file should be short. If it grows into a manual, agents will skim it and you will trust it less. Ten to twenty lines of real rules beat fifty lines of aspirations.
+
+Once AGENTS.md is in place, your per-task prompt shrinks. Instead of "deploy a preview, check the logs, don't touch production, and roll back if something breaks", you write "ship this change" and the rules carry the rest.
 
 ## Security cautions you should not skip
 
@@ -162,7 +351,7 @@ A deployment that works is not the same as a deployment that is safe to keep.
 
 ### Verify
 
-After each deployment, ask the agent to:
+After a deployment, ask the agent to:
 
 1. Read the deployment logs for errors or warnings.
 2. Open the deployed URL and confirm the site loads.
@@ -179,6 +368,13 @@ Each of these platforms exposes a recovery route, although the exact mechanism d
 - Cloudflare Workers supports version rollback through its dashboard and Wrangler.
 
 Treat rollback as part of the normal loop: deploy, check, then keep the release or put the previous good version back. The agent can do all three.
+
+Short agent prompt for rollback:
+
+```text
+Production is broken. Roll back to the previous good deployment, confirm the
+site is working again, then tell me what you did and what caused it.
+```
 
 ## A checklist the reader can follow
 
@@ -221,18 +417,30 @@ The label is a test, not a badge. It means the vendor gives you:
 
 If all three are present, your agent can do the work. If any one is missing, you will end up doing it by hand.
 
-You do not need to become a DevOps engineer before you publish a useful website. Pick vendors your agent can operate, keep its credentials outside the code and insist on a preview, logs and a rollback route.
+You do not need to become a DevOps engineer before you publish a useful website. Pick vendors your agent can operate, keep its credentials outside the code, put the operational rules into AGENTS.md, and insist on a preview, logs and a rollback route.
 
-Once those pieces are ready, the instruction can be as ordinary as: “Build this, deploy a preview, check it in a browser, and put it on my domain if it passes.”
+Once those pieces are ready, the instruction can be as ordinary as: "Build this, deploy a preview, check it in a browser, and put it on my domain if it passes."
 
 ## Useful official guides
 
-- [Cloudflare: what DNS is and how authoritative nameservers work](https://www.cloudflare.com/learning/dns/what-is-dns/)
+- [Cloudflare: what DNS is and how authoritative nameservers work](https://developers.cloudflare.com/dns/)
 - [Cloudflare: Wrangler commands for Workers](https://developers.cloudflare.com/workers/wrangler/commands/)
+- [Cloudflare: API tokens (create)](https://developers.cloudflare.com/fundamentals/api/get-started/create-token/)
+- [Cloudflare: DNS record types](https://developers.cloudflare.com/dns/manage-dns-records/reference/dns-record-types/)
+- [Cloudflare: full DNS zone setup](https://developers.cloudflare.com/dns/zone-setups/full-setup/setup/)
 - [Vercel: deploy a project from the CLI](https://vercel.com/docs/projects/deploy-from-cli)
 - [Vercel: preview and production environments](https://vercel.com/docs/deployments/environments)
 - [Vercel: add and configure a custom domain](https://vercel.com/docs/domains/working-with-domains/add-a-domain)
+- [Vercel: nameservers](https://vercel.com/docs/domains/working-with-nameservers)
+- [Vercel account tokens](https://vercel.com/account/tokens)
+- [Vercel MCP](https://vercel.com/docs/agent-resources/vercel-mcp)
 - [Coolify documentation](https://coolify.io/docs/)
+- [Coolify API reference](https://coolify.io/docs/api-reference)
 - [Hetzner Cloud API documentation](https://docs.hetzner.cloud/)
+- [Hetzner DNS console](https://docs.hetzner.com/dns-console/)
+- [Namecheap: how to change DNS for a domain](https://www.namecheap.com/support/knowledgebase/article.aspx/767/10/how-to-change-dns-for-a-domain/)
+- [PowerShell: about environment variables](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_environment_variables)
+- [cmd.exe: set](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/set_1)
+- [cmd.exe: setx](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/setx)
 
 If the words `git`, branch and pull request are also new, start with [Git workflow for beginners](/blog/git-workflow-for-beginners). For a concrete self-hosted example, see [Building a two-agent personal cloud on Coolify and Hetzner](/blog/building-a-two-agent-personal-cloud).
