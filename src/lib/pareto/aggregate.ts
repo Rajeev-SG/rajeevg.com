@@ -6,10 +6,13 @@
  * is explicitly exposed as ok / stale / error / pending.
  */
 import type { CanonicalModel, ParetoSnapshot, SourceFreshness, UnmatchedRecord } from "./types";
-import { fetchAaAllPages, mapAaModels } from "./artificial-analysis";
+import { mapAaModels } from "./artificial-analysis";
+import { getAaModelsCached } from "./aa-cache";
+import { resolveAaSlug } from "./aliases";
 import { fetchOpenRouterModels, mapOpenRouterModels } from "./openrouter";
 import { fetchArenaSnapshot, mapArenaModels } from "./arena";
 import { mergeCanonicalModels } from "./normalise";
+import { autoJoin, parseOrId } from "./auto-discover";
 
 // Simple in-process cache for the last-good snapshot. On Vercel ISR this is
 // bounded by lambda lifetime; the page-level ISR revalidate covers the rest.
@@ -40,21 +43,47 @@ export async function buildParetoSnapshot(options?: {
 }): Promise<SnapshotOutcome> {
   const errors: string[] = [];
   const now = new Date().toISOString();
+  let aaUnmatchedBySlugAuto = new Map<string, { creatorName: string | null; aa: CanonicalModel["aa"] }>();
+  let aaOrCandidates = new Map<string, { displayName: string; openrouter: CanonicalModel["openrouter"] }>();
 
   // AA
   let aaMatched = new Map<string, Partial<CanonicalModel>>();
   let aaUnmatched: UnmatchedRecord[] = [];
   let aaFetchedAt: string | null = null;
   let aaStatus: SourceFreshness["aaStatus"] = "pending";
-  const aaApiKey = options?.aaApiKey ?? process.env.ARTIFICIAL_ANALYSIS_API_KEY ?? process.env.AA_API_KEY ?? null;
-  if (aaApiKey) {
+  {
     try {
-      const result = await fetchAaAllPages({ apiKey: aaApiKey, maxPages: options?.maxAaPages ?? 20 });
-      const mapped = mapAaModels(result.models, result.intelligenceIndexVersion);
-      aaMatched = mapped.matched;
-      aaUnmatched = mapped.unmatched;
-      aaFetchedAt = result.fetchedAt;
-      aaStatus = "ok";
+      const aaCached = await getAaModelsCached();
+      if (aaCached.status === "degraded") {
+        throw new Error(`AA: degraded outcome cached (${aaCached.reason ?? "unknown"})`);
+      }
+      const mapped = mapAaModels(aaCached.models, aaCached.intelligenceIndexVersion);
+      aaUnmatchedBySlugAuto = new Map(
+        aaCached.models
+          .filter((m) => !mapped.matched.has(resolveAaSlug(m.slug)?.canonicalId ?? ""))
+          .map((m) => [m.slug, { creatorName: m.creatorName, aa: {
+            slug: m.slug,
+            intelligenceIndex: m.intelligenceIndex,
+            codingIndex: m.codingIndex,
+            agenticIndex: m.agenticIndex,
+            costPerTaskUsd: m.costPerTaskUsd,
+            throughputTokensPerSecond: null,
+            latencyTtfbSeconds: null,
+            intelligenceIndexVersion: aaCached.intelligenceIndexVersion,
+          } as CanonicalModel["aa"] }])
+      );
+      const liveModels = Array.from(mapped.matched.values());
+      const liveHasQuality = liveModels.some((m) => m.aa?.intelligenceIndex != null || m.aa?.codingIndex != null || m.aa?.agenticIndex != null);
+      if (!liveHasQuality) {
+        // Zero non-null quality metrics is unhealthy even on HTTP 200; fall back.
+        errors.push("AA: response healthy-looking but zero non-null quality metrics");
+        aaStatus = "error";
+      } else {
+        aaMatched = mapped.matched;
+        aaUnmatched = mapped.unmatched;
+        aaFetchedAt = aaCached.fetchedAt;
+        aaStatus = "ok";
+      }
     } catch (err) {
       errors.push(`AA: ${err instanceof Error ? err.message : String(err)}`);
       aaStatus = "error";
@@ -64,14 +93,6 @@ export async function buildParetoSnapshot(options?: {
         aaFetchedAt = lastGoodSnapshot.freshness.aaFetchedAt;
         aaStatus = lastGoodSnapshot.freshness.aaStatus === "ok" ? "stale" : "error";
       }
-    }
-  } else {
-    aaStatus = "pending";
-    if (lastGoodSnapshot) {
-      aaStatus = "stale";
-      aaFetchedAt = lastGoodSnapshot.freshness.aaFetchedAt;
-      aaMatched = new Map(lastGoodSnapshot.models.map((m) => [m.canonicalId, { canonicalId: m.canonicalId, displayName: m.displayName, organisation: m.organisation, releaseDate: m.releaseDate, aa: m.aa }]));
-      aaUnmatched = lastGoodSnapshot.unmatched.filter((u) => u.source === "aa");
     }
   }
 
@@ -85,6 +106,17 @@ export async function buildParetoSnapshot(options?: {
     const mapped = mapOpenRouterModels(result.models);
     orMatched = mapped.matched;
     orUnmatched = mapped.unmatched;
+    aaOrCandidates = new Map(
+      result.models
+        .filter((m) => parseOrId(m.id) !== null)
+        .map((m) => [m.id, { displayName: m.name, openrouter: {
+          modelId: m.id,
+          inputPricePerMillion: m.inputPerMillion,
+          outputPricePerMillion: m.outputPerMillion,
+          contextLength: m.contextLength,
+          createdAtUnix: m.createdAtUnix,
+        } as CanonicalModel["openrouter"] }])
+    );
     orFetchedAt = result.fetchedAt;
     orStatus = "ok";
   } catch (err) {
@@ -122,6 +154,35 @@ export async function buildParetoSnapshot(options?: {
       arenaPublishedAt = lastGoodSnapshot.freshness.arenaPublishedAt;
       arStatus = lastGoodSnapshot.freshness.arenaStatus === "ok" ? "stale" : "error";
     }
+  }
+
+  // Automatic latest-model discovery: deterministic exact join for records
+  // not covered by explicit aliases. AA slugs like "muse-spark-1-3-xhigh"
+  // join to OR ids like "meta/muse-spark-1.3" when normalised slugs match
+  // exactly AND the OR org prefix matches the AA creator name exactly.
+  const aaMatchedIds = new Set(aaMatched.keys());
+  const orMatchedIds = new Set(orMatched.keys());
+  const autoJoined = new Map<string, Partial<CanonicalModel>>();
+  for (const [aaKey, aaRec] of aaUnmatchedBySlugAuto) {
+    for (const [orId, orRec] of aaOrCandidates) {
+      const joined = autoJoin(
+        { slug: aaKey, creatorName: aaRec.creatorName },
+        { id: orId, name: orRec.displayName }
+      );
+      if (joined && !aaMatchedIds.has(joined.canonicalId) && !orMatchedIds.has(orId) && !autoJoined.has(joined.canonicalId)) {
+        autoJoined.set(joined.canonicalId, {
+          canonicalId: joined.canonicalId,
+          displayName: joined.displayName,
+          organisation: joined.organisation,
+          aa: aaRec.aa,
+          openrouter: orRec.openrouter,
+        });
+      }
+    }
+  }
+  for (const [id, partial] of autoJoined) {
+    aaMatched.set(id, partial);
+    orMatched.set(id, partial);
   }
 
   const models = mergeCanonicalModels(aaMatched, orMatched, arMatched);

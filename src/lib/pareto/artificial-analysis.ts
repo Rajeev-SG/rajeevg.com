@@ -69,7 +69,7 @@ interface AaRawModel {
   };
 }
 
-interface AaResponse {
+export interface AaResponse {
   tier?: string;
   intelligence_index_version?: string;
   pagination?: { page: number; page_size: number; total_pages: number; has_more: boolean };
@@ -104,14 +104,15 @@ function mapAaModel(raw: AaRawModel): AaFetchResult["models"][number] {
 export async function fetchAaPage(
   page: number,
   apiKey: string,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  pageSize = 100
 ): Promise<{ response: AaResponse; headers: Headers }> {
   const url = new URL(FREE_ENDPOINT);
   url.searchParams.set("page", String(page));
+  url.searchParams.set("page_size", String(pageSize));
   const res = await fetch(url.toString(), {
     headers: { "x-api-key": apiKey, Accept: "application/json" },
     signal,
-    cache: "no-store",
   });
   if (res.status === 429) {
     const retryAfter = res.headers.get("Retry-After");
@@ -123,6 +124,9 @@ export async function fetchAaPage(
   const json = (await res.json()) as AaResponse;
   return { response: json, headers: res.headers };
 }
+
+/** Absolute pagination cap enforced inside fetchAaAllPages regardless of caller. */
+export const AA_ABSOLUTE_MAX_PAGES = 2;
 
 export class AaRateLimitError extends Error {
   retryAfterSeconds: number | null;
@@ -141,9 +145,12 @@ export async function fetchAaAllPages(options: {
   apiKey: string;
   maxPages?: number;
   stopAtRemaining?: number;
+  pageSize?: number;
   fetchPage?: typeof fetchAaPage;
 }): Promise<AaFetchResult> {
-  const { apiKey, maxPages = 20, stopAtRemaining = 1, fetchPage = fetchAaPage } = options;
+  // Hard absolute cap: no caller may exceed 2 AA pages per window.
+  const { apiKey, stopAtRemaining = 1, pageSize = 100, fetchPage = fetchAaPage } = options;
+  const maxPages = Math.max(1, Math.min(options.maxPages ?? AA_ABSOLUTE_MAX_PAGES, AA_ABSOLUTE_MAX_PAGES));
   const models: AaFetchResult["models"] = [];
   const fetchedAt = new Date().toISOString();
   let page = 1;
@@ -154,7 +161,7 @@ export async function fetchAaAllPages(options: {
 
   while (hasMore && page <= maxPages) {
     if (rateLimitRemaining !== null && rateLimitRemaining <= stopAtRemaining) break;
-    const { response, headers } = await fetchPage(page, apiKey);
+    const { response, headers } = await fetchPage(page, apiKey, undefined, pageSize);
     const remainingHeader = headers.get("X-RateLimit-Remaining");
     if (remainingHeader !== null) {
       const n = parseInt(remainingHeader, 10);

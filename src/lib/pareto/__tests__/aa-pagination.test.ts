@@ -42,9 +42,10 @@ describe("AA pagination", () => {
       const resp = pages[calls++];
       return { response: resp, headers: mkHeaders(String(100 - calls)) };
     };
-    const result = await fetchAaAllPages({ apiKey: "test", fetchPage });
-    expect(calls).toBe(3);
-    expect(result.models).toHaveLength(5);
+    // Even when has_more persists, the absolute 2-page cap limits calls.
+    const result = await fetchAaAllPages({ apiKey: "test", fetchPage, maxPages: 3 });
+    expect(calls).toBe(2);
+    expect(result.models).toHaveLength(4);
     expect(result.pagination.totalPages).toBe(3);
   });
 
