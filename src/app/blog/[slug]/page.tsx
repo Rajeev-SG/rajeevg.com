@@ -3,7 +3,9 @@ import { unstable_noStore as noStore } from "next/cache"
 import { notFound } from "next/navigation"
 
 import { MDXContent } from "@/components/mdx-content"
+import { extractMdxHeadings } from "@/components/mdx-content"
 import { mdxComponents } from "@/components/mdx-components"
+import { ArticleToc } from "@/components/article-toc"
 import MermaidInit from "@/components/mermaid-init"
 import { MermaidTooltips } from "@/components/mermaid-tooltips"
 import { ReadingProgress } from "@/components/reading-progress"
@@ -24,6 +26,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const post = await getRenderablePostBySlug(slug)
   if (!post) return notFound()
+  const headings = extractMdxHeadings(post.code, mdxComponents)
 
   const ogImage = post.image || site.defaultOgImage
   const postDisplayDate = getPostEffectiveDate(post)
@@ -68,7 +71,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         data-analytics-page-tag-count={post.tags.length}
         data-analytics-page-content-tags={post.tags.join("|")}
       >
-        <header className="mb-6 space-y-2">
+        <header className="mb-6 max-w-3xl space-y-2">
           <h1 className="text-3xl font-bold tracking-tight">{post.title}</h1>
           {post.description ? <p className="text-muted-foreground">{post.description}</p> : null}
           <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
@@ -79,16 +82,19 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           </div>
         </header>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-        <section
-          id="article-content"
-          className="relative prose-sm sm:prose-base prose-headings:scroll-mt-24 prose-pre:rounded-lg dark:prose-invert"
-          data-analytics-section="article_content"
-          data-analytics-item-type="post_body"
-          data-analytics-item-id={post.slug}
-          data-analytics-item-name={post.title}
-        >
-          <MDXContent code={post.code} components={mdxComponents} />
-        </section>
+        <div className="xl:grid xl:grid-cols-[minmax(0,1fr)_15rem] xl:items-start xl:gap-10">
+          <ArticleToc headings={headings} className="xl:col-start-2 xl:row-start-1" />
+          <section
+            id="article-content"
+            className="relative min-w-0 prose-sm sm:prose-base prose-headings:scroll-mt-24 prose-pre:rounded-lg dark:prose-invert xl:col-start-1 xl:row-start-1"
+            data-analytics-section="article_content"
+            data-analytics-item-type="post_body"
+            data-analytics-item-id={post.slug}
+            data-analytics-item-name={post.title}
+          >
+            <MDXContent code={post.code} components={mdxComponents} />
+          </section>
+        </div>
         <RelatedReading posts={relatedPosts} />
         <MermaidInit />
         <MermaidTooltips />
