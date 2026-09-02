@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1360 780" width="1360" height="780" role="img" aria-labelledby="t1 d1">
+<title id="t1">The jargon map: one connected path from idea to live site</title>
+<desc id="d1">Shows the order: buy the domain name from a registrar, nameservers point to DNS, a DNS record maps the name to a hosting IP, then build, deploy and point the custom domain at the hosting.</desc>
+<defs><marker id="arrowEnd" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M 0 0 L 9 5 L 0 10 z" fill="#334155"/></marker></defs>
+<rect width="1360" height="780" fill="#ffffff"/>
+<rect x="40" y="30" width="1280" height="52" rx="8" fill="#0f172a"/>
+<text x="60" y="65" font-family="Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#ffffff">The jargon map: one connected path, not six separate terms</text>
+<path d="M 270 175 L 330 175" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrowEnd)"/>
+<path d="M 580 175 L 640 175" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrowEnd)"/>
+<path d="M 860 175 L 930 175" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrowEnd)"/>
+<path d="M 1055 230 L 1055 270 L 750 270 L 750 310" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrowEnd)"/>
+<path d="M 860 365 L 930 365" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrowEnd)"/>
+<path d="M 1055 420 L 1055 500" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrowEnd)"/>
+<path d="M 270 555 L 330 555" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrowEnd)"/>
+<path d="M 580 555 L 640 555" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrowEnd)"/>
+<path d="M 860 555 L 930 555" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrowEnd)"/>
+<rect x="40" y="120" width="230" height="110" rx="10" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+  <text x="155" y="148" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">Your idea</text>
+  <text x="155" y="174" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">the thing you want</text>
+  <text x="155" y="194" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">people to find</text>
+<rect x="330" y="120" width="250" height="110" rx="10" fill="#ffffff" stroke="#7c3aed" stroke-width="2"/>
+  <text x="455" y="148" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">Registrar</text>
+  <text x="455" y="174" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">where you buy the name</text>
+  <text x="455" y="194" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">you pay yearly</text>
+<rect x="640" y="120" width="220" height="110" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+  <text x="750" y="148" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">Domain</text>
+  <text x="750" y="174" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">yourname.com</text>
+  <text x="750" y="194" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">the address itself</text>
+<rect x="930" y="120" width="250" height="110" rx="10" fill="#ffffff" stroke="#0891b2" stroke-width="2"/>
+  <text x="1055" y="148" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">Nameservers</text>
+  <text x="1055" y="174" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">the phone book keeper</text>
+  <text x="1055" y="194" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">usually your DNS provider</text>
+<rect x="640" y="310" width="220" height="110" rx="10" fill="#ffffff" stroke="#0891b2" stroke-width="2"/>
+  <text x="750" y="338" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">DNS</text>
+  <text x="750" y="364" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">the phone book</text>
+  <text x="750" y="384" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">maps name to a server</text>
+<rect x="930" y="310" width="250" height="110" rx="10" fill="#ffffff" stroke="#0891b2" stroke-width="2"/>
+  <text x="1055" y="338" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">DNS record</text>
+  <text x="1055" y="364" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">one entry:</text>
+  <text x="1055" y="384" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">yourname.com → IP address</text>
+<rect x="330" y="500" width="250" height="110" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <text x="455" y="528" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">Deployment</text>
+  <text x="455" y="554" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">your agent sends the</text>
+  <text x="455" y="574" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">build result there</text>
+<rect x="640" y="500" width="220" height="110" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <text x="750" y="528" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">Hosting</text>
+  <text x="750" y="554" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">the service that keeps</text>
+  <text x="750" y="574" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">your site available</text>
+<rect x="40" y="500" width="230" height="110" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <text x="155" y="528" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">Build</text>
+  <text x="155" y="554" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">turns your source files</text>
+  <text x="155" y="574" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">into what a browser reads</text>
+<rect x="930" y="500" width="250" height="110" rx="10" fill="#ffffff" stroke="#0d9488" stroke-width="2"/>
+  <text x="1055" y="528" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">Live custom domain</text>
+  <text x="1055" y="554" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">the name reaches the site</text>
+  <text x="1055" y="574" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#334155">and loads securely over TLS</text>
+<text x="680" y="744" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" font-style="italic" fill="#64748b">Follow the arrows top-left to bottom-right · buy the name → keep the phone book → add one entry → build and deploy → point the name at the hosting · Evidence date: 2 Sep 2026</text>
+</svg>
