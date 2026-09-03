@@ -8,9 +8,9 @@
 import type { CanonicalModel, ParetoSnapshot, SourceFreshness, UnmatchedRecord } from "./types";
 import { mapAaModels } from "./artificial-analysis";
 import { getAaModelsCached } from "./aa-cache";
+import { aaFallback } from "./aa-fallback";
 import { resolveAaSlug } from "./aliases";
 import { fetchOpenRouterModels, mapOpenRouterModels } from "./openrouter";
-import { fetchArenaSnapshot, mapArenaModels } from "./arena";
 import { mergeCanonicalModels } from "./normalise";
 import { autoJoin, parseOrId } from "./auto-discover";
 
@@ -43,6 +43,8 @@ export async function buildParetoSnapshot(options?: {
 }): Promise<SnapshotOutcome> {
   const errors: string[] = [];
   const now = new Date().toISOString();
+  let aaDegraded = false;
+  let aaFallbackReason: string | null = null;
   let aaUnmatchedBySlugAuto = new Map<string, { creatorName: string | null; aa: CanonicalModel["aa"] }>();
   let aaOrCandidates = new Map<string, { displayName: string; openrouter: CanonicalModel["openrouter"] }>();
 
@@ -55,9 +57,15 @@ export async function buildParetoSnapshot(options?: {
     try {
       const aaCached = await getAaModelsCached();
       if (aaCached.status === "degraded") {
-        throw new Error(`AA: degraded outcome cached (${aaCached.reason ?? "unknown"})`);
-      }
-      const mapped = mapAaModels(aaCached.models, aaCached.intelligenceIndexVersion);
+        // Serve bundled official last-known-good AA data from the shared
+        // snapshot (page AND API), preserving degraded metadata.
+        aaDegraded = true;
+        aaFallbackReason = aaCached.reason ?? "unknown";
+        if (aaCached.retryAfterSeconds != null) errors.push(`AA: degraded, retry after ${aaCached.retryAfterSeconds}s (${aaFallbackReason})`);
+        else errors.push(`AA: degraded (${aaFallbackReason})`);
+        aaStatus = "error";
+      } else {
+        const mapped = mapAaModels(aaCached.models, aaCached.intelligenceIndexVersion);
       aaUnmatchedBySlugAuto = new Map(
         aaCached.models
           .filter((m) => !mapped.matched.has(resolveAaSlug(m.slug)?.canonicalId ?? ""))
@@ -72,28 +80,44 @@ export async function buildParetoSnapshot(options?: {
             intelligenceIndexVersion: aaCached.intelligenceIndexVersion,
           } as CanonicalModel["aa"] }])
       );
-      const liveModels = Array.from(mapped.matched.values());
-      const liveHasQuality = liveModels.some((m) => m.aa?.intelligenceIndex != null || m.aa?.codingIndex != null || m.aa?.agenticIndex != null);
-      if (!liveHasQuality) {
-        // Zero non-null quality metrics is unhealthy even on HTTP 200; fall back.
-        errors.push("AA: response healthy-looking but zero non-null quality metrics");
-        aaStatus = "error";
-      } else {
-        aaMatched = mapped.matched;
-        aaUnmatched = mapped.unmatched;
-        aaFetchedAt = aaCached.fetchedAt;
-        aaStatus = "ok";
+        const liveModels = Array.from(mapped.matched.values());
+        const liveHasQuality = liveModels.some((m) => m.aa?.intelligenceIndex != null || m.aa?.codingIndex != null || m.aa?.agenticIndex != null);
+        if (!liveHasQuality) {
+          // Zero non-null quality metrics is unhealthy even on HTTP 200; fall back.
+          aaDegraded = true;
+          aaFallbackReason = "AA response has zero non-null quality metrics";
+          errors.push(`AA: ${aaFallbackReason}`);
+          aaStatus = "error";
+        } else {
+          aaMatched = mapped.matched;
+          aaUnmatched = mapped.unmatched;
+          aaFetchedAt = aaCached.fetchedAt;
+          aaStatus = "ok";
+        }
       }
     } catch (err) {
-      errors.push(`AA: ${err instanceof Error ? err.message : String(err)}`);
+      aaDegraded = true;
+      aaFallbackReason = err instanceof Error ? err.message : String(err);
+      errors.push(`AA: ${aaFallbackReason}`);
       aaStatus = "error";
-      if (lastGoodSnapshot) {
-        aaMatched = new Map(lastGoodSnapshot.models.map((m) => [m.canonicalId, { canonicalId: m.canonicalId, displayName: m.displayName, organisation: m.organisation, releaseDate: m.releaseDate, aa: m.aa }]));
-        aaUnmatched = lastGoodSnapshot.unmatched.filter((u) => u.source === "aa");
-        aaFetchedAt = lastGoodSnapshot.freshness.aaFetchedAt;
-        aaStatus = lastGoodSnapshot.freshness.aaStatus === "ok" ? "stale" : "error";
-      }
     }
+  }
+
+  // Shared fallback: when AA is degraded or zero-quality, both page and API
+  // serve the bundled official last-known-good AA snapshot instead of nulls.
+  if (aaDegraded) {
+    aaMatched = new Map<string, Partial<CanonicalModel>>(
+      aaFallback.models
+        .filter((m) => m.aa.intelligenceIndex != null || m.aa.codingIndex != null || m.aa.agenticIndex != null)
+        .map((m) => [m.canonicalId, {
+          canonicalId: m.canonicalId,
+          displayName: m.displayName,
+          organisation: m.organisation,
+          releaseDate: m.releaseDate,
+          aa: m.aa,
+        } as Partial<CanonicalModel>])
+    );
+    aaFetchedAt = aaFallback.freshness.aaFetchedAt;
   }
 
   // OpenRouter
@@ -130,31 +154,14 @@ export async function buildParetoSnapshot(options?: {
     }
   }
 
-  // Arena
-  let arMatched = new Map<string, Partial<CanonicalModel>>();
-  let arUnmatched: UnmatchedRecord[] = [];
-  let arFetchedAt: string | null = null;
-  let arStatus: SourceFreshness["arenaStatus"] = "pending";
-  let arenaPublishedAt: string | null = null;
-  try {
-    const snapshot = await fetchArenaSnapshot();
-    const mapped = mapArenaModels(snapshot);
-    arMatched = mapped.matched;
-    arUnmatched = mapped.unmatched;
-    arenaPublishedAt = mapped.arenaPublishedAt;
-    arFetchedAt = snapshot.fetchedAt;
-    arStatus = "ok";
-  } catch (err) {
-    errors.push(`Arena: ${err instanceof Error ? err.message : String(err)}`);
-    arStatus = "error";
-    if (lastGoodSnapshot) {
-      arMatched = new Map(lastGoodSnapshot.models.map((m) => [m.canonicalId, { canonicalId: m.canonicalId, displayName: m.displayName, organisation: m.organisation, arena: m.arena }]));
-      arUnmatched = lastGoodSnapshot.unmatched.filter((u) => u.source === "arena");
-      arFetchedAt = lastGoodSnapshot.freshness.arenaFetchedAt;
-      arenaPublishedAt = lastGoodSnapshot.freshness.arenaPublishedAt;
-      arStatus = lastGoodSnapshot.freshness.arenaStatus === "ok" ? "stale" : "error";
-    }
-  }
+  // Arena is intentionally NOT fetched on the Pareto critical path: the
+  // dashboard only needs AA quality and OpenRouter cost. Optional Arena
+  // fields/status are served without network work.
+  const arMatched = new Map<string, Partial<CanonicalModel>>();
+  const arUnmatched: UnmatchedRecord[] = [];
+  const arFetchedAt: string | null = null;
+  const arStatus: SourceFreshness["arenaStatus"] = "pending";
+  const arenaPublishedAt: string | null = null;
 
   // Automatic latest-model discovery: deterministic exact join for records
   // not covered by explicit aliases. AA slugs like "muse-spark-1-3-xhigh"
