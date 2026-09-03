@@ -2,6 +2,7 @@
 import { useEffect, useRef } from "react";
 import * as Plot from "@observablehq/plot";
 import type { ParetoPoint } from "@/lib/pareto/types";
+import { computeLabelPlacements } from "@/lib/pareto/label-layout";
 
 export interface ParetoScatterProps {
   points: ParetoPoint[];
@@ -25,6 +26,24 @@ export function ParetoScatterObservablePlot({ points, xLabel, yLabel }: ParetoSc
   useEffect(() => {
     if (!ref.current) return;
     const sorted = [...points].sort((a, b) => (a.cost ?? 0) - (b.cost ?? 0));
+    const width = ref.current.clientWidth || 640;
+    // Deterministic collision-avoidance: estimate label spans in normalised
+    // x and assign overlapping close-y labels to alternating vertical lanes.
+    const yMin = Math.min(...sorted.map((d) => d.quality ?? 0));
+    const yMax = Math.max(...sorted.map((d) => d.quality ?? 1));
+    const ySpan = Math.max(yMax - yMin, 1e-9);
+    const xMin = Math.min(...sorted.map((d) => d.cost ?? 0));
+    const xMax = Math.max(...sorted.map((d) => d.cost ?? 1));
+    const xSpan = Math.max(xMax - xMin, 1e-9);
+    const placements = computeLabelPlacements(
+      sorted.map((d, i) => ({
+        index: i,
+        label: d.displayName,
+        x01: ((d.cost ?? 0) - xMin) / xSpan,
+        y01: 1 - ((d.quality ?? 0) - yMin) / ySpan, // top=0 pixel orientation
+      })),
+      width
+    );
     const chart = Plot.plot({
       x: { type: "log", label: xLabel, tickFormat: (d: number) => (d >= 1 ? `$${d}` : `$${d.toFixed(2)}`) },
       y: { label: yLabel },
@@ -37,9 +56,23 @@ export function ParetoScatterObservablePlot({ points, xLabel, yLabel }: ParetoSc
           fill: "#2563eb",
           title: (d) => `${d.displayName}\n${d.organisation}\n${xLabel}: ${formatCost(d.cost)}\n${yLabel}: ${d.quality}`,
         }),
-        Plot.text(sorted, { x: "cost", y: "quality", text: "displayName", dy: -12, fontSize: 10, lineWidth: 14, pointerEvents: "none" }),
+        // Deterministic per-lane label marks: each lane's constant dy is safe
+        // for Plot's typed constant offset while keeping point association.
+        ...Array.from(new Set(placements.map((p) => p.lane))).map((lane) => {
+          const laneDy = placements.find((pl) => pl.lane === lane)!.dy;
+          const laneData = sorted.filter((_, i) => placements[i]?.lane === lane);
+          return Plot.text(laneData, {
+            x: "cost",
+            y: "quality",
+            text: "displayName",
+            dy: laneDy,
+            fontSize: 10,
+            lineWidth: 16,
+            pointerEvents: "none",
+          });
+        }),
       ],
-      width: ref.current.clientWidth,
+      width,
       height: 380,
       style: { background: "transparent", color: "currentColor" },
     });
