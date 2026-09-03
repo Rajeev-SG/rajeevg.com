@@ -27,11 +27,11 @@ The thesis is one sentence: **agent-friendly vendors expose a straightforward CL
 
 <ArticleDiagramFigure
   src="/images/blog/agent-friendly-shipping/agent-friendly-shipping-jargon-map.svg"
-  alt="Connected diagram showing the shipping path: an idea leads to buying a domain from a registrar, nameservers point to DNS, a DNS record maps the domain to hosting, then a build is deployed and the custom domain is pointed at the hosting — with arrows showing the order each step happens"
-  caption="The jargon in one connected path. Buy the name, keep the phone book, add one entry, build and deploy, point the name at the hosting. The arrows are the order you do things, not the order the words appear in a glossary."
-  editableHref="/downloads/agent-friendly-shipping-jargon-map.drawio"
-  editableLabel="Download the editable draw.io source"
-  date="2 September 2026"
+  alt="Four-step diagram showing a domain leading through DNS and hosting to a live website, while a coding agent uses scoped access to configure DNS and hosting through a CLI, MCP server or API"
+  caption="How the pieces fit. Visitors reach the live site through the domain, DNS and hosting. Your agent configures the middle layers using scoped access and a documented CLI, MCP server or API."
+  editableHref="/downloads/agent-friendly-shipping-jargon-map.excalidraw"
+  editableLabel="Download the editable Excalidraw source"
+  date="3 September 2026"
 />
 
 ## The jargon, in the order you meet it
@@ -279,11 +279,11 @@ You do not need to ask this after every deployment. A short AGENTS.md rule (belo
 
 <ArticleDiagramFigure
   src="/images/blog/agent-friendly-shipping/agent-friendly-shipping-control-surface.svg"
-  alt="Diagram showing what a coding agent needs to deploy: the user asks the agent, the agent holds a scoped auth token stored as an environment variable, reaches the vendor through a CLI, MCP server or API, and the vendor produces a production or preview URL — with dashed arrows showing logs and rollback as the safety path"
-  caption="What the agent actually needs. Solid arrows are the deployment path; dashed arrows are the safety path (scoped token, logs, rollback). A vendor is agent-friendly when all three control routes are documented and the safety path is easy to reach."
-  editableHref="/downloads/agent-friendly-shipping-control-surface.drawio"
-  editableLabel="Download the editable draw.io source"
-  date="2 September 2026"
+  alt="Six-step diagram showing the user asking an agent to build, reviewing a temporary preview, deliberately approving production, then checking the live site with retry and rollback paths"
+  caption="The safe shipping loop. Nothing reaches your real site until you approve the preview and say go live. If a check fails, the agent can revise the preview or roll production back to the previous good version."
+  editableHref="/downloads/agent-friendly-shipping-control-surface.excalidraw"
+  editableLabel="Download the editable Excalidraw source"
+  date="3 September 2026"
 />
 
 ## AGENTS.md: stop repeating yourself
