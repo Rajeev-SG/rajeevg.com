@@ -1,0 +1,183 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1050" width="100%" role="img" aria-labelledby="ttl dsc">
+  <title id="ttl">Thin controller, heavy worker: a Codex task controller steering one persistent GLM worker</title>
+  <desc id="dsc">Three-layer diagram. Left: a compact control plane where a user request reaches a Sol task controller that only manages, routes and verifies, using native Codex task operations create or fork, read, message, wait and inspect result, with a policy boundary forbidding substantive implementation. Centre: a larger persistent execution plane holding one GLM worker task labelled z-ai slash glm-5.3-flash, responsible for research, edit, test, browser proof and deploy, where follow-up messages return to the same worker instead of creating a replacement task. Right: a telemetry sidecar measuring the controller and worker as separate token streams, showing 491,806 uncached prompt tokens for the Sol controller against 5,832,037 for the GLM worker, a 92 percent GLM share of paired uncached prompt volume from one measured TradeHero PRD run, with a caveat that cached context and completion tokens are reported separately and this is workload evidence rather than a provider bill. Beneath everything runs the model routing path: Codex child config setting model_provider equals cliproxyapi, the local endpoint 127.0.0.1 colon 8080 slash v1, the CLIProxyAPI normalization and router layer, the OpenRouter Responses API, and finally the GLM model.</desc>
+
+  <defs>
+    <marker id="arwNavy" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#12213D"/>
+    </marker>
+    <marker id="arwCobalt" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2B5FD9"/>
+    </marker>
+    <marker id="arwTeal" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1E8F86"/>
+    </marker>
+  </defs>
+
+  <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+
+    <rect x="0" y="0" width="1600" height="1050" fill="#F7F5F0"/>
+    <rect x="0" y="0" width="400" height="6" fill="#2B5FD9"/>
+    <rect x="400" y="0" width="700" height="6" fill="#1E8F86"/>
+    <rect x="1100" y="0" width="500" height="6" fill="#D98A2B"/>
+
+    <text x="56" y="54" font-size="30" font-weight="700" fill="#12213D">Thin controller, heavy worker</text>
+    <text x="56" y="84" font-size="14.5" fill="#5A6479">A Codex task controller keeps Sol in the control plane and routes substantive execution to one persistent GLM worker.</text>
+
+    <!-- ============ 01 CONTROL PLANE ============ -->
+    <rect x="56" y="118" width="400" height="496" rx="14" fill="#FFFFFF" stroke="#DFD9CE"/>
+    <text x="88" y="150" font-size="11" font-weight="700" letter-spacing="1.2" fill="#2B5FD9">01 — INTENT &amp; CONTROL PLANE</text>
+
+    <rect x="88" y="166" width="336" height="44" rx="10" fill="#EEF2FD" stroke="#C6D4F5"/>
+    <text x="256" y="194" font-size="14" font-weight="600" fill="#12213D" text-anchor="middle">User request</text>
+
+    <line x1="256" y1="210" x2="256" y2="236" stroke="#2B5FD9" stroke-width="2" marker-end="url(#arwCobalt)"/>
+
+    <rect x="88" y="238" width="336" height="82" rx="12" fill="#12213D"/>
+    <text x="256" y="266" font-size="16" font-weight="700" fill="#FFFFFF" text-anchor="middle">Sol task controller</text>
+    <text x="256" y="290" font-size="11.5" fill="#A9BBDD" text-anchor="middle">manage · route · verify</text>
+    <text x="256" y="308" font-size="10.5" fill="#8FA4CC" text-anchor="middle">thin by design: it holds no work product</text>
+
+    <line x1="256" y1="320" x2="256" y2="346" stroke="#2B5FD9" stroke-width="2" marker-end="url(#arwCobalt)"/>
+
+    <rect x="88" y="348" width="336" height="158" rx="12" fill="#FBFAF7" stroke="#E3DDD2"/>
+    <text x="104" y="372" font-size="11" font-weight="700" letter-spacing="0.9" fill="#5A6479">NATIVE CODEX TASK OPS</text>
+
+    <rect x="104" y="384" width="100" height="30" rx="8" fill="#FFFFFF" stroke="#D6CFC2"/>
+    <text x="154" y="404" font-size="11.5" font-weight="600" fill="#12213D" text-anchor="middle">create / fork</text>
+    <rect x="214" y="384" width="62" height="30" rx="8" fill="#FFFFFF" stroke="#D6CFC2"/>
+    <text x="245" y="404" font-size="11.5" font-weight="600" fill="#12213D" text-anchor="middle">read</text>
+    <rect x="286" y="384" width="84" height="30" rx="8" fill="#FFFFFF" stroke="#D6CFC2"/>
+    <text x="328" y="404" font-size="11.5" font-weight="600" fill="#12213D" text-anchor="middle">message</text>
+
+    <rect x="104" y="422" width="62" height="30" rx="8" fill="#FFFFFF" stroke="#D6CFC2"/>
+    <text x="135" y="442" font-size="11.5" font-weight="600" fill="#12213D" text-anchor="middle">wait</text>
+    <rect x="176" y="422" width="110" height="30" rx="8" fill="#FFFFFF" stroke="#D6CFC2"/>
+    <text x="231" y="442" font-size="11.5" font-weight="600" fill="#12213D" text-anchor="middle">inspect result</text>
+
+    <path d="M288 437 H392 V472 H116 V455" fill="none" stroke="#2B5FD9" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#arwCobalt)"/>
+    <text x="254" y="492" font-size="10.5" fill="#5A6479" text-anchor="middle">each turn re-enters the same task</text>
+
+    <rect x="88" y="522" width="336" height="72" rx="12" fill="#FFF7EC" stroke="#E8CFA6"/>
+    <text x="104" y="546" font-size="11" font-weight="700" letter-spacing="0.9" fill="#A9670F">POLICY BOUNDARY</text>
+    <text x="104" y="566" font-size="11.5" fill="#4A4033">Controller may manage, route, verify.</text>
+    <text x="104" y="584" font-size="11.5" fill="#4A4033">It must not implement substantive work.</text>
+
+    <!-- ============ 02 EXECUTION PLANE ============ -->
+    <rect x="496" y="118" width="600" height="536" rx="14" fill="#FFFFFF" stroke="#DFD9CE"/>
+    <text x="528" y="150" font-size="11" font-weight="700" letter-spacing="1.2" fill="#1E8F86">02 — PERSISTENT EXECUTION PLANE</text>
+
+    <rect x="528" y="176" width="536" height="150" rx="12" fill="#E9F5F3" stroke="#A8D7D1"/>
+    <text x="552" y="206" font-size="17" font-weight="700" fill="#12213D">GLM worker task</text>
+    <rect x="552" y="220" width="190" height="30" rx="8" fill="#FFFFFF" stroke="#A8D7D1"/>
+    <text x="566" y="240" font-size="12.5" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#12213D">z-ai/glm-5.3-flash</text>
+    <rect x="756" y="220" width="160" height="30" rx="8" fill="#1E8F86"/>
+    <text x="836" y="240" font-size="11.5" font-weight="600" fill="#FFFFFF" text-anchor="middle">one task · many turns</text>
+    <text x="552" y="276" font-size="12" fill="#3D4A5C">Substantive execution lives here: the worker owns the work product.</text>
+    <text x="552" y="298" font-size="12" fill="#3D4A5C">Follow-up instructions arrive as messages, not as new tasks.</text>
+
+    <path d="M968 330 H968 V384 H640 V336" fill="none" stroke="#1E8F86" stroke-width="2" stroke-linejoin="round" marker-end="url(#arwTeal)"/>
+    <text x="804" y="408" font-size="12" font-weight="600" fill="#12213D" text-anchor="middle">follow-up messages return to the same worker</text>
+    <text x="804" y="426" font-size="10.5" fill="#5A6479" text-anchor="middle">no replacement task is created</text>
+
+    <rect x="528" y="450" width="536" height="104" rx="12" fill="#FBFAF7" stroke="#E3DDD2"/>
+    <text x="548" y="474" font-size="11" font-weight="700" letter-spacing="0.9" fill="#5A6479">WORKER RESPONSIBILITIES</text>
+    <rect x="548" y="488" width="88" height="32" rx="8" fill="#FFFFFF" stroke="#D6CFC2"/>
+    <text x="592" y="509" font-size="11.5" font-weight="600" fill="#12213D" text-anchor="middle">research</text>
+    <rect x="646" y="488" width="62" height="32" rx="8" fill="#FFFFFF" stroke="#D6CFC2"/>
+    <text x="677" y="509" font-size="11.5" font-weight="600" fill="#12213D" text-anchor="middle">edit</text>
+    <rect x="718" y="488" width="62" height="32" rx="8" fill="#FFFFFF" stroke="#D6CFC2"/>
+    <text x="749" y="509" font-size="11.5" font-weight="600" fill="#12213D" text-anchor="middle">test</text>
+    <rect x="790" y="488" width="116" height="32" rx="8" fill="#FFFFFF" stroke="#D6CFC2"/>
+    <text x="848" y="509" font-size="11.5" font-weight="600" fill="#12213D" text-anchor="middle">browser proof</text>
+    <rect x="916" y="488" width="76" height="32" rx="8" fill="#FFFFFF" stroke="#D6CFC2"/>
+    <text x="954" y="509" font-size="11.5" font-weight="600" fill="#12213D" text-anchor="middle">deploy</text>
+
+    <text x="528" y="582" font-size="11.5" fill="#5A6479">One worker holds context across research, change, proof, and release.</text>
+    <text x="528" y="602" font-size="11.5" fill="#5A6479">That continuity is why its prompt volume dominates the pairing.</text>
+
+    <!-- ============ 03 MEASUREMENT ============ -->
+    <rect x="1136" y="118" width="408" height="536" rx="14" fill="#FFFFFF" stroke="#DFD9CE"/>
+    <text x="1168" y="150" font-size="11" font-weight="700" letter-spacing="1.2" fill="#A9670F">03 — MEASUREMENT</text>
+    <text x="1168" y="182" font-size="16" font-weight="700" fill="#12213D">Telemetry sidecar</text>
+    <text x="1168" y="204" font-size="11.5" fill="#5A6479">Observes the controller and the worker</text>
+    <text x="1168" y="220" font-size="11.5" fill="#5A6479">as separate token streams.</text>
+
+    <text x="1168" y="256" font-size="12" font-weight="600" fill="#12213D">Sol controller</text>
+    <text x="1512" y="256" font-size="12" font-weight="700" fill="#2B5FD9" text-anchor="end">491,806</text>
+    <rect x="1168" y="266" width="344" height="14" rx="7" fill="#ECEAE4"/>
+    <rect x="1168" y="266" width="29" height="14" rx="7" fill="#2B5FD9"/>
+    <text x="1168" y="298" font-size="10.5" fill="#5A6479">uncached prompt tokens</text>
+
+    <text x="1168" y="330" font-size="12" font-weight="600" fill="#12213D">GLM worker</text>
+    <text x="1512" y="330" font-size="12" font-weight="700" fill="#1E8F86" text-anchor="end">5,832,037</text>
+    <rect x="1168" y="340" width="344" height="14" rx="7" fill="#ECEAE4"/>
+    <rect x="1168" y="340" width="344" height="14" rx="7" fill="#1E8F86"/>
+    <text x="1168" y="372" font-size="10.5" fill="#5A6479">uncached prompt tokens</text>
+
+    <rect x="1168" y="396" width="344" height="88" rx="12" fill="#12213D"/>
+    <text x="1192" y="452" font-size="40" font-weight="700" fill="#FFFFFF">92%</text>
+    <text x="1288" y="434" font-size="11.5" font-weight="600" fill="#C9D6EE">GLM share of paired</text>
+    <text x="1288" y="450" font-size="11.5" font-weight="600" fill="#C9D6EE">uncached prompt volume</text>
+    <text x="1288" y="468" font-size="10.5" fill="#8FA4CC">one measured TradeHero PRD run</text>
+
+    <rect x="1168" y="500" width="344" height="96" rx="12" fill="#FFF7EC" stroke="#E8CFA6"/>
+    <text x="1188" y="524" font-size="10" font-weight="700" letter-spacing="0.9" fill="#A9670F">CAVEAT</text>
+    <text x="1188" y="544" font-size="10.5" fill="#4A4033">Cached context and completion tokens</text>
+    <text x="1188" y="560" font-size="10.5" fill="#4A4033">are reported separately. This is</text>
+    <text x="1188" y="576" font-size="10.5" fill="#4A4033">workload evidence, not a provider bill.</text>
+
+    <text x="1168" y="622" font-size="10.5" fill="#5A6479">The controller stays cheap because it stays thin.</text>
+
+    <!-- ============ 04 MODEL ROUTING ============ -->
+    <line x1="280" y1="614" x2="280" y2="788" stroke="#12213D" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#arwNavy)"/>
+    <text x="294" y="660" font-size="11.5" font-weight="600" fill="#12213D">child config</text>
+
+    <line x1="560" y1="654" x2="560" y2="788" stroke="#12213D" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#arwNavy)"/>
+    <text x="574" y="680" font-size="11.5" font-weight="600" fill="#12213D">every worker model call</text>
+
+    <rect x="56" y="700" width="1488" height="300" rx="14" fill="#F1EEE7" stroke="#DFD9CE"/>
+    <text x="88" y="736" font-size="13" font-weight="700" letter-spacing="1.4" fill="#12213D">04 — MODEL ROUTING</text>
+
+    <rect x="96" y="790" width="248" height="124" rx="12" fill="#FFFFFF" stroke="#D6CFC2"/>
+    <text x="116" y="822" font-size="13" font-weight="700" fill="#12213D">Codex child config</text>
+    <text x="116" y="848" font-size="12.5" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#2B5FD9">model_provider =</text>
+    <text x="116" y="868" font-size="12.5" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#2B5FD9">cliproxyapi</text>
+    <text x="116" y="894" font-size="10.5" fill="#5A6479">set on the child task only</text>
+
+    <line x1="348" y1="852" x2="380" y2="852" stroke="#12213D" stroke-width="2" marker-end="url(#arwNavy)"/>
+
+    <rect x="388" y="790" width="248" height="124" rx="12" fill="#FFFFFF" stroke="#D6CFC2"/>
+    <text x="408" y="822" font-size="13" font-weight="700" fill="#12213D">Local endpoint</text>
+    <text x="408" y="848" font-size="12.5" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#2B5FD9">127.0.0.1:8080/v1</text>
+    <text x="408" y="874" font-size="10.5" fill="#5A6479">loopback only</text>
+    <text x="408" y="894" font-size="10.5" fill="#5A6479">no public egress from Codex</text>
+
+    <line x1="640" y1="852" x2="672" y2="852" stroke="#12213D" stroke-width="2" marker-end="url(#arwNavy)"/>
+
+    <rect x="680" y="790" width="248" height="124" rx="12" fill="#FFFFFF" stroke="#D6CFC2"/>
+    <text x="700" y="822" font-size="13" font-weight="700" fill="#12213D">CLIProxyAPI</text>
+    <text x="700" y="846" font-size="11.5" fill="#3D4A5C">normalization / router</text>
+    <text x="700" y="874" font-size="10.5" fill="#5A6479">one schema in,</text>
+    <text x="700" y="894" font-size="10.5" fill="#5A6479">many providers out</text>
+
+    <line x1="932" y1="852" x2="964" y2="852" stroke="#12213D" stroke-width="2" marker-end="url(#arwNavy)"/>
+
+    <rect x="972" y="790" width="248" height="124" rx="12" fill="#FFFFFF" stroke="#D6CFC2"/>
+    <text x="992" y="822" font-size="13" font-weight="700" fill="#12213D">OpenRouter</text>
+    <text x="992" y="846" font-size="11.5" fill="#3D4A5C">Responses API</text>
+    <text x="992" y="874" font-size="10.5" fill="#5A6479">provider fan-out and</text>
+    <text x="992" y="894" font-size="10.5" fill="#5A6479">billing boundary</text>
+
+    <line x1="1224" y1="852" x2="1256" y2="852" stroke="#12213D" stroke-width="2" marker-end="url(#arwNavy)"/>
+
+    <rect x="1264" y="790" width="248" height="124" rx="12" fill="#FFFFFF" stroke="#1E8F86"/>
+    <text x="1284" y="822" font-size="13" font-weight="700" fill="#12213D">GLM model</text>
+    <text x="1284" y="848" font-size="12.5" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#1E8F86">z-ai/glm-5.3-flash</text>
+    <text x="1284" y="874" font-size="10.5" fill="#5A6479">carries the heavy</text>
+    <text x="1284" y="894" font-size="10.5" fill="#5A6479">prompt volume</text>
+
+    <text x="88" y="956" font-size="11.5" fill="#5A6479">Only the worker's traffic takes this path. The controller keeps talking to Sol, so the two token streams never merge.</text>
+
+  </g>
+</svg>
