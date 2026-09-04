@@ -1,23 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
 import { buildParetoSnapshot } from "../aggregate";
-import { mapOpenRouterModels } from "../openrouter";
 
 /**
- * Shared-snapshot fallback contract:
- * - When cached AA is degraded, BOTH page and API source (buildParetoSnapshot)
- *   return non-null AA scores from the bundled official last-known-good data.
- * - Degraded metadata is preserved (aaStatus=error, error message present).
+ * Scheduled-snapshot contract:
+ * - BOTH page and API source use the validated bundled AA snapshot.
+ * - Normal page/API traffic never calls AA and therefore consumes no quota.
  * - No Arena fetch happens on the Pareto critical path.
  */
+const getAaModelsCached = vi.fn();
 vi.mock("../aa-cache", () => ({
-  getAaModelsCached: vi.fn(async () => ({
-    status: "degraded",
-    models: [],
-    intelligenceIndexVersion: null,
-    fetchedAt: null,
-    reason: "AA API rate limited",
-    retryAfterSeconds: 60000,
-  })),
+  getAaModelsCached,
 }));
 vi.mock("../openrouter", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../openrouter")>();
@@ -33,12 +25,13 @@ vi.mock("../openrouter", async (importOriginal) => {
 });
 
 describe("aggregate AA fallback (shared snapshot)", () => {
-  it("serves bundled AA scores and preserves degraded metadata when cached AA is degraded", async () => {
+  it("serves bundled AA scores without making a live AA request", async () => {
     const { snapshot, errors } = await buildParetoSnapshot();
     const scored = snapshot.models.filter((m) => m.aa.intelligenceIndex != null);
     expect(scored.length).toBeGreaterThan(0);
-    expect(snapshot.freshness.aaStatus).toBe("error");
-    expect(errors.some((e) => e.includes("AA API rate limited"))).toBe(true);
+    expect(snapshot.freshness.aaStatus).toBe("ok");
+    expect(errors).toEqual([]);
+    expect(getAaModelsCached).not.toHaveBeenCalled();
   });
 
   it("does not fetch Arena on the critical path", async () => {

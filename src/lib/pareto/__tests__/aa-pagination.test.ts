@@ -22,8 +22,15 @@ function mkPageResponse(pageNum: number, totalPages: number, hasMore: boolean, s
       slug,
       release_date: "2025-01-01",
       model_creator: { name: "Test" },
-      evaluations: { intelligence_index: 40 + i },
-      intelligence_index_cost: { cost_per_task: { total_cost: 0.01 * (i + 1) } },
+      evaluations: {
+        artificial_analysis_intelligence_index: 40 + i,
+        artificial_analysis_coding_index: 30 + i,
+        artificial_analysis_agentic_index: 20 + i,
+      },
+      artificial_analysis_intelligence_index_cost: {
+        total_cost: 10 * (i + 1),
+        cost_per_task: { total_cost: 0.01 * (i + 1) },
+      },
       pricing: { price_1m_input_tokens: 1, price_1m_output_tokens: 2 },
       performance: { median_output_tokens_per_second: 100, median_time_to_first_token_seconds: 0.5 },
     })),
@@ -42,10 +49,9 @@ describe("AA pagination", () => {
       const resp = pages[calls++];
       return { response: resp, headers: mkHeaders(String(100 - calls)) };
     };
-    // Even when has_more persists, the absolute 2-page cap limits calls.
     const result = await fetchAaAllPages({ apiKey: "test", fetchPage, maxPages: 3 });
-    expect(calls).toBe(2);
-    expect(result.models).toHaveLength(4);
+    expect(calls).toBe(3);
+    expect(result.models).toHaveLength(5);
     expect(result.pagination.totalPages).toBe(3);
   });
 
@@ -68,5 +74,8 @@ describe("AA pagination", () => {
     expect(unmatched).toHaveLength(1);
     expect(unmatched[0].sourceId).toBe("unknown-model");
     expect(matched.get("openai-gpt-5")!.aa!.intelligenceIndex).toBe(40);
+    expect(matched.get("openai-gpt-5")!.aa!.codingIndex).toBe(30);
+    expect(matched.get("openai-gpt-5")!.aa!.agenticIndex).toBe(20);
+    expect(matched.get("openai-gpt-5")!.aa!.costPerTaskUsd).toBe(0.01);
   });
 });

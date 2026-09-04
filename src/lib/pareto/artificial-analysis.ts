@@ -51,10 +51,18 @@ interface AaRawModel {
   release_date?: string;
   model_creator?: { name?: string };
   evaluations?: {
+    artificial_analysis_intelligence_index?: number | null;
+    artificial_analysis_coding_index?: number | null;
+    artificial_analysis_agentic_index?: number | null;
+    /** Legacy names retained so an upstream rollback does not break refreshes. */
     intelligence_index?: number;
     coding_index?: number;
     agentic_index?: number;
   };
+  artificial_analysis_intelligence_index_cost?:
+    | number
+    | { total_cost?: number; cost_per_task?: { total_cost?: number } }
+    | null;
   intelligence_index_cost?: {
     total_cost?: number;
     cost_per_task?: { total_cost?: number };
@@ -77,16 +85,31 @@ export interface AaResponse {
 }
 
 function mapAaModel(raw: AaRawModel): AaFetchResult["models"][number] {
+  const currentCost = raw.artificial_analysis_intelligence_index_cost;
+  const currentCostPerTask =
+    typeof currentCost === "number"
+      ? currentCost
+      : currentCost?.cost_per_task?.total_cost ?? currentCost?.total_cost;
   return {
     id: raw.id,
     name: raw.name,
     slug: raw.slug,
     releaseDate: raw.release_date ?? null,
     creatorName: raw.model_creator?.name ?? null,
-    intelligenceIndex: raw.evaluations?.intelligence_index ?? null,
-    codingIndex: raw.evaluations?.coding_index ?? null,
-    agenticIndex: raw.evaluations?.agentic_index ?? null,
+    intelligenceIndex:
+      raw.evaluations?.artificial_analysis_intelligence_index ??
+      raw.evaluations?.intelligence_index ??
+      null,
+    codingIndex:
+      raw.evaluations?.artificial_analysis_coding_index ??
+      raw.evaluations?.coding_index ??
+      null,
+    agenticIndex:
+      raw.evaluations?.artificial_analysis_agentic_index ??
+      raw.evaluations?.agentic_index ??
+      null,
     costPerTaskUsd:
+      currentCostPerTask ??
       raw.intelligence_index_cost?.cost_per_task?.total_cost ??
       raw.intelligence_index_cost?.total_cost ??
       null,
@@ -126,7 +149,7 @@ export async function fetchAaPage(
 }
 
 /** Absolute pagination cap enforced inside fetchAaAllPages regardless of caller. */
-export const AA_ABSOLUTE_MAX_PAGES = 2;
+export const AA_ABSOLUTE_MAX_PAGES = 10;
 
 export class AaRateLimitError extends Error {
   retryAfterSeconds: number | null;
@@ -148,7 +171,8 @@ export async function fetchAaAllPages(options: {
   pageSize?: number;
   fetchPage?: typeof fetchAaPage;
 }): Promise<AaFetchResult> {
-  // Hard absolute cap: no caller may exceed 2 AA pages per window.
+  // The provider currently returns four pages even at its largest effective
+  // page size. Keep a defensive ceiling while allowing the full catalogue.
   const { apiKey, stopAtRemaining = 1, pageSize = 100, fetchPage = fetchAaPage } = options;
   const maxPages = Math.max(1, Math.min(options.maxPages ?? AA_ABSOLUTE_MAX_PAGES, AA_ABSOLUTE_MAX_PAGES));
   const models: AaFetchResult["models"] = [];

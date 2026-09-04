@@ -14,7 +14,7 @@
  *   the cache key.
  * - Degraded outcomes (missing key / HTTP error / zero non-null quality /
  *   429) are returned as data (not thrown) so they persist in the cache too.
- * - Hard pagination cap is 2 pages at the largest documented page size.
+ * - Hard pagination cap is 10 pages; normal operation currently uses 4.
  */
 import { unstable_cache } from "next/cache";
 import { cache } from "react";
@@ -23,8 +23,8 @@ import { fetchAaAllPages } from "./artificial-analysis";
 export const AA_CACHE_REVALIDATE_S = 24 * 60 * 60; // degraded backoff: >= Retry-After deadline
 export const AA_SUCCESS_TTL_S = 6 * 60 * 60; // successful AA data refreshes at most 6h
 export const AA_REFRESH_COORDINATOR_KEY = "pareto-aa-refresh-gate-v1";
-export const AA_MAX_PAGES = 2;
-export const AA_PAGE_SIZE = 100; // largest documented free-tier page size
+export const AA_MAX_PAGES = 10;
+export const AA_PAGE_SIZE = 200; // current effective free-tier page size
 export const AA_CACHE_KEY = "pareto-aa-models-v1";
 
 export interface AaCacheOutcome {

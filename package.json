@@ -7,7 +7,8 @@
     "build": "velite --clean && next build",
     "start": "next start",
     "lint": "next lint",
-    "content": "velite --clean"
+    "content": "velite --clean",
+    "pareto:refresh": "tsx scripts/refresh-pareto-aa.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.0.7",
@@ -82,6 +83,7 @@
     "playwright": "^1.58.2",
     "tailwindcss": "^4",
     "tailwindcss-animate": "^1.0.7",
+    "tsx": "^4.23.13",
     "typescript": "^5",
     "vitest": "4.1.11"
   }
