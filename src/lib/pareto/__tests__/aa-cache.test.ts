@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 /**
  * Single-flight + persistence contract for AA reads.
  * - repeated/concurrent calls collapse to one underlying AA load per window
- * - pagination never exceeds 2 pages (absolute cap enforced inside fetch)
+ * - pagination follows the provider's reported page count within a safety cap
  */
 import { fetchAaAllPages } from "../artificial-analysis";
 import type { AaResponse } from "../artificial-analysis";
@@ -18,21 +18,21 @@ function makePageResponse(page: number, hasMore: boolean): AaResponse {
         id: `model-${page}`,
         name: `Model ${page}`,
         slug: `model-${page}`,
-        evaluations: { intelligence_index: 50 + page },
+        evaluations: { artificial_analysis_intelligence_index: 50 + page },
       },
     ],
   };
 }
 
 describe("AA request budget", () => {
-  it("paginates at most 2 pages even when has_more persists, regardless of requested maxPages", async () => {
+  it("paginates through the current four-page catalogue", async () => {
     const fetchPage = vi.fn(async (page: number) => ({
-      response: makePageResponse(page, true),
+      response: makePageResponse(page, page < 4),
       headers: new Headers(),
     }));
     const result = await fetchAaAllPages({ apiKey: "test", maxPages: 10, pageSize: 100, fetchPage: fetchPage as never });
-    expect(fetchPage).toHaveBeenCalledTimes(2);
-    expect(result.models).toHaveLength(2);
+    expect(fetchPage).toHaveBeenCalledTimes(4);
+    expect(result.models).toHaveLength(4);
   });
 
   it("stops at page 1 when the endpoint returns all models", async () => {
