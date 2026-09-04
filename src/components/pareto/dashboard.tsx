@@ -5,6 +5,7 @@ import { computePareto } from "@/lib/pareto/pareto";
 import { FilterBar, FilterState } from "./filter-bar";
 import { ParetoScatterObservablePlot } from "./pareto-scatter-observable-plot";
 import { ModelTable } from "./model-table";
+import { formatDate } from "@/lib/pareto/format-date";
 
 export interface DashboardProps {
   snapshot: ParetoSnapshot;
@@ -24,12 +25,6 @@ const COST_LABEL: Record<string, string> = {
   or_output_per_million: "OpenRouter output $/1M tokens",
   or_blended_per_million: "OpenRouter blended $/1M tokens",
 };
-
-function formatDate(iso: string | null): string {
-  if (!iso) return "—";
-  try { return new Date(iso).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }); }
-  catch { return iso; }
-}
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, string> = { ok: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400", stale: "bg-amber-500/10 text-amber-700 dark:text-amber-400", error: "bg-red-500/10 text-red-700 dark:text-red-400", pending: "bg-muted text-muted-foreground" };
