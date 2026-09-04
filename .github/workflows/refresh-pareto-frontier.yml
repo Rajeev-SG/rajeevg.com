@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: "17 5,17 * * *"
   workflow_dispatch:
+    # Restrict manual AA-consuming refreshes to main so non-main refs cannot
+    # bypass or fragment the daily AA request budget tracked in
+    # .github/pareto-quota.json. Branch-specific refreshes should run their
+    # own scoped check with mocked AA fixtures instead of live quota.
+    branches: [main]
 
 permissions:
   contents: write
@@ -36,6 +41,15 @@ jobs:
         run: |
           if git diff --quiet -- src/data/pareto-aa-fallback.json .github/pareto-quota.json; then
             echo "Snapshot is unchanged."
+            # Always push the quota counter even when the snapshot is unchanged,
+            # so the daily budget persists across sequential manual dispatches.
+            if ! git diff --quiet -- .github/pareto-quota.json; then
+              git config user.name "github-actions[bot]"
+              git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+              git add .github/pareto-quota.json
+              git commit -m "chore(pareto): persist AA quota counter"
+              git push origin HEAD:main
+            fi
             exit 0
           fi
           git config user.name "github-actions[bot]"
