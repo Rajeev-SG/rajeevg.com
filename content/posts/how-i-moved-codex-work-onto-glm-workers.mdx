@@ -1,0 +1,183 @@
+---
+title: "We Finally Moved the Work Off Sol and Onto GLM"
+slug: "how-i-moved-codex-work-onto-glm-workers"
+date: "2026-09-04"
+description: "How native Codex task controls, strict controller policies, persistent GLM workers and a CLIProxyAPI-to-OpenRouter route moved 92% of one PRD run's uncached prompt volume onto the cheaper model."
+tags:
+  - ai
+  - agents
+  - codex
+  - glm
+  - openrouter
+  - orchestration
+  - observability
+  - cost
+draft: false
+image: /images/blog/glm-task-controller/controller-worker-architecture.svg
+---
+
+I think we finally cracked a problem I had been circling for months.
+
+I wanted Codex running GPT-5.6 Sol to stay in charge of difficult work without making Sol do all of it. The obvious planner-worker diagram is easy to draw. The hard part is making the split survive contact with a real task: changing requirements, long contexts, failed commands, browser checks, Git state and the temptation for the expensive controller to quietly take the keyboard back.
+
+The recent TradeHero PRD work is the first run where the numbers look like the architecture I wanted. The Sol task remained the controller. One persistent GLM-5.3-Flash task did the heavy work. On the paired sessions, GLM handled **5,832,037 uncached prompt tokens** against the controller's **491,806**. That puts **92.2% of the uncached prompt volume on GLM**.
+
+That is not the same as saying we cut the bill by 92%. It is evidence that the workload moved.
+
+<figure className="not-prose my-10">
+  <img
+    src="/images/blog/glm-task-controller/controller-worker-architecture.svg"
+    alt="Architecture showing a compact Sol task controller using Codex task operations to steer one persistent GLM worker, with GLM requests routed through CLIProxyAPI and OpenRouter and separate telemetry for controller and worker"
+    className="block w-full rounded-2xl border border-slate-200 bg-white p-2 shadow-sm"
+  />
+  <figcaption className="mx-auto mt-3 max-w-3xl text-center text-sm leading-6 text-slate-600 dark:text-slate-400">
+    The controller owns intent, routing and acceptance. The persistent worker owns the expensive middle. The figures are cumulative session counters from one TradeHero PRD run, queried on 4 September 2026.
+  </figcaption>
+</figure>
+
+## The breakthrough was not another agent framework
+
+I had already built more elaborate systems: task queues, leases, schedulers, message buses and even an A2A mesh linking different agent runtimes. They taught me a lot, but they also added hops. Every hop can resend context, introduce another failure mode and create another place where ownership becomes fuzzy.
+
+The simpler answer was sitting inside Codex itself.
+
+Codex has a first-class idea of agents, tasks and runtime operations. In the open-source rollout trace model, a tool call can be classified as `SpawnAgent`, `AssignAgentTask`, `SendMessage`, `WaitAgent` or `CloseAgent`. The same runtime model records which thread and turn started the call, its execution window, the target agent path and the resulting observations.
+
+Those types do not, by themselves, create a good operating model. They do reveal that multi-agent work is part of the runtime rather than a pile of shell scripts pretending to be one conversation.
+
+Codex Desktop then exposes the task-level controls I actually use as a controller:
+
+- create or fork a task with its own model, context and checkout;
+- read a task without opening or interrupting it;
+- send a correction to the same task;
+- wait for progress or completion without repeatedly polling it;
+- inspect the final result and its evidence;
+- hand work between a checkout and an isolated worktree when needed.
+
+The crucial word is **same**. A follow-up goes back to the persistent worker that already knows the repository and the decision history. I do not spawn a fresh child for every correction and repay the context cost from zero.
+
+## What the controller actually does
+
+The controller is a task manager with judgment, not a senior engineer who occasionally delegates chores.
+
+For the TradeHero work, the Sol task did four things:
+
+1. It reconstructed which prototype and document versions were current.
+2. It wrote a bounded contract for one GLM worker, including the writable scope, prohibited actions and acceptance checks.
+3. It used task messaging and waiting to steer that worker through revisions instead of doing the edits itself.
+4. It checked the result, handled the user-facing handoff and kept controller and worker telemetry separate.
+
+The GLM task did the long middle: repository inspection, PRD and feature-guide work, file changes, validation, prototype deployment and GitHub preparation.
+
+This sounds like semantics until you watch a controller hit a problem. The old failure mode was: the worker stalls, so Sol investigates; Sol finds the issue, edits the files, runs the checks and finishes the task. The final answer still says “delegated,” but the expensive model has done the job.
+
+Our policy now forbids that fallback.
+
+## The policies are doing as much work as the tools
+
+The system instructions make the split explicit:
+
+- Sol is task-manager-only in the remote control tower.
+- Substantive research, implementation, debugging, browser work and deployment belong to the GLM task.
+- A failed GLM route must not silently fall back to Sol.
+- Follow-up instructions return to the existing worker instead of creating duplicates.
+- Worker contracts must name the objective, exact writable scope, relevant runbooks, prohibited substitutions and acceptance checks.
+- Pre-existing tasks are read-only unless the user explicitly places them under the controller.
+- The controller verifies evidence; it does not reproduce the worker's implementation.
+
+There is also a routing default at the Codex level. Native child roles—default, worker and explorer—repeat the same model and provider settings rather than inheriting whatever the parent happens to use:
+
+```toml
+[agents]
+default_subagent_model = "z-ai/glm-5.3-flash"
+default_subagent_reasoning_effort = "high"
+
+# In each child role
+model = "z-ai/glm-5.3-flash"
+model_provider = "cliproxyapi"
+model_reasoning_effort = "high"
+```
+
+Repeating the route in each role is deliberate. An explicitly named worker cannot accidentally inherit an OpenAI-only parent route.
+
+## How GLM gets into a native Codex task
+
+The short version is: **Codex → CLIProxyAPI → OpenRouter → GLM**.
+
+The child task believes it is talking to the configured provider named `cliproxyapi`. That provider points to a shared local OpenAI-compatible endpoint at `http://127.0.0.1:8080/v1`.
+
+CLIProxyAPI is the compatibility and routing layer. It receives the native Codex request, normalises a narrow protocol edge case in child bootstrap messages, and forwards curated third-party model traffic to OpenRouter's Responses API. OpenRouter then routes the request to `z-ai/glm-5.3-flash`.
+
+Why keep the local layer at all? Codex and OpenRouter are both strict about tool-call protocol. One Codex Desktop build could prepend a child-bootstrap `function_call_output` without a `call_id`; OpenRouter correctly rejected it. The router repairs only that orphaned bootstrap shape by converting it into user-message context. Valid tool outputs remain untouched.
+
+That is an important boundary. The proxy is not allowed to “fix” arbitrary malformed traffic. It provides one measured compatibility shim and a stable local endpoint. The actual model still comes from OpenRouter.
+
+## The TradeHero numbers
+
+The telemetry stack records controller and worker as separate sessions. These were the cumulative counters when I queried the completed run:
+
+| Session | Model | Uncached prompt | Cache read | Completion |
+| --- | --- | ---: | ---: | ---: |
+| Task controller | GPT-5.6 Sol | 491,806 | 25,387,776 | 39,563 |
+| Persistent worker | GLM-5.3-Flash | 5,832,037 | 37,441,856 | 68,145 |
+
+The headline calculation is deliberately narrow:
+
+```text
+GLM share of uncached prompt volume
+= 5,832,037 / (5,832,037 + 491,806)
+= 92.2%
+```
+
+Cached prompt traffic is shown because hiding it would make the result look cleaner than it is. Long-lived agent sessions repeatedly read instructions, tool definitions and prior state. Cache reads are not fresh prompt tokens, and their billing treatment can differ by provider, but they still describe how much context the runtime processed.
+
+Completion tokens tell a similar, less dramatic story: GLM produced 68,145 against Sol's 39,563, or about 63% of the paired completion volume.
+
+What these numbers prove is placement. Most fresh input processing and most output generation in this paired run happened on GLM. They do not prove a counterfactual—what Sol would have consumed if it had done the whole job—and they are not an OpenRouter invoice.
+
+## Why this run worked when earlier ones did not
+
+Three changes mattered.
+
+First, the worker was a real Codex task, not a disposable tool call. It had its own context, task history and isolated working state.
+
+Second, the controller had native ways to observe and steer it. `read`, `send message` and `wait` are boring capabilities. That is precisely why they work. The controller does not need a second coordination product just to ask, “What changed?” or “Apply this correction and rerun the check.”
+
+Third, the policy removed the heroic fallback. Sol could not rescue the task by implementing it. It had to improve the contract, correct the worker or report the blocker. That turns delegation from a suggestion into an architectural boundary.
+
+The result feels less like a swarm and more like a tiny company with one good manager and one very busy operator. That is a compliment.
+
+## What I would copy
+
+If I were rebuilding this elsewhere, I would keep the recipe small:
+
+1. Use one controller and one persistent worker before considering a tree of agents.
+2. Put the worker on an isolated task or worktree with an explicit writable scope.
+3. Make controller operations cheap: inspect, message, wait and verify.
+4. Pin the worker model in every role so it cannot inherit the controller's route.
+5. Fail closed when the cheap route is unhealthy; do not silently spend the frontier model.
+6. Measure uncached prompt, cache reads and completion separately for every task.
+7. Treat accepted output as the finish line. Cheap tokens attached to rejected work are not savings.
+
+The architecture is not clever. The discipline is.
+
+## What remains unproven
+
+I still want a matched comparison: the same PRD task, same inputs, same tools and same acceptance checks, once with Sol executing everything and once with the controller-worker split. That would let me compare cost, elapsed time, corrections and accepted quality—not only where tokens landed.
+
+I also want task-window cost directly from the provider rather than applying external prices to token counters. The local telemetry is authoritative for token placement. Provider billing is authoritative for money. Conflating the two is how agent-cost claims become marketing.
+
+For now, the honest conclusion is strong enough: the controller stayed in charge, the GLM worker did the volume, the work shipped, and the telemetry shows the split.
+
+That is the system I had been trying to build.
+
+## Sources and related field notes
+
+- [OpenAI Codex rollout trace runtime model](https://github.com/openai/codex/blob/main/codex-rs/rollout-trace/src/model/runtime.rs)
+- [OpenRouter Responses API documentation](https://openrouter.ai/docs/api/reference/responses/overview)
+- [I made GLM-5.3-Flash faster but kept the cheap route](/blog/i-made-glm-5-3-flash-faster-but-kept-cheap-routing)
+- [Can I make Codex last longer without lowering the quality?](/blog/how-i-split-sol-planning-from-opencode-go-execution)
+- [How one rebuild ran on three models](/blog/how-one-rebuild-ran-on-three-models)
+- [The multi-agent journey: what survived contact with reality](/blog/the-multi-agent-journey-what-survived-contact-with-reality)
+
+[Back to writing](/blog)
