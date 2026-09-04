@@ -2,7 +2,7 @@ name: Refresh Pareto Frontier data
 
 on:
   schedule:
-    - cron: "17 5 * * *"
+    - cron: "17 5,17 * * *"
   workflow_dispatch:
 
 permissions:
@@ -34,12 +34,12 @@ jobs:
           ARTIFICIAL_ANALYSIS_API_KEY_PF: ${{ secrets.ARTIFICIAL_ANALYSIS_API_KEY_PF }}
       - name: Commit validated changes
         run: |
-          if git diff --quiet -- src/data/pareto-aa-fallback.json; then
+          if git diff --quiet -- src/data/pareto-aa-fallback.json .github/pareto-quota.json; then
             echo "Snapshot is unchanged."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/data/pareto-aa-fallback.json
+          git add src/data/pareto-aa-fallback.json .github/pareto-quota.json
           git commit -m "chore(pareto): refresh validated model snapshot"
           git push origin HEAD:main

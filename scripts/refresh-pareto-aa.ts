@@ -1,4 +1,4 @@
-import { writeFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { mapAaModels, fetchAaAllPages } from "../src/lib/pareto/artificial-analysis";
 import { fetchOpenRouterModels, mapOpenRouterModels } from "../src/lib/pareto/openrouter";
@@ -11,10 +11,37 @@ async function main() {
 const apiKey = process.env.ARTIFICIAL_ANALYSIS_API_KEY_PF;
 if (!apiKey) throw new Error("ARTIFICIAL_ANALYSIS_API_KEY_PF is required");
 
+// ── Daily AA request budget (pre-fetch guard) ────────────────────────────
+// A committed counter file bounds AA calls across all trigger types
+// (scheduled, manual dispatch, retries). Budget: 12 AA requests/day
+// (2 scheduled runs × 4 pages + 1 manual run headroom; current catalogue
+// uses 4 pages of 200). Overlap is prevented by the workflow concurrency
+// group; this guard prevents repeated sequential manual dispatches.
+const QUOTA_FILE = resolve(process.cwd(), ".github/pareto-quota.json");
+const DAILY_AA_BUDGET = 12;
+const AA_PAGES_PER_RUN = 4; // current observed catalogue page count
+const today = new Date().toISOString().slice(0, 10);
+let quotaUsed = 0;
+try {
+  const raw = await readFile(QUOTA_FILE, "utf8");
+  const parsed = JSON.parse(raw) as { date?: string; aaRequestsUsed?: number };
+  if (parsed.date === today && typeof parsed.aaRequestsUsed === "number") {
+    quotaUsed = parsed.aaRequestsUsed;
+  }
+} catch { /* first run of the day or file absent */ }
+if (quotaUsed + AA_PAGES_PER_RUN > DAILY_AA_BUDGET) {
+  throw new Error(
+    `AA daily budget exhausted: used ${quotaUsed}/${DAILY_AA_BUDGET} requests today. ` +
+    `Scheduled runs reserve 8 (2×4); manual dispatches share the remainder. Skipping refresh.`
+  );
+}
+
 const aaResult = await fetchAaAllPages({ apiKey, maxPages: 10, pageSize: 200 });
 if (aaResult.pagination.hasMore) {
   throw new Error(`AA catalogue was truncated after page ${aaResult.pagination.page}`);
 }
+
+const pagesUsed = aaResult.pagination.page;
 
 const aaMapped = mapAaModels(aaResult.models, aaResult.intelligenceIndexVersion);
 const qualityCount = [...aaMapped.matched.values()].filter(
@@ -24,6 +51,23 @@ if (qualityCount === 0) throw new Error("AA refresh rejected: zero matched quali
 
 const orResult = await fetchOpenRouterModels();
 const orMapped = mapOpenRouterModels(orResult.models);
+
+// Quota guard: abort before further work if AA's remaining quota cannot
+// cover this run, so overlapping/manual triggers never multiply AA requests.
+const quotaRemaining = aaResult.pagination.rateLimitRemaining;
+if (quotaRemaining != null && quotaRemaining <= 0) {
+  throw new Error(`AA quota exhausted (remaining=${quotaRemaining}); aborting refresh`);
+}
+
+// Observable records for the Action summary / artifact trail.
+const unmatchedAa = aaResult.models.filter(
+  (m) => !resolveAaSlug(m.slug) && !aaMapped.matched.has(m.slug) && !parseOrId(m.slug)
+);
+const unmatchedOrOnly = orMapped.unmatched.filter(
+  (u) => u.source === "openrouter" && !aaMapped.matched.has(u.sourceId)
+);
+const astraMissingFromAa = !aaResult.models.some((m) => m.slug === "gpt-6-astra");
+const museJoined = !orMapped.unmatched.some((u) => u.sourceId === "meta/muse-spark-1.3");
 const aaCandidates = new Map(
   aaResult.models
     .filter((model) => !resolveAaSlug(model.slug))
@@ -109,7 +153,23 @@ await writeFile(
   `${JSON.stringify(snapshot, null, 2)}\n`,
   "utf8"
 );
-console.log(JSON.stringify({ generatedAt, aaModels: aaResult.models.length, matchedQuality: qualityCount, models: models.length }));
+await writeFile(
+  QUOTA_FILE,
+  `${JSON.stringify({ date: today, aaRequestsUsed: quotaUsed + pagesUsed, dailyBudget: DAILY_AA_BUDGET }, null, 2)}\n`,
+  "utf8"
+);
+console.log(JSON.stringify({
+  generatedAt,
+  aaModels: aaResult.models.length,
+  matchedQuality: qualityCount,
+  models: models.length,
+  unmatchedAaCount: unmatchedAa.length,
+  unmatchedAaSample: unmatchedAa.slice(0, 10).map((m) => m.slug),
+  unmatchedOrCount: unmatchedOrOnly.length,
+  unmatchedOrSample: unmatchedOrOnly.slice(0, 10).map((u) => u.sourceId),
+  astraMissingFromAa,
+  museJoined,
+}));
 }
 
 main().catch((error: unknown) => {
