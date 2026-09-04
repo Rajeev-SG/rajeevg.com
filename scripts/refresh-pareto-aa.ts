@@ -1,4 +1,4 @@
-import { readFile, writeFile } from "node:fs/promises";
+import { writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { mapAaModels, fetchAaAllPages } from "../src/lib/pareto/artificial-analysis";
 import { fetchOpenRouterModels, mapOpenRouterModels } from "../src/lib/pareto/openrouter";
@@ -11,34 +11,21 @@ async function main() {
 const apiKey = process.env.ARTIFICIAL_ANALYSIS_API_KEY_PF;
 if (!apiKey) throw new Error("ARTIFICIAL_ANALYSIS_API_KEY_PF is required");
 
-// ── Daily AA request budget (pre-fetch guard) ────────────────────────────
-// A committed counter file bounds AA calls across all trigger types
-// (scheduled, manual dispatch, retries). Budget: 12 AA requests/day
-// (2 scheduled runs × 4 pages + 1 manual run headroom; current catalogue
-// uses 4 pages of 200). Overlap is prevented by the workflow concurrency
-// group; this guard prevents repeated sequential manual dispatches.
-const QUOTA_FILE = resolve(process.cwd(), ".github/pareto-quota.json");
-const DAILY_AA_BUDGET = 12;
-const AA_PAGES_PER_RUN = 4; // current observed catalogue page count
-const today = new Date().toISOString().slice(0, 10);
-let quotaUsed = 0;
-try {
-  const raw = await readFile(QUOTA_FILE, "utf8");
-  const parsed = JSON.parse(raw) as { date?: string; aaRequestsUsed?: number };
-  if (parsed.date === today && typeof parsed.aaRequestsUsed === "number") {
-    quotaUsed = parsed.aaRequestsUsed;
-  }
-} catch { /* first run of the day or file absent */ }
-if (quotaUsed + AA_PAGES_PER_RUN > DAILY_AA_BUDGET) {
-  throw new Error(
-    `AA daily budget exhausted: used ${quotaUsed}/${DAILY_AA_BUDGET} requests today. ` +
-    `Scheduled runs reserve 8 (2×4); manual dispatches share the remainder. Skipping refresh.`
-  );
-}
+// ── Per-run AA page cap (deterministic budget boundary) ─────────────────
+// Enforcement boundary: maxPages below. With 2 scheduled runs/day, the
+// hard ceiling is 2 × AA_MAX_PAGES_REFRESH (5) = 10 AA requests/day under
+// normal GitHub schedule semantics. No workflow_dispatch exists on this
+// workflow; manual diagnosis must use mocked fixtures or a separate
+// non-AA path. The .github/pareto-quota.json counter is telemetry only
+// (not enforcement) and may undercount if a run fails before persistence.
+const AA_MAX_PAGES_PER_RUN = 5; // observed 4; small safe growth headroom
 
-const aaResult = await fetchAaAllPages({ apiKey, maxPages: 10, pageSize: 200 });
+const aaResult = await fetchAaAllPages({ apiKey, maxPages: AA_MAX_PAGES_PER_RUN, pageSize: 200 });
 if (aaResult.pagination.hasMore) {
-  throw new Error(`AA catalogue was truncated after page ${aaResult.pagination.page}`);
+  throw new Error(
+    `AA catalogue exceeded ${AA_MAX_PAGES_PER_RUN} pages (page=${aaResult.pagination.page}); ` +
+    `raise AA_MAX_PAGES_PER_RUN with a bounded review. Refresh aborted.`
+  );
 }
 
 const pagesUsed = aaResult.pagination.page;
@@ -52,8 +39,9 @@ if (qualityCount === 0) throw new Error("AA refresh rejected: zero matched quali
 const orResult = await fetchOpenRouterModels();
 const orMapped = mapOpenRouterModels(orResult.models);
 
-// Quota guard: abort before further work if AA's remaining quota cannot
-// cover this run, so overlapping/manual triggers never multiply AA requests.
+// Soft guard: abort before further work if AA's remaining quota cannot
+// cover this run. Enforcement boundary is AA_MAX_PAGES_PER_RUN + schedule,
+// but this gives an early signal if the provider reports low quota.
 const quotaRemaining = aaResult.pagination.rateLimitRemaining;
 if (quotaRemaining != null && quotaRemaining <= 0) {
   throw new Error(`AA quota exhausted (remaining=${quotaRemaining}); aborting refresh`);
@@ -153,9 +141,12 @@ await writeFile(
   `${JSON.stringify(snapshot, null, 2)}\n`,
   "utf8"
 );
+// Telemetry only: records actual pages consumed per day. Not an enforcement
+// boundary — the hard cap is AA_MAX_PAGES_PER_RUN in fetchAaAllPages plus
+// the 2-run schedule. The file may undercount if a run fails before here.
 await writeFile(
-  QUOTA_FILE,
-  `${JSON.stringify({ date: today, aaRequestsUsed: quotaUsed + pagesUsed, dailyBudget: DAILY_AA_BUDGET }, null, 2)}\n`,
+  resolve(process.cwd(), ".github/pareto-quota.json"),
+  `${JSON.stringify({ date: new Date().toISOString().slice(0, 10), aaRequestsUsed: pagesUsed, perRunPageCap: AA_MAX_PAGES_PER_RUN, note: "telemetry, not enforcement" }, null, 2)}\n`,
   "utf8"
 );
 console.log(JSON.stringify({
