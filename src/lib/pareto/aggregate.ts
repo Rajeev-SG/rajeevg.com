@@ -8,6 +8,7 @@
 import type { CanonicalModel, ParetoSnapshot, SourceFreshness, UnmatchedRecord } from "./types";
 import { aaFallback } from "./aa-fallback";
 import { fetchOpenRouterModels, mapOpenRouterModels } from "./openrouter";
+import { autoJoin, parseOrId } from "./auto-discover";
 import { mergeCanonicalModels } from "./normalise";
 
 // Simple in-process cache for the last-good snapshot. On Vercel ISR this is
@@ -64,6 +65,49 @@ export async function buildParetoSnapshot(): Promise<SnapshotOutcome> {
     orUnmatched = mapped.unmatched;
     orFetchedAt = result.fetchedAt;
     orStatus = "ok";
+    // Deterministic auto-join of OR records not covered by the explicit
+    // alias map against AA fallback slugs. Exact identity only, never fuzzy.
+    const aaRecords = aaFallback.models.filter((m) => m.aa.slug != null);
+    for (const m of result.models) {
+      const parsed = parseOrId(m.id);
+      if (!parsed) continue;
+      for (const aa of aaRecords) {
+        const joined = autoJoin(
+          { slug: aa.aa.slug as string, creatorName: aa.organisation },
+          { id: m.id, name: m.name }
+        );
+        if (!joined) continue;
+        if (orMatched.has(joined.canonicalId)) break;
+        const existing = aaMatched.get(joined.canonicalId);
+        if (existing) {
+          // Merge OR pricing into the existing AA-backed canonical partial.
+          orMatched.set(joined.canonicalId, {
+            ...existing,
+            openrouter: {
+              modelId: m.id,
+              inputPricePerMillion: m.inputPerMillion,
+              outputPricePerMillion: m.outputPerMillion,
+              contextLength: m.contextLength,
+              createdAtUnix: m.createdAtUnix,
+            },
+          });
+        } else {
+          orMatched.set(joined.canonicalId, {
+            canonicalId: joined.canonicalId,
+            displayName: joined.displayName,
+            organisation: joined.organisation,
+            openrouter: {
+              modelId: m.id,
+              inputPricePerMillion: m.inputPerMillion,
+              outputPricePerMillion: m.outputPerMillion,
+              contextLength: m.contextLength,
+              createdAtUnix: m.createdAtUnix,
+            },
+          });
+        }
+        break;
+      }
+    }
   } catch (err) {
     errors.push(`OpenRouter: ${err instanceof Error ? err.message : String(err)}`);
     orStatus = "error";

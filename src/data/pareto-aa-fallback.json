@@ -3,7 +3,17 @@
     "source": "Artificial Analysis API v2 /language/models/free + OpenRouter /api/v1/models",
     "fetchedAt": "2026-09-04T09:41:56.909Z",
     "aaStatus": "ok",
-    "note": "Validated automatic snapshot. Empty or incomplete refreshes never replace this file."
+    "note": "Validated automatic snapshot. Empty or incomplete refreshes never replace this file.",
+    "bundledRecords": [
+      {
+        "canonicalId": "openai-gpt-6-astra",
+        "source": "User-supplied official Artificial Analysis screenshot (2026-09-04)",
+        "reason": "AA catalogue not yet reachable during live verification window; AA API access restricted in this task. Ingested via alias-map entry + bundled snapshot record. Alias entry: aaSlug gpt-6-astra, organisation OpenAI, no OpenRouter id. Regeneration on next validated scheduled refresh will replace this bundled record with the official AA API v2 response.",
+        "fetchedAt": "2026-09-04T09:41:56.909Z",
+        "aaStatus": "ok",
+        "origin": "manual_bundled"
+      }
+    ]
   },
   "generatedAt": "2026-09-04T09:41:58.635Z",
   "freshness": {
@@ -2764,6 +2774,28 @@
         "contextLength": 1050000,
         "createdAtUnix": 1783590861
       },
+      "arena": {
+        "overall": null,
+        "webdev": null,
+        "agent": null
+      }
+    },
+    {
+      "canonicalId": "openai-gpt-6-astra",
+      "displayName": "GPT-6 Astra",
+      "organisation": "OpenAI",
+      "releaseDate": null,
+      "aa": {
+        "slug": "gpt-6-astra",
+        "intelligenceIndex": 61,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 1.67,
+        "throughputTokensPerSecond": null,
+        "latencyTtfbSeconds": null,
+        "intelligenceIndexVersion": 4.1
+      },
+      "openrouter": null,
       "arena": {
         "overall": null,
         "webdev": null,
