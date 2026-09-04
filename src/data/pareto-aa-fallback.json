@@ -1,15 +1,15 @@
 {
   "provenance": {
     "source": "Artificial Analysis API v2 /language/models/free + OpenRouter /api/v1/models",
-    "fetchedAt": "2026-09-04T00:49:48.037Z",
+    "fetchedAt": "2026-09-04T09:41:56.909Z",
     "aaStatus": "ok",
     "note": "Validated automatic snapshot. Empty or incomplete refreshes never replace this file."
   },
-  "generatedAt": "2026-09-04T00:49:50.447Z",
+  "generatedAt": "2026-09-04T09:41:58.635Z",
   "freshness": {
-    "aaFetchedAt": "2026-09-04T00:49:48.037Z",
+    "aaFetchedAt": "2026-09-04T09:41:56.909Z",
     "aaStatus": "ok",
-    "openrouterFetchedAt": "2026-09-04T00:49:50.380Z",
+    "openrouterFetchedAt": "2026-09-04T09:41:58.460Z",
     "openrouterStatus": "ok",
     "arenaFetchedAt": null,
     "arenaStatus": "pending",
@@ -699,8 +699,8 @@
       },
       "openrouter": {
         "modelId": "deepseek/deepseek-v4-pro-0813",
-        "inputPricePerMillion": 0.66,
-        "outputPricePerMillion": 1.9800000000000002,
+        "inputPricePerMillion": 1.1154,
+        "outputPricePerMillion": 3.3461999999999996,
         "contextLength": 1048576,
         "createdAtUnix": 1786549364
       },
@@ -1723,8 +1723,8 @@
       },
       "openrouter": {
         "modelId": "moonshotai/kimi-k2.6",
-        "inputPricePerMillion": 0.5187,
-        "outputPricePerMillion": 2.184,
+        "inputPricePerMillion": 0.95,
+        "outputPricePerMillion": 4,
         "contextLength": 262144,
         "createdAtUnix": 1776699402
       },
@@ -3879,8 +3879,8 @@
       },
       "openrouter": {
         "modelId": "tencent/hy3",
-        "inputPricePerMillion": 0.0825,
-        "outputPricePerMillion": 0.33,
+        "inputPricePerMillion": 0.13199999999999998,
+        "outputPricePerMillion": 0.5279999999999999,
         "contextLength": 262144,
         "createdAtUnix": 1783344048
       },
