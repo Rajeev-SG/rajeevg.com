@@ -21,7 +21,68 @@
     "D01": "merged"
   },
   "derived": {},
-  "researchPacks": {},
+  "researchPacks": {
+    "H04": {
+      "id": "H04-fallback",
+      "assetId": "H04",
+      "provider": "fallback",
+      "generatedAt": "2026-09-05T15:54:55.733Z",
+      "status": "ready",
+      "queryCluster": [
+        "Proof, case studies, and shipped systems",
+        "Proof assets Hub",
+        "Collect proof nodes, dashboards, and projects that demonstrate the site’s point of view in practice. Decision makers; builders; collaborators"
+      ],
+      "competingAngles": [
+        "What does most existing hub content miss?",
+        "Where can this page show firsthand proof instead of generic advice?",
+        "What would make this asset meaningfully better than a thin pSEO page?"
+      ],
+      "sourceSummaries": [
+        {
+          "title": "Proof, case studies, and shipped systems source audit",
+          "url": "/proof",
+          "summary": "Existing posts, public projects, and reporting routes."
+        },
+        {
+          "title": "Proof assets cluster brief",
+          "url": "/",
+          "summary": "Transforms scattered case studies and dashboards into a trust-transfer system."
+        }
+      ],
+      "recommendedStructure": [
+        "Sharp thesis and why this asset exists",
+        "What problem it solves for the target audience",
+        "Evidence or proof section grounded in existing site content",
+        "Actionable framework, checklist, or examples",
+        "Recommended next internal steps"
+      ],
+      "risks": [
+        "Thin derivative content if proof is not carried through from the source asset.",
+        "Overlapping with an existing flagship unless the page has a sharper JTBD.",
+        "Publishing before indexation, structured data, and internal links are reviewed."
+      ],
+      "relatedInternalContent": [
+        "E02",
+        "E03",
+        "E06",
+        "P01",
+        "P02",
+        "P03",
+        "P04"
+      ],
+      "recommendedInternalLinks": [
+        "/projects",
+        "/analytics",
+        "/ai"
+      ],
+      "seoSuggestions": [
+        "Keep hub positioning explicit in the introduction.",
+        "Use proof assets language consistently so the page reinforces the hub.",
+        "Add a clear next-step module that routes to proof assets or dashboards."
+      ]
+    }
+  },
   "drafts": {
     "D01": {
       "assetId": "D01",
