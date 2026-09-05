@@ -85,11 +85,64 @@ export type DashboardCounts = {
   inFlight: number
 }
 
-export function computeDashboardCounts(allRows: ContentOpsRow[]): DashboardCounts {
+/**
+ * Overview counts, computed from canonical non-overlapping sources:
+ *
+ * - liveTracked: Existing_Content tab rows only (the site inventory; each
+ *   record is one real page). Workbook planning rows never count.
+ * - needsAttention / inFlight: Existing_Content rows whose workflow state
+ *   puts them in that bucket. Planned workbook ideas cannot be "in progress".
+ * - opportunities: unique candidates drawn from Master_Matrix + Topic_Graph +
+ *   idea-kind records, deduplicated by URL (then by id) so the same concept
+ *   is never counted twice across overlapping sheets.
+ */
+export function computeDashboardCounts(sources: {
+  contentRows: ContentOpsRow[]
+  opportunityRows: ContentOpsRow[]
+}): DashboardCounts {
+  const { contentRows, opportunityRows } = sources
   return {
-    needsAttention: needsAttention(allRows).length,
-    opportunities: activeOpportunities(allRows).length,
-    liveTracked: allRows.filter((row) => isPublishedRow(row)).length,
-    inFlight: inFlightRows(allRows).length,
+    needsAttention: needsAttention(contentRows).length,
+    opportunities: uniqueOpportunityRows(activeOpportunities(opportunityRows)).length,
+    liveTracked: contentRows.filter((row) => row.tab === "Existing_Content").length,
+    inFlight: inFlightRows(contentRows).length,
   }
+}
+
+/**
+ * Plain-English display text for workbook strategy/status codes such as
+ * "Existing -> expand" or "New". Raw values stay visible only in Reference
+ * data views, which are explicitly archival.
+ */
+export function describeStrategyStatus(status: string): string {
+  if (!status) return ""
+  const normalized = status.trim().toLowerCase()
+  if (normalized.startsWith("existing -> expand")) return "Live — worth expanding"
+  if (normalized.startsWith("existing -> tighten")) return "Live — needs tightening"
+  if (normalized.startsWith("existing -> hub")) return "Live — anchor for its hub"
+  if (normalized.startsWith("existing -> hub anchor")) return "Live — anchor for its hub"
+  if (normalized.startsWith("existing -> proof")) return "Live — proof page"
+  if (normalized.startsWith("existing -> supporting")) return "Live — supporting page"
+  if (normalized.startsWith("existing -> interactive")) return "Live — interactive proof"
+  if (normalized.startsWith("existing -> flagship")) return "Live — flagship"
+  if (normalized === "existing") return "Live"
+  if (normalized === "new") return "Not started"
+  return status
+}
+
+/**
+ * Deduplicated opportunity candidates: workbook Master_Matrix rows plus
+ * idea-kind inventory records, keyed by URL (falling back to id) so the same
+ * concept is never counted twice across overlapping sheets.
+ */
+export function uniqueOpportunityRows(rows: ContentOpsRow[]): ContentOpsRow[] {
+  const seen = new Set<string>()
+  const unique: ContentOpsRow[] = []
+  for (const row of rows) {
+    const key = row.url && row.url !== "" ? row.url : `id:${row.id}`
+    if (seen.has(key)) continue
+    seen.add(key)
+    unique.push(row)
+  }
+  return unique
 }

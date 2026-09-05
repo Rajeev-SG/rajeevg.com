@@ -4,12 +4,14 @@ import {
   REFERENCE_TABS,
   activeOpportunities,
   computeDashboardCounts,
+  describeStrategyStatus,
   describeWorkflowStatus,
   inFlightRows,
   isPublishedRow,
   needsAttention,
+  uniqueOpportunityRows,
 } from "../ia"
-import type { ContentOpsRow } from "../../types"
+import type { ContentOpsRow } from "../types"
 
 function makeRow(overrides: Partial<ContentOpsRow>): ContentOpsRow {
   return {
@@ -92,27 +94,30 @@ describe("inFlightRows", () => {
 })
 
 describe("computeDashboardCounts", () => {
-  it("aggregates defensible counts from row states", () => {
-    const rows = [
-      makeRow({ id: "1", tab: "Master_Matrix", workflowStatus: "blocked" }),
-      makeRow({ id: "2", tab: "Master_Matrix", workflowStatus: "planned" }),
-      makeRow({ id: "3", tab: "Existing_Content", workflowStatus: "live" }),
-      makeRow({ id: "4", tab: "Master_Matrix", workflowStatus: "approved" }),
-      makeRow({ id: "5", tab: "Existing_Content", workflowStatus: "live" }),
-    ]
-    const counts = computeDashboardCounts(rows)
+  it("aggregates defensible counts from canonical, non-overlapping sources", () => {
+    const counts = computeDashboardCounts({
+      contentRows: [
+        makeRow({ id: "1", tab: "Existing_Content", workflowStatus: "blocked" }),
+        makeRow({ id: "2", tab: "Existing_Content", workflowStatus: "live" }),
+        makeRow({ id: "3", tab: "Existing_Content", workflowStatus: "approved" }),
+        makeRow({ id: "4", tab: "Existing_Content", workflowStatus: "live" }),
+      ],
+      opportunityRows: [
+        makeRow({ id: "5", tab: "Master_Matrix", workflowStatus: "planned", url: "/x/one" }),
+      ],
+    })
     expect(counts.needsAttention).toBe(1)
     expect(counts.opportunities).toBe(1)
-    expect(counts.liveTracked).toBe(2)
+    expect(counts.liveTracked).toBe(4)
     expect(counts.inFlight).toBe(1)
   })
 })
 
 describe("PRIMARY_TABS", () => {
-  it("exposes only the five primary views plus reference, with no workbook sheet names", () => {
-    const labels = PRIMARY_TABS.map((tab) => tab.label)
-    expect(labels).toEqual(["Overview", "Content", "Opportunities", "Drafts", "Analytics", "Reference data"])
-    for (const forbidden of ["Master Matrix", "Existing Content", "Title Decisions", "Topic Graph", "Programmatic"]) {
+  it("exposes exactly the five primary views, with no workbook sheet names and no Reference data", () => {
+    const labels = PRIMARY_TABS.filter((tab) => tab.id !== "reference").map((tab) => tab.label)
+    expect(labels).toEqual(["Overview", "Content", "Opportunities", "Drafts", "Analytics"])
+    for (const forbidden of ["Master Matrix", "Existing Content", "Title Decisions", "Topic Graph", "Programmatic", "Reference data"]) {
       expect(labels).not.toContain(forbidden)
     }
   })
@@ -126,5 +131,56 @@ describe("REFERENCE_TABS", () => {
     expect(REFERENCE_TABS).toContain("Programmatic")
     expect(REFERENCE_TABS).toContain("Interactive_Assets")
     expect(REFERENCE_TABS).toContain("Sources")
+  })
+})
+
+
+describe("describeStrategyStatus", () => {
+  it("maps workbook strategy codes to plain English", () => {
+    expect(describeStrategyStatus("Existing -> expand")).toBe("Live — worth expanding")
+    expect(describeStrategyStatus("New")).toBe("Not started")
+    expect(describeStrategyStatus("Existing")).toBe("Live")
+  })
+
+  it("never returns an arrow-formatted code for mapped values", () => {
+    for (const code of ["Existing -> expand", "Existing -> tighten", "New", "Existing"]) {
+      expect(describeStrategyStatus(code)).not.toContain("->")
+    }
+  })
+})
+
+describe("uniqueOpportunityRows", () => {
+  it("deduplicates candidates by URL across overlapping sheets", () => {
+    const rows = [
+      makeRow({ id: "a", tab: "Master_Matrix", workflowStatus: "planned", url: "/ai/foo" }),
+      makeRow({ id: "b", tab: "Topic_Graph", workflowStatus: "planned", url: "/ai/foo" }),
+      makeRow({ id: "c", tab: "Topic_Graph", workflowStatus: "planned", url: "/ai/bar" }),
+    ]
+    expect(uniqueOpportunityRows(rows)).toHaveLength(2)
+  })
+})
+
+describe("computeDashboardCounts canonical sources", () => {
+  it("counts live content only from Existing_Content rows", () => {
+    const counts = computeDashboardCounts({
+      contentRows: [
+        makeRow({ id: "1", tab: "Existing_Content", workflowStatus: "live" }),
+        makeRow({ id: "2", tab: "Master_Matrix", workflowStatus: "planned" }),
+      ],
+      opportunityRows: [],
+    })
+    expect(counts.liveTracked).toBe(1)
+  })
+
+  it("counts opportunities once per unique URL from the opportunity source", () => {
+    const counts = computeDashboardCounts({
+      contentRows: [],
+      opportunityRows: [
+        makeRow({ id: "a", tab: "Master_Matrix", workflowStatus: "planned", url: "/x/one" }),
+        makeRow({ id: "b", tab: "Topic_Graph", workflowStatus: "planned", url: "/x/one" }),
+        makeRow({ id: "c", tab: "Topic_Graph", workflowStatus: "planned", url: "/x/two" }),
+      ],
+    })
+    expect(counts.opportunities).toBe(2)
   })
 })

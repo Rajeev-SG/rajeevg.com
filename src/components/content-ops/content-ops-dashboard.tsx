@@ -5,7 +5,7 @@ import { BookOpenText, CircleAlert, Hammer, Lightbulb } from "lucide-react"
 import { ContentDataTable } from "@/components/content-ops/content-data-table"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { PRIMARY_TABS, computeDashboardCounts } from "@/lib/content-ops/ia"
+import { PRIMARY_TABS, computeDashboardCounts, describeStrategyStatus, describeWorkflowStatus, uniqueOpportunityRows } from "@/lib/content-ops/ia"
 import type { ContentOpsCapabilities, ContentOpsRow } from "@/lib/content-ops/types"
 
 type ProviderOption = {
@@ -42,19 +42,26 @@ type ContentOpsDashboardProps = {
   analytics?: AnalyticsSummary
 }
 
-const PRIMARY_TAB_IDS = PRIMARY_TABS.map((tab) => tab.id)
+const PRIMARY_TAB_IDS = PRIMARY_TABS.filter((tab) => tab.id !== "reference").map((tab) => tab.id)
 
 export function ContentOpsDashboard({ tabs, providerOptions, capabilities, analytics }: ContentOpsDashboardProps) {
-  const allRows = Object.values(tabs).flat()
-  const counts = computeDashboardCounts(allRows)
   const liveRows = tabs.Existing_Content ?? []
-  const ideaRows = [...(tabs.Master_Matrix ?? []), ...(tabs.Topic_Graph ?? [])]
+  const opportunityRows = [...(tabs.Master_Matrix ?? []), ...(tabs.Topic_Graph ?? [])].filter(
+    (row) => row.kind === "idea" || row.tab === "Master_Matrix" || row.tab === "Topic_Graph"
+  )
+  const counts = computeDashboardCounts({ contentRows: liveRows, opportunityRows })
   const draftRows = [...(tabs.Title_Decisions ?? [])]
+  const uniqueOpportunities = uniqueOpportunityRows(
+    opportunityRows.filter((row) =>
+      row.workflowStatus === "planned" || row.workflowStatus === "research_ready" || row.workflowStatus === "queued"
+    )
+  )
 
   return (
+    <>
     <Tabs defaultValue="overview" className="space-y-6">
       <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-xl border bg-background p-1.5">
-        {PRIMARY_TABS.map((tab) => (
+        {PRIMARY_TABS.filter((tab) => tab.id !== "reference").map((tab) => (
           <TabsTrigger key={tab.id} value={tab.id} className="rounded-lg px-3 py-2">
             {tab.label}
           </TabsTrigger>
@@ -87,7 +94,7 @@ export function ContentOpsDashboard({ tabs, providerOptions, capabilities, analy
               <CardTitle className="text-3xl">{counts.opportunities}</CardTitle>
             </CardHeader>
             <CardContent className="text-sm text-muted-foreground">
-              Ideas worth a second look, from research and planning.
+              Unique candidate pages from planning, counted once each.
             </CardContent>
           </Card>
           <Card>
@@ -197,7 +204,7 @@ export function ContentOpsDashboard({ tabs, providerOptions, capabilities, analy
           </CardHeader>
           <CardContent>
             <ContentDataTable
-              rows={ideaRows}
+              rows={uniqueOpportunities}
               providerOptions={providerOptions}
               capabilities={capabilities}
             />
@@ -296,17 +303,15 @@ export function ContentOpsDashboard({ tabs, providerOptions, capabilities, analy
         </Card>
       </TabsContent>
 
-      {/* ── Reference data ───────────────────────────────────── */}
-      <TabsContent value="reference" className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Reference data</CardTitle>
-            <CardDescription>
-              The original planning workbook, kept for history. Nothing here is needed for day-to-day decisions, but
-              nothing has been deleted either.
-            </CardDescription>
-          </CardHeader>
-        </Card>
+    </Tabs>
+
+    {/* Secondary, archival access to the original workbook. Kept out of the
+        primary tab bar so day-to-day work never trips over planning history. */}
+    <details className="rounded-xl border bg-muted/30">
+      <summary className="cursor-pointer px-4 py-3 text-sm text-muted-foreground">
+        Reference data (original planning workbook)
+      </summary>
+      <div className="space-y-4 px-4 pb-4">
         {(["Master_Matrix", "Title_Decisions", "Topic_Graph", "Programmatic", "Interactive_Assets", "Sources"] as const).map(
           (tab) => (
             <Card key={tab}>
@@ -324,7 +329,8 @@ export function ContentOpsDashboard({ tabs, providerOptions, capabilities, analy
             </Card>
           )
         )}
-      </TabsContent>
-    </Tabs>
+      </div>
+    </details>
+    </>
   )
 }

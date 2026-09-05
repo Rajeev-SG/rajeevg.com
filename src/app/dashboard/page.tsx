@@ -39,7 +39,7 @@ export default async function DashboardPage() {
         <p className="text-sm uppercase tracking-[0.22em] text-muted-foreground">Content</p>
         <h1 className="text-3xl font-semibold tracking-tight">Content overview</h1>
         <p className="max-w-3xl text-muted-foreground">
-          What&apos;s live, what&apos;s next, and what&apos;s quietly aging — one page, no spreadsheet archaeology.
+          What&apos;s live, what&apos;s next, and where search performance is moving — one page, no spreadsheet archaeology.
         </p>
       </div>
 
