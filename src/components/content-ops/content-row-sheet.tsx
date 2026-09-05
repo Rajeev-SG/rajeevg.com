@@ -127,7 +127,7 @@ export function ContentRowSheet({ row, providerOptions, capabilities }: ContentR
                   className="mt-3 inline-flex items-center gap-2 text-sm text-sky-600 hover:underline"
                 >
                   <Link2 className="size-4" />
-                  Open destination
+                  Open page
                 </Link>
               ) : null}
             </div>
@@ -146,7 +146,7 @@ export function ContentRowSheet({ row, providerOptions, capabilities }: ContentR
               {row.metrics.impressions !== undefined ? (
                 <div className="rounded-xl border p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                    Impressions
+                    Search impressions
                   </p>
                   <p className="mt-2 text-2xl font-semibold">{row.metrics.impressions}</p>
                 </div>
@@ -170,7 +170,7 @@ export function ContentRowSheet({ row, providerOptions, capabilities }: ContentR
               {row.metrics.averagePosition !== undefined ? (
                 <div className="rounded-xl border p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                    Avg position
+                    Average search position
                   </p>
                   <p className="mt-2 text-2xl font-semibold">{row.metrics.averagePosition.toFixed(1)}</p>
                 </div>
@@ -186,7 +186,7 @@ export function ContentRowSheet({ row, providerOptions, capabilities }: ContentR
                     Actions
                   </p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Research, queueing, editor access, SEO review, and release tracking all start here.
+                    Every action here tells you what it does before you click it.
                   </p>
                 </div>
                 {pending ? <Loader2 className="size-4 animate-spin text-muted-foreground" /> : null}
@@ -203,7 +203,7 @@ export function ContentRowSheet({ row, providerOptions, capabilities }: ContentR
                   }
                 >
                   <Sparkles className="mr-2 size-4" />
-                  Generate research pack
+                  Check current context
                 </Button>
                 <Button
                   size="sm"

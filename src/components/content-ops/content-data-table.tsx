@@ -14,6 +14,7 @@ import {
 import { ArrowUpDown, Columns3 } from "lucide-react"
 
 import { ContentRowSheet } from "@/components/content-ops/content-row-sheet"
+import { describeStrategyStatus, describeWorkflowStatus } from "@/lib/content-ops/ia"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -37,6 +38,8 @@ type ContentDataTableProps = {
   rows: ContentOpsRow[]
   providerOptions: ProviderOption[]
   capabilities: ContentOpsCapabilities
+  /** Compact mode hides low-value columns and suits embedded/reference views. */
+  compact?: boolean
 }
 
 const DEFAULT_COLUMN_VISIBILITY = {
@@ -44,11 +47,21 @@ const DEFAULT_COLUMN_VISIBILITY = {
   sourceType: false,
 }
 
-export function ContentDataTable({ rows, providerOptions, capabilities }: ContentDataTableProps) {
+const COMPACT_COLUMN_VISIBILITY = {
+  notes: false,
+  sourceType: false,
+  pillar: false,
+  cluster: false,
+  format: false,
+  impact: false,
+}
+
+export function ContentDataTable({ rows, providerOptions, capabilities, compact = false }: ContentDataTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [globalFilter, setGlobalFilter] = React.useState("")
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<Record<string, boolean>>(DEFAULT_COLUMN_VISIBILITY)
+  const [columnVisibility, setColumnVisibility] = React.useState<Record<string, boolean>>(
+    compact ? COMPACT_COLUMN_VISIBILITY : DEFAULT_COLUMN_VISIBILITY
+  )
 
   const columns = React.useMemo<ColumnDef<ContentOpsRow>[]>(
     () => [
@@ -61,11 +74,13 @@ export function ContentDataTable({ rows, providerOptions, capabilities }: Conten
       },
       {
         accessorKey: "workflowStatus",
-        header: "Workflow",
+        header: "State",
+        cell: ({ row }) => describeWorkflowStatus(row.original.workflowStatus),
       },
       {
         accessorKey: "status",
-        header: "Status",
+        header: "Strategy",
+        cell: ({ row }) => describeStrategyStatus(row.original.status),
       },
       {
         accessorKey: "pageClass",
@@ -169,7 +184,29 @@ export function ContentDataTable({ rows, providerOptions, capabilities }: Conten
         </div>
       </div>
 
-      <div className="rounded-xl border">
+      {/* Mobile: card list — no sideways scrolling, essential fields only */}
+      <div className="space-y-2 md:hidden">
+        {table.getRowModel().rows.length ? (
+          table.getRowModel().rows.map((row) => {
+            const r = row.original
+            return (
+              <div key={row.id} className="rounded-xl border p-3">
+                <ContentRowSheet row={r} providerOptions={providerOptions} capabilities={capabilities} />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {describeWorkflowStatus(r.workflowStatus)}
+                  {r.priority ? ` · ${r.priority}` : ""}
+                  {r.metrics?.impressions !== undefined ? ` · ${r.metrics.impressions.toLocaleString()} impressions` : ""}
+                </p>
+              </div>
+            )
+          })
+        ) : (
+          <p className="py-6 text-center text-sm text-muted-foreground">No rows match this view.</p>
+        )}
+      </div>
+
+      {/* Desktop: full table */}
+      <div className="hidden overflow-x-auto rounded-xl border md:block">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -214,7 +251,7 @@ export function ContentDataTable({ rows, providerOptions, capabilities }: Conten
         </Table>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="hidden items-center justify-between md:flex">
         <p className="text-sm text-muted-foreground">
           Showing {table.getRowModel().rows.length} of {rows.length} rows
         </p>
