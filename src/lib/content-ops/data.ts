@@ -169,7 +169,7 @@ async function getAnalyticsMetrics(): Promise<Record<string, ContentOpsMetrics>>
       getGa4SiteAnalyticsDashboard(),
       getSearchConsoleMetricsByPage(),
     ])
-    const byPath = new Map(
+    const byPath = new Map<string, ContentOpsMetrics>(
       [...dashboard.topContent, ...dashboard.topBlogPosts].map((row) => [
         row.pagePath,
         {
@@ -181,10 +181,9 @@ async function getAnalyticsMetrics(): Promise<Record<string, ContentOpsMetrics>>
     )
 
     for (const [pagePath, metrics] of Object.entries(searchConsoleByPage)) {
-      byPath.set(pagePath, {
-        ...(byPath.get(pagePath) || {}),
-        ...metrics,
-      })
+      const existing = byPath.get(pagePath)
+      const merged: ContentOpsMetrics = { ...(existing || {}), ...metrics }
+      byPath.set(pagePath, merged)
     }
 
     return Object.fromEntries(byPath.entries())
