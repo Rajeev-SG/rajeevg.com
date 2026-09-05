@@ -1,11 +1,11 @@
 "use client"
 
-import { BarChart3, BookOpenText, Layers3, Workflow } from "lucide-react"
+import { BookOpenText, CircleAlert, Hammer, Lightbulb } from "lucide-react"
 
 import { ContentDataTable } from "@/components/content-ops/content-data-table"
-import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { PRIMARY_TABS, computeDashboardCounts } from "@/lib/content-ops/ia"
 import type { ContentOpsCapabilities, ContentOpsRow } from "@/lib/content-ops/types"
 
 type ProviderOption = {
@@ -23,144 +23,162 @@ type DashboardSummary = {
   interactiveAssets: number
 }
 
+type AnalyticsSummary = {
+  dataSource: "live" | "fallback"
+  historicalWindow: string
+  screenPageViews: number
+  sessions: number
+  activeUsers: number
+  topPages: { path: string; views: number }[]
+  topSearchPages: { path: string; clicks: number; impressions: number }[]
+  searchAvailable: boolean
+}
+
 type ContentOpsDashboardProps = {
   tabs: Record<string, ContentOpsRow[]>
   summary: DashboardSummary
   providerOptions: ProviderOption[]
   capabilities: ContentOpsCapabilities
+  analytics?: AnalyticsSummary
 }
 
-export function ContentOpsDashboard({ tabs, summary, providerOptions, capabilities }: ContentOpsDashboardProps) {
-  const orderedTabs = [
-    "Dashboard",
-    "Master_Matrix",
-    "Existing_Content",
-    "Title_Decisions",
-    "Topic_Graph",
-    "Programmatic",
-    "Interactive_Assets",
-    "Sources",
-  ]
+const PRIMARY_TAB_IDS = PRIMARY_TABS.map((tab) => tab.id)
+
+export function ContentOpsDashboard({ tabs, providerOptions, capabilities, analytics }: ContentOpsDashboardProps) {
+  const allRows = Object.values(tabs).flat()
+  const counts = computeDashboardCounts(allRows)
+  const liveRows = tabs.Existing_Content ?? []
+  const ideaRows = [...(tabs.Master_Matrix ?? []), ...(tabs.Topic_Graph ?? [])]
+  const draftRows = [...(tabs.Title_Decisions ?? [])]
 
   return (
-    <Tabs defaultValue="Dashboard" className="space-y-6">
-      <TabsList className="flex h-auto w-full flex-wrap justify-start gap-2 rounded-xl border bg-background p-2">
-        {orderedTabs.map((tab) => (
-          <TabsTrigger key={tab} value={tab} className="rounded-lg px-3 py-2">
-            {tab.replaceAll("_", " ")}
+    <Tabs defaultValue="overview" className="space-y-6">
+      <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-xl border bg-background p-1.5">
+        {PRIMARY_TABS.map((tab) => (
+          <TabsTrigger key={tab.id} value={tab.id} className="rounded-lg px-3 py-2">
+            {tab.label}
           </TabsTrigger>
         ))}
       </TabsList>
 
-      <TabsContent value="Dashboard" className="space-y-6">
-        {capabilities.deploymentMode === "hosted" ? (
-          <Card className="border-amber-500/40 bg-amber-500/5">
-            <CardHeader>
-              <CardTitle className="text-lg">Hosted preview mode</CardTitle>
-              <CardDescription>
-                {capabilities.reason}
+      {/* ── Overview ─────────────────────────────────────────── */}
+      <TabsContent value="overview" className="space-y-6">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardDescription className="flex items-center gap-2">
+                <CircleAlert className="size-4 text-amber-500" />
+                Needs attention
               </CardDescription>
-            </CardHeader>
-          </Card>
-        ) : null}
-
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardDescription>Strategy database</CardDescription>
-              <CardTitle className="flex items-center gap-2 text-2xl">
-                <Layers3 className="size-5 text-sky-500" />
-                {summary.totalStrategyAssets}
-              </CardTitle>
+              <CardTitle className="text-3xl">{counts.needsAttention}</CardTitle>
             </CardHeader>
             <CardContent className="text-sm text-muted-foreground">
-              Seeded from the workbook, then expanded with current-site content and queued derivatives.
+              {counts.needsAttention === 0
+                ? "Nothing blocked or waiting on review."
+                : "Blocked, in review, or waiting on a PR."}
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-3">
-              <CardDescription>Tracked live content</CardDescription>
-              <CardTitle className="flex items-center gap-2 text-2xl">
-                <BookOpenText className="size-5 text-emerald-500" />
-                {summary.liveAssets}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm text-muted-foreground">
-              Existing posts, glossary nodes, hubs, dashboards, and proof routes already mapped into the new system.
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardDescription>Queued opportunities</CardDescription>
-              <CardTitle className="flex items-center gap-2 text-2xl">
-                <Workflow className="size-5 text-amber-500" />
-                {summary.queuedIdeas}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm text-muted-foreground">
-              Derived ideas waiting for research, drafting, or approval inside the CMS workflow.
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardDescription>Interactive and glossary assets</CardDescription>
-              <CardTitle className="flex items-center gap-2 text-2xl">
-                <BarChart3 className="size-5 text-violet-500" />
-                {summary.interactiveAssets + summary.glossaryNodes}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm text-muted-foreground">
-              Bounded pSEO-safe concept nodes plus live proof dashboards and interactive routes.
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="grid gap-4 lg:grid-cols-[1.3fr_0.7fr]">
-          <Card>
-            <CardHeader>
-              <CardTitle>How this content OS is organised</CardTitle>
-              <CardDescription>
-                The workbook stays the strategic seed, while the repo inventory and workflow state turn it into an operational system.
+              <CardDescription className="flex items-center gap-2">
+                <Lightbulb className="size-4 text-sky-500" />
+                Active opportunities
               </CardDescription>
+              <CardTitle className="text-3xl">{counts.opportunities}</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 text-sm text-muted-foreground">
-              <p>
-                The public site now works as a graph: hubs route readers into flagships, proof pages, playbooks, dashboards, and glossary nodes.
-              </p>
-              <p>
-                The dashboard mirrors the spreadsheet tabs, but each row can now move through a workflow, carry a research pack, open into the editor, and later connect to GitHub or deploy status.
-              </p>
-              <p>
-                Existing content is not treated as legacy debris. Every live article and dashboard is classified, linked upward into a pillar, and linked sideways into its next best proof or action.
-              </p>
+            <CardContent className="text-sm text-muted-foreground">
+              Ideas worth a second look, from research and planning.
             </CardContent>
           </Card>
           <Card>
-            <CardHeader>
-              <CardTitle>Research providers</CardTitle>
-              <CardDescription>Adapters are configured once and exposed everywhere the row sheet or editor needs research context.</CardDescription>
+            <CardHeader className="pb-3">
+              <CardDescription className="flex items-center gap-2">
+                <BookOpenText className="size-4 text-emerald-500" />
+                Live content tracked
+              </CardDescription>
+              <CardTitle className="text-3xl">{counts.liveTracked}</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
-              {providerOptions.map((provider) => (
-                <div key={provider.provider} className="flex items-center justify-between rounded-lg border px-3 py-2">
-                  <span className="text-sm">{provider.label}</span>
-                  <Badge variant={provider.configured ? "default" : "outline"}>
-                    {provider.configured ? "Configured" : "Fallback"}
-                  </Badge>
-                </div>
-              ))}
+            <CardContent className="text-sm text-muted-foreground">
+              Posts, hubs, and proof pages already published and monitored.
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-3">
+              <CardDescription className="flex items-center gap-2">
+                <Hammer className="size-4 text-violet-500" />
+                In progress
+              </CardDescription>
+              <CardTitle className="text-3xl">{counts.inFlight}</CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm text-muted-foreground">
+              Approved or actively being written right now.
             </CardContent>
           </Card>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Priority working set</CardTitle>
-            <CardDescription>Start here to move existing proof into a cleaner content graph.</CardDescription>
+            <CardTitle>What changed recently</CardTitle>
+            <CardDescription>
+              {analytics?.dataSource === "live"
+                ? `Traffic and search numbers cover ${analytics.historicalWindow.toLowerCase()}.`
+                : "Traffic data is unavailable right now — the numbers below will fill in once the reporting API responds."}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-4 text-sm sm:grid-cols-2">
+            <div>
+              <p className="font-medium">Site traffic</p>
+              <p className="text-muted-foreground">
+                {analytics?.dataSource === "live"
+                  ? `${analytics.screenPageViews.toLocaleString()} page views · ${analytics.sessions.toLocaleString()} sessions`
+                  : "No GA4 data available in this view yet."}
+              </p>
+            </div>
+            <div>
+              <p className="font-medium">Search visibility</p>
+              <p className="text-muted-foreground">
+                {analytics?.searchAvailable
+                  ? `${analytics.topSearchPages.reduce((sum, p) => sum + p.impressions, 0).toLocaleString()} impressions across tracked pages`
+                  : "Search Console data will appear here once the first sync completes."}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Needs attention</CardTitle>
+            <CardDescription>Work that is blocked, waiting on review, or sitting in a PR.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {counts.needsAttention === 0 ? (
+              <p className="text-sm text-muted-foreground">Nothing is stuck. The next review cycle is clear.</p>
+            ) : (
+              <ContentDataTable
+                rows={tabs.Existing_Content?.filter((row) =>
+                  ["blocked", "review", "pr_open"].includes(row.workflowStatus)
+                ) ?? []}
+                providerOptions={providerOptions}
+                capabilities={capabilities}
+                compact
+              />
+            )}
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      {/* ── Content ──────────────────────────────────────────── */}
+      <TabsContent value="content" className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Live content</CardTitle>
+            <CardDescription>
+              Everything published and tracked, with search performance where we have it.
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <ContentDataTable
-              rows={tabs.Existing_Content.slice(0, 12)}
+              rows={liveRows}
               providerOptions={providerOptions}
               capabilities={capabilities}
             />
@@ -168,29 +186,145 @@ export function ContentOpsDashboard({ tabs, summary, providerOptions, capabiliti
         </Card>
       </TabsContent>
 
-      {orderedTabs
-        .filter((tab) => tab !== "Dashboard")
-        .map((tab) => (
-          <TabsContent key={tab} value={tab}>
-            <Card>
+      {/* ── Opportunities ────────────────────────────────────── */}
+      <TabsContent value="opportunities" className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Ideas worth a second look</CardTitle>
+            <CardDescription>
+              Candidate pages and angles from planning, ranked by potential impact. Nothing here is published yet.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ContentDataTable
+              rows={ideaRows}
+              providerOptions={providerOptions}
+              capabilities={capabilities}
+            />
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      {/* ── Drafts ───────────────────────────────────────────── */}
+      <TabsContent value="drafts" className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Drafts and working decisions</CardTitle>
+            <CardDescription>
+              Titles, angles, and half-built drafts that have not shipped. Work in the open, share when it&apos;s ready.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ContentDataTable
+              rows={draftRows}
+              providerOptions={providerOptions}
+              capabilities={capabilities}
+            />
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      {/* ── Analytics ────────────────────────────────────────── */}
+      <TabsContent value="analytics" className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Traffic and search, at a glance</CardTitle>
+            <CardDescription>
+              {analytics?.dataSource === "live"
+                ? `Live from GA4 and Search Console, ${analytics.historicalWindow.toLowerCase()}.`
+                : "The reporting API has not responded yet. Zeros here mean unavailable, not quiet."}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div className="rounded-xl border p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">Page views</p>
+                <p className="mt-2 text-2xl font-semibold">
+                  {analytics?.dataSource === "live" ? analytics.screenPageViews.toLocaleString() : "—"}
+                </p>
+              </div>
+              <div className="rounded-xl border p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">Sessions</p>
+                <p className="mt-2 text-2xl font-semibold">
+                  {analytics?.dataSource === "live" ? analytics.sessions.toLocaleString() : "—"}
+                </p>
+              </div>
+              <div className="rounded-xl border p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">Active users</p>
+                <p className="mt-2 text-2xl font-semibold">
+                  {analytics?.dataSource === "live" ? analytics.activeUsers.toLocaleString() : "—"}
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <p className="mb-2 text-sm font-medium">Most viewed pages</p>
+              {analytics?.dataSource === "live" && analytics.topPages.length > 0 ? (
+                <ul className="space-y-1 text-sm">
+                  {analytics.topPages.slice(0, 5).map((page) => (
+                    <li key={page.path} className="flex justify-between rounded-lg border px-3 py-2">
+                      <span className="font-mono text-xs">{page.path}</span>
+                      <span className="text-muted-foreground">{page.views.toLocaleString()} views</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-muted-foreground">No page data available yet.</p>
+              )}
+            </div>
+
+            <div>
+              <p className="mb-2 text-sm font-medium">Search Console — top pages</p>
+              {analytics?.searchAvailable && analytics.topSearchPages.length > 0 ? (
+                <ul className="space-y-1 text-sm">
+                  {analytics.topSearchPages.slice(0, 5).map((page) => (
+                    <li key={page.path} className="flex justify-between rounded-lg border px-3 py-2">
+                      <span className="font-mono text-xs">{page.path}</span>
+                      <span className="text-muted-foreground">
+                        {page.clicks.toLocaleString()} clicks · {page.impressions.toLocaleString()} impressions
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Search Console data lands here after the first successful pull.
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      {/* ── Reference data ───────────────────────────────────── */}
+      <TabsContent value="reference" className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Reference data</CardTitle>
+            <CardDescription>
+              The original planning workbook, kept for history. Nothing here is needed for day-to-day decisions, but
+              nothing has been deleted either.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+        {(["Master_Matrix", "Title_Decisions", "Topic_Graph", "Programmatic", "Interactive_Assets", "Sources"] as const).map(
+          (tab) => (
+            <Card key={tab}>
               <CardHeader>
-                <CardTitle>{tab.replaceAll("_", " ")}</CardTitle>
-                <CardDescription>
-                  {tab === "Existing_Content"
-                    ? "Live posts, dashboards, hubs, glossary nodes, and queued derived ideas layered on top of the workbook."
-                    : "Strategy rows rendered as an operational table with filtering, sorting, row detail, and workflow actions where available."}
-                </CardDescription>
+                <CardTitle className="text-base">{tab.replaceAll("_", " ")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ContentDataTable
                   rows={tabs[tab] || []}
                   providerOptions={providerOptions}
                   capabilities={capabilities}
+                  compact
                 />
               </CardContent>
             </Card>
-          </TabsContent>
-        ))}
+          )
+        )}
+      </TabsContent>
     </Tabs>
   )
 }

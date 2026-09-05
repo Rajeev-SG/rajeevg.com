@@ -37,6 +37,8 @@ type ContentDataTableProps = {
   rows: ContentOpsRow[]
   providerOptions: ProviderOption[]
   capabilities: ContentOpsCapabilities
+  /** Compact mode hides low-value columns and suits embedded/reference views. */
+  compact?: boolean
 }
 
 const DEFAULT_COLUMN_VISIBILITY = {
@@ -44,11 +46,21 @@ const DEFAULT_COLUMN_VISIBILITY = {
   sourceType: false,
 }
 
-export function ContentDataTable({ rows, providerOptions, capabilities }: ContentDataTableProps) {
+const COMPACT_COLUMN_VISIBILITY = {
+  notes: false,
+  sourceType: false,
+  pillar: false,
+  cluster: false,
+  format: false,
+  impact: false,
+}
+
+export function ContentDataTable({ rows, providerOptions, capabilities, compact = false }: ContentDataTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [globalFilter, setGlobalFilter] = React.useState("")
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<Record<string, boolean>>(DEFAULT_COLUMN_VISIBILITY)
+  const [columnVisibility, setColumnVisibility] = React.useState<Record<string, boolean>>(
+    compact ? COMPACT_COLUMN_VISIBILITY : DEFAULT_COLUMN_VISIBILITY
+  )
 
   const columns = React.useMemo<ColumnDef<ContentOpsRow>[]>(
     () => [
