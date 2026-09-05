@@ -17,7 +17,9 @@
     "D02": "queued",
     "D03": "queued",
     "D04": "queued",
-    "D05": "queued"
+    "D05": "queued",
+    "E09": "live",
+    "E10": "live"
   },
   "derived": {},
   "researchPacks": {},
