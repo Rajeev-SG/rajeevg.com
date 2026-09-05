@@ -1,5 +1,7 @@
 import "server-only"
 
+import { readFileSync } from "node:fs"
+
 import { google } from "googleapis"
 
 import type { ContentOpsMetrics } from "@/lib/content-ops/types"
@@ -66,6 +68,28 @@ export function resolveSearchConsoleCredentials(): {
   if (inlineJson) {
     try {
       const parsed = JSON.parse(inlineJson) as { client_email?: string; private_key?: string }
+      if (parsed.client_email && parsed.private_key) {
+        return {
+          clientEmail: parsed.client_email,
+          privateKey: parsed.private_key.replace(/\\n/g, "\n"),
+          source: "ga4",
+        }
+      }
+    } catch {
+      return null
+    }
+  }
+
+  // Local/dev parity: a key-file path works the same way the GA4 loader accepts one.
+  const keyPath =
+    process.env.GA4_SERVICE_ACCOUNT_PATH?.trim() ||
+    process.env.GOOGLE_APPLICATION_CREDENTIALS?.trim()
+  if (keyPath) {
+    try {
+      const parsed = JSON.parse(readFileSync(keyPath, "utf8")) as {
+        client_email?: string
+        private_key?: string
+      }
       if (parsed.client_email && parsed.private_key) {
         return {
           clientEmail: parsed.client_email,

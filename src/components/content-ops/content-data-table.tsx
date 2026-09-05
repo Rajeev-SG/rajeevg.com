@@ -181,7 +181,7 @@ export function ContentDataTable({ rows, providerOptions, capabilities, compact 
         </div>
       </div>
 
-      <div className="rounded-xl border">
+      <div className="overflow-x-auto rounded-xl border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
