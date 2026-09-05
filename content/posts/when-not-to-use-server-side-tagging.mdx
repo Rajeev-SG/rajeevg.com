@@ -1,15 +1,13 @@
 ---
-title: When Not To Use Server-Side Tagging
+title: "Server-Side Tagging: When It's Worth It and When It Isn't"
 slug: when-not-to-use-server-side-tagging
 date: 2026-04-01
-updated: 2026-04-01
-description: A real Cloud Run cost autopsy from rajeevg.com, with concrete guidance on when server-side tagging is overkill and when same-origin server-side tagging is actually worth the extra cost and complexity.
+updated: 2026-09-05
+description: "Should you run server-side tagging? A real Cloud Run cost autopsy from rajeevg.com plus a plain decision framework: when same-origin sGTM pays for itself, and when client-side GTM is the better call."
 tags: [analytics, ga4, gtm, server-side tagging, cloud run, measurement, cloud cost]
 draft: false
 image: /images/blog/when-not-to-use-server-side-tagging/cloud-run-billing-cost-table-viewport.png
 ---
-
-> **Canonical update (2026-08-29)**: This article is a field note. The current consolidated story is [Agentic data collection and warehousing](/blog/agentic-data-collection-and-warehousing).
 
 <div className="flex flex-wrap gap-2">
   <span className="inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium">GA4</span>
@@ -26,6 +24,16 @@ Server-side tagging is not snake oil, and it is not automatically a bad idea. Bu
 > When does the extra control and first-party context justify the fixed infrastructure cost and operational drag?
 
 For this site, the answer was "not yet."
+
+## The short answer
+
+Most small content sites should **stay client-side only**. Server-side tagging starts making sense when at least one of these is true:
+
+- paid media is a real, ongoing channel and the warm runtime cost would be trivial next to it,
+- Safari and iOS together make up a large share of your audience (roughly above 20% combined), or
+- you need server-only control: secret-backed routing, event filtering, PII scrubbing, or fan-out to multiple vendors.
+
+Below is the full decision framework and the real billing data behind it. The cost autopsy comes from my own Cloud Run deployment on this site — what it actually cost, why it was mostly fixed charges, and why I shut it down.
 
 ## The bill, in plain English
 
@@ -143,7 +151,7 @@ That last line is the big one.
 
 If a site is not spending meaningfully on paid acquisition, server-side tagging has less opportunity to pay for itself. It may still be useful for data governance, server-only enrichment, or multi-destination routing, but the classic "recover more attributable conversions" case is much weaker when there is little or no paid media to improve.
 
-## Why I would not use server-side tagging here
+## Why I would not use server-side tagging here (rajeevg.com case study)
 
 For `rajeevg.com` specifically, four signals all pointed in the same direction.
 
@@ -237,6 +245,12 @@ It feels bad when:
 - the fixed infra cost is more noticeable than the measurement upside
 
 That was the situation here, and the bill made it obvious.
+
+## Where to go next
+
+- [Agentic data collection and warehousing](/blog/agentic-data-collection-and-warehousing) — where my measurement stack went after the teardown
+- [How we built a consented first-party analytics stack](/blog/how-we-built-a-consented-first-party-analytics-stack) — the client-side GTM + consent setup I chose instead
+- [How we finished the GA4 property setup](/blog/how-we-finished-the-ga4-property-setup-on-rajeevg-com) — the property-side configuration that makes client-side data trustworthy
 
 ## Sources
 

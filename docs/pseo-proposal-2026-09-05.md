@@ -84,6 +84,14 @@ Scale only if the pilot shows, after 8 weeks, that at least 2 of 3 pages moved �
 - **Watch:** "Crawled – currently not indexed" count (currently 2) must not grow as new pages ship.
 - **Instrumentation:** quarterly GSC pull using the same API path; store aggregates in the content-ops dashboard (GSC metrics are now wired into `/dashboard` via the merged gh-103 integration).
 
+## Pilot implementation record (2026-09-05)
+
+- Item A (SST rewrite): retitled "Server-Side Tagging: When It's Worth It and When It Isn't"; answer-first short answer; cost autopsy retained as evidence; internal links to agentic-data-collection and consent-stack articles.
+- Item B (playbook): published `/blog/codex-subagent-cost-control` — decision matrix, measured/estimate/recommendation separation, links to the three source posts.
+- Item C (AI pilots): answer-first short answer added; internal links to the multi-agent journey, projects-behind-this-portfolio, and /solutions.
+- Baseline (from the 90-day GSC window ending 2026-09-04): SST page 127 imp / 0 clicks / pos 63.9; from-ai-pilots 168 imp / 0 clicks / pos 12.1; qwen post 449 imp / 25 clicks / pos 7.4; GLM post 123 imp / 7 clicks / pos 6.0.
+- Evaluation: weeks 4 and 8 checkpoints on position/impressions for the three pilot URLs, tracked through the dashboard Analytics view; kill criteria per the section above.
+
 ## Prerequisites flagged
 
 - Normalize `www.rajeevg.com` → apex before publishing new URLs (currently ~15% of organic sessions split across hosts).

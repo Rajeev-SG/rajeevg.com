@@ -1,0 +1,73 @@
+---
+title: A Cost-Control Playbook for Codex Subagents
+slug: codex-subagent-cost-control
+date: 2026-09-05
+description: A decision playbook for running Codex subagents without token cost surprises — when to delegate, how to bound each worker, and how to measure what it actually cost. Built from three measured experiments on this site.
+tags: [ai, codex, agents, openrouter, cost, multi-agent, playbook]
+draft: false
+---
+
+<div className="flex flex-wrap gap-2">
+  <span className="inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium">Codex</span>
+  <span className="inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium">Subagents</span>
+  <span className="inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium">Cost control</span>
+  <span className="inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium">Playbook</span>
+</div>
+
+Subagent cost blowouts rarely come from one big mistake. They come from small unbounded loops: a worker that retries forever, a handoff that re-reads the whole repository, a "quick check" that quietly spins up its own sub-agent.
+
+This playbook is the decision guide I wish I had before running Codex subagents in production on my own site and tooling. It is grounded in three measured experiments, and it separates what I **measured**, what I **estimate**, and what I **recommend** — because those are three different things.
+
+## Who this is for
+
+You are running Codex (or a similar coding-agent platform) with delegated sub-agents, you have been surprised by a token bill at least once, and you want rules you can apply in an afternoon rather than a research project.
+
+## The decision matrix
+
+| Situation | My recommendation |
+| --- | --- |
+| Task is a single-file, single-concern edit | **Do not delegate.** A bounded main-agent turn is cheaper and easier to review. |
+| Task needs isolated context (long logs, big docs, unrelated repo areas) | **Delegate with a token budget and an exact deliverable.** |
+| Task requires browser/UI verification | **Delegate to a dedicated worker** with one persistent browser connection — not the main agent's session. |
+| Task is exploratory ("see what's in here") | **Cap the exploration time and output size before starting.** Unbounded exploration is the most common blowout I have seen. |
+| Several workers could run in parallel | Only parallelize **disjoint write scopes**. Shared-file fan-out costs more in coordination than it saves. |
+| A worker failed twice on the same step | **Stop and re-observe.** Do not let it retry a third time on an unchanged locator or assumption. |
+
+## What I measured
+
+These are the ground rules I now run with. Each one came from a real failure or a real fix, not from a pricing page.
+
+**1. One browser, one connection, one owner.** When my QA loop ran through a shared debugging endpoint, the connection dying mid-task took the whole verification chain with it. The fix that stuck: a single bounded controller owns the browser lease, workers get short transactions, and every transaction checkpoints before continuing. Details in [How I made Codex subagents measurable and recoverable](/blog/how-i-made-codex-subagents-measurable).
+
+**2. Bounded packets beat conversation dumps.** A worker that receives a budget and an exact next action costs a fraction of one that receives the whole conversation history. My current setup caps worker packets at roughly 8 items or 12k characters — small enough that a runaway worker is obvious before it is expensive.
+
+**3. Explicit queue states make recovery cheap.** Six states (planned → queued → in progress → review → done → failed) mean a failed worker can be resumed from a checkpoint instead of restarted from scratch. Restart-from-scratch is where the real token cost hides.
+
+**4. Model routing is a cost lever, but not a free one.** When I moved long GLM-5.3-Flash generations to a faster route, the generations got 63% faster — but the cost trade-off only made sense after I modelled it against a real day of agent traffic. The fast route was not automatically the cheap route. Numbers and reasoning in [I made GLM-5.3-Flash 63% faster](/blog/i-made-glm-5-3-flash-faster-but-kept-cheap-routing).
+
+**5. Local models shift cost, they do not remove it.** Running Qwen locally inside Codex on an Apple Silicon Mac eliminated per-token API cost for that worker — and added setup complexity, a context-breaking image bug, and a slower throughput ceiling. Worth it for high-volume, low-stakes subtasks. Not worth it for the main reasoning loop. Full account in [How I ran Qwen locally inside Codex](/blog/how-i-ran-qwen-locally-inside-codex).
+
+## What I estimate (take with appropriate salt)
+
+- A subagent that retries an unchanged failing action three times has typically burned more tokens than the original task itself. I do not have a controlled measurement for this, but it has matched my experience often enough that I now treat "two strikes, then re-observe" as a hard rule.
+- Warm-up costs (re-reading repo context after a restart) are the largest hidden expense in a multi-agent workflow, and they shrink dramatically when handoffs carry a compact checkpoint instead of "just look at the repo".
+
+## What I recommend
+
+1. **Give every worker a budget and an exact deliverable before it starts.** If you cannot state the deliverable in one sentence, the task is not ready to delegate.
+2. **Checkpoint before continuing, not after failing.** A checkpoint that exists only after an error is a restart, not a recovery.
+3. **Keep one browser/UI connection with a single owner.** Parallel browser automation across workers multiplies flakiness and cost.
+4. **Route by task, not by habit.** Fast cheap models for bounded mechanical work; the expensive reasoning loop for decisions. Measure the trade on your own traffic before committing.
+5. **Treat a subagent that cannot state its next action as finished.** End it, checkpoint, and re-plan. Silent wandering is the most expensive state a worker can be in.
+
+## The eight-week evaluation
+
+I am tracking four things against this playbook over an eight-week window on my own rig: total token cost per completed task, worker restart rate, median task duration, and the share of tasks needing human re-verification. The measurement baseline is recorded in my content dashboard's Analytics view. If the playbook is not holding up in practice, the update will say so.
+
+## Related reading
+
+- [How I made Codex subagents measurable and recoverable](/blog/how-i-made-codex-subagents-measurable) — the reliability and observability build
+- [I made GLM-5.3-Flash 63% faster](/blog/i-made-glm-5-3-flash-faster-but-kept-cheap-routing) — the routing trade-off, modelled
+- [How I ran Qwen locally inside Codex](/blog/how-i-ran-qwen-locally-inside-codex) — the local-model experiment
+- [How I stopped my cloud agents burning tokens](/blog/how-i-stopped-my-cloud-agents-burning-tokens) — the earlier quota-guard work
+- [The multi-agent journey](/blog/the-multi-agent-journey-what-survived-contact-with-reality) — the consolidated through-line
