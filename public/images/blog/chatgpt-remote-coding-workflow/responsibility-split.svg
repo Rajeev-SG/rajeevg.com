@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 760" role="img" aria-labelledby="title desc">
+  <title id="title">Controller plane and worker plane responsibility split</title>
+  <desc id="desc">The control plane contains the user, ChatGPT and GitHub. It owns intent, scope, issue state, review and merge. The worker plane contains Remote Desktop Commander, OMP and GLM. It owns repository inspection, implementation, validation, commits and pull request creation. A hard review boundary prevents the worker from merging its own work.</desc>
+  <defs>
+    <marker id="arr" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 z" fill="#475569"/></marker>
+    <style>
+      .title{font:700 34px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#0f172a}.sub{font:500 18px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#475569}.h{font:700 24px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#0f172a}.item{font:600 17px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#1e293b}.note{font:500 15px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#475569}.panel{rx:24;stroke-width:2.5}.arrow{fill:none;stroke:#475569;stroke-width:3;marker-end:url(#arr)}
+    </style>
+  </defs>
+  <rect width="1400" height="760" fill="#ffffff"/>
+  <text x="70" y="70" class="title">The useful boundary is authority, not intelligence</text>
+  <text x="70" y="106" class="sub">The controller decides what should happen. The worker proves the implementation. Neither owns the whole loop.</text>
+
+  <rect class="panel" x="70" y="170" width="570" height="455" fill="#eff6ff" stroke="#2563eb"/>
+  <text x="110" y="220" class="h">CONTROL PLANE</text>
+  <text x="110" y="250" class="note">ChatGPT + GitHub</text>
+
+  <rect x="110" y="295" width="485" height="64" rx="14" fill="#ffffff" stroke="#93c5fd" stroke-width="2"/>
+  <text x="135" y="334" class="item">1 · Understand the request and decide scope</text>
+  <rect x="110" y="375" width="485" height="64" rx="14" fill="#ffffff" stroke="#93c5fd" stroke-width="2"/>
+  <text x="135" y="414" class="item">2 · Create/update the GitHub issue</text>
+  <rect x="110" y="455" width="485" height="64" rx="14" fill="#ffffff" stroke="#93c5fd" stroke-width="2"/>
+  <text x="135" y="494" class="item">3 · Launch or resume the worker</text>
+  <rect x="110" y="535" width="485" height="64" rx="14" fill="#ffffff" stroke="#2563eb" stroke-width="2.5"/>
+  <text x="135" y="574" class="item">4 · Review evidence and decide whether to merge</text>
+
+  <rect class="panel" x="760" y="170" width="570" height="455" fill="#ecfdf5" stroke="#059669"/>
+  <text x="800" y="220" class="h">WORKER PLANE</text>
+  <text x="800" y="250" class="note">RDC bridge → OMP harness → GLM model</text>
+
+  <rect x="800" y="295" width="485" height="64" rx="14" fill="#ffffff" stroke="#6ee7b7" stroke-width="2"/>
+  <text x="825" y="334" class="item">1 · Read issue + repository context</text>
+  <rect x="800" y="375" width="485" height="64" rx="14" fill="#ffffff" stroke="#6ee7b7" stroke-width="2"/>
+  <text x="825" y="414" class="item">2 · Implement the bounded change</text>
+  <rect x="800" y="455" width="485" height="64" rx="14" fill="#ffffff" stroke="#6ee7b7" stroke-width="2"/>
+  <text x="825" y="494" class="item">3 · Validate, commit and push</text>
+  <rect x="800" y="535" width="485" height="64" rx="14" fill="#ffffff" stroke="#059669" stroke-width="2.5"/>
+  <text x="825" y="574" class="item">4 · Open the PR — never merge it</text>
+
+  <path class="arrow" d="M640 330 C690 300 715 300 760 330"/>
+  <text x="700" y="292" text-anchor="middle" class="note">contract</text>
+  <path class="arrow" d="M760 565 C710 595 685 595 640 565"/>
+  <text x="700" y="620" text-anchor="middle" class="note">diff + proof</text>
+
+  <line x1="700" y1="155" x2="700" y2="648" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="9 9"/>
+  <rect x="520" y="660" width="360" height="58" rx="16" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+  <text x="700" y="695" text-anchor="middle" class="item">REVIEW BOUNDARY · worker cannot self-merge</text>
+</svg>
