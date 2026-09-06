@@ -6,7 +6,7 @@
  * is explicitly exposed as ok / stale / error / pending.
  */
 import type { CanonicalModel, ParetoSnapshot, SourceFreshness, UnmatchedRecord } from "./types";
-import { aaFallback } from "./aa-fallback";
+import { aaFallback, getDurableAaSnapshot } from "./aa-fallback";
 import { fetchOpenRouterModels, mapOpenRouterModels } from "./openrouter";
 import { autoJoin, parseOrId } from "./auto-discover";
 import { mergeCanonicalModels } from "./normalise";
@@ -37,10 +37,13 @@ interface SnapshotOutcome {
 export async function buildParetoSnapshot(): Promise<SnapshotOutcome> {
   const errors: string[] = [];
   const now = new Date().toISOString();
-  // AA is refreshed only by the serialized daily workflow. Page views and
-  // serverless cold starts consume zero AA quota.
+  // AA data comes from the durable Blob snapshot written by the serialized
+  // refresh workflow; the bundled JSON is the last-known-good fallback. Page
+  // views and serverless cold starts consume zero AA quota.
+  const durableAa = await getDurableAaSnapshot();
+  const aaSource = durableAa ?? aaFallback;
   const aaMatched = new Map<string, Partial<CanonicalModel>>(
-    aaFallback.models
+    aaSource.models
       .filter((model) => model.aa.intelligenceIndex != null || model.aa.codingIndex != null || model.aa.agenticIndex != null)
       .map((model) => [model.canonicalId, {
         canonicalId: model.canonicalId,
@@ -50,7 +53,7 @@ export async function buildParetoSnapshot(): Promise<SnapshotOutcome> {
         aa: model.aa,
       }])
   );
-  const aaFetchedAt = aaFallback.freshness.aaFetchedAt;
+  const aaFetchedAt = aaSource.freshness.aaFetchedAt;
   const aaStatus: SourceFreshness["aaStatus"] = "ok";
 
   // OpenRouter
@@ -67,7 +70,7 @@ export async function buildParetoSnapshot(): Promise<SnapshotOutcome> {
     orStatus = "ok";
     // Deterministic auto-join of OR records not covered by the explicit
     // alias map against AA fallback slugs. Exact identity only, never fuzzy.
-    const aaRecords = aaFallback.models.filter((m) => m.aa.slug != null);
+    const aaRecords = aaSource.models.filter((m) => m.aa.slug != null);
     for (const m of result.models) {
       const parsed = parseOrId(m.id);
       if (!parsed) continue;

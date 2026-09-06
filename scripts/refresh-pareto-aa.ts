@@ -136,11 +136,33 @@ const snapshot = {
   models,
 };
 
+// Local copy stays as the repo's bundled last-known-good dataset (committed
+// rarely, on meaningful schema/model-set changes, not per refresh).
 await writeFile(
   resolve(process.cwd(), "src/data/pareto-aa-fallback.json"),
   `${JSON.stringify(snapshot, null, 2)}\n`,
   "utf8"
 );
+
+// Deliver the fresh snapshot to durable storage (Vercel Blob) so production
+// picks it up without a Git commit and without a deployment. A delivery
+// failure fails the refresh loudly; the previous good Blob is untouched.
+const refreshEndpoint = process.env.PARETO_REFRESH_ENDPOINT;
+const refreshSecret = process.env.PARETO_REFRESH_SECRET;
+if (refreshEndpoint && refreshSecret) {
+  const response = await fetch(refreshEndpoint, {
+    method: "POST",
+    headers: { "content-type": "application/json", authorization: `Bearer ${refreshSecret}` },
+    body: JSON.stringify(snapshot),
+  });
+  if (!response.ok) {
+    const detail = await response.text().catch(() => "");
+    throw new Error(`Pareto snapshot delivery failed: HTTP ${response.status} ${detail.slice(0, 200)}`);
+  }
+  console.log(JSON.stringify({ delivered: true, endpoint: refreshEndpoint }));
+} else {
+  console.log(JSON.stringify({ delivered: false, reason: "PARETO_REFRESH_ENDPOINT/PARETO_REFRESH_SECRET not set" }));
+}
 // Telemetry only: records actual pages consumed per day. Not an enforcement
 // boundary — the hard cap is AA_MAX_PAGES_PER_RUN in fetchAaAllPages plus
 // the 2-run schedule. The file may undercount if a run fails before here.
