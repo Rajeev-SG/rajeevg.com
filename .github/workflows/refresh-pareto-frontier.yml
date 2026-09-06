@@ -3,6 +3,7 @@ name: Refresh Pareto Frontier data
 on:
   schedule:
     - cron: "17 5,17 * * *"
+  workflow_dispatch:
 
 permissions:
   contents: write
