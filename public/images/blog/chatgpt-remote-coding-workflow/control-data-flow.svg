@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 720" role="img" aria-labelledby="title desc">
+  <title id="title">ChatGPT-controlled remote coding workflow</title>
+  <desc id="desc">A user discusses a task with ChatGPT. ChatGPT creates a GitHub issue and launches a local OMP worker through Remote Desktop Commander. The OMP worker uses GLM through OpenRouter, edits and validates the repository, then opens a pull request for ChatGPT to review and merge.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 z" fill="#475569"/></marker>
+    <marker id="arrowBlue" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 z" fill="#2563eb"/></marker>
+    <style>
+      .title{font:700 34px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#0f172a}.sub{font:500 18px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#475569}.boxTitle{font:700 21px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#0f172a}.boxSub{font:500 15px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#475569}.label{font:600 14px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#475569}.box{stroke-width:2.5;rx:18}.line{fill:none;stroke:#475569;stroke-width:3;marker-end:url(#arrow)}.blue{fill:none;stroke:#2563eb;stroke-width:3;marker-end:url(#arrowBlue)}
+    </style>
+  </defs>
+  <rect width="1500" height="720" fill="#ffffff"/>
+  <text x="70" y="70" class="title">The whole loop: expensive judgment, cheap execution</text>
+  <text x="70" y="106" class="sub">GitHub holds the durable task state; RDC is only the bridge to the local worker.</text>
+
+  <rect class="box" x="65" y="210" width="190" height="120" fill="#f8fafc" stroke="#64748b"/>
+  <text x="160" y="255" text-anchor="middle" class="boxTitle">You</text>
+  <text x="160" y="286" text-anchor="middle" class="boxSub">goal + constraints</text>
+
+  <rect class="box" x="315" y="190" width="230" height="160" fill="#eff6ff" stroke="#2563eb"/>
+  <text x="430" y="238" text-anchor="middle" class="boxTitle">ChatGPT</text>
+  <text x="430" y="270" text-anchor="middle" class="boxSub">controller</text>
+  <text x="430" y="300" text-anchor="middle" class="boxSub">scope · route · review</text>
+
+  <rect class="box" x="610" y="210" width="220" height="120" fill="#f5f3ff" stroke="#7c3aed"/>
+  <text x="720" y="255" text-anchor="middle" class="boxTitle">GitHub issue</text>
+  <text x="720" y="286" text-anchor="middle" class="boxSub">durable contract</text>
+
+  <rect class="box" x="895" y="210" width="220" height="120" fill="#fff7ed" stroke="#ea580c"/>
+  <text x="1005" y="250" text-anchor="middle" class="boxTitle">RDC</text>
+  <text x="1005" y="280" text-anchor="middle" class="boxSub">remote bridge</text>
+  <text x="1005" y="304" text-anchor="middle" class="boxSub">commands, not code</text>
+
+  <rect class="box" x="1180" y="180" width="255" height="180" fill="#ecfdf5" stroke="#059669"/>
+  <text x="1307" y="225" text-anchor="middle" class="boxTitle">OMP worker</text>
+  <text x="1307" y="258" text-anchor="middle" class="boxSub">GLM-5.3-Flash</text>
+  <text x="1307" y="288" text-anchor="middle" class="boxSub">via OpenRouter</text>
+  <text x="1307" y="323" text-anchor="middle" class="boxSub">edit · test · commit</text>
+
+  <path class="line" d="M255 270 L300 270"/><text x="278" y="250" text-anchor="middle" class="label">discuss</text>
+  <path class="blue" d="M545 245 L595 245"/><text x="570" y="224" text-anchor="middle" class="label">file</text>
+  <path class="blue" d="M545 310 C690 405 835 405 895 315"/><text x="735" y="402" text-anchor="middle" class="label">launch worker</text>
+  <path class="line" d="M1115 270 L1165 270"/><text x="1140" y="248" text-anchor="middle" class="label">start</text>
+  <path class="line" d="M1180 335 C1050 475 855 485 750 340"/><text x="975" y="466" text-anchor="middle" class="label">read issue + push branch</text>
+
+  <rect class="box" x="885" y="545" width="260" height="110" fill="#f8fafc" stroke="#334155"/>
+  <text x="1015" y="585" text-anchor="middle" class="boxTitle">Pull request</text>
+  <text x="1015" y="617" text-anchor="middle" class="boxSub">diff + validation evidence</text>
+  <path class="line" d="M1305 360 C1295 475 1190 545 1155 570"/>
+  <path class="blue" d="M885 600 C700 665 485 610 450 365"/>
+  <text x="665" y="635" text-anchor="middle" class="label">ChatGPT reviews, requests changes or merges</text>
+
+  <path class="blue" d="M405 190 C350 135 215 140 170 198"/>
+  <text x="286" y="153" text-anchor="middle" class="label">result</text>
+
+  <text x="70" y="690" class="sub">Worker sessions are disposable. The issue, branch and PR are the recovery point.</text>
+</svg>
