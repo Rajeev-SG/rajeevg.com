@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1560 1010" role="img" aria-labelledby="title desc">
+  <title id="title">Trust and credential boundaries of the ChatGPT-controlled coding workflow</title>
+  <desc id="desc">Four trust zones. ChatGPT holds GitHub access to both repositories and decides, reviews and merges, but never implements. The private control repo holds the durable issues and results branches, the encrypted OpenRouter secret, and mints a short-lived repo-scoped token per job. The self-hosted Mac runner accepts jobs from the private control repo only, runs OMP on GLM-5.3-Flash with the OpenRouter key in a temporary config, and holds no target-repo credential. The public target repo receives only promoted pull requests and never has the persistent runner attached. Deliberately impossible: a runner on a public repo, a worker push to the target, and secrets in issues, logs or PRs.</desc>
+  <defs>
+    <marker id="arrBlue" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 z" fill="#2563eb"/></marker>
+    <marker id="arrOrange" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 z" fill="#ea580c"/></marker>
+    <marker id="arrSlate" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 z" fill="#475569"/></marker>
+    <marker id="arrViolet" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 z" fill="#7c3aed"/></marker>
+    <style>
+      .title{font:700 34px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#0f172a}.sub{font:500 18px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#475569}.h{font:700 24px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#0f172a}.boxTitle{font:700 21px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#0f172a}.boxSub{font:500 15px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#475569}.label{font:600 14px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#475569}.item{font:600 17px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#1e293b}.note{font:500 15px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#475569}.small{font:500 13px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#475569}.chip{font:600 15px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#1e293b}.zoneHead{font:700 22px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#0f172a}.band{font:700 17px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#b91c1c}.seqName{font:700 19px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#0f172a}.warm{font:600 13px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#92400e}.halo{paint-order:stroke;stroke:#ffffff;stroke-width:4px;stroke-linejoin:round}
+    </style>
+  </defs>
+  <rect width="1560" height="1010" fill="#ffffff"/>
+  <text x="60" y="70" text-anchor="start" class="title">Trust boundaries: who holds which credential</text>
+  <text x="60" y="106" text-anchor="start" class="sub">The persistent runner answers only the private control repo, and the cheap worker can never publish by itself.</text>
+  <rect x="60" y="170" width="640" height="305" rx="24" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
+  <text x="96" y="218" text-anchor="start" class="zoneHead">ChatGPT — controller</text>
+  <text x="96" y="246" text-anchor="start" class="note">frontier judgment · no execution rights</text>
+  <rect x="96" y="268" width="568" height="52" rx="12" fill="#ffffff" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="116" y="300" text-anchor="start" class="chip">GitHub access: control repo + target repo</text>
+  <rect x="96" y="330" width="568" height="52" rx="12" fill="#ffffff" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="116" y="362" text-anchor="start" class="chip">creates agent:omp issues · reads results branches</text>
+  <rect x="96" y="392" width="568" height="52" rx="12" fill="#ffffff" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="116" y="424" text-anchor="start" class="chip">opens PRs · reviews · merges — never implements</text>
+  <rect x="860" y="170" width="640" height="305" rx="24" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2.5"/>
+  <text x="896" y="218" text-anchor="start" class="zoneHead">Private control repo</text>
+  <text x="896" y="246" text-anchor="start" class="note">Rajeev-SG/chatgpt-agent-workflow</text>
+  <rect x="896" y="268" width="568" height="52" rx="12" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="916" y="300" text-anchor="start" class="chip">durable state: control issues + results/run-* branches</text>
+  <rect x="896" y="330" width="568" height="52" rx="12" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="916" y="362" text-anchor="start" class="chip">encrypted secret: OpenRouter key — never in issues or logs</text>
+  <rect x="896" y="392" width="568" height="52" rx="12" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="916" y="424" text-anchor="start" class="chip">mints a short-lived repo-scoped token per Actions job</text>
+  <rect x="60" y="560" width="640" height="305" rx="24" fill="#f8fafc" stroke="#64748b" stroke-width="2.5"/>
+  <text x="96" y="608" text-anchor="start" class="zoneHead">Public target repo</text>
+  <text x="96" y="636" text-anchor="start" class="note">rajeevg.com · untrusted workflow runs</text>
+  <rect x="96" y="658" width="568" height="52" rx="12" fill="#ffffff" stroke="#64748b" stroke-width="1.5"/>
+  <text x="116" y="690" text-anchor="start" class="chip">receives only PRs promoted by ChatGPT</text>
+  <rect x="96" y="720" width="568" height="52" rx="12" fill="#ffffff" stroke="#64748b" stroke-width="1.5"/>
+  <text x="116" y="752" text-anchor="start" class="chip">CI checks run on GitHub-hosted runners</text>
+  <rect x="96" y="782" width="568" height="52" rx="12" fill="#ffffff" stroke="#64748b" stroke-width="1.5"/>
+  <text x="116" y="814" text-anchor="start" class="chip">no self-hosted runner is ever attached here</text>
+  <rect x="860" y="560" width="640" height="305" rx="24" fill="#fff7ed" stroke="#ea580c" stroke-width="2.5"/>
+  <text x="896" y="608" text-anchor="start" class="zoneHead">Self-hosted Mac</text>
+  <text x="896" y="636" text-anchor="start" class="note">my hardware · launchd-supervised runner</text>
+  <rect x="896" y="658" width="568" height="52" rx="12" fill="#ffffff" stroke="#ea580c" stroke-width="1.5"/>
+  <text x="916" y="690" text-anchor="start" class="chip">runner accepts jobs from the private control repo only</text>
+  <rect x="896" y="720" width="568" height="52" rx="12" fill="#ffffff" stroke="#ea580c" stroke-width="1.5"/>
+  <text x="916" y="752" text-anchor="start" class="chip">OMP + GLM-5.3-Flash · OpenRouter key in a temp config</text>
+  <rect x="896" y="782" width="568" height="52" rx="12" fill="#ffffff" stroke="#ea580c" stroke-width="1.5"/>
+  <text x="916" y="814" text-anchor="start" class="chip">no target-repo credential · results leave as a patch</text>
+  <path d="M 700 245 L 852 245" fill="none" stroke="#2563eb" stroke-width="3" marker-end="url(#arrBlue)"/>
+  <text x="776" y="228" text-anchor="middle" class="label halo">file agent:omp</text>
+  <path d="M 860 315 L 708 315" fill="none" stroke="#2563eb" stroke-width="3" marker-end="url(#arrBlue)"/>
+  <text x="776" y="345" text-anchor="middle" class="label halo">read results/run-*</text>
+  <path d="M 1100 475 L 1100 552" fill="none" stroke="#ea580c" stroke-width="3" marker-end="url(#arrOrange)"/>
+  <text x="1118" y="505" text-anchor="start" class="label halo">dispatch job</text>
+  <text x="1118" y="524" text-anchor="start" class="label halo">to the runner</text>
+  <path d="M 1260 556 L 1260 483" fill="none" stroke="#7c3aed" stroke-width="3" marker-end="url(#arrViolet)"/>
+  <text x="1278" y="505" text-anchor="start" class="label halo">push results</text>
+  <text x="1278" y="524" text-anchor="start" class="label halo">short-lived token</text>
+  <path d="M 300 475 L 300 552" fill="none" stroke="#2563eb" stroke-width="3" marker-end="url(#arrBlue)"/>
+  <text x="318" y="505" text-anchor="start" class="label halo">promote: open PR</text>
+  <text x="318" y="524" text-anchor="start" class="label halo">review · merge</text>
+  <path d="M 856 716 L 710 716" fill="none" stroke="#475569" stroke-width="3" stroke-dasharray="7 7" marker-end="url(#arrSlate)"/>
+  <text x="780" y="681" text-anchor="middle" class="label halo">clone + read</text>
+  <text x="780" y="699" text-anchor="middle" class="label halo">only — no push</text>
+  <rect x="60" y="905" width="1440" height="70" rx="16" fill="#fef2f2" stroke="#dc2626" stroke-width="2"/>
+  <text x="780" y="948" text-anchor="middle" class="band">✕ runner attached to a public repo     ✕ worker push to the target     ✕ secrets in issues, logs or PRs</text>
+</svg>
