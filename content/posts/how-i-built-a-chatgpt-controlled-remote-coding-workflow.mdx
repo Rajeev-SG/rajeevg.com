@@ -2,6 +2,7 @@
 title: "I Built a Remote Control Plane for Cheap Coding Workers"
 slug: "how-i-built-a-chatgpt-controlled-remote-coding-workflow"
 date: "2026-09-06"
+updated: "2026-09-07"
 description: "How I use ChatGPT as the controller, GitHub as durable task state, Remote Desktop Commander as the bridge, and OMP/GLM as the cheap execution worker — including what broke in the first real end-to-end test."
 tags: [ai, agents, chatgpt, glm, openrouter, github, orchestration, remote, cost]
 draft: false
@@ -199,3 +200,23 @@ The last item is now evidence rather than cautionary prose.
 The desired end state is still simple: I should be able to discuss a task with ChatGPT, let it create the issue, let it dispatch OMP/GLM or Codex/GLM through the remote Mac, and only see the work again when there is useful evidence to review.
 
 This first proper publication test proved a lot of that path — and, more usefully, found the bit that is still bollocks under failure. That is the next thing to fix.
+
+## Follow-up, 7 September 2026: GitHub Actions now dispatches the worker
+
+The vanishing RDC device had one clear fix: remove RDC from the critical execution path.
+
+The official GitHub Actions self-hosted runner, **v2.337.0**, is now installed on the Mac and runs as a `launchd` service — the same supervision discipline the RDC process already had, applied to the worker's entry point instead of a remote-desktop bridge.
+
+The runner is attached only to the private `Rajeev-SG/chatgpt-agent-workflow` control repository, not this public site repo. That separation is deliberate security hygiene: a persistent self-hosted runner should never be attached directly to a public repository, where untrusted workflow runs could request execution on my Mac. Untrusted code gets no route to the machine; the private control repo does.
+
+The control flow I actually verified is:
+
+**ChatGPT → private control issue labelled `agent:omp` → GitHub Actions → Mac runner → OMP/GLM-5.3-Flash → local commit → result branch in the private control repo → ChatGPT → target pull request → review and merge**
+
+ChatGPT creates the private control issue and applies `agent:omp`. GitHub Actions dispatches the job to the Mac, where OMP clones the target, implements the target issue, validates it and commits locally. The worker deliberately has no broad GitHub credential for the public target repository. Instead, the Actions job packages the changed files and patch and pushes that result back to a `results/run-…` branch in the private control repo using its short-lived repo-scoped token. ChatGPT then reads that result and promotes it into the target repository's pull request through GitHub.
+
+That extra hand-off is intentional rather than accidental. It keeps the cheap worker powerful enough to edit and test while preventing it from directly publishing into unrelated repositories, and it means the persistent Mac runner is never attached to public or untrusted workflows. The OpenRouter credential is an encrypted secret on the private control repo and is resolved into an isolated temporary OMP provider config for the job; it is not written into the issue or logs.
+
+RDC is no longer on the critical execution path. It stays useful for administration, debugging and fallback — including diagnosing the runner while this test was being built — but GitHub can dispatch the coding job and receive its durable result without RDC being connected.
+
+This follow-up itself was the end-to-end proof: Actions run **#12** dispatched issue **#118** to the self-hosted Mac runner, OMP/GLM-5.3-Flash made this edit, the Velite content build and full Next.js production build both passed, and the result returned through the private control repo for ChatGPT to review and turn into this pull request.
