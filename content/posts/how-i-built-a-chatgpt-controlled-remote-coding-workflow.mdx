@@ -3,7 +3,7 @@ title: "I Built a Remote Control Plane for Cheap Coding Workers"
 slug: "how-i-built-a-chatgpt-controlled-remote-coding-workflow"
 date: "2026-09-06"
 updated: "2026-09-07"
-description: "How I use ChatGPT as the controller, GitHub as durable task state, Remote Desktop Commander as the bridge, and OMP/GLM as the cheap execution worker — including what broke in the first real end-to-end test."
+description: "How I use ChatGPT as the controller, a private GitHub control repo and an Actions-dispatched Mac runner as the delivery path, and OMP/GLM as the cheap execution worker — including what broke in the first real end-to-end test."
 tags: [ai, agents, chatgpt, glm, openrouter, github, orchestration, remote, cost]
 draft: false
 image: /images/blog/chatgpt-remote-coding-workflow/control-data-flow.svg
@@ -13,7 +13,7 @@ I have spent a slightly ridiculous amount of time trying to answer one question:
 
 The latest answer is much simpler than the agent stacks I built before it.
 
-ChatGPT is the controller. GitHub is the durable task system. Remote Desktop Commander (RDC) is the bridge from ChatGPT to my Mac. OMP is the local coding harness. GLM-5.3-Flash, reached through OpenRouter, is the cheap worker model that does the long middle of the job.
+ChatGPT is the controller. GitHub is the durable task system. GitHub Actions dispatches the work to a self-hosted runner on my Mac; Remote Desktop Commander (RDC), the original bridge, is now admin, debug and fallback only. OMP is the local coding harness. GLM-5.3-Flash, reached through OpenRouter, is the cheap worker model that does the long middle of the job.
 
 The lifecycle is deliberately boring:
 
@@ -23,11 +23,11 @@ There is no scheduler, no autonomous issue triage, no worker that can merge its 
 
 <Figure
   src="/images/blog/chatgpt-remote-coding-workflow/control-data-flow.svg"
-  alt="Diagram showing a user discussing a task with ChatGPT, ChatGPT creating a GitHub issue and launching an OMP GLM worker through Remote Desktop Commander, the worker pushing a branch and pull request, and ChatGPT reviewing the result"
-  caption="The control and data flow. GitHub holds the durable contract and delivery state. RDC only carries commands to the local machine. OMP and GLM do the implementation; the result returns as a pull request for ChatGPT to review."
+  alt="Diagram showing the verified loop: ChatGPT files a private agent:omp control issue, GitHub Actions dispatches the job to the self-hosted Mac runner, the OMP worker on GLM-5.3-Flash clones the target, implements, validates and commits locally, the job pushes the patch to a results branch in the private control repo with a short-lived token, and ChatGPT promotes it into the target pull request for review and merge, with RDC kept off the critical path"
+  caption="The verified control and data flow. The contract lives in a private control issue; the result returns through a results branch pushed with a short-lived token; only ChatGPT promotes the patch into the target pull request. RDC stays available for admin, debug and fallback."
   editableHref="/downloads/chatgpt-remote-coding-control-flow.excalidraw"
   editableLabel="Download the editable Excalidraw source"
-  date="6 September 2026"
+  date="7 September 2026"
 />
 
 ## The problem is not model quality. It is where you spend it
@@ -48,7 +48,7 @@ That distinction is what makes the system useful.
 |---|---|---|
 | **ChatGPT** | intent, scope, issue creation, routing, review, merge decision | implementation |
 | **GitHub** | issue, branch, PR and durable evidence | agent reasoning |
-| **Remote Desktop Commander** | remote command transport to the Mac | coding or durable state |
+| **Remote Desktop Commander** | admin, debug and fallback transport to the Mac | the critical execution path, coding or durable state |
 | **OMP** | local worker session and coding tools | final authority |
 | **GLM-5.3-Flash** | low-cost execution inside OMP | scope or merge decisions |
 
@@ -60,16 +60,16 @@ This sounds pedantic until you debug the system. If you confuse the harness with
 
 <Figure
   src="/images/blog/chatgpt-remote-coding-workflow/responsibility-split.svg"
-  alt="Diagram splitting the workflow into a control plane where ChatGPT and GitHub own scope and review, and a worker plane where Remote Desktop Commander, OMP and GLM own implementation and validation, with a hard review boundary before merge"
-  caption="The useful split is authority, not intelligence. The worker may inspect, edit, test, commit, push and open a PR. It may not redefine the task or merge itself. The controller may decide and review, but it should not quietly do the implementation."
+  alt="Diagram splitting the workflow into a control plane where ChatGPT and GitHub decide scope, file the private control issue, read the results proof and promote, review and merge the target pull request, and a worker plane where the GitHub Actions job, the self-hosted Mac runner and OMP on GLM take the dispatch, clone, implement, validate and commit locally before returning the patch, with a review boundary so the worker can never publish to the target or merge"
+  caption="The useful split is authority, not intelligence. The worker may take a dispatched job, inspect, edit, test and commit locally, and return a patch — never publish to the target repository or merge. The controller decides, files the contract, reads the proof and promotes it; it should not quietly do the implementation."
   editableHref="/downloads/chatgpt-remote-coding-responsibility-split.excalidraw"
   editableLabel="Download the editable Excalidraw source"
-  date="6 September 2026"
+  date="7 September 2026"
 />
 
 The controller sends a **contract** across that boundary: an issue with concrete deliverables and acceptance criteria.
 
-The worker sends **proof** back: a diff, validation results and a pull request.
+The worker sends **proof** back: a diff and validation results, which the controller turns into a pull request.
 
 That makes review cheaper as well. ChatGPT does not need to replay the whole worker transcript. It can inspect the issue, the changed files and the validation evidence. The worker's self-assessment is not proof; the repository state is.
 
@@ -87,7 +87,7 @@ This is also why I do not reuse an unrelated parked worker session for a new iss
 
 ## RDC turns ChatGPT into a remote task controller
 
-RDC is the thin but important part of the system. ChatGPT can use it to inspect the authorised Mac, invoke local tools and start an OMP session in the right repository. The bridge carries commands; it is not itself an agent and it does not need the repository's reasoning context.
+RDC is the thin but important part of the system. ChatGPT can use it to inspect the authorised Mac, invoke local tools and start an OMP session in the right repository. The bridge carries commands; it is not itself an agent and it does not need the repository's reasoning context. This was the original dispatch route; since the 7 September follow-up below, GitHub Actions dispatches the worker and RDC is the admin, debug and fallback lane — worth having, never the critical path.
 
 The local path looks roughly like this:
 
@@ -100,7 +100,7 @@ omp --version
 omp --cwd /path/to/repo \
   --model z-ai/glm-5.3-flash \
   --approval-mode yolo \
-  -p "Implement GitHub issue #N, validate, push a branch and open a PR. Do not merge." \
+  -p "Implement GitHub issue #N, validate and commit locally. Do not push and do not open a PR." \
   </dev/null
 ```
 
@@ -110,7 +110,7 @@ That is exactly the sort of boring integration edge case I want this architectur
 
 ## The RDC process has its own recovery layer
 
-Because RDC is the route from ChatGPT into the Mac, it is a control-plane dependency. I do not want a dead Node process to require me to find a terminal and restart it manually.
+Because RDC is a route from ChatGPT into the Mac, it is a control-plane dependency — no longer for dispatch, but still for admin, debug and fallback. I do not want a dead Node process to require me to find a terminal and restart it manually.
 
 The current Mac setup therefore has two local recovery layers:
 
@@ -153,10 +153,12 @@ The minimal version is six steps:
 
 1. **Connect ChatGPT to GitHub** and give it access to the repositories you want it to control.
 2. **Connect RDC to the Mac** and verify ChatGPT can make a real tool call on the machine.
-3. **Authenticate `gh` locally** so the worker can push branches and open PRs.
+3. **Authenticate `gh` locally** so results can be published and pull requests created from the Mac.
 4. **Install OMP and configure the OpenRouter-backed GLM route.** Keep provider credentials local.
 5. **Put repository guidance in `AGENTS.md`** where a repo needs specific boundaries, style or validation rules.
-6. **Smoke-test one tiny issue** all the way through issue → worker → branch → PR → controller review before trusting the loop with substantive work.
+6. **Smoke-test one tiny issue** all the way through issue → worker → result → PR → controller review before trusting the loop with substantive work.
+
+Steps 2 and 3 are the original RDC-era setup. Since the follow-up below, the dispatch entry point is a GitHub Actions runner on the same Mac, and the worker deliberately holds no broad credential for the target repository.
 
 For an existing repository, ChatGPT should also check for an in-flight branch or PR before launching another worker. Duplicate workers are a very efficient way to buy two sets of tokens for one result.
 
@@ -164,9 +166,9 @@ For an existing repository, ChatGPT should also check for an in-flight branch or
 
 If OMP is unavailable or a particular task fits Codex better, Codex can occupy the worker slot.
 
-The route remains:
+Under Actions dispatch, the route for that slot is:
 
-**ChatGPT → RDC → Codex CLI worker → GLM model → PR → ChatGPT review**
+**ChatGPT → control issue → Mac runner → Codex CLI worker → GLM model → results branch → ChatGPT review**
 
 The important bit is that Codex does not become a second controller just because its harness is more capable. In the verified alternative path, Codex can still run the same low-cost GLM worker model. Changing harness and changing model are independent decisions.
 
@@ -213,7 +215,25 @@ The control flow I actually verified is:
 
 **ChatGPT → private control issue labelled `agent:omp` → GitHub Actions → Mac runner → OMP/GLM-5.3-Flash → local commit → result branch in the private control repo → ChatGPT → target pull request → review and merge**
 
+<Figure
+  src="/images/blog/chatgpt-remote-coding-workflow/dispatch-sequence.svg"
+  alt="Sequence diagram from the agent:omp control issue through the GitHub Actions dispatch to the Mac runner, OMP on GLM-5.3-Flash cloning the public target repo read-only, implementing, validating and committing locally, the job pushing the patch and evidence to a results/run branch in the private control repo with a short-lived repo-scoped token, ChatGPT reading the proof and promoting it into a target pull request, then CI checks and merge"
+  caption="Every hand-off in the verified dispatch is durable: the control issue, the results branch pushed with a short-lived token and the promoted pull request all outlive the runner, so nothing depends on a live session."
+  editableHref="/downloads/chatgpt-remote-coding-dispatch-sequence.excalidraw"
+  editableLabel="Download the editable Excalidraw source"
+  date="7 September 2026"
+/>
+
 ChatGPT creates the private control issue and applies `agent:omp`. GitHub Actions dispatches the job to the Mac, where OMP clones the target, implements the target issue, validates it and commits locally. The worker deliberately has no broad GitHub credential for the public target repository. Instead, the Actions job packages the changed files and patch and pushes that result back to a `results/run-…` branch in the private control repo using its short-lived repo-scoped token. ChatGPT then reads that result and promotes it into the target repository's pull request through GitHub.
+
+<Figure
+  src="/images/blog/chatgpt-remote-coding-workflow/trust-boundaries.svg"
+  alt="Diagram of four trust zones: ChatGPT holding GitHub access to both repositories and doing the deciding, reviewing and merging but never implementing; the private control repo holding durable issues, results branches and the encrypted OpenRouter secret while minting a short-lived repo-scoped token per job; the self-hosted Mac accepting jobs only from the private control repo and holding no target-repo credential; and the public target repo receiving only promoted pull requests with no self-hosted runner attached"
+  caption="Who holds which credential. The persistent runner answers only the private control repo; the worker's OpenRouter key resolves into a temporary config and its only output is a patch into the results branch; the public target repo never hosts a self-hosted runner and only ever receives pull requests ChatGPT promoted."
+  editableHref="/downloads/chatgpt-remote-coding-trust-boundaries.excalidraw"
+  editableLabel="Download the editable Excalidraw source"
+  date="7 September 2026"
+/>
 
 That extra hand-off is intentional rather than accidental. It keeps the cheap worker powerful enough to edit and test while preventing it from directly publishing into unrelated repositories, and it means the persistent Mac runner is never attached to public or untrusted workflows. The OpenRouter credential is an encrypted secret on the private control repo and is resolved into an isolated temporary OMP provider config for the job; it is not written into the issue or logs.
 
