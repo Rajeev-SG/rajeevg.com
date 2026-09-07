@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1560 1080" role="img" aria-labelledby="title desc">
+  <title id="title">Dispatch and result sequence for the GitHub Actions coding workflow</title>
+  <desc id="desc">Sequence diagram. ChatGPT creates a control issue labelled agent:omp in the private control repo. The label triggers the GitHub Actions workflow, which dispatches the job to the self-hosted Mac runner attached only to that private repo. The runner launches OMP on GLM-5.3-Flash, clones the public target repo read-only, implements, validates and commits locally. The job then pushes the patch and evidence to a results/run branch in the private control repo with a short-lived repo-scoped token. ChatGPT reads the proof, promotes it into a target pull request, and merges after CI checks and review.</desc>
+  <defs>
+    <marker id="arrBlue" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 z" fill="#2563eb"/></marker>
+    <marker id="arrSlate" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 z" fill="#475569"/></marker>
+    <style>
+      .title{font:700 34px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#0f172a}.sub{font:500 18px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#475569}.h{font:700 24px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#0f172a}.boxTitle{font:700 21px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#0f172a}.boxSub{font:500 15px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#475569}.label{font:600 14px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#475569}.item{font:600 17px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#1e293b}.note{font:500 15px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#475569}.small{font:500 13px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#475569}.chip{font:600 15px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#1e293b}.zoneHead{font:700 22px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#0f172a}.band{font:700 17px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#b91c1c}.seqName{font:700 19px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#0f172a}.warm{font:600 13px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#92400e}.halo{paint-order:stroke;stroke:#ffffff;stroke-width:4px;stroke-linejoin:round}
+    </style>
+  </defs>
+  <rect width="1560" height="1080" fill="#ffffff"/>
+  <text x="60" y="70" text-anchor="start" class="title">Dispatch and result: every hand-off is durable</text>
+  <text x="60" y="106" text-anchor="start" class="sub">From the agent:omp label to the merged PR, each step lands in GitHub — nothing depends on a live session.</text>
+  <rect x="70" y="160" width="240" height="80" rx="14" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
+  <text x="190" y="195" text-anchor="middle" class="seqName">ChatGPT</text>
+  <text x="190" y="221" text-anchor="middle" class="small">controller</text>
+  <rect x="390" y="160" width="240" height="80" rx="14" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2.5"/>
+  <text x="510" y="195" text-anchor="middle" class="seqName">Control repo</text>
+  <text x="510" y="221" text-anchor="middle" class="small">private · durable state</text>
+  <rect x="710" y="160" width="240" height="80" rx="14" fill="#f1f5f9" stroke="#334155" stroke-width="2.5"/>
+  <text x="830" y="195" text-anchor="middle" class="seqName">GitHub Actions</text>
+  <text x="830" y="221" text-anchor="middle" class="small">workflow dispatch</text>
+  <rect x="1030" y="160" width="240" height="80" rx="14" fill="#fff7ed" stroke="#ea580c" stroke-width="2.5"/>
+  <text x="1150" y="195" text-anchor="middle" class="seqName">Mac runner + OMP</text>
+  <text x="1150" y="221" text-anchor="middle" class="small">GLM-5.3-Flash worker</text>
+  <rect x="1310" y="160" width="240" height="80" rx="14" fill="#f8fafc" stroke="#64748b" stroke-width="2.5"/>
+  <text x="1430" y="195" text-anchor="middle" class="seqName">Target repo</text>
+  <text x="1430" y="221" text-anchor="middle" class="small">public · rajeevg.com</text>
+  <path d="M 190 240 L 190 1000" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="6 8"/>
+  <path d="M 510 240 L 510 1000" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="6 8"/>
+  <path d="M 830 240 L 830 1000" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="6 8"/>
+  <path d="M 1150 240 L 1150 1000" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="6 8"/>
+  <path d="M 1430 240 L 1430 1000" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="6 8"/>
+  <rect x="1005" y="262" width="290" height="56" rx="10" fill="#fff7ed" stroke="#fdba74" stroke-width="1.5"/>
+  <text x="1150" y="285" text-anchor="middle" class="warm">the runner is attached only</text>
+  <text x="1150" y="304" text-anchor="middle" class="warm">to the private control repo</text>
+  <path d="M 190 360 L 510 360" fill="none" stroke="#2563eb" stroke-width="3" marker-end="url(#arrBlue)"/>
+  <rect x="204" y="327" width="292" height="27" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="350" y="346" text-anchor="middle" class="label halo">1 · create control issue · label agent:omp</text>
+  <path d="M 510 425 L 830 425" fill="none" stroke="#475569" stroke-width="3" marker-end="url(#arrSlate)"/>
+  <rect x="560" y="392" width="220" height="27" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="670" y="411" text-anchor="middle" class="label halo">2 · label triggers the workflow</text>
+  <path d="M 830 490 L 1150 490" fill="none" stroke="#475569" stroke-width="3" marker-end="url(#arrSlate)"/>
+  <rect x="854" y="457" width="272" height="27" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="990" y="476" text-anchor="middle" class="label halo">3 · dispatch the job to the Mac runner</text>
+  <rect x="1154" y="522" width="272" height="27" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <path d="M 1150 555 L 1430 555" fill="none" stroke="#475569" stroke-width="3" marker-end="url(#arrSlate)"/>
+  <text x="1290" y="541" text-anchor="middle" class="label halo">4 · clone the target repo (public read)</text>
+  <path d="M 1150 608 L 1088 608 L 1088 638 L 1144 638" fill="none" stroke="#475569" stroke-width="3" marker-end="url(#arrSlate)"/>
+  <rect x="788" y="616" width="286" height="17" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="1064" y="630" text-anchor="end" class="label halo">5 · implement · validate · commit locally</text>
+  <path d="M 1150 700 L 516 700" fill="none" stroke="#475569" stroke-width="3" marker-end="url(#arrSlate)"/>
+  <rect x="660" y="667" width="340" height="27" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="830" y="686" text-anchor="middle" class="label halo">6 · job pushes results/run-* — patch + evidence</text>
+  <rect x="669" y="704" width="322" height="26" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="830" y="722" text-anchor="middle" class="small halo">short-lived repo-scoped token · dies with the job</text>
+  <path d="M 190 780 L 510 780" fill="none" stroke="#2563eb" stroke-width="3" marker-end="url(#arrBlue)"/>
+  <rect x="211" y="747" width="278" height="27" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="350" y="766" text-anchor="middle" class="label halo">7 · read the results branch — the proof</text>
+  <path d="M 190 845 L 1430 845" fill="none" stroke="#2563eb" stroke-width="3" marker-end="url(#arrBlue)"/>
+  <rect x="673" y="812" width="273" height="27" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="810" y="831" text-anchor="middle" class="label halo">8 · promote the patch into a target PR</text>
+  <path d="M 1430 905 L 190 905" fill="none" stroke="#475569" stroke-width="3" stroke-dasharray="7 7" marker-end="url(#arrSlate)"/>
+  <rect x="674" y="872" width="271" height="27" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="810" y="891" text-anchor="middle" class="label halo">9 · CI checks pass on the pull request</text>
+  <path d="M 190 965 L 1430 965" fill="none" stroke="#2563eb" stroke-width="3" marker-end="url(#arrBlue)"/>
+  <rect x="710" y="932" width="199" height="27" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="810" y="951" text-anchor="middle" class="label halo">10 · review the diff · merge</text>
+  <text x="60" y="1048" text-anchor="start" class="sub">Every hand-off lands in GitHub: the control issue, the results branch and the PR outlive any runner or session.</text>
+</svg>

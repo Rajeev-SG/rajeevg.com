@@ -1,48 +1,43 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 760" role="img" aria-labelledby="title desc">
-  <title id="title">Controller plane and worker plane responsibility split</title>
-  <desc id="desc">The control plane contains the user, ChatGPT and GitHub. It owns intent, scope, issue state, review and merge. The worker plane contains Remote Desktop Commander, OMP and GLM. It owns repository inspection, implementation, validation, commits and pull request creation. A hard review boundary prevents the worker from merging its own work.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 820" role="img" aria-labelledby="title desc">
+  <title id="title">Controller plane and worker plane responsibility split over GitHub Actions</title>
+  <desc id="desc">The control plane contains ChatGPT and GitHub. It decides scope, files the private agent:omp control issue, reads the results branch proof, and promotes, reviews and merges the target pull request. The worker plane contains the GitHub Actions job, the self-hosted Mac runner and OMP on GLM-5.3-Flash. It takes the dispatch, clones the target, implements, validates, commits locally and returns the patch to a results branch. A review boundary means the worker can never publish to the target repository or merge its own work.</desc>
   <defs>
-    <marker id="arr" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 z" fill="#475569"/></marker>
+    <marker id="arrSlate" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 z" fill="#475569"/></marker>
     <style>
-      .title{font:700 34px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#0f172a}.sub{font:500 18px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#475569}.h{font:700 24px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#0f172a}.item{font:600 17px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#1e293b}.note{font:500 15px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#475569}.panel{rx:24;stroke-width:2.5}.arrow{fill:none;stroke:#475569;stroke-width:3;marker-end:url(#arr)}
+      .title{font:700 34px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#0f172a}.sub{font:500 18px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#475569}.h{font:700 24px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#0f172a}.boxTitle{font:700 21px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#0f172a}.boxSub{font:500 15px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#475569}.label{font:600 14px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#475569}.item{font:600 17px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#1e293b}.note{font:500 15px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#475569}.small{font:500 13px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#475569}.chip{font:600 15px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#1e293b}.zoneHead{font:700 22px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#0f172a}.band{font:700 17px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#b91c1c}.seqName{font:700 19px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#0f172a}.warm{font:600 13px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#92400e}.halo{paint-order:stroke;stroke:#ffffff;stroke-width:4px;stroke-linejoin:round}
     </style>
   </defs>
-  <rect width="1400" height="760" fill="#ffffff"/>
-  <text x="70" y="70" class="title">The useful boundary is authority, not intelligence</text>
-  <text x="70" y="106" class="sub">The controller decides what should happen. The worker proves the implementation. Neither owns the whole loop.</text>
-
-  <rect class="panel" x="70" y="170" width="570" height="455" fill="#eff6ff" stroke="#2563eb"/>
-  <text x="110" y="220" class="h">CONTROL PLANE</text>
-  <text x="110" y="250" class="note">ChatGPT + GitHub</text>
-
-  <rect x="110" y="295" width="485" height="64" rx="14" fill="#ffffff" stroke="#93c5fd" stroke-width="2"/>
-  <text x="135" y="334" class="item">1 · Understand the request and decide scope</text>
-  <rect x="110" y="375" width="485" height="64" rx="14" fill="#ffffff" stroke="#93c5fd" stroke-width="2"/>
-  <text x="135" y="414" class="item">2 · Create/update the GitHub issue</text>
-  <rect x="110" y="455" width="485" height="64" rx="14" fill="#ffffff" stroke="#93c5fd" stroke-width="2"/>
-  <text x="135" y="494" class="item">3 · Launch or resume the worker</text>
-  <rect x="110" y="535" width="485" height="64" rx="14" fill="#ffffff" stroke="#2563eb" stroke-width="2.5"/>
-  <text x="135" y="574" class="item">4 · Review evidence and decide whether to merge</text>
-
-  <rect class="panel" x="760" y="170" width="570" height="455" fill="#ecfdf5" stroke="#059669"/>
-  <text x="800" y="220" class="h">WORKER PLANE</text>
-  <text x="800" y="250" class="note">RDC bridge → OMP harness → GLM model</text>
-
-  <rect x="800" y="295" width="485" height="64" rx="14" fill="#ffffff" stroke="#6ee7b7" stroke-width="2"/>
-  <text x="825" y="334" class="item">1 · Read issue + repository context</text>
-  <rect x="800" y="375" width="485" height="64" rx="14" fill="#ffffff" stroke="#6ee7b7" stroke-width="2"/>
-  <text x="825" y="414" class="item">2 · Implement the bounded change</text>
-  <rect x="800" y="455" width="485" height="64" rx="14" fill="#ffffff" stroke="#6ee7b7" stroke-width="2"/>
-  <text x="825" y="494" class="item">3 · Validate, commit and push</text>
-  <rect x="800" y="535" width="485" height="64" rx="14" fill="#ffffff" stroke="#059669" stroke-width="2.5"/>
-  <text x="825" y="574" class="item">4 · Open the PR — never merge it</text>
-
-  <path class="arrow" d="M640 330 C690 300 715 300 760 330"/>
-  <text x="700" y="292" text-anchor="middle" class="note">contract</text>
-  <path class="arrow" d="M760 565 C710 595 685 595 640 565"/>
-  <text x="700" y="620" text-anchor="middle" class="note">diff + proof</text>
-
-  <line x1="700" y1="155" x2="700" y2="648" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="9 9"/>
-  <rect x="520" y="660" width="360" height="58" rx="16" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
-  <text x="700" y="695" text-anchor="middle" class="item">REVIEW BOUNDARY · worker cannot self-merge</text>
+  <rect width="1440" height="820" fill="#ffffff"/>
+  <text x="70" y="70" text-anchor="start" class="title">The useful boundary is authority, not intelligence</text>
+  <text x="70" y="106" text-anchor="start" class="sub">The controller decides and remembers. The runner executes and proves. Only ChatGPT crosses the review boundary.</text>
+  <rect x="70" y="170" width="580" height="470" rx="24" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
+  <text x="110" y="222" text-anchor="start" class="h">CONTROL PLANE</text>
+  <text x="110" y="252" text-anchor="start" class="note">ChatGPT + GitHub — decides and remembers</text>
+  <rect x="110" y="290" width="500" height="66" rx="14" fill="#ffffff" stroke="#93c5fd" stroke-width="2"/>
+  <text x="135" y="330" text-anchor="start" class="item">1 · Decide scope and write the contract</text>
+  <rect x="110" y="372" width="500" height="66" rx="14" fill="#ffffff" stroke="#93c5fd" stroke-width="2"/>
+  <text x="135" y="412" text-anchor="start" class="item">2 · File the private control issue (agent:omp)</text>
+  <rect x="110" y="454" width="500" height="66" rx="14" fill="#ffffff" stroke="#93c5fd" stroke-width="2"/>
+  <text x="135" y="494" text-anchor="start" class="item">3 · Read the results/run-* proof</text>
+  <rect x="110" y="536" width="500" height="66" rx="14" fill="#ffffff" stroke="#2563eb" stroke-width="2.5"/>
+  <text x="135" y="576" text-anchor="start" class="item">4 · Promote to a target PR · review · merge</text>
+  <rect x="790" y="170" width="580" height="470" rx="24" fill="#ecfdf5" stroke="#059669" stroke-width="2.5"/>
+  <text x="830" y="222" text-anchor="start" class="h">WORKER PLANE</text>
+  <text x="830" y="252" text-anchor="start" class="note">Actions → Mac runner → OMP/GLM — executes</text>
+  <rect x="830" y="290" width="500" height="66" rx="14" fill="#ffffff" stroke="#6ee7b7" stroke-width="2"/>
+  <text x="855" y="330" text-anchor="start" class="item">1 · Take the job from the Actions dispatch</text>
+  <rect x="830" y="372" width="500" height="66" rx="14" fill="#ffffff" stroke="#6ee7b7" stroke-width="2"/>
+  <text x="855" y="412" text-anchor="start" class="item">2 · Clone the target · implement · validate</text>
+  <rect x="830" y="454" width="500" height="66" rx="14" fill="#ffffff" stroke="#6ee7b7" stroke-width="2"/>
+  <text x="855" y="494" text-anchor="start" class="item">3 · Commit locally on the runner</text>
+  <rect x="830" y="536" width="500" height="66" rx="14" fill="#ffffff" stroke="#059669" stroke-width="2.5"/>
+  <text x="855" y="576" text-anchor="start" class="item">4 · Return the patch — never publish directly</text>
+  <path d="M 655 322 C 690 296, 748 296, 783 322" fill="none" stroke="#475569" stroke-width="3" marker-end="url(#arrSlate)"/>
+  <text x="720" y="286" text-anchor="middle" class="note halo">control issue</text>
+  <path d="M 783 556 C 748 582, 690 582, 655 556" fill="none" stroke="#475569" stroke-width="3" marker-end="url(#arrSlate)"/>
+  <text x="720" y="608" text-anchor="middle" class="note halo">patch + proof</text>
+  <path d="M 720 150 L 720 254 M 720 306 L 720 576 M 720 628 L 720 650" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="9 9"/>
+  <rect x="440" y="672" width="560" height="58" rx="16" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+  <text x="720" y="708" text-anchor="middle" class="item">REVIEW BOUNDARY · the worker cannot publish or merge</text>
+  <text x="70" y="782" text-anchor="start" class="sub">RDC stays useful for administration, debugging and fallback — it holds no authority in either plane.</text>
 </svg>

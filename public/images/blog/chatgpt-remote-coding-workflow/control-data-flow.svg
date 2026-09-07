@@ -1,56 +1,72 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 720" role="img" aria-labelledby="title desc">
-  <title id="title">ChatGPT-controlled remote coding workflow</title>
-  <desc id="desc">A user discusses a task with ChatGPT. ChatGPT creates a GitHub issue and launches a local OMP worker through Remote Desktop Commander. The OMP worker uses GLM through OpenRouter, edits and validates the repository, then opens a pull request for ChatGPT to review and merge.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1560 900" role="img" aria-labelledby="title desc">
+  <title id="title">ChatGPT-controlled remote coding workflow over GitHub Actions</title>
+  <desc id="desc">A user discusses a task with ChatGPT. ChatGPT files a private control issue labelled agent:omp. GitHub Actions dispatches the job to a self-hosted Mac runner attached only to the private control repository. An OMP worker on GLM-5.3-Flash clones the target, implements, validates and commits locally. The Actions job pushes the patch and changed files to a results branch in the private control repo using a short-lived token. ChatGPT reads the proof, promotes it into a target pull request, and merges after checks. RDC remains for administration, debugging and fallback only.</desc>
   <defs>
-    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 z" fill="#475569"/></marker>
-    <marker id="arrowBlue" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 z" fill="#2563eb"/></marker>
+    <marker id="arrBlue" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 z" fill="#2563eb"/></marker>
+    <marker id="arrOrange" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 z" fill="#ea580c"/></marker>
+    <marker id="arrSlate" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 z" fill="#475569"/></marker>
     <style>
-      .title{font:700 34px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#0f172a}.sub{font:500 18px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#475569}.boxTitle{font:700 21px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#0f172a}.boxSub{font:500 15px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#475569}.label{font:600 14px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#475569}.box{stroke-width:2.5;rx:18}.line{fill:none;stroke:#475569;stroke-width:3;marker-end:url(#arrow)}.blue{fill:none;stroke:#2563eb;stroke-width:3;marker-end:url(#arrowBlue)}
+      .title{font:700 34px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#0f172a}.sub{font:500 18px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#475569}.h{font:700 24px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#0f172a}.boxTitle{font:700 21px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#0f172a}.boxSub{font:500 15px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#475569}.label{font:600 14px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#475569}.item{font:600 17px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#1e293b}.note{font:500 15px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#475569}.small{font:500 13px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#475569}.chip{font:600 15px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#1e293b}.zoneHead{font:700 22px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#0f172a}.band{font:700 17px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#b91c1c}.seqName{font:700 19px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#0f172a}.warm{font:600 13px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#92400e}.halo{paint-order:stroke;stroke:#ffffff;stroke-width:4px;stroke-linejoin:round}
     </style>
   </defs>
-  <rect width="1500" height="720" fill="#ffffff"/>
-  <text x="70" y="70" class="title">The whole loop: expensive judgment, cheap execution</text>
-  <text x="70" y="106" class="sub">GitHub holds the durable task state; RDC is only the bridge to the local worker.</text>
-
-  <rect class="box" x="65" y="210" width="190" height="120" fill="#f8fafc" stroke="#64748b"/>
-  <text x="160" y="255" text-anchor="middle" class="boxTitle">You</text>
-  <text x="160" y="286" text-anchor="middle" class="boxSub">goal + constraints</text>
-
-  <rect class="box" x="315" y="190" width="230" height="160" fill="#eff6ff" stroke="#2563eb"/>
-  <text x="430" y="238" text-anchor="middle" class="boxTitle">ChatGPT</text>
-  <text x="430" y="270" text-anchor="middle" class="boxSub">controller</text>
-  <text x="430" y="300" text-anchor="middle" class="boxSub">scope · route · review</text>
-
-  <rect class="box" x="610" y="210" width="220" height="120" fill="#f5f3ff" stroke="#7c3aed"/>
-  <text x="720" y="255" text-anchor="middle" class="boxTitle">GitHub issue</text>
-  <text x="720" y="286" text-anchor="middle" class="boxSub">durable contract</text>
-
-  <rect class="box" x="895" y="210" width="220" height="120" fill="#fff7ed" stroke="#ea580c"/>
-  <text x="1005" y="250" text-anchor="middle" class="boxTitle">RDC</text>
-  <text x="1005" y="280" text-anchor="middle" class="boxSub">remote bridge</text>
-  <text x="1005" y="304" text-anchor="middle" class="boxSub">commands, not code</text>
-
-  <rect class="box" x="1180" y="180" width="255" height="180" fill="#ecfdf5" stroke="#059669"/>
-  <text x="1307" y="225" text-anchor="middle" class="boxTitle">OMP worker</text>
-  <text x="1307" y="258" text-anchor="middle" class="boxSub">GLM-5.3-Flash</text>
-  <text x="1307" y="288" text-anchor="middle" class="boxSub">via OpenRouter</text>
-  <text x="1307" y="323" text-anchor="middle" class="boxSub">edit · test · commit</text>
-
-  <path class="line" d="M255 270 L300 270"/><text x="278" y="250" text-anchor="middle" class="label">discuss</text>
-  <path class="blue" d="M545 245 L595 245"/><text x="570" y="224" text-anchor="middle" class="label">file</text>
-  <path class="blue" d="M545 310 C690 405 835 405 895 315"/><text x="735" y="402" text-anchor="middle" class="label">launch worker</text>
-  <path class="line" d="M1115 270 L1165 270"/><text x="1140" y="248" text-anchor="middle" class="label">start</text>
-  <path class="line" d="M1180 335 C1050 475 855 485 750 340"/><text x="975" y="466" text-anchor="middle" class="label">read issue + push branch</text>
-
-  <rect class="box" x="885" y="545" width="260" height="110" fill="#f8fafc" stroke="#334155"/>
-  <text x="1015" y="585" text-anchor="middle" class="boxTitle">Pull request</text>
-  <text x="1015" y="617" text-anchor="middle" class="boxSub">diff + validation evidence</text>
-  <path class="line" d="M1305 360 C1295 475 1190 545 1155 570"/>
-  <path class="blue" d="M885 600 C700 665 485 610 450 365"/>
-  <text x="665" y="635" text-anchor="middle" class="label">ChatGPT reviews, requests changes or merges</text>
-
-  <path class="blue" d="M405 190 C350 135 215 140 170 198"/>
-  <text x="286" y="153" text-anchor="middle" class="label">result</text>
-
-  <text x="70" y="690" class="sub">Worker sessions are disposable. The issue, branch and PR are the recovery point.</text>
+  <rect width="1560" height="900" fill="#ffffff"/>
+  <text x="60" y="70" text-anchor="start" class="title">The verified loop: ChatGPT decides, GitHub dispatches, the Mac runs it</text>
+  <text x="60" y="106" text-anchor="start" class="sub">GitHub Actions on a self-hosted Mac runner replaced RDC in the critical path; GitHub holds the durable state end to end.</text>
+  <rect x="60" y="250" width="190" height="110" rx="18" fill="#f8fafc" stroke="#64748b" stroke-width="2.5"/>
+  <text x="155" y="302" text-anchor="middle" class="boxTitle">You</text>
+  <text x="155" y="332" text-anchor="middle" class="boxSub">goal + constraints</text>
+  <rect x="320" y="225" width="240" height="165" rx="18" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
+  <text x="440" y="294" text-anchor="middle" class="boxTitle">ChatGPT</text>
+  <text x="440" y="324" text-anchor="middle" class="boxSub">controller</text>
+  <text x="440" y="344" text-anchor="middle" class="boxSub">scope · review · promote</text>
+  <rect x="610" y="240" width="250" height="135" rx="18" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2.5"/>
+  <text x="735" y="294" text-anchor="middle" class="boxTitle">Control issue</text>
+  <text x="735" y="324" text-anchor="middle" class="boxSub">private control repo</text>
+  <text x="735" y="344" text-anchor="middle" class="boxSub">agent:omp · the contract</text>
+  <rect x="920" y="240" width="240" height="135" rx="18" fill="#f1f5f9" stroke="#334155" stroke-width="2.5"/>
+  <text x="1040" y="294" text-anchor="middle" class="boxTitle">GitHub Actions</text>
+  <text x="1040" y="324" text-anchor="middle" class="boxSub">triggered by agent:omp</text>
+  <text x="1040" y="344" text-anchor="middle" class="boxSub">on the control issue</text>
+  <rect x="1220" y="195" width="310" height="330" rx="18" fill="#fffbeb" stroke="#d97706" stroke-width="2" stroke-dasharray="8 8"/>
+  <text x="1240" y="217" text-anchor="start" class="warm">Self-hosted Mac · attached only</text>
+  <text x="1240" y="236" text-anchor="start" class="warm">to the private control repo</text>
+  <rect x="1245" y="250" width="260" height="95" rx="18" fill="#fff7ed" stroke="#ea580c" stroke-width="2.5"/>
+  <text x="1375" y="294" text-anchor="middle" class="boxTitle">Mac runner</text>
+  <text x="1375" y="324" text-anchor="middle" class="boxSub">launchd · self-hosted</text>
+  <rect x="1245" y="385" width="260" height="115" rx="18" fill="#ecfdf5" stroke="#059669" stroke-width="2.5"/>
+  <text x="1375" y="429" text-anchor="middle" class="boxTitle">OMP worker</text>
+  <text x="1375" y="459" text-anchor="middle" class="boxSub">GLM-5.3-Flash</text>
+  <text x="1375" y="479" text-anchor="middle" class="boxSub">temp OpenRouter config</text>
+  <rect x="1170" y="620" width="360" height="125" rx="18" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2.5"/>
+  <text x="1350" y="669" text-anchor="middle" class="boxTitle">results/run-* branch</text>
+  <text x="1350" y="699" text-anchor="middle" class="boxSub">changed files + patch</text>
+  <text x="1350" y="719" text-anchor="middle" class="boxSub">pushed with a short-lived token</text>
+  <rect x="620" y="600" width="310" height="115" rx="18" fill="#f8fafc" stroke="#334155" stroke-width="2.5"/>
+  <text x="775" y="644" text-anchor="middle" class="boxTitle">Target pull request</text>
+  <text x="775" y="674" text-anchor="middle" class="boxSub">public repo · rajeevg.com</text>
+  <text x="775" y="694" text-anchor="middle" class="boxSub">checks → review → merge</text>
+  <rect x="60" y="620" width="330" height="125" rx="18" fill="#fff7ed" stroke="#ea580c" stroke-width="2" stroke-dasharray="8 8"/>
+  <text x="225" y="669" text-anchor="middle" class="boxTitle">RDC bridge</text>
+  <text x="225" y="699" text-anchor="middle" class="boxSub">admin · debug · fallback</text>
+  <text x="225" y="719" text-anchor="middle" class="boxSub">off the critical path</text>
+  <path d="M 250 305 L 314 305" fill="none" stroke="#475569" stroke-width="3" marker-end="url(#arrSlate)"/>
+  <text x="282" y="284" text-anchor="middle" class="label halo">discuss</text>
+  <path d="M 560 292 L 604 292" fill="none" stroke="#2563eb" stroke-width="3" marker-end="url(#arrBlue)"/>
+  <text x="582" y="271" text-anchor="middle" class="label halo">file</text>
+  <path d="M 860 305 L 914 305" fill="none" stroke="#475569" stroke-width="3" marker-end="url(#arrSlate)"/>
+  <text x="887" y="286" text-anchor="middle" class="small halo">trigger</text>
+  <path d="M 1160 295 L 1239 295" fill="none" stroke="#475569" stroke-width="3" marker-end="url(#arrSlate)"/>
+  <text x="1188" y="275" text-anchor="middle" class="small halo">dispatch</text>
+  <path d="M 1375 345 L 1375 379" fill="none" stroke="#475569" stroke-width="3" marker-end="url(#arrSlate)"/>
+  <text x="1392" y="368" text-anchor="start" class="small">start OMP</text>
+  <path d="M 1375 500 Q 1360 560 1352 616" fill="none" stroke="#475569" stroke-width="3" marker-end="url(#arrSlate)"/>
+  <text x="1412" y="556" text-anchor="start" class="small halo">local commit →</text>
+  <text x="1412" y="574" text-anchor="start" class="small halo">job pushes patch</text>
+  <path d="M 1164 692 C 950 780, 660 805, 548 723 C 522 622, 514 500, 509 398" fill="none" stroke="#2563eb" stroke-width="3" marker-end="url(#arrBlue)"/>
+  <text x="790" y="818" text-anchor="middle" class="label halo">ChatGPT reads the proof</text>
+  <path d="M 564 344 C 645 400, 655 520, 670 592" fill="none" stroke="#2563eb" stroke-width="3" marker-end="url(#arrBlue)"/>
+  <text x="585" y="440" text-anchor="middle" class="label halo">promotes</text>
+  <path d="M 200 614 C 208 520, 255 448, 344 404" fill="none" stroke="#ea580c" stroke-width="3" stroke-dasharray="7 7" marker-end="url(#arrOrange)"/>
+  <text x="163" y="522" text-anchor="middle" class="small halo">fallback</text>
+  <text x="60" y="868" text-anchor="start" class="sub">The worker never publishes: results return through the private control repo, and only ChatGPT promotes them into the target repository.</text>
 </svg>
