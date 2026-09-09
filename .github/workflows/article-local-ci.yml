@@ -19,6 +19,11 @@ on:
         description: Existing article slug for a local-CI canary
         required: false
         default: token-maxxing-getting-more-useful-ai-work-for-less-money
+      production:
+        description: Wait for the current ref's Vercel deployment and prove the production article
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -112,7 +117,7 @@ jobs:
           pnpm build
 
       - name: Local browser proof for changed articles
-        if: steps.articles.outputs.count != '0' && github.event_name != 'push'
+        if: steps.articles.outputs.count != '0' && github.event_name != 'push' && !(github.event_name == 'workflow_dispatch' && inputs.production)
         shell: bash
         run: |
           set -euo pipefail
@@ -122,7 +127,7 @@ jobs:
           done < "${{ steps.articles.outputs.slugs_file }}"
 
       - name: Wait for Vercel and prove production article
-        if: steps.articles.outputs.count != '0' && github.event_name == 'push'
+        if: steps.articles.outputs.count != '0' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.production))
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -131,12 +136,18 @@ jobs:
           deadline=$((SECONDS + 900))
           echo "CI owns the deployment wait; no model polling is required."
           while (( SECONDS < deadline )); do
-            status=$(curl -fsSL \
+            # Vercel currently reports deployments through the legacy commit-status API.
+            # Keep a check-runs fallback so a future Vercel integration migration does not break CI.
+            commit_status=$(curl -fsSL \
               -H "Accept: application/vnd.github+json" \
               -H "Authorization: Bearer $GH_TOKEN" \
-              "https://api.github.com/repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/check-runs" \
-              | python3 -c 'import json,sys; d=json.load(sys.stdin); xs=[x for x in d.get("check_runs",[]) if x.get("app",{}).get("slug")=="vercel" or "vercel" in x.get("name","").lower()]; print("success" if any(x.get("status")=="completed" and x.get("conclusion")=="success" for x in xs) else ("failed" if any(x.get("status")=="completed" and x.get("conclusion") not in (None,"success","neutral","skipped") for x in xs) else "waiting"))')
-            [[ "$status" == "failed" ]] && { echo "Vercel check failed" >&2; exit 1; }
+              "https://api.github.com/repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/status")
+            check_runs=$(curl -fsSL \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              "https://api.github.com/repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/check-runs")
+            status=$(python3 -c 'import json,sys; st=json.loads(sys.argv[1]); cr=json.loads(sys.argv[2]); ss=[x for x in st.get("statuses",[]) if x.get("context","").lower()=="vercel" or "vercel" in x.get("context","").lower()]; xs=[x for x in cr.get("check_runs",[]) if x.get("app",{}).get("slug")=="vercel" or "vercel" in x.get("name","").lower()]; print("success" if any(x.get("state")=="success" for x in ss) or any(x.get("status")=="completed" and x.get("conclusion")=="success" for x in xs) else ("failed" if any(x.get("state") in ("failure","error") for x in ss) or any(x.get("status")=="completed" and x.get("conclusion") not in (None,"success","neutral","skipped") for x in xs) else "waiting"))' "$commit_status" "$check_runs")
+            [[ "$status" == "failed" ]] && { echo "Vercel deployment failed" >&2; exit 1; }
             [[ "$status" == "success" ]] && break
             sleep 15
           done
