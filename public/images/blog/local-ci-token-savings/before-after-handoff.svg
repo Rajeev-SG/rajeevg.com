@@ -1,119 +1,119 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 780" role="img" aria-labelledby="title desc">
-  <title id="title">Same job — so who owns the waiting?</title>
-  <desc id="desc">Two flows. Before: the agent writes code, runs checks, waits for CI, then repeatedly wakes up, re-reads the whole conversation and checks status again, four times in one observed sequence, before deployment proof. After: the agent writes code, runs targeted checks, emits CI_HANDOFF and exits with zero further model tokens; CI runs tests, build, deployment wait and browser proof for free, green results wake nobody, and only a failure wakes one cheap worker with the failing output.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="1170" viewBox="0 0 720 1170" role="img" aria-labelledby="title desc">
+  <title id="title">Before and after CI_HANDOFF</title>
+  <desc id="desc">Two flows side by side. Before: the agent writes code, runs targeted checks, starts broader validation and deploy, waits, the status result returns to the model, and the model re-enters and re-processes the whole conversation, about 296K raw tokens a turn; the check repeats — four times in one observed sequence, about 1.184 million raw processed tokens — before browser and deploy proof. After: the agent writes code, runs targeted checks, emits CI_HANDOFF and the model exits with zero post-handoff model turns; GitHub Actions triggers a self-hosted Mac runner that does the locked install, broad Vitest and build, Vercel wait and status polling, live URL wait, production Playwright checks and a proof artifact; an all-green run invokes no model, while a failure can invoke one repair worker with a compact failure packet.</desc>
   <defs>
-    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.1" fill="#e7e2d5"/></pattern>
-    <filter id="wobble" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="11" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="0.85"/></filter>
-    <marker id="arr-ink" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M 0 0 L 9 5 L 0 10 z" fill="#172033"/></marker>
-    <marker id="arr-roseStroke" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M 0 0 L 9 5 L 0 10 z" fill="#a45350"/></marker>
-    <marker id="arr-greenStroke" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M 0 0 L 9 5 L 0 10 z" fill="#3f8460"/></marker>
-    <marker id="arr-amberStroke" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M 0 0 L 9 5 L 0 10 z" fill="#a97921"/></marker>
-    <marker id="arr-purpleStroke" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M 0 0 L 9 5 L 0 10 z" fill="#7459a8"/></marker>
-    <marker id="arr-blueStroke" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M 0 0 L 9 5 L 0 10 z" fill="#4f6fad"/></marker>
-    <marker id="arr-muted" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M 0 0 L 9 5 L 0 10 z" fill="#566174"/></marker>
-    <style>
-      .rough { filter: url(#wobble); }
-      .title { font: 700 34px Georgia, serif; fill: #172033; }
-      .subtitle { font: 18px Georgia, serif; fill: #566174; }
-      .lane-label { font: 700 17px "Comic Sans MS", "Bradley Hand", cursive; letter-spacing: 1px; }
-      .node-title { font: 700 17px "Comic Sans MS", "Bradley Hand", cursive; fill: #172033; }
-      .node-title-strong { font: 700 23px "Comic Sans MS", "Bradley Hand", cursive; fill: #172033; }
-      .body { font: 14px "Comic Sans MS", "Bradley Hand", cursive; fill: #172033; }
-      .small { font: 14px "Comic Sans MS", "Bradley Hand", cursive; fill: #566174; }
-      .tag { font: 700 17px "Comic Sans MS", "Bradley Hand", cursive; fill: #172033; }
-      .arrow-label { font: 14px "Comic Sans MS", "Bradley Hand", cursive; fill: #566174; paint-order: stroke; stroke: #fbfaf5; stroke-width: 7px; }
-      .banner-main { font: 700 20px "Comic Sans MS", "Bradley Hand", cursive; fill: #172033; }
-      .banner-sub { font: 15px "Comic Sans MS", "Bradley Hand", cursive; fill: #566174; }
-      .footer { font: 15px Georgia, serif; font-style: italic; fill: #566174; }
-    </style>
+    <marker id="head-94a3b8" markerWidth="10" markerHeight="8" refX="8.6" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0.7 L 9 4 L 0 7.3 Z" fill="#94a3b8"/></marker>
+    <marker id="head-f43f5e" markerWidth="10" markerHeight="8" refX="8.6" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0.7 L 9 4 L 0 7.3 Z" fill="#f43f5e"/></marker>
+    <marker id="head-22c55e" markerWidth="10" markerHeight="8" refX="8.6" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0.7 L 9 4 L 0 7.3 Z" fill="#22c55e"/></marker>
+    <marker id="head-f59e0b" markerWidth="10" markerHeight="8" refX="8.6" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0.7 L 9 4 L 0 7.3 Z" fill="#f59e0b"/></marker>
   </defs>
-  <rect width="1280" height="780" fill="#fbfaf5"/>
-  <rect width="1280" height="780" fill="url(#dots)" opacity=".68"/>
-  <text x="48" y="58" class="title">Same job — so who owns the waiting?</text>
-  <text x="48" y="90" class="subtitle">Before: every status check was a model turn that re-read the whole conversation. After: the agent exits, and a normal program waits for free.</text>
-  <path d="M 48 104 C 330 101, 580 108, 846 103 S 1125 106, 1230 102" fill="none" stroke="#172033" stroke-width="2" stroke-opacity=".18" class="rough"/>
-  <rect x="48" y="126" width="1184" height="262" rx="20" fill="#ffe1de" fill-opacity=".22" stroke="#a45350" stroke-width="2" stroke-dasharray="10 8" class="rough"/>
-  <text x="72" y="158" class="lane-label" fill="#a45350">BEFORE — the model owns every minute of the wait</text>
-  <g transform="rotate(-0.2 166 234)"><rect x="96" y="182" width="140" height="104" rx="16" fill="#dce8ff" stroke="#4f6fad" stroke-width="3" class="rough"/><rect x="100" y="186" width="132" height="96" rx="12" fill="none" stroke="#4f6fad" stroke-opacity=".22" stroke-width="1.5"/>
-    <text x="166" y="229.5" text-anchor="middle" class="node-title">Agent codes</text>
-    <text x="166" y="250.5" text-anchor="middle" class="body">the useful work</text>
-  </g>
-  <g><path d="M 236 234 C 251 234, 251 234, 266 234" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arr-ink)" class="rough"/></g>
-  <g transform="rotate(0.2 336 234)"><rect x="266" y="182" width="140" height="104" rx="16" fill="#dce8ff" stroke="#4f6fad" stroke-width="3" class="rough"/><rect x="270" y="186" width="132" height="96" rx="12" fill="none" stroke="#4f6fad" stroke-opacity=".22" stroke-width="1.5"/>
-    <text x="336" y="229.5" text-anchor="middle" class="node-title">Runs checks</text>
-    <text x="336" y="250.5" text-anchor="middle" class="body">tests and build</text>
-  </g>
-  <g><path d="M 406 234 C 421 234, 421 234, 436 234" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arr-ink)" class="rough"/></g>
-  <g transform="rotate(-0.2 511 234)"><rect x="436" y="182" width="150" height="104" rx="16" fill="#fff0c9" stroke="#a97921" stroke-width="3" class="rough"/><rect x="440" y="186" width="142" height="96" rx="12" fill="none" stroke="#a97921" stroke-opacity=".22" stroke-width="1.5"/>
-    <text x="511" y="229.5" text-anchor="middle" class="node-title">Waits for CI</text>
-    <text x="511" y="250.5" text-anchor="middle" class="body">minutes pass</text>
-  </g>
-  <g><path d="M 586 234 C 601 234, 601 234, 616 234" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arr-ink)" class="rough"/></g>
-  <g transform="rotate(0.2 716 234)"><rect x="616" y="182" width="200" height="104" rx="16" fill="#ffe1de" stroke="#a45350" stroke-width="3" class="rough"/><rect x="620" y="186" width="192" height="96" rx="12" fill="none" stroke="#a45350" stroke-opacity=".22" stroke-width="1.5"/>
-    <text x="716" y="219" text-anchor="middle" class="node-title">Wakes up</text>
-    <text x="716" y="240" text-anchor="middle" class="body">the whole conversation</text>
-    <text x="716" y="261" text-anchor="middle" class="body">back through the model</text>
-  </g>
-  <g><path d="M 816 234 C 831 234, 831 234, 846 234" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arr-ink)" class="rough"/></g>
-  <g transform="rotate(-0.2 926 234)"><rect x="846" y="182" width="160" height="104" rx="16" fill="#ffe1de" stroke="#a45350" stroke-width="3" class="rough"/><rect x="850" y="186" width="152" height="96" rx="12" fill="none" stroke="#a45350" stroke-opacity=".22" stroke-width="1.5"/>
-    <text x="926" y="219" text-anchor="middle" class="node-title">Checks status</text>
-    <text x="926" y="240" text-anchor="middle" class="body">one tiny answer,</text>
-    <text x="926" y="261" text-anchor="middle" class="body">one full model turn</text>
-  </g>
-  <g><path d="M 1006 234 C 1021 234, 1021 234, 1036 234" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arr-ink)" class="rough"/></g>
-  <g transform="rotate(0.2 1111 234)"><rect x="1036" y="182" width="150" height="104" rx="16" fill="#dcf3e5" stroke="#3f8460" stroke-width="3" class="rough"/><rect x="1040" y="186" width="142" height="96" rx="12" fill="none" stroke="#3f8460" stroke-opacity=".22" stroke-width="1.5"/>
-    <text x="1111" y="219" text-anchor="middle" class="node-title">Finally done</text>
-    <text x="1111" y="240" text-anchor="middle" class="body">deployment proof,</text>
-    <text x="1111" y="261" text-anchor="middle" class="body">after more waiting</text>
-  </g>
-  <g><path d="M 926 286 Q 718 352, 511 286" fill="none" stroke="#a45350" stroke-width="3" stroke-dasharray="10 9" marker-end="url(#arr-roseStroke)" class="rough"/>
-    <text x="718" y="348" text-anchor="middle" class="arrow-label" fill="#a45350">not done → wait, wake, re-read, ask again</text>
-    <text x="718" y="370" text-anchor="middle" class="arrow-label" fill="#a45350">×4 wake-ups in one recent sequence</text>
-  </g>
-  <g><path d="M 640 392 C 640 392, 640 424, 640 424" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arr-ink)" class="rough"/></g>
-  <text x="664" y="414" class="small" font-style="italic">the wake → re-read → check loops are exactly what got deleted</text>
-  <rect x="48" y="430" width="1184" height="286" rx="20" fill="#dcf3e5" fill-opacity=".22" stroke="#3f8460" stroke-width="2" stroke-dasharray="10 8" class="rough"/>
-  <text x="72" y="462" class="lane-label" fill="#3f8460">AFTER — CI owns the wait, and waiting is free</text>
-  <g transform="rotate(-0.2 166 538)"><rect x="96" y="486" width="140" height="104" rx="16" fill="#dce8ff" stroke="#4f6fad" stroke-width="3" class="rough"/><rect x="100" y="490" width="132" height="96" rx="12" fill="none" stroke="#4f6fad" stroke-opacity=".22" stroke-width="1.5"/>
-    <text x="166" y="533.5" text-anchor="middle" class="node-title">Agent codes</text>
-    <text x="166" y="554.5" text-anchor="middle" class="body">the useful work</text>
-  </g>
-  <g><path d="M 236 538 C 251 538, 251 538, 266 538" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arr-ink)" class="rough"/></g>
-  <g transform="rotate(0.2 351 538)"><rect x="266" y="486" width="170" height="104" rx="16" fill="#dce8ff" stroke="#4f6fad" stroke-width="3" class="rough"/><rect x="270" y="490" width="162" height="96" rx="12" fill="none" stroke="#4f6fad" stroke-opacity=".22" stroke-width="1.5"/>
-    <text x="351" y="523" text-anchor="middle" class="node-title">Targeted checks</text>
-    <text x="351" y="544" text-anchor="middle" class="body">just what the</text>
-    <text x="351" y="565" text-anchor="middle" class="body">next edit needs</text>
-  </g>
-  <g><path d="M 436 538 C 451 538, 451 538, 466 538" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arr-ink)" class="rough"/></g>
-  <g transform="rotate(-0.2 564 538)"><rect x="466" y="486" width="196" height="104" rx="16" fill="#dcf3e5" stroke="#3f8460" stroke-width="4" class="rough"/><rect x="470" y="490" width="188" height="96" rx="12" fill="none" stroke="#3f8460" stroke-opacity=".22" stroke-width="1.5"/>
-    <text x="564" y="523" text-anchor="middle" class="node-title-strong">CI_HANDOFF</text>
-    <text x="564" y="544" text-anchor="middle" class="body">commit, hand off,</text>
-    <text x="564" y="565" text-anchor="middle" class="body">agent exits</text>
-  </g>
-  <g><path d="M 662 538 C 682 538, 682 538, 702 538" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arr-ink)" class="rough"/></g>
-  <g transform="rotate(0.2 828 538)"><rect x="702" y="486" width="252" height="104" rx="16" fill="#e9e1ff" stroke="#7459a8" stroke-width="3" class="rough"/><rect x="706" y="490" width="244" height="96" rx="12" fill="none" stroke="#7459a8" stroke-opacity=".22" stroke-width="1.5"/>
-    <text x="828" y="523" text-anchor="middle" class="node-title">CI keeps going</text>
-    <text x="828" y="544" text-anchor="middle" class="body">tests · build · wait for</text>
-    <text x="828" y="565" text-anchor="middle" class="body">deployment · browser proof</text>
-  </g>
-  <g><path d="M 934 504 C 972 504, 972 492, 1010 492" fill="none" stroke="#3f8460" stroke-width="2.5" marker-end="url(#arr-greenStroke)" class="rough"/></g>
-  <g><path d="M 934 572 C 972 572, 972 594, 1010 594" fill="none" stroke="#a97921" stroke-width="2.5" marker-end="url(#arr-amberStroke)" class="rough"/></g>
-  <g transform="rotate(-0.2 1109 492)"><rect x="1010" y="456" width="198" height="72" rx="16" fill="#dcf3e5" stroke="#3f8460" stroke-width="3" class="rough"/><rect x="1014" y="460" width="190" height="64" rx="12" fill="none" stroke="#3f8460" stroke-opacity=".22" stroke-width="1.5"/>
-    <text x="1109" y="477" text-anchor="middle" class="node-title">All green</text>
-    <text x="1109" y="498" text-anchor="middle" class="body">no model ever wakes —</text>
-    <text x="1109" y="519" text-anchor="middle" class="body">the proof is the artifact</text>
-  </g>
-  <g transform="rotate(0.2 1109 594)"><rect x="1010" y="556" width="198" height="76" rx="16" fill="#fff0c9" stroke="#a97921" stroke-width="3" class="rough"/><rect x="1014" y="560" width="190" height="68" rx="12" fill="none" stroke="#a97921" stroke-opacity=".22" stroke-width="1.5"/>
-    <text x="1109" y="579" text-anchor="middle" class="node-title">Failure</text>
-    <text x="1109" y="600" text-anchor="middle" class="body">one cheap worker wakes</text>
-    <text x="1109" y="621" text-anchor="middle" class="body">with the failing output</text>
-  </g>
-  <g opacity=".5"><path d="M 828 590 Q 696 640, 564 590" fill="none" stroke="#a45350" stroke-width="2.5" stroke-dasharray="9 8" class="rough"/>
-    <path d="M 685 606 l 22 22 M 707 606 l -22 22" stroke="#a45350" stroke-width="4" stroke-linecap="round"/>
-  </g>
-  <text x="564" y="676" text-anchor="middle" class="tag" fill="#3f8460">model tokens after this point: 0</text>
-  <text x="905" y="676" text-anchor="middle" class="small" fill="#566174" font-style="italic">waiting costs CPU seconds, not model turns</text>
-  <path d="M 48 750 C 360 746, 620 754, 950 748 S 1160 751, 1230 747" fill="none" stroke="#172033" stroke-width="1.5" stroke-opacity=".18" class="rough"/>
-  <text x="48" y="772" class="footer">Evidence: AgentSessions audit, 632 Codex sessions since 1 Aug 2026 · four-wake sequence observed Sep 2026 · raw processed tokens, mostly cached input</text>
+  <rect width="720" height="1170" fill="#ffffff"/>
+  <rect x="0.75" y="0.75" width="718.5" height="1168.5" rx="14" fill="none" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="28" y="46" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="24" font-weight="700" fill="#111827">Before and after CI_HANDOFF</text>
+  <text x="28" y="72" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="15.5" font-weight="400" fill="#64748b">Before: status results return to the model. After: CI handles them without a model call.</text>
+  <path d="M 28 90 L 692 90" fill="none" stroke="#e2e8f0" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="28" y="110" width="320" height="1000" rx="16" fill="#fef2f2" stroke="#fecdd3" stroke-width="1.5"/>
+  <text x="46" y="144" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="13.5" font-weight="700" fill="#be123c">Before — status checks return to the model</text>
+  <rect x="62" y="166" width="268" height="64" rx="10" fill="#eff6ff" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="196" y="193.7" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="17" font-weight="700" fill="#111827" text-anchor="middle">Agent makes the edit</text>
+  <text x="196" y="214.2" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="14.5" font-weight="400" fill="#64748b" text-anchor="middle">the useful work</text>
+  <path d="M 196 234 L 196 271" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#head-94a3b8)"/>
+  <rect x="62" y="276" width="268" height="64" rx="10" fill="#eff6ff" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="196" y="303.7" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="17" font-weight="700" fill="#111827" text-anchor="middle">Targeted checks</text>
+  <text x="196" y="324.2" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="14.5" font-weight="400" fill="#64748b" text-anchor="middle">tests that inform the edit</text>
+  <path d="M 196 344 L 196 381" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#head-94a3b8)"/>
+  <rect x="62" y="386" width="268" height="64" rx="10" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="196" y="413.7" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="17" font-weight="700" fill="#111827" text-anchor="middle">Starts broader validation</text>
+  <text x="196" y="434.2" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="14.5" font-weight="400" fill="#64748b" text-anchor="middle">CI + Vercel deploy</text>
+  <path d="M 196 454 L 196 491" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#head-94a3b8)"/>
+  <rect x="62" y="496" width="268" height="64" rx="10" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="196" y="523.7" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="17" font-weight="700" fill="#111827" text-anchor="middle">Waits for CI / deploy</text>
+  <text x="196" y="544.2" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="14.5" font-weight="400" fill="#64748b" text-anchor="middle">minutes pass</text>
+  <path d="M 196 564 L 196 601" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#head-94a3b8)"/>
+  <rect x="62" y="606" width="268" height="64" rx="10" fill="#fff1f2" stroke="#fda4af" stroke-width="1.5"/>
+  <text x="196" y="633.7" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="17" font-weight="700" fill="#111827" text-anchor="middle">Status returns to model</text>
+  <text x="196" y="654.2" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="14.5" font-weight="400" fill="#64748b" text-anchor="middle">“still running”</text>
+  <path d="M 196 674 L 196 711" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#head-94a3b8)"/>
+  <rect x="62" y="716" width="268" height="64" rx="10" fill="#ffe4e6" stroke="#fb7185" stroke-width="2"/>
+  <text x="196" y="743.7" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="17" font-weight="700" fill="#111827" text-anchor="middle">Model re-entry</text>
+  <text x="196" y="764.2" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="14.5" font-weight="400" fill="#be123c" text-anchor="middle">context re-processed · ≈296K raw</text>
+  <path d="M 196 784 L 196 821" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#head-94a3b8)"/>
+  <rect x="62" y="826" width="268" height="44" rx="10" fill="none" stroke="#fda4af" stroke-width="1.5" stroke-dasharray="6 5"/>
+  <text x="196" y="853" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="15" font-weight="600" fill="#be123c" text-anchor="middle">not done → check again (×4)</text>
+  <path d="M 196 874 L 196 911" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#head-94a3b8)"/>
+  <rect x="62" y="916" width="268" height="64" rx="10" fill="#f0fdf4" stroke="#4ade80" stroke-width="1.5"/>
+  <text x="196" y="943.7" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="17" font-weight="700" fill="#111827" text-anchor="middle">Browser / deploy proof</text>
+  <text x="196" y="964.2" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="14.5" font-weight="400" fill="#64748b" text-anchor="middle">after validation completes</text>
+  <path d="M 196 984 L 196 1021" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#head-94a3b8)"/>
+  <rect x="62" y="1026" width="268" height="64" rx="10" fill="#ffe4e6" stroke="#fb7185" stroke-width="1.5"/>
+  <text x="196" y="1053" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="14.5" font-weight="600" fill="#9f123c" text-anchor="middle">4 status checks, one sequence</text>
+  <text x="196" y="1075" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="14.5" font-weight="700" fill="#9f123c" text-anchor="middle">≈ 1.184M raw processed tokens</text>
+  <path d="M 62 848 L 45 848 L 45 528 L 57 528" fill="none" stroke="#f43f5e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 5" marker-end="url(#head-f43f5e)"/>
+  <rect x="372" y="110" width="320" height="1000" rx="16" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1.5"/>
+  <text x="390" y="144" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="13.5" font-weight="700" fill="#15803d">After — CI handles post-handoff work</text>
+  <rect x="398" y="166" width="268" height="56" rx="10" fill="#eff6ff" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="532" y="189.7" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="17" font-weight="700" fill="#111827" text-anchor="middle">Agent makes the edit</text>
+  <text x="532" y="210.2" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="14.5" font-weight="400" fill="#64748b" text-anchor="middle">the useful work</text>
+  <path d="M 532 226 L 532 235" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#head-94a3b8)"/>
+  <rect x="398" y="240" width="268" height="60" rx="10" fill="#eff6ff" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="532" y="265.7" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="17" font-weight="700" fill="#111827" text-anchor="middle">Targeted checks</text>
+  <text x="532" y="286.2" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="14.5" font-weight="400" fill="#64748b" text-anchor="middle">just what the next edit needs</text>
+  <path d="M 532 304 L 532 313" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#head-94a3b8)"/>
+  <rect x="398" y="318" width="268" height="60" rx="10" fill="#16a34a" stroke="none" stroke-width="0"/>
+  <text x="532" y="344.4" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" font-weight="700" fill="#ffffff" text-anchor="middle">CI_HANDOFF</text>
+  <text x="532" y="364.9" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="14" font-weight="400" fill="#dcfce7" text-anchor="middle">commit · hand off · stop</text>
+  <path d="M 532 382 L 532 391" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#head-94a3b8)"/>
+  <rect x="398" y="396" width="268" height="64" rx="10" fill="#ecfdf5" stroke="#34d399" stroke-width="1.5"/>
+  <text x="532" y="423.7" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="17" font-weight="700" fill="#111827" text-anchor="middle">Model exits</text>
+  <text x="532" y="444.2" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="15.5" font-weight="700" fill="#047857" text-anchor="middle">0 post-handoff model turns</text>
+  <path d="M 532 464 L 532 479" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#head-94a3b8)"/>
+  <rect x="384" y="484" width="296" height="518" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+  <text x="398" y="511" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="14" font-weight="700" fill="#64748b">CI — CPU time, zero model tokens</text>
+  <rect x="396" y="524" width="272" height="48" rx="10" fill="#111827" stroke="none" stroke-width="0"/>
+  <circle cx="418" cy="548" r="8.5" fill="none" stroke="#f9fafb" stroke-width="1.6"/>
+  <path d="M 415.5 543.5 L 422.5 548 L 415.5 552.5 Z" fill="#f9fafb" stroke="#f9fafb" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="440" y="554" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="15.5" font-weight="600" fill="#f9fafb">GitHub Actions triggers</text>
+  <path d="M 532 576 L 532 587" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#head-94a3b8)"/>
+  <rect x="396" y="592" width="272" height="290" rx="12" fill="#eef2ff" stroke="#6366f1" stroke-width="1.5"/>
+  <text x="532" y="617" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="15" font-weight="700" fill="#3730a3" text-anchor="middle">Self-hosted Mac runner</text>
+  <rect x="408" y="628" width="248" height="34" rx="8" fill="#ffffff" stroke="#c7d2fe" stroke-width="1.4"/>
+  <text x="420" y="650.5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="13" font-weight="700" fill="#818cf8">1</text>
+  <text x="440" y="650.5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="14" font-weight="400" fill="#334155">Locked install</text>
+  <path d="M 528 664 L 532 667.5 L 536 664" fill="none" stroke="#c7d2fe" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="408" y="671" width="248" height="34" rx="8" fill="#ffffff" stroke="#c7d2fe" stroke-width="1.4"/>
+  <text x="420" y="693.5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="13" font-weight="700" fill="#818cf8">2</text>
+  <text x="440" y="693.5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="14" font-weight="400" fill="#334155">Broad Vitest + build</text>
+  <path d="M 528 707 L 532 710.5 L 536 707" fill="none" stroke="#c7d2fe" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="408" y="714" width="248" height="34" rx="8" fill="#fafafa" stroke="#52525b" stroke-width="1.4"/>
+  <text x="420" y="736.5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="13" font-weight="700" fill="#71717a">3</text>
+  <path d="M 440 737 L 445.5 726 L 451 737 Z" fill="#18181b" stroke="#18181b" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="459" y="736.5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="14" font-weight="400" fill="#18181b">Vercel wait + polling</text>
+  <path d="M 528 750 L 532 753.5 L 536 750" fill="none" stroke="#c7d2fe" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="408" y="757" width="248" height="34" rx="8" fill="#ffffff" stroke="#c7d2fe" stroke-width="1.4"/>
+  <text x="420" y="779.5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="13" font-weight="700" fill="#818cf8">4</text>
+  <text x="440" y="779.5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="14" font-weight="400" fill="#334155">Live URL wait</text>
+  <path d="M 528 793 L 532 796.5 L 536 793" fill="none" stroke="#c7d2fe" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="408" y="800" width="248" height="34" rx="8" fill="#ffffff" stroke="#c7d2fe" stroke-width="1.4"/>
+  <text x="420" y="822.5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="13" font-weight="700" fill="#818cf8">5</text>
+  <text x="440" y="822.5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="14" font-weight="400" fill="#334155">Production Playwright</text>
+  <path d="M 528 836 L 532 839.5 L 536 836" fill="none" stroke="#c7d2fe" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="408" y="843" width="248" height="34" rx="8" fill="#ffffff" stroke="#c7d2fe" stroke-width="1.4"/>
+  <text x="420" y="865.5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="13" font-weight="700" fill="#818cf8">6</text>
+  <text x="440" y="865.5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="14" font-weight="400" fill="#334155">Proof artifact · screenshots</text>
+  <path d="M 532 887 L 532 900" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 532 900 L 461 900 L 461 909" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#head-22c55e)"/>
+  <path d="M 532 900 L 603 900 L 603 909" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#head-f59e0b)"/>
+  <rect x="396" y="912" width="130" height="76" rx="10" fill="#dcfce7" stroke="#4ade80" stroke-width="1.5"/>
+  <text x="461" y="936.425" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="15.5" font-weight="700" fill="#14532d" text-anchor="middle">All green</text>
+  <text x="461" y="955.425" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="13" font-weight="400" fill="#64748b" text-anchor="middle">no model call</text>
+  <text x="461" y="974.425" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">0 model turns</text>
+  <rect x="538" y="912" width="130" height="76" rx="10" fill="#fffbeb" stroke="#fcd34d" stroke-width="1.5"/>
+  <text x="603" y="936.425" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="15.5" font-weight="700" fill="#b45309" text-anchor="middle">Failure</text>
+  <text x="603" y="955.425" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="13" font-weight="400" fill="#b45309" text-anchor="middle">repair worker</text>
+  <text x="603" y="974.425" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="13" font-weight="400" fill="#b45309" text-anchor="middle">compact packet</text>
+  <rect x="398" y="1026" width="268" height="64" rx="10" fill="#dcfce7" stroke="#4ade80" stroke-width="1.5"/>
+  <text x="532" y="1053" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="15" font-weight="700" fill="#14532d" text-anchor="middle">Successful change:</text>
+  <text x="532" y="1075" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="15" font-weight="700" fill="#15803d" text-anchor="middle">0 post-handoff model turns</text>
+  <text x="28" y="1146" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="15" font-weight="400" fill="#64748b">Evidence: AgentSessions audit · Codex sessions since 1 Aug 2026</text>
 </svg>

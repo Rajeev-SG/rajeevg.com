@@ -1,103 +1,113 @@
 ---
-title: "I Was Paying an AI Agent to Stare at a Progress Bar"
+title: "I moved the waiting out of my coding agent and into CI"
 slug: "i-stopped-paying-ai-agents-to-wait-for-ci"
 date: "2026-09-09"
-description: "My coding agent kept waking up to ask GitHub whether CI had finished, and every wake-up dragged the whole conversation back through the model. An audit found 612 wait-only responses and about 77.75M raw tokens. The fix: hand the waiting to CI, and let the agent stop."
+description: "My coding agent used to spend extra model turns checking whether tests and deployment had finished. I moved that post-edit work into GitHub Actions on a self-hosted runner. The authoring model now commits, emits CI_HANDOFF and stops."
 tags: [ai, agents, codex, ci, observability, cost]
 draft: false
 ---
 
-I found it in my own logs, and I have not stopped thinking about it since.
+Writing the first version of this article with a coding agent took 47,290 tokens. In one long Codex session, a single later status check processed about 296,000 raw tokens. The useful edit had already been made; the extra tokens came from invoking the model again to handle asynchronous test and deployment status. I moved that post-edit work into CI.
 
-Four model responses in a row, a few days apart, whose entire job was to notice that nothing had changed. Each one pulled the whole working conversation back through the model — the instructions, the files, the edits, every previous turn — to produce a reply that amounted to: *still running, keep waiting.*
+## What CI is, in one paragraph
 
-Together those four checks processed about **1.184 million tokens**. The new information they produced was worth roughly four words.
+CI stands for continuous integration: a server runs your tests and builds your project automatically whenever the code changes. On GitHub the mechanism is GitHub Actions. You push a commit or merge a pull request, GitHub matches the change against a workflow file in the repository, and a machine called a runner executes the commands listed in that file. Those commands are ordinary shell commands. No language model is invoked to start a job, to wait fifteen seconds, or to read back a status. When a runner polls an API for ten minutes, the cost is CPU time.
 
-Here is the everyday version. I was paying a very expensive engineer to sit and refresh a delivery-tracking page. And every time she refreshed it, she first had to re-read the entire project history to remember why she was refreshing.
+## How this site is set up
 
-That was not a flaw in my setup. That was the setup. Or it was.
+`rajeevg.com` is a Next.js site deployed by Vercel. It has a workflow called Article local CI. The three parts do different jobs:
 
-## What "checking again" actually costs
+- GitHub is the trigger and the status layer. It notices that a `content/posts/**` file changed, starts the workflow, and displays whether each job passed.
+- A self-hosted runner on my Mac does the compute. Installing dependencies, running the test suite, building the site and driving a browser all happen locally.
+- Vercel builds and serves the public site. CI does not deploy; it waits for Vercel and then checks the result.
 
-One sentence of background: CI — continuous integration — is the machinery that runs your tests and builds automatically whenever code changes.
+There are two acceptance paths. On a pull request, CI installs dependencies, runs the broad test suite, builds, and proves the article renders in a real browser against the local build. After merge to `main`, CI does the same work and then waits for Vercel's deployment of that commit, waits for the live URL to serve the page, and runs the browser proof against production.
 
-When my coding agent finishes a change, the next question is whether CI agrees. The honest answer takes minutes. And here is the part I had never priced properly: for an AI agent, waiting is not quiet. The agent calls a wait tool, the wait ends, and then **the model has to be invoked again to decide what happens next**. A model call does not just look at the new status line. It pulls the entire conversation so far back through itself — everything it has read, written and decided — in order to produce five words.
+## What the authoring agent does now
 
-So the cost of "let me check again" grows with the length of the session. Early in a task it is cheap. Six hours in, every status check is a full re-read of six hours of work, to learn that a progress bar has moved three percent.
+The agent that writes an article has a bounded job:
 
-I went and measured how big this had got.
+1. Write or change the article file.
+2. Run only the targeted checks that inform the next edit, such as validating the MDX.
+3. Commit.
+4. Emit a marker in its final message: `CI_HANDOFF`.
+5. Stop.
 
-## The audit: 612 responses that said nothing
+`CI_HANDOFF` is a convention, not a product feature. It tells my orchestration layer that the model's turn is finished and everything after this point belongs to CI. The agent does not ask GitHub whether the workflow started, and it does not check Vercel.
 
-From my AgentSessions records, every Codex session since **1 August 2026** — the same habit of auditing my own sessions that produced [the 551-session study](/blog/what-551-codex-sessions-reveal-about-real-ai-work), on a newer sample:
+## The exact work that moved out of the model
 
-- **632 sessions**, containing **20,632 tool calls**
-- **4,557 of those calls were waits**
-- **612 model responses existed only to process a wait result** — nothing else in them
-- those 612 responses processed roughly **77.75 million raw tokens**
-- their total output was about **74,000 tokens** — around a thousandth of what went in
-- almost all of it, about **77.54 million raw tokens**, ran on GPT-5.6 Sol: my strongest and least cheap model
+After the handoff, all of this runs without a model call:
 
-Not every wait in that total is CI polling. Waits happen for builds, deploys, test runs, all of it. But the shape is the same everywhere: the model wakes up, re-reads its whole working life, and discovers that nothing has changed. The four-check sequence above is one clean recent example of the pattern — about 1.184 million raw tokens spent to answer one question.
+- install locked dependencies with `pnpm install --frozen-lockfile`
+- run the broad Vitest regression suite
+- run the production build
+- poll GitHub every fifteen seconds until Vercel reports the deployment for that commit as successful, or fail after fifteen minutes
+- retry the live article URL until it serves the page
+- run the Playwright browser proof against the production URL
+- capture screenshots and upload them as a build artifact
+- record the job as green or red
+
+These steps are deterministic. A normal runner can execute them without invoking a language model.
+
+## Why this saves tokens
+
+The saving comes from avoiding model re-entry. If Codex checks an asynchronous job, the returned status has to be processed by the model. That model call includes the accumulated session context: instructions, files read, edits, tool results and previous turns. A small status update can therefore cause a large amount of context to be processed again.
+
+CI changes that mechanism. GitHub Actions and the self-hosted runner poll status, run tests and inspect exit codes with ordinary programs. If everything succeeds, no model is called after `CI_HANDOFF`. The amount saved depends on how many model re-entries the old workflow would have caused and how large the session context had become.
+
+## What my session records show
+
+I checked 632 Codex sessions recorded since 1 August 2026. Across them, I found 612 model responses whose only purpose was to process a wait result. Those wait-only responses averaged about **127,000 raw processed tokens each**.
+
+The cost rises as the session gets longer. In one clean GitHub Actions example late in a long session, four status-check model turns processed about **1.184 million raw tokens in total**, or about **296,000 per check**. The new CI path removes those successful status-check turns entirely.
+
+For completeness, the underlying audit covered 20,632 tool calls, including 4,557 waits. The 612 wait-only responses processed about 77.75 million raw tokens in total. Most of that input was cached, so these figures describe context processing and quota use, not the equivalent number of freshly billed tokens.
 
 <ArticleFigure
   src="/images/blog/local-ci-token-savings/wait-loop-context.svg"
-  alt="Diagram: a tall stack labelled the conversation so far feeds four repeated wake-ups; each wake-up re-processes the entire accumulated conversation to answer done yet? with still running, about 296K raw tokens on average, totalling about 1.184 million raw processed tokens across four observed status checks"
-  eyebrow="The hidden cost of checking again"
-  title="A four-word answer, delivered at conversation-length input"
-  caption="One observed sequence of four GitHub Actions status checks processed about 1.184M raw tokens, mostly cached input. Evidence: AgentSessions audit, sessions since 1 Aug 2026; figure drawn 9 Sep 2026."
+  alt="Diagram showing the accumulated coding-agent context being processed again for four separate CI status checks. Each check processes about 296,000 raw tokens in the observed long session, totalling about 1.184 million raw processed tokens."
+  eyebrow="Where the tokens went"
+  title="Why a small status check can process a large context"
+  caption="Four GitHub Actions status checks in one observed session processed about 1.184M raw tokens, mostly cached input. Source: AgentSessions audit of 632 Codex sessions since 1 Aug 2026; figure drawn 9 Sep 2026."
 />
 
 [Download the editable diagram](/downloads/local-ci-token-savings-wait-loop-context.excalidraw)
 
-One honest caveat, stated once, then we move on: **77.75 million raw processed tokens is not 77.75 million fully billed fresh tokens.** About 76.96 million of it was cached input, which providers charge for differently — usually far less. I am not going to convert that number into an invoice, because it is not one. The waste is more boring and just as real: 612 model turns that produced nothing, quota burned on re-reading, and a frontier model's attention spent on a progress bar.
+That gives a useful estimate for a publication task. If the old publish/deploy tail would have caused three to five model re-entries, moving it into CI avoids roughly **380,000 to 635,000 raw processed tokens** at the audit-wide average. In a long-context session like the observed four-check example, the same three to five avoided re-entries are roughly **890,000 to 1.48 million raw processed tokens**.
 
-## The fix is almost embarrassingly simple
+## Which tasks stopped needing a model
 
-A normal program can wait for free. A shell script can sleep for sixty seconds and cost nothing. A CI runner can poll a deployment for ten minutes and spend only CPU seconds. The expensive thing was never the waiting. It was *asking a model to notice* the waiting.
+| Work after handoff | What CI does | Rough saving if it avoids model re-entry |
+| --- | --- | --- |
+| Broad tests and production build | Runs Vitest and `next build`, then reads the exit codes | One avoided result-check turn is about **127K raw tokens** at the audit average, or about **296K** in the observed long session |
+| Vercel deployment wait and live-URL readiness | Polls deployment status and the URL on fixed intervals | If this removes 1–3 status-check turns, about **127K–381K** at the audit average, or **296K–888K** in a long session like the observed example |
+| Production Playwright proof and artifact upload | Runs the browser proof and stores the evidence | One avoided result-check turn is again roughly **127K average / 296K long-context** |
 
-So I gave the agent a door:
-
-1. **Do the useful work.** Write the change; run the checks that inform the next edit.
-2. **Commit and hand off.** Emit a marker — `CI_HANDOFF` — that says: CI owns everything from here.
-3. **Stop.** The authoring model's turn ends there. Not "check once more". Ends.
-4. **CI waits, for free.** Tests, build, deployment wait, browser proof — all inside a runner that does not bill by the token.
-5. **Failures wake someone cheap.** If something breaks, a small worker gets a compact packet: which commit, which job, the failing output. Not the full history of a successful run.
+Those are estimates based on avoided model re-entries, not intrinsic token prices for Vitest, Vercel or Playwright. The important change is that successful post-handoff work now requires **zero** model turns.
 
 <ArticleFigure
   src="/images/blog/local-ci-token-savings/before-after-handoff.svg"
-  alt="Diagram comparing two flows. Before: the agent writes code, runs checks, waits, then repeatedly wakes up, re-reads the whole conversation and checks status again before deployment proof. After: the agent writes code, runs targeted checks, emits CI_HANDOFF and exits with zero further model tokens, while CI runs tests, build, deployment wait and browser proof; green results wake nobody, and only a failure wakes one cheap worker"
-  eyebrow="The handoff"
-  title="Same job — so who owns the waiting?"
-  caption="The repeated wake-re-read-check loops exist only in the before path. After CI_HANDOFF the model is gone; the waiting lives in a runner that bills in CPU seconds. Evidence: AgentSessions audit since 1 Aug 2026; figure drawn 9 Sep 2026."
+  alt="Diagram comparing the old and new publication flow. Before CI_HANDOFF, status results return to the coding model and cause more context processing. After CI_HANDOFF, GitHub Actions and the self-hosted Mac runner handle tests, build, Vercel status polling, live-URL checks, Playwright proof and artifact upload with zero successful post-handoff model turns."
+  eyebrow="Before and after"
+  title="Before and after CI_HANDOFF"
+  caption="Before CI_HANDOFF, status results can trigger more model calls. After CI_HANDOFF, the same deterministic work runs in GitHub Actions and on the self-hosted runner. Source: AgentSessions audit since 1 Aug 2026; figure drawn 9 Sep 2026."
 />
 
 [Download the editable diagram](/downloads/local-ci-token-savings-before-after-handoff.excalidraw)
 
-A green run ends in silence. Nothing wakes up to celebrate it, because nothing needs to: the green checks and the captured artifacts are the result.
+## This article as the test case
 
-## This article tested the idea on itself
+The first version of this piece was written by a GPT-6 Astra worker at low reasoning. It finished in 2 minutes 56 seconds, used 47,290 tokens, committed, emitted `CI_HANDOFF` and stopped. It never polled GitHub and never looked at Vercel.
 
-The first version of this article was written by GPT-6 Astra at low reasoning. It wrote the piece in **2 minutes 56 seconds**, used **47,290 tokens**, committed, emitted `CI_HANDOFF`, and stopped existing. It never asked GitHub whether CI had finished. It never saw the deployment.
+CI took it from there. The rewrite pull request run took 2 minutes 49 seconds. The production run after merge took 6 minutes 7 seconds: waiting for Vercel, running the broad suite and the build, then driving a browser over the published page and uploading the screenshots. The most recent proof artifact was about 3.28 MB.
 
-Everything after that handoff happened with no model in the loop: the local Article CI on my own machine ran the broad test suite, built the site, waited for the deployment, and drove a real browser over the published page, capturing about **2.96 MB of screenshots** as proof.
+An earlier production run also exposed a real CI bug. The workflow watched GitHub check-runs, while Vercel was publishing the deployment result as a commit status, so CI timed out even though deployment had succeeded. The workflow now checks both APIs. The failure appeared as a red job with logs; the authoring model did not need to stay active to detect it.
 
-It was not flawless, and the flaw is the interesting part. The production CI timed out waiting for a deployment that had already succeeded: the workflow was looking for Vercel's green light in one corner of GitHub's reporting, while Vercel posts it in another. A human noticed in about a minute, the workflow learned to look in both places, it re-ran, and the proof passed. That is the failure path working as designed — one real failure, surfaced once, fixed once — instead of hundreds of model turns concluding "still running".
+## What this does and does not prove
 
-## What this proves, and what it does not
+This is not a controlled experiment. I did not run matched publishing tasks down the old and the new path and measure the difference, so I am not claiming a percentage saving. What is observable is the architecture: the writing model now stops before several minutes of installing, testing, building, deployment waiting and browser proof, and that work runs where waiting costs CPU seconds.
 
-This is not a controlled experiment. I did not run matched tasks through the old and new paths and count the difference, and I will not claim a percentage saving from a sample of one. Anyone showing you such a number from a single run is selling something.
+The metric I will watch is simple: for a successful change, model tokens spent after `CI_HANDOFF` should be zero. If CI fails, a repair worker can be started with the commit, failed job and relevant output. If CI succeeds, no further model call is needed.
 
-What it does show is architectural, and it is directly observable: the writing model stopped before several minutes of validation and deployment waiting, and that waiting happened somewhere that does not charge per token. Combined with the audit above, that is enough to change the default.
-
-The metric I will track from here is deliberately tiny:
-
-> **For a successful change, model tokens spent after `CI_HANDOFF` should be zero.**
-
-Not "reduced". Zero. If CI is green, there is nothing left for a model to know. If CI is red, one cheap worker wakes with a compact packet, and that is the whole repair path. And if post-handoff turns start creeping back, or failures get harder to diagnose, then the handoff itself is what needs fixing — not the workers.
-
-## The boring rule underneath
-
-This is [why agent systems become slow, expensive and fragile](/blog/why-agent-systems-become-slow-expensive-and-fragile) in miniature: the useful work finishes, and then oversight keeps invoicing you for the aftermath. The cheapest model turn is the one that never happens — the argument I made in [Token-maxxing](/blog/token-maxxing-getting-more-useful-ai-work-for-less-money), applied to my own worst habit.
-
-I stopped paying an AI to watch a progress bar. The progress bar is now watched by something that does not mind.
+This does not make CI a replacement for the coding agent. The agent still writes, reasons and runs targeted checks while editing. CI takes over the deterministic work that happens after the useful edit is complete.
