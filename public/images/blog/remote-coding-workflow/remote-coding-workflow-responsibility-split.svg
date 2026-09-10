@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1520 820" width="100%" role="img" aria-labelledby="ttl dsc">
+  <title id="ttl">Who owns what: control plane, worker plane, shared memory</title>
+  <desc id="dsc">Responsibility split. The control plane, ChatGPT on a frontier model, keeps a small context and owns judgment: scope, issues, launching workers, reviewing pull requests, deciding what merges. The worker plane, OMP on GLM-5.3-Flash, keeps a long context and owns the implementation: reading the issue, editing, validating, committing, pushing and opening the pull request. GitHub sits between the planes as shared durable memory. Issue triage, required CI checks, scheduled workers and auto-merge are deliberately not automated.</desc>
+  <defs>
+<marker id="arw-0" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2B5FD9"/></marker>
+<marker id="arw-1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2B5FD9"/></marker>
+<marker id="arw-2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1E8F86"/></marker>
+<marker id="arw-3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1E8F86"/></marker>
+  </defs>
+  <rect x="0" y="0" width="1520" height="820" fill="#F7F5F0"/>
+<path d="M 370 440 L 370 530" fill="none" stroke="#2B5FD9" stroke-width="2.5" marker-end="url(#arw-1)" marker-start="url(#arw-0)"/>
+  <text x="385" y="490" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#2B5FD9" paint-order="stroke" stroke="#F7F5F0" stroke-width="5">issues + review targets</text>
+<path d="M 1150 440 L 1150 530" fill="none" stroke="#1E8F86" stroke-width="2.5" marker-end="url(#arw-3)" marker-start="url(#arw-2)"/>
+  <text x="1165" y="490" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1E8F86" paint-order="stroke" stroke="#F7F5F0" stroke-width="5">task spec + PRs</text>
+  <text x="48" y="64" font-family="Helvetica, Arial, sans-serif" font-size="30" font-weight="700" fill="#12213D">Who owns what: control plane, worker plane, shared memory</text>
+<rect x="40" y="110" width="660" height="330" rx="12" fill="#EEF2FD" stroke="#2B5FD9" stroke-width="2"/>
+<text x="68" y="150" font-family="Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#12213D">Control plane — ChatGPT</text>
+<text x="68" y="180" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">frontier model, small context, owns judgment</text>
+<text x="68" y="204" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479"></text>
+<text x="68" y="228" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">· discusses scope and priorities with you</text>
+<text x="68" y="252" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">· creates and updates GitHub issues</text>
+<text x="68" y="276" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">· launches and observes worker sessions</text>
+<text x="68" y="300" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">· reviews the PR diff and its evidence</text>
+<text x="68" y="324" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">· decides what merges; closes the loop</text>
+<text x="68" y="348" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">· never writes the implementation</text>
+<rect x="820" y="110" width="660" height="330" rx="12" fill="#E9F5F3" stroke="#1E8F86" stroke-width="2"/>
+<text x="848" y="150" font-family="Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#12213D">Worker plane — OMP on GLM-5.3-Flash</text>
+<text x="848" y="180" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">cheap model, long context, owns the middle</text>
+<text x="848" y="204" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479"></text>
+<text x="848" y="228" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">· reads the issue — not the chat history</text>
+<text x="848" y="252" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">· inspects the repo and implements</text>
+<text x="848" y="276" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">· runs validation before committing</text>
+<text x="848" y="300" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">· commits, pushes, opens the PR</text>
+<text x="848" y="324" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">· reports evidence; never merges</text>
+<text x="848" y="348" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">· never redefines scope</text>
+<rect x="40" y="530" width="1440" height="120" rx="12" fill="#FFF7EC" stroke="#D98A2B" stroke-width="2"/>
+<text x="760" y="570" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#A9670F">GitHub — the shared memory between the planes</text>
+<text x="760" y="600" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">issues hold scope and acceptance · branches hold progress · PRs hold the review and the decision</text>
+<text x="760" y="624" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">if a session dies, both planes rebuild from here — not from anyone's memory</text>
+<rect x="40" y="690" width="1440" height="90" rx="12" fill="#F1EEE7" stroke="#8B93A3" stroke-width="2"/>
+<text x="760" y="730" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#12213D">Deliberately not automated</text>
+<text x="760" y="760" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">issue triage · required CI checks · scheduled workers · auto-merge — the controller stays in the loop on purpose</text>
+</svg>

@@ -1,0 +1,172 @@
+---
+title: "ChatGPT as Controller, GitHub as Memory, a Local GLM Worker as the Workforce"
+slug: "chatgpt-controller-github-memory-glm-worker"
+date: "2026-09-06"
+description: "The verified remote coding workflow I now run end to end: ChatGPT plans and reviews, GitHub holds the durable task state, Remote Desktop Commander bridges to the Mac, and a local OMP worker on GLM-5.3-Flash does the implementation."
+tags:
+  - ai
+  - agents
+  - chatgpt
+  - github
+  - glm
+  - openrouter
+  - orchestration
+  - cost
+draft: false
+image: /images/blog/remote-coding-workflow/remote-coding-workflow-end-to-end.svg
+---
+
+The most expensive tokens in my workflow were never the hard ones. Planning a change, reviewing a diff, deciding what actually ships — that is a few thousand tokens of good judgment. The expensive part was everything around it: re-reading files, running commands, digesting output, editing, re-editing. Judgment work wearing an execution costume, billed at frontier-model rates.
+
+So I flipped the billing. ChatGPT stays the controller — it plans, files issues, launches workers, reviews, and decides what merges. A local worker harness running GLM-5.3-Flash through OpenRouter does the typing. GitHub holds the task state so nothing depends on anyone's memory. Remote Desktop Commander is the bridge ChatGPT uses to start and observe the local worker.
+
+This is now verified end to end, not sketched: the setup is documented in a small public repo, [chatgpt-agent-workflow](https://github.com/Rajeev-SG/chatgpt-agent-workflow), and this very article is the loop's latest test case — filed as an issue, implemented by the local GLM worker, and delivered as a pull request for ChatGPT to review.
+
+<ArticleDiagramFigure
+  src="/images/blog/remote-coding-workflow/remote-coding-workflow-end-to-end.svg"
+  alt="End-to-end flow diagram: you discuss and plan with ChatGPT, which files a GitHub issue and launches a worker session through Remote Desktop Commander; the OMP worker on GLM-5.3-Flash reads the issue, implements, validates, commits and pushes, and opens a pull request; ChatGPT reviews the diff and evidence, merges, and the result returns to you"
+  caption="One loop. Work is specified on GitHub, executed locally by the worker, and returned to ChatGPT as a pull request. The controller never writes the implementation; the worker never merges."
+  editableHref="/downloads/remote-coding-workflow-end-to-end.excalidraw"
+  editableLabel="Download the editable Excalidraw source"
+  date="6 September 2026"
+/>
+
+## Five components, each doing one job
+
+The setup has exactly five parts, and the names matter less than the boundaries between them.
+
+**ChatGPT is the controller.** It discusses and plans with me, creates and updates GitHub issues, launches the worker, reviews the pull request, and merges. It owns judgment: scope, priorities, acceptance, and the final decision. It does not implement.
+
+**GitHub is the ticket system and the delivery lane.** Issues define the work. Branches link to issues, and pull requests are the only way work lands. The lifecycle is issue → branch → PR → merge — nothing fancier than that.
+
+**Remote Desktop Commander (RDC) is the bridge.** It is how ChatGPT invokes local tools and terminal commands on my Mac — which is how worker sessions get started and observed. It carries commands; it does not write code.
+
+**OMP is the worker harness.** A local coding agent that runs against a repository. It reads the issue, edits files, runs validation, commits, pushes, and opens a pull request.
+
+**GLM is the worker model.** `z-ai/glm-5.3-flash`, routed through OpenRouter, is the low-cost execution model the OMP worker runs on. Escalating to a stronger model is a deliberate, per-task decision — not the default.
+
+The reason this split pays is economics, not cleverness. Frontier-model sessions charge roughly the same rate whether the model is deciding scope or grinding through a twenty-file refactor. Move the grinding to a cheap model and the expensive one only buys judgment. The catch — and this is why the boundaries above are stated so bluntly — is that a cheap worker will happily produce confident, plausible, wrong work unless the controller reviews the actual diff instead of the summary.
+
+## The division of labour is the architecture
+
+The component list is not the interesting part. The interesting part is that every concern has exactly one owner, and the two planes touch only through GitHub.
+
+<ArticleDiagramFigure
+  src="/images/blog/remote-coding-workflow/remote-coding-workflow-responsibility-split.svg"
+  alt="Responsibility split diagram: the control plane where ChatGPT owns scope, issues, launching workers, reviewing pull requests and merging; the worker plane where OMP on GLM-5.3-Flash owns reading the issue, implementing, validating, committing, pushing and opening the PR; GitHub between them as shared memory; and a band listing what is deliberately not automated"
+  caption="Control plane and worker plane touch only through GitHub. If a session dies, both planes rebuild from the issue, the branch and the PR — not from anyone's memory."
+  editableHref="/downloads/remote-coding-workflow-responsibility-split.excalidraw"
+  editableLabel="Download the editable Excalidraw source"
+  date="6 September 2026"
+/>
+
+The rule that makes it hold: if a task seems to need the controller to step into implementation, that is a signal the issue is under-specified — fix the issue instead of taking the keyboard back. The controller reviewing its own unreviewed implementation is exactly the failure this setup exists to prevent.
+
+One honest boundary: what is working today is ChatGPT creating issues, launching OMP workers with the GLM route through RDC, the worker implementing and opening PRs, and ChatGPT reviewing. What is *not* built is any automation around that loop — no automated issue triage, no required CI checks, no scheduled workers, no auto-merge. Those stay manual on purpose. The controller — me plus ChatGPT — remains in the loop where the consequences are real.
+
+## One issue, one branch, one PR
+
+The operating sequence is deliberately boring:
+
+1. Pick an existing issue, or have ChatGPT create one that states scope and acceptance criteria.
+2. Check for in-flight work on that issue — reuse the open branch or PR rather than starting a duplicate.
+3. ChatGPT launches a worker against the issue through RDC.
+4. The worker creates an issue-linked branch, implements, validates, commits, pushes, and opens a PR with `Closes #N`.
+5. ChatGPT reviews the PR, requests changes or merges, and the issue closes with the merge.
+
+The pacing rules do as much work as the steps: one issue gets one branch and one PR; both are reused until merge, not respawned per correction. The worker validates before committing; ChatGPT verifies claimed results during review rather than trusting the summary. And if a slice grows beyond one reviewable PR, it gets checkpointed and the remainder becomes a follow-up issue. A sprawling task is not a sign of ambition — it is a review-quality problem with a cost attached.
+
+## GitHub is the memory, not the session
+
+Worker tasks sometimes outlive the session that started them. The workflow treats that as normal rather than as a failure mode.
+
+While a task is active, ChatGPT retains the session reference and can reattach to hand over the next instruction — the worker already has the repository context, so the follow-up points at the open branch or PR state instead of restating the whole task.
+
+If a session is lost or wedged, ChatGPT launches a fresh OMP session against the same issue. The durable state is on GitHub — the issue, the branch, the pushed commits — so the new session picks up from the repo rather than from a conversation nobody can read anymore. At most, the current uncommitted step is lost.
+
+Two rules keep this honest: a pre-existing worker session is never hijacked for a different task — new task, new session — and nothing important is allowed to live only in a session. Issue context, decisions, validation results and PR descriptions belong in GitHub, which is the one thing in this loop that outlives everything else.
+
+## The bridge that restarts itself
+
+RDC is the dependency that can quietly ruin the whole arrangement: ChatGPT reaches the Mac *only* through it, so if the bridge dies, the entire loop stops — not just one task. RDC has some reconnect logic of its own, but a remote process can still exit or wedge into a state where it reports itself offline. So the bridge is supervised.
+
+<ArticleDiagramFigure
+  src="/images/blog/remote-coding-workflow/remote-coding-workflow-rdc-recovery.svg"
+  alt="Recovery pattern diagram: a launchd LaunchAgent with KeepAlive starts a supervisor script at login and relaunches it if it dies; the supervisor launches the Desktop Commander remote process and restarts it when it exits or logs a fatal message; alongside, why this matters, the live verification, and GitHub holding the durable state"
+  caption="Two layers: launchd keeps the supervisor alive; the supervisor keeps RDC alive. The recovery was verified by killing the active RDC child on purpose and watching it come back — no manual restart."
+  editableHref="/downloads/remote-coding-workflow-rdc-recovery.excalidraw"
+  editableLabel="Download the editable Excalidraw source"
+  date="6 September 2026"
+/>
+
+The pattern is two layers of the same trick:
+
+- **launchd keeps the supervisor alive.** A per-user LaunchAgent with `KeepAlive` runs a small supervisor script at login. If the supervisor itself dies, launchd starts it again.
+- **The supervisor keeps RDC alive.** The supervisor launches the Desktop Commander remote process (`npx -y @wonderwhy-er/desktop-commander@latest remote`), restarts it if the process exits, and also watches the current run's log lines for RDC's explicit fatal messages — `offline for remote calls` or `Restart the terminal running Desktop Commander` — and restarts when they appear.
+
+This was verified live rather than assumed: the active RDC child was killed deliberately, the device went offline, and it came back online automatically within seconds; a real RDC tool call after recovery succeeded.
+
+Because the bridge is replaceable machinery, it gets none of my trust as storage — that is the previous section's point. When I need to poke at it manually, the same primitives the supervisor uses are copy-pasteable from any shell:
+
+```sh
+# Is the supervisor running under launchd?
+launchctl print gui/$(id -u)/<your-rdc-label>
+
+# Follow the RDC log for restarts and fatal messages
+tail -f <your-rdc-log>
+
+# Force a clean supervisor restart if needed
+launchctl kickstart -k gui/$(id -u)/<your-rdc-label>
+```
+
+## Codex is a harness, not a model
+
+OMP/GLM is the default worker, but not the only one. When an OMP session is unavailable or a task needs a different harness, **Codex** fills in — as a worker, never as a second controller.
+
+The distinction that keeps this from turning into soup: the harness and the model are separate choices. The verified Codex path still runs the same worker model, `z-ai/glm-5.3-flash` — Codex changes the runtime the model runs in, not the roles or the lifecycle. The invocation is four steps:
+
+1. ChatGPT reads the issue and decides to use the Codex harness instead of OMP.
+2. ChatGPT invokes the work through RDC — the same bridge, nothing runs directly on the host.
+3. RDC runs a Codex CLI `exec` session in the repository checkout, handing it the issue number, the repo instructions, and the deliverables.
+4. The Codex session runs the worker model, which reads the issue, creates an issue-linked branch, makes the change, validates, commits, pushes, and opens the PR with `Closes #N`.
+
+The controller still reviews the resulting PR before merge. Same lifecycle, different hands on the keyboard.
+
+## The guardrails
+
+The boundaries are short enough to keep in your head, which is the point:
+
+- **Secrets never touch the repo.** Provider keys live in local configuration — `gh` auth, OMP config. The worker uses them through the environment; a credential appearing in a diff is a blocking review failure, not a style note.
+- **Destructive actions need explicit authorization at the point of the action** — force pushes, deleting branches, resetting state. External side effects like publishing or sending are out of the worker's scope by default.
+- **RDC is an admin dependency, not a convenience.** It is the path ChatGPT uses to run tools on the machine, so treat it — and worker sessions — as replaceable machinery, never as storage.
+- **Cost control is context control.** Token cost is dominated by context size and tool output, so: read the sections of files that matter instead of dumping trees; cap tool output by extracting counts and filtered lines instead of streaming logs; stay on the workhorse model unless difficulty is demonstrated; and right-size slices, because small well-specified issues mean shorter sessions and cheaper reviews than one sprawling task.
+- **Review discipline closes the loop.** A worker's self-assessment is not proof; the controller checks the actual diff and validation evidence. Failed validation is a failure to fix, not something to explain away.
+
+## Set it up yourself
+
+The whole thing is reproducible in an afternoon. The short version:
+
+1. **Connect ChatGPT to GitHub** and grant it access to the repos that will use the workflow. Verify it can see issues on a test repo.
+2. **Verify Remote Desktop Commander** — confirm ChatGPT can reach the Mac through the bridge it uses to invoke local tools.
+3. **Authenticate `gh`** on the Mac. The worker pushes branches and opens PRs through your credentials.
+4. **Install OMP** and confirm a session starts in a repository.
+5. **Configure the GLM route** — the OpenRouter-backed `z-ai/glm-5.3-flash` entry as the worker's default model. The API key stays in local OMP configuration; never in a repository.
+6. **Smoke test**: pick a trivial documentation task, file an issue, have ChatGPT launch a worker against it, and confirm a branch gets pushed and a PR opens.
+
+On each repo that joins the workflow, keep an `AGENTS.md` at the root with plain-English guidance for the worker — style, boundaries, validation expectations — and follow the issue → branch → PR → merge lifecycle with `gh-<issue-number>-<short-slug>` branch naming. If any setup step fails, stop and fix it there; a missing auth piece or model route does not get better on its own, it resurfaces later as a half-delivered task.
+
+## Why bother
+
+The point of this setup is not "cheaper AI". It is that the expensive model's context stays small and full of judgment, while the cheap model absorbs the token-heavy middle — and the review gate means neither model is trusted beyond its competence. I keep controller and reviewer quality where it matters and stop paying frontier rates for file operations.
+
+The full documentation — including the operating sequences, the safety boundaries, and the RDC supervisor details — lives in [chatgpt-agent-workflow](https://github.com/Rajeev-SG/chatgpt-agent-workflow), which was itself the workflow's first delivered task: planned as an issue, implemented by an OMP/GLM worker, reviewed before merge. This article is the second. The loop works, and it reviews its own output before telling you so.
+
+## Sources and related field notes
+
+- [ChatGPT Agent Workflow — documentation repo](https://github.com/Rajeev-SG/chatgpt-agent-workflow)
+- [We finally moved the work off Sol and onto GLM](/blog/how-i-moved-codex-work-onto-glm-workers)
+- [How I built an OpenRouter-backed AI team](/blog/how-i-built-an-openrouter-backed-ai-team)
+- [Agent ops for people who don't run infrastructure](/blog/agent-ops-for-people-who-dont-run-infrastructure)
+- [Your Mac as an AI operations centre](/blog/your-mac-as-an-ai-operations-centre)
+
+[Back to writing](/blog)

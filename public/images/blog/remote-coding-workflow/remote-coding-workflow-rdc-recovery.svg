@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1480 920" width="100%" role="img" aria-labelledby="ttl dsc">
+  <title id="ttl">The bridge is supervised: launchd keeps the supervisor alive</title>
+  <desc id="dsc">Remote Desktop Commander recovery pattern. A per-user LaunchAgent with KeepAlive runs a small supervisor script at login and relaunches it if it dies. The supervisor launches the Desktop Commander remote process, watches its log for exits and explicit fatal messages, and restarts it. ChatGPT reaches the Mac only through that bridge, so a dead bridge stops the whole loop; the recovery was verified live by killing the child and watching it come back within seconds. Durable task state lives in GitHub, so a restart costs at most one uncommitted step.</desc>
+  <defs>
+<marker id="arw-0" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2B5FD9"/></marker>
+<marker id="arw-1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1E8F86"/></marker>
+<marker id="arw-2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8B93A3"/></marker>
+  </defs>
+  <rect x="0" y="0" width="1480" height="920" fill="#F7F5F0"/>
+<path d="M 320 290 L 320 390" fill="none" stroke="#2B5FD9" stroke-width="2.5" marker-end="url(#arw-0)"/>
+  <text x="335" y="345" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#2B5FD9" paint-order="stroke" stroke="#F7F5F0" stroke-width="5">keeps alive</text>
+<path d="M 320 560 L 320 670" fill="none" stroke="#2B5FD9" stroke-width="2.5" marker-end="url(#arw-0)"/>
+  <text x="335" y="620" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#2B5FD9" paint-order="stroke" stroke="#F7F5F0" stroke-width="5">launches + watches</text>
+<path d="M 580 475 L 655 475 L 655 745 L 580 745" fill="none" stroke="#1E8F86" stroke-width="2.5" stroke-dasharray="7 6" marker-end="url(#arw-1)"/>
+  <text x="668" y="610" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1E8F86" paint-order="stroke" stroke="#F7F5F0" stroke-width="5">restart on exit or fatal log line</text>
+<path d="M 1090 290 L 1090 390" fill="none" stroke="#8B93A3" stroke-width="2.5" marker-end="url(#arw-2)"/>
+<path d="M 1090 560 L 1090 670" fill="none" stroke="#8B93A3" stroke-width="2.5" marker-end="url(#arw-2)"/>
+  <text x="48" y="64" font-family="Helvetica, Arial, sans-serif" font-size="30" font-weight="700" fill="#12213D">The bridge is supervised: launchd keeps the supervisor alive</text>
+<rect x="60" y="140" width="520" height="150" rx="12" fill="#EEF2FD" stroke="#2B5FD9" stroke-width="2"/>
+<text x="320" y="180" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#12213D">launchd — LaunchAgent, KeepAlive</text>
+<text x="320" y="210" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">starts the supervisor at login;</text>
+<text x="320" y="234" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">if the supervisor itself dies,</text>
+<text x="320" y="258" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">launchd starts it again</text>
+<rect x="60" y="390" width="520" height="170" rx="12" fill="#EEF2FD" stroke="#2B5FD9" stroke-width="2"/>
+<text x="320" y="430" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#12213D">Supervisor script</text>
+<text x="320" y="460" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">launches: npx @wonderwhy-er/</text>
+<text x="320" y="484" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">desktop-commander remote</text>
+<text x="320" y="508" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">watches the run's log lines for exits</text>
+<text x="320" y="532" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">and for RDC's explicit fatal messages</text>
+<rect x="60" y="670" width="520" height="150" rx="12" fill="#E9F5F3" stroke="#1E8F86" stroke-width="2"/>
+<text x="320" y="710" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#12213D">Desktop Commander remote (RDC)</text>
+<text x="320" y="740" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">the bridge ChatGPT uses to run local</text>
+<text x="320" y="764" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">tools and terminal commands on the Mac</text>
+<rect x="760" y="140" width="660" height="150" rx="12" fill="#FFFFFF" stroke="#12213D" stroke-width="2"/>
+<text x="1090" y="180" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#12213D">Why it matters</text>
+<text x="1090" y="210" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">ChatGPT reaches the Mac only through RDC.</text>
+<text x="1090" y="234" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">If the bridge dies, the whole loop stops —</text>
+<text x="1090" y="258" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">not just one task. So the bridge is treated</text>
+<text x="1090" y="282" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">as replaceable machinery, never as storage.</text>
+<rect x="760" y="390" width="660" height="170" rx="12" fill="#E9F5F3" stroke="#1E8F86" stroke-width="2"/>
+<text x="1090" y="430" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#12213D">Verified live</text>
+<text x="1090" y="460" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">the active RDC child was killed on purpose</text>
+<text x="1090" y="484" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">→ device offline → back online within seconds,</text>
+<text x="1090" y="508" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">no manual restart → a real RDC tool call</text>
+<text x="1090" y="532" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">after recovery succeeded</text>
+<rect x="760" y="670" width="660" height="150" rx="12" fill="#FFF7EC" stroke="#D98A2B" stroke-width="2"/>
+<text x="1090" y="710" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#A9670F">So state lives in GitHub, not in the session</text>
+<text x="1090" y="740" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">issues, branches, pushed commits, PR</text>
+<text x="1090" y="764" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">descriptions — a restart costs at most the</text>
+<text x="1090" y="788" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">current uncommitted step</text>
+<text x="48" y="896" font-family="Helvetica, Arial, sans-serif" font-size="14.5" font-style="italic" fill="#5A6479">Manual override, from any shell: launchctl print gui/$(id -u)/&lt;label&gt; · tail -f &lt;rdc log&gt; · launchctl kickstart -k gui/$(id -u)/&lt;label&gt;</text>
+</svg>
