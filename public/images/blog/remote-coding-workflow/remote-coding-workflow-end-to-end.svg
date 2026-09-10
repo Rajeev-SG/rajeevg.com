@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 810" width="100%" role="img" aria-labelledby="ttl dsc">
+  <title id="ttl">One loop: ChatGPT plans, GitHub remembers, a local GLM worker ships</title>
+  <desc id="dsc">End-to-end control and data flow. You discuss and plan with ChatGPT, which creates a GitHub issue and launches a worker session through Remote Desktop Commander. The OMP worker on GLM-5.3-Flash via OpenRouter reads the issue, implements, validates, commits and pushes an issue-linked branch, and opens a pull request. ChatGPT reviews the diff and evidence, merges, and the result returns to you. GitHub is the only durable state in the loop.</desc>
+  <defs>
+<marker id="arw-0" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#12213D"/></marker>
+<marker id="arw-1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2B5FD9"/></marker>
+<marker id="arw-2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8B93A3"/></marker>
+<marker id="arw-3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#D98A2B"/></marker>
+<marker id="arw-4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1E8F86"/></marker>
+  </defs>
+  <rect x="0" y="0" width="1600" height="810" fill="#F7F5F0"/>
+<path d="M 450 200 L 300 200" fill="none" stroke="#12213D" stroke-width="2.5" stroke-dasharray="7 6" marker-end="url(#arw-0)"/>
+  <text x="375" y="186" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#12213D" paint-order="stroke" stroke="#F7F5F0" stroke-width="5">merged result</text>
+<path d="M 300 240 L 450 240" fill="none" stroke="#12213D" stroke-width="2.5" marker-end="url(#arw-0)"/>
+  <text x="375" y="262" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#12213D" paint-order="stroke" stroke="#F7F5F0" stroke-width="5">discuss &amp; plan</text>
+<path d="M 700 240 L 850 240" fill="none" stroke="#2B5FD9" stroke-width="2.5" marker-end="url(#arw-1)"/>
+  <text x="775" y="262" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#2B5FD9" paint-order="stroke" stroke="#F7F5F0" stroke-width="5">files the issue</text>
+<path d="M 575 310 L 575 560" fill="none" stroke="#2B5FD9" stroke-width="2.5" marker-end="url(#arw-1)"/>
+  <text x="590" y="440" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#2B5FD9" paint-order="stroke" stroke="#F7F5F0" stroke-width="5">launches worker session</text>
+<path d="M 730 635 L 850 635" fill="none" stroke="#8B93A3" stroke-width="2.5" marker-end="url(#arw-2)"/>
+  <text x="790" y="658" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#8B93A3" paint-order="stroke" stroke="#F7F5F0" stroke-width="5">starts session</text>
+<path d="M 990 310 L 990 540" fill="none" stroke="#D98A2B" stroke-width="2.5" marker-end="url(#arw-3)"/>
+  <text x="1005" y="430" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#D98A2B" paint-order="stroke" stroke="#F7F5F0" stroke-width="5">reads the issue</text>
+<path d="M 1160 635 L 1395 635 L 1395 310" fill="none" stroke="#1E8F86" stroke-width="2.5" marker-end="url(#arw-4)"/>
+  <text x="1277" y="618" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1E8F86" paint-order="stroke" stroke="#F7F5F0" stroke-width="5">commits, pushes, opens PR</text>
+<path d="M 1395 170 L 1395 110 L 575 110 L 575 170" fill="none" stroke="#D98A2B" stroke-width="2.5" marker-end="url(#arw-3)"/>
+  <text x="985" y="98" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#D98A2B" paint-order="stroke" stroke="#F7F5F0" stroke-width="5">review the diff + evidence, merge</text>
+  <text x="48" y="64" font-family="Helvetica, Arial, sans-serif" font-size="30" font-weight="700" fill="#12213D">One loop: ChatGPT plans, GitHub remembers, a local GLM worker ships</text>
+<rect x="60" y="170" width="240" height="140" rx="12" fill="#FFFFFF" stroke="#12213D" stroke-width="2"/>
+<text x="180" y="210" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#12213D">You</text>
+<text x="180" y="240" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">describe the outcome,</text>
+<text x="180" y="264" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">review the plan</text>
+<rect x="450" y="170" width="250" height="140" rx="12" fill="#EEF2FD" stroke="#2B5FD9" stroke-width="2"/>
+<text x="575" y="210" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#12213D">ChatGPT (controller)</text>
+<text x="575" y="240" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">plan · file issues</text>
+<text x="575" y="264" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">launch · review · merge</text>
+<rect x="850" y="170" width="280" height="140" rx="12" fill="#FFF7EC" stroke="#D98A2B" stroke-width="2"/>
+<text x="990" y="210" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#A9670F">GitHub issue</text>
+<text x="990" y="240" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">scope + acceptance criteria</text>
+<text x="990" y="264" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">the durable task state</text>
+<rect x="1250" y="170" width="290" height="140" rx="12" fill="#FFF7EC" stroke="#D98A2B" stroke-width="2"/>
+<text x="1395" y="210" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#A9670F">GitHub pull request</text>
+<text x="1395" y="240" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">issue-linked branch</text>
+<text x="1395" y="264" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">Closes #N</text>
+<text x="1395" y="288" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">the only way work lands</text>
+<rect x="450" y="560" width="280" height="150" rx="12" fill="#F1EEE7" stroke="#8B93A3" stroke-width="2"/>
+<text x="590" y="600" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#12213D">Remote Desktop</text>
+<text x="590" y="626" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#12213D">Commander</text>
+<text x="590" y="656" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">bridge to local tools;</text>
+<text x="590" y="680" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">carries commands,</text>
+<text x="590" y="704" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">never writes code</text>
+<rect x="850" y="540" width="310" height="190" rx="12" fill="#E9F5F3" stroke="#1E8F86" stroke-width="2"/>
+<text x="1005" y="580" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#1E8F86">OMP worker</text>
+<text x="1005" y="610" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">GLM-5.3-Flash via OpenRouter</text>
+<text x="1005" y="634" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">implements + validates</text>
+<text x="1005" y="658" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">commits + pushes</text>
+<text x="1005" y="682" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5A6479">never merges</text>
+<text x="48" y="786" font-family="Helvetica, Arial, sans-serif" font-size="14.5" font-style="italic" fill="#5A6479">Solid arrows: work and commands. Dashed: the result returning to you. GitHub is the only durable state — every session in the loop is replaceable.</text>
+</svg>
