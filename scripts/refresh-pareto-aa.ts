@@ -144,25 +144,18 @@ await writeFile(
   "utf8"
 );
 
-// Deliver the fresh snapshot to durable storage (Vercel Blob) so production
-// picks it up without a Git commit and without a deployment. A delivery
-// failure fails the refresh loudly; the previous good Blob is untouched.
-const refreshEndpoint = process.env.PARETO_REFRESH_ENDPOINT;
-const refreshSecret = process.env.PARETO_REFRESH_SECRET;
-if (refreshEndpoint && refreshSecret) {
-  const response = await fetch(refreshEndpoint, {
-    method: "POST",
-    headers: { "content-type": "application/json", authorization: `Bearer ${refreshSecret}` },
-    body: JSON.stringify(snapshot),
-  });
-  if (!response.ok) {
-    const detail = await response.text().catch(() => "");
-    throw new Error(`Pareto snapshot delivery failed: HTTP ${response.status} ${detail.slice(0, 200)}`);
-  }
-  console.log(JSON.stringify({ delivered: true, endpoint: refreshEndpoint }));
-} else {
-  console.log(JSON.stringify({ delivered: false, reason: "PARETO_REFRESH_ENDPOINT/PARETO_REFRESH_SECRET not set" }));
-}
+// Delivery is deliberately NOT done here. The scheduled workflow publishes the
+// validated snapshot above to the `pareto-data` Git branch (see
+// scripts/publish-pareto-data.mjs and docs/pareto-frontier-data-pipeline.md).
+// Keeping publish out of this script means a local run only ever writes the
+// repo-local artefact and can never clobber the published snapshot.
+//
+// This replaced a Vercel Blob POST delivery. Blob is metered per *operation* on
+// the Hobby plan (put/copy/list are "advanced" operations, 2,000/month); the
+// shared allowance was exhausted and Vercel suspended the team's Blob stores for
+// 30 days, which is what broke this refresh. Git has no such quota.
+console.log(JSON.stringify({ delivered: false, delivery: "handled by the workflow publish step" }));
+
 // Telemetry only: records actual pages consumed per day. Not an enforcement
 // boundary — the hard cap is AA_MAX_PAGES_PER_RUN in fetchAaAllPages plus
 // the 2-run schedule. The file may undercount if a run fails before here.
