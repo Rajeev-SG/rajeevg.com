@@ -1,502 +1,170 @@
-## Project overview
+# rajeevg.com
 
-A Next.js 15 content site and content-ops workspace built around repo-backed MDX, a strategy-driven content graph, analytics dashboards, and a lightweight in-app CMS. The public site stays reader-facing while `/dashboard` operates as the editorial system for classification, research, drafting, workflow, and approval.
+My personal site: essays, engineering write-ups, and a few live dashboards that
+run on real data. It is also the place where I work out how to build software
+with AI agents, so parts of the build are unusual on purpose.
 
-## Tech stack (why + how)
+**Live:** https://rajeevg.com
+**Repo:** https://github.com/Rajeev-SG/rajeevg.com
 
-- **Next.js 15 (App Router, Turbopack)**
-  - Why: fast dev/build, file‑based routing
-  - How: `next dev --turbopack`; config in `next.config.ts`
-- **React 19**
-  - Why: latest stable React runtime
-  - How: standard React components/hooks
-- **Tailwind CSS v4**
-  - Why: utility‑first with new design tokens
-  - How: tokens in `src/app/globals.css`; plugin `@tailwindcss/typography` for `.prose`
-- **shadcn/ui**
-  - Why: accessible primitives built on Tailwind
-  - How: components installed: button, input, badge, table, progress, tooltip, alert, scroll-area, separator, sheet, popover
-  - Runtime deps: `clsx`, `class-variance-authority`, `tailwind-merge`, `lucide-react`, Radix UI primitives
-- **next-themes**
-  - Why: class‑based dark mode
-  - How: `ThemeProvider` in `src/app/layout.tsx`; `ThemeToggle` in `src/components/theme-toggle.tsx` (rendered in the header)
-- **Velite (content layer)**
-  - Why: typed content collections + fast build; ships generated types
-  - How: config in `velite.config.ts`; alias `#velite` → `.velite` in `tsconfig.json`; auto build/watch wired in `next.config.ts`; content in `content/`; outputs to `.velite` and `public/static`
-- **Code highlighting + MDX polish**
-  - Why: readable code with a reliable copy button and discoverable headings/links
-  - How: `rehype-pretty-code` + Shiki dual themes (github-light/dark). Copy is handled in React via `MdxPre` mapped in `src/components/mdx-components.tsx` (`pre` → `MdxPre`), avoiding the copy‑button transformer. Headings use `rehype-autolink-headings`; external MDX links show an icon and open in a new tab.
-- **TypeScript**
-  - Why: strong types across app + content
-  - How: generated `Post` type imported from `#velite` in blog pages
-- **PostCSS**
-  - Why: Tailwind v4 pipeline
-  - How: `@tailwindcss/postcss` in `postcss.config.mjs`
-- **next/font (Geist)**
-  - Why: optimized, self-hosted fonts
-  - How: Geist Sans/Mono imported in `src/app/layout.tsx`
+## What is on the site
 
-## Getting Started
+| Route | What it is |
+| --- | --- |
+| [`/blog`](https://rajeevg.com/blog) | Essays and playbooks. 40+ posts, filterable by tag. |
+| [`/solutions`](https://rajeevg.com/solutions) | Engineering write-ups, plus live dashboards. |
+| [`/solutions/pareto-frontier`](https://rajeevg.com/solutions/pareto-frontier) | The LLM Pareto frontier. Auto-updating quality-vs-cost chart built from Artificial Analysis and OpenRouter data. |
+| [`/projects`](https://rajeevg.com/projects) | Portfolio, with links to the repos and live URLs. |
+| [`/projects/hackathon-voting-analytics`](https://rajeevg.com/projects/hackathon-voting-analytics) | Voting analytics, backed by BigQuery. |
+| [`/projects/site-analytics`](https://rajeevg.com/projects/site-analytics) | GA4 dashboard for this site. |
+| [`/ai`](https://rajeevg.com/ai), [`/analytics`](https://rajeevg.com/analytics), [`/playbooks`](https://rajeevg.com/playbooks), [`/proof`](https://rajeevg.com/proof) | Topic hubs that group related writing. |
+| [`/glossary`](https://rajeevg.com/glossary) | Concept definitions, one page per term. |
+| `/dashboard` | The content CMS. Access-gated, not public. |
+
+The Pareto frontier is the one page with a real data pipeline behind it, so it
+gets its own section below.
+
+## How it is built
+
+- **Next.js 15** (App Router, Turbopack) with **React 19**.
+- **Tailwind CSS v4** plus **shadcn/ui** for components.
+- **Velite** turns Markdown/MDX in `content/posts/` into typed data. Animations
+  via **Shiki** (code highlighting) and client-side **Mermaid** diagrams.
+- **TypeScript** throughout.
 
 ```bash
-# Generate content outputs once (optional; dev/build also runs Velite automatically)
-pnpm content
-
-# Rebuild the workbook-backed content strategy seed after editing the XLSX
-python3 scripts/generate_content_ops_workbook.py
-
-# Start dev server (Turbopack) with Velite watching content
-pnpm dev
+pnpm install
+pnpm dev            # dev server + Velite in watch mode
+pnpm build          # production build (runs Velite first)
+pnpm content        # rebuild content data only
+pnpm pareto:refresh # refresh the Pareto dataset (see below)
 ```
 
-Open http://localhost:3000 and visit:
+Put analytics or content-OS keys in `.env.local`. The site runs fine without
+any of them; only the features that need a key will be unavailable.
 
-- `/` — homepage organised around strategic hubs, flagship essays, proof assets, and latest writing
-- `/blog` — blog index organised around pillars, proof, and playbooks
-- `/ai`, `/analytics`, `/playbooks`, `/proof` — public strategy hubs
-- `/glossary` — concept-node index for the topic graph
-- `/projects` — portfolio page driven by checked-in public project metadata
-- `/projects/hackathon-voting-analytics` — hackathon voting analytics dashboard with ECharts, Observable Plot, live BigQuery mode, and dummy preview mode
-- `/projects/hackathon-voting-analytics/google-analytics` — hackathon-specific GA4 Data API surface, filtered to `vote.rajeevg.com`
-- `/projects/site-analytics` — GA4 content and instrumentation dashboard for the main site, with ECharts and Observable Plot renderers
-- `/dashboard` — workbook-backed content OS with strategy tabs, workflow state, research, and row detail sheets
-- `/dashboard/editor/[id]` — MDX-first editor with MDXEditor, preview, AI actions, uploads, and repo-backed publish controls
-- `/dashboard-access` — public access page for the private content dashboard
-- `/dashboard-access-denied` — allowlist failure or auth-unavailable surface
+## The Pareto frontier pipeline
 
-You can edit the home page at `src/app/page.tsx`. Blog content lives in `content/posts/*`. Velite config is at `velite.config.ts`.
-Environment variables for the app should be placed in `.env.local`.
+This page is the interesting one: it updates itself twice a day with no deploy.
 
-## Content OS
+```
+GitHub Actions: refresh-pareto-frontier.yml   (05:17 and 17:17 UTC, or manual)
+  |
+  +-- pnpm pareto:refresh           scripts/refresh-pareto-aa.ts
+  |     reads Artificial Analysis (quality) and OpenRouter (price),
+  |     joins them by exact model identity, refuses to emit a bad snapshot,
+  |     writes src/data/pareto-aa-fallback.json
+  |
+  +-- node scripts/publish-pareto-data.mjs
+        commits that file to the `pareto-data` branch
 
-The strategic source of truth lives in:
+Your browser
+  reads the `pareto-data` branch, falls back to the bundled JSON if that fails
+```
 
-- [docs/content-strat.md](/Users/rajeev/Code/rajeevg.com/docs/content-strat.md)
-- [docs/ppSEO.md](/Users/rajeev/Code/rajeevg.com/docs/ppSEO.md)
-- [docs/rajeevg_master_content_matrix_system_view.xlsx](/Users/rajeev/Code/rajeevg.com/docs/rajeevg_master_content_matrix_system_view.xlsx)
+Two copies of the data, on purpose:
 
-The workbook is imported into typed app data through `scripts/generate_content_ops_workbook.py`, which writes [src/data/content-ops/workbook.json](/Users/rajeev/Code/rajeevg.com/src/data/content-ops/workbook.json). Existing site content is then audited and classified in [src/lib/content-ops/content-audit.ts](/Users/rajeev/Code/rajeevg.com/src/lib/content-ops/content-audit.ts), where current posts, projects, dashboards, hubs, glossary nodes, and derived ideas are mapped into the shared content graph.
+- **`pareto-data` branch** is what the live site reads. It is refreshed twice a
+  day and never triggers a deployment.
+- **`src/data/pareto-aa-fallback.json`** on `main` is the last-known-good copy.
+  It is committed rarely, by hand, and is what the site shows if the branch
+  read fails.
 
-Operational state is intentionally lightweight:
+You can see the data yourself:
+[`pareto-data` branch](https://github.com/Rajeev-SG/rajeevg.com/blob/pareto-data/pareto-aa-fallback.json)
+· [raw file](https://raw.githubusercontent.com/Rajeev-SG/rajeevg.com/pareto-data/pareto-aa-fallback.json)
+· [refresh runs](https://github.com/Rajeev-SG/rajeevg.com/actions/workflows/refresh-pareto-frontier.yml)
 
-- Published content stays in repo-backed MDX under [content/posts](/Users/rajeev/Code/rajeevg.com/content/posts)
-- Dashboard workflow state, research packs, derived flags, and draft metadata live in [data/content-ops/state.json](/Users/rajeev/Code/rajeevg.com/data/content-ops/state.json) by default
-- Hosted durability can use either Postgres through `CONTENT_OPS_DATABASE_URL` or a dedicated GitHub-backed state branch through `CONTENT_OPS_GITHUB_TOKEN`
-- Draft documents, publish events, and upload references now live in that same state layer
-- The in-app editor is MDX-first via MDXEditor, with a justified hybrid fallback to raw source editing for import/export-heavy MDX
-- Local drafts save outside the published content tree under `data/content-ops/drafts/` so draft and published slugs do not collide in Velite
-- Hosted repo-backed publishing can use the GitHub Contents API when `CONTENT_OPS_GITHUB_TOKEN` is configured
-- Hosted draft/workflow state defaults to the `content-ops-state` branch when GitHub publishing is configured and no database is present
-- Hosted media can use Vercel Blob when `BLOB_READ_WRITE_TOKEN` is configured
-- `/dashboard` and `/api/content-ops/*` are access-gated; only `rajeev.sgill@gmail.com` is allowlisted by default
+**How it breaks, and what you would see.** Each of these has actually happened:
 
-The dashboard mirrors the workbook tabs:
+- **The Artificial Analysis key runs out of quota.** It is a free tier with a
+  100-requests-per-24h limit, and the refresh is capped at 5 pages per run, so
+  this is unlikely but not impossible. The refresh aborts rather than writing a
+  partial dataset, so the previous snapshot stays up.
+- **A data source changes shape.** If Artificial Analysis or OpenRouter rename a
+  field, the refresh fails loudly instead of silently publishing nonsense. New
+  models that do not match an existing alias simply do not appear, which is the
+  failure mode you are most likely to notice: the page looks fine but is missing
+  a model.
+- **The `pareto-data` branch goes missing.** The site silently falls back to the
+  bundled JSON on `main`, so the page keeps working but slowly goes stale. If
+  the page looks frozen, compare the two timestamps on
+  [`/api/solutions/pareto-frontier/data`](https://rajeevg.com/api/solutions/pareto-frontier/data).
+- **Vercel stops deploying the branch.** That is intentional. `vercel.json` sets
+  `git.deploymentEnabled` for `pareto-data` to `false`, so a data update never
+  triggers a build. If that setting is removed, every refresh would deploy.
 
-- `Dashboard`
-- `Master_Matrix`
-- `Existing_Content`
-- `Title_Decisions`
-- `Topic_Graph`
-- `Programmatic`
-- `Interactive_Assets`
-- `Sources`
+The full rationale, including why this used to run on Vercel Blob and no longer
+does, is in
+[docs/pareto-frontier-data-pipeline.md](./docs/pareto-frontier-data-pipeline.md)
+and [docs/vercel-blob-quota-incident-2026-09-11.md](./docs/vercel-blob-quota-incident-2026-09-11.md).
 
-For architecture, workflow, providers, analytics wiring, and validation details, see [docs/content-ops.md](/Users/rajeev/Code/rajeevg.com/docs/content-ops.md).
+## The article CI
 
-## Reporting routes
+`.github/workflows/article-local-ci.yml` runs on a self-hosted macOS runner when
+a post changes. It installs from the lockfile, runs the vitest suite and a
+production build, then drives a real browser against the new article and checks
+it against the deployed copy. Screenshots from the run are uploaded as
+artifacts. It is deliberately heavier than a normal lint-and-test job, because a
+broken article is a reader-facing failure and I would rather catch it before
+merge than after.
 
-- Hackathon analytics fallback dashboard:
-  - route: `/projects/hackathon-voting-analytics`
-  - doc: [docs/hackathon-voting-analytics-dashboard.md](/Users/rajeev/Code/rajeevg.com/docs/hackathon-voting-analytics-dashboard.md)
-  - source: dedicated `personal-gws-1.hackathon_reporting` dataset only
-  - renderers: `ECharts` and `Observable Plot`
-  - review mode: `Dummy preview`
-- Hackathon GA4 API surface:
-  - route: `/projects/hackathon-voting-analytics/google-analytics`
-  - doc: [docs/hackathon-voting-analytics-dashboard.md](/Users/rajeev/Code/rajeevg.com/docs/hackathon-voting-analytics-dashboard.md)
-  - source: shared GA4 property `498363924`, filtered to `vote.rajeevg.com`
-  - runtime: official `@google-analytics/data` client
-  - review mode: `Dummy preview`
-- Site analytics QA dashboard:
-  - route: `/projects/site-analytics`
-  - source: shared GA4 property, focused on content performance and instrumentation QA
-  - renderers: `ECharts` and `Observable Plot`
-  - audit path: `tests/e2e/projects-dashboard-audit.spec.ts`
+## The content OS
 
-For the hackathon slice, the in-site reporting artifact is now split into:
+`/dashboard` is a small CMS for the writing: it tracks titles, status,
+classification and research, and publishes MDX straight to this repo through the
+GitHub contents API.
 
-- the BigQuery dashboard for richer modeled analysis
-- the GA4 API surface for direct property-side validation
+- The strategy source of truth is the workbook in `docs/`, imported into typed
+  app data by `scripts/generate_content_ops_workbook.py`.
+- Workflow state lives in Postgres (`CONTENT_OPS_DATABASE_URL`) or on a dedicated
+  `content-ops-state` branch (`CONTENT_OPS_GITHUB_TOKEN`).
+- Drafts are saved outside the published content tree so slugs cannot collide.
+- Media uploads use Vercel Blob (`BLOB_READ_WRITE_TOKEN`). This is the only thing
+  on the site that still uses Blob, and it is user-triggered, not scheduled.
 
-Those two routes now use the same reporting shell and control geometry, so switching between them does not cause a top-of-page layout jump.
+Details: [docs/content-ops.md](./docs/content-ops.md).
 
-For exhaustive dashboard proof across all three `/projects` analytics routes, use `tests/e2e/projects-dashboard-audit.spec.ts`. Fresh screenshots land under `output/acceptance/projects-dashboard-audit-20260325/local` and `output/acceptance/projects-dashboard-audit-20260325/prod`.
+## Analytics
 
-The earlier Looker Studio path is not the source of truth.
+Google Tag Manager (`GTM-K2VRQS47`) delivers to GA4 (`G-675W3V0C78`), with a raw
+BigQuery export. The site pushes a structured `dataLayer` contract rather than
+relying on generic click events, and Google Consent Mode defaults to denied until
+a visitor makes a choice.
 
-## Project structure
+Details: [docs/analytics.md](./docs/analytics.md) and
+[docs/google-tagging-stack.md](./docs/google-tagging-stack.md).
 
-All paths below are relative to the repository root.
+## Where things live
 
 ```text
-.
-├─ src/
-│  ├─ app/
-│  │  ├─ page.tsx, blog/, projects/, dashboard/
-│  │  ├─ ai/, analytics/, playbooks/, proof/, glossary/
-│  │  └─ api/content-ops/
-│  ├─ components/
-│  │  ├─ content-ops/
-│  │  ├─ blog-index-client.tsx, app-sidebar.tsx, mdx-*.tsx
-│  │  └─ ui/ (shadcn/ui primitives)
-│  ├─ data/content-ops/workbook.json
-│  └─ lib/
-│     ├─ content-ops/
-│     ├─ posts.ts, site.ts, portfolio-projects.ts
-│     └─ analytics/reporting helpers
-├─ content/posts/ (published and draft MD/MDX content)
-├─ data/content-ops/state.json
-├─ docs/
-├─ scripts/generate_content_ops_workbook.py
-├─ public/
-└─ config files
+src/app/          routes (blog, solutions, projects, dashboard, api)
+src/components/   UI, including the Pareto dashboard and MDX renderers
+src/lib/          data access, analytics, content-ops logic
+content/posts/    the writing, as MDX
+docs/             the deep reference material
+scripts/          refresh + publish jobs and diagram generators
+.github/workflows/ the two automations described above
 ```
 
-- `src/app/` — App Router (pages, layouts, global styles)
-  - `layout.tsx` — Root layout. Wraps app with `ThemeProvider`, `SidebarProvider`, renders `AppSidebar`, `SidebarInset`, a compact header with `SidebarTrigger` and `ThemeToggle`, plus a low-profile footer with privacy links and a reopen settings action. Mounts Google Tag Manager via `<GoogleTagManager />` when `NEXT_PUBLIC_GTM_ID` is present.
-  - `globals.css` — Tailwind v4 setup with design tokens, class-based dark variant, and Shiki dual-theme base CSS (maps `--shiki-light/dark` tokens and styles the copy button).
-  - `page.tsx` — Homepage. Presents the site as a content graph with hub entry points, flagship essays, proof assets, and latest writing.
-  - `not-found.tsx` — Global 404 boundary required when routes call `notFound()`.
-  - `head.tsx` — Preconnect/dns‑prefetch GTM/GA endpoints for faster analytics.
-  - `sitemap.ts` — Dynamic sitemap including home, hub routes, glossary routes, blog index, and all published posts with `lastModified`.
-  - `public/robots.txt` — Static robots policy allowing all; sets canonical `Host` and `Sitemap` URLs.
-  - `about/page.tsx` — About page with a profile image, focus areas, current projects, and contact links.
-  - `projects/page.tsx` — Portfolio route for public projects with verified GitHub repos and live URLs.
-  - `privacy/page.tsx` — Privacy policy route for consent, analytics, cookies, processors, and contact details.
-  - `ai/page.tsx`, `analytics/page.tsx`, `playbooks/page.tsx`, `proof/page.tsx` — public strategy hubs derived from the strategy system.
-  - `glossary/page.tsx`, `glossary/[slug]/page.tsx` — topic-graph glossary index and node pages.
-  - `blog/`
-    - `page.tsx` — Blog index server component. Organises posts into flagships, playbooks, and the archive while still preserving current post URLs.
-    - `[slug]/page.tsx` — Article page. Looks up a post by slug, renders title/description/date and HTML content from Velite, and adds next-step graph modules into related hubs, proof, and glossary content.
-  - `dashboard/page.tsx` — Content operations dashboard using shadcn blocks and TanStack Table.
-  - `dashboard/editor/[id]/page.tsx` — Asset editor that loads repo-backed MDX or a queued idea starter.
+## Documentation
 
- - `src/components/` — Reusable components
-  - `app-sidebar.tsx` — Application sidebar built on shadcn/ui sidebar primitives. Renders core site links and a dynamic “Posts” section from `#velite`, while keeping “Projects” as a single page-level destination instead of a nested project list.
-  - `project-card.tsx` — Reusable project card used by the portfolio route and MDX posts, now with screenshot-driven project imagery via `next/image`.
-  - `blog-index-client.tsx` — Client interactivity for the blog index: text search, tag filters (badges on desktop, combobox on mobile). Displays filtered list.
-  - `mdx-components.tsx` — MDX mapping (headings, inline code, blockquote→Alert, tables, links with external icon). Maps `pre` to `MdxPre`.
-  - `mdx-content.tsx` — Helper for rendering processed MDX HTML content with the correct components.
-  - `mdx-pre.tsx` — Client component rendering `<pre>` with a React copy button (Clipboard API, success state). Not injected by rehype.
-  - `reading-progress.tsx` — Client progress bar shown above articles; uses shadcn `Progress` and observes `#article-content`.
-  - `tag-combobox.tsx` — Tag selection UI using `Popover` and `ScrollArea`.
-  - `theme-provider.tsx` — `next-themes` provider (class attribute, system default).
-  - `theme-toggle.tsx` — Button to toggle between light/dark.
-  - `components/ui/` — shadcn/ui primitives used by the app:
-    - `sidebar.tsx` (shadcn sidebar primitives and context), `button.tsx`, `input.tsx`, `badge.tsx`,
-      `popover.tsx`, `scroll-area.tsx`, `separator.tsx`, `sheet.tsx`, `breadcrumb.tsx`, `table.tsx`,
-      `tooltip.tsx`, `alert.tsx`, `progress.tsx`, `skeleton.tsx`, `card.tsx`, `avatar.tsx`.
+- [Pareto data pipeline](./docs/pareto-frontier-data-pipeline.md)
+- [Vercel Blob quota incident (2026-09-11)](./docs/vercel-blob-quota-incident-2026-09-11.md)
+- [Content OS](./docs/content-ops.md)
+- [Analytics](./docs/analytics.md) · [tagging stack](./docs/google-tagging-stack.md)
+- [Content strategy](./docs/content-strat.md) · [programmatic SEO](./docs/ppSEO.md)
 
-- `src/hooks/`
-  - `use-mobile.ts` — `useIsMobile()` hook returning a boolean based on a 768px breakpoint.
+## Notes for future me
 
-- `src/lib/`
- - `site.ts` — Site-wide constants (`name`, `description`, `siteUrl`, `defaultOgImage`, `homeCanonicalStrategy`).
-  - `posts.ts` — Shared helpers for visible post filtering, effective updated-or-published dates, and post ordering.
-  - `portfolio-projects.ts` — Checked-in public project metadata, including audited screenshot paths and alt text, used by the portfolio route and related MDX content.
-  - `content-ops/` — content inventory, workbook integration, workflow state adapters, research providers, editor persistence, and optional Search Console sync.
-  - `utils.ts` — `cn(...classValues)` utility combining `clsx` with `tailwind-merge`.
-
-- `content/` — Source Markdown content
-  - `posts/` — Blog posts and draft examples (e.g. `hello-world.md`). Processed by Velite into `.velite` (typed data) and `public/static/` (assets).
-
-- `public/` — Static assets served at the site root
-  - Icons and images (`*.svg`). Velite writes assets to `public/static/` (gitignored).
-
-- Configuration
-  - `next.config.ts` — Starts Velite build/watch alongside `next dev/build`.
-  - `velite.config.ts` — Defines `posts` collection schema (includes optional `image` and optional `updated` for per‑post OG and ordering), Shiki dual themes, and heading anchors via `rehype-slug` + `rehype-autolink-headings` (class `heading-anchor`), plus draft filtering in production. No copy‑button transformer; copying is handled in React. Outputs to `.velite` and `public/static/`.
-  - `tailwind.config.ts` — Tailwind v4 config (`darkMode: "class"`, content paths, `animate` and `typography` plugins).
-  - `postcss.config.mjs` — Uses `@tailwindcss/postcss`.
-  - `tsconfig.json` — Path aliases: `@/*` → `src/*`, `#velite` → `.velite`; Next.js TypeScript plugin.
-  - `components.json` — shadcn/ui generator config and path aliases.
-  - `.gitignore` — Ignores `.velite`, `public/static/`, `.next/`, etc.
-  - `package.json` — Scripts (`dev`, `build`, `start`, `lint`, `content`) and dependencies.
-
-## SEO and Canonical URLs
-
-- **Central config**
-  - `src/lib/site.ts` — Site-wide constants:
-    - `name`, `description`
-    - `siteUrl` (from `NEXT_PUBLIC_SITE_URL`, defaults to `https://rajeevg.com`)
-    - `defaultOgImage` (fallback OG image under `public/`)
-    - `homeCanonicalStrategy`: `"self"` (recommended) or `"latest-post"`
-
-- **Root metadata defaults**
-  - `src/app/layout.tsx` — Sets `metadataBase` to `site.siteUrl`; OpenGraph + Twitter defaults use site name/description and `defaultOgImage`.
-
-- **Home**
-  - `src/app/page.tsx` — `export const revalidate = 3600` (ISR). `generateMetadata()` sets canonical based on `site.homeCanonicalStrategy`:
-    - `self` → canonical `/`
-    - `latest-post` → canonical to `/blog/[slug]` of most recent post
-
-- **Blog index**
-  - `src/app/blog/page.tsx` — `revalidate = 3600`; title "Blog"; canonical `/blog`.
-
-- **Blog post**
-  - `src/app/blog/[slug]/page.tsx` — Adds `alternates.canonical` (`/blog/[slug]`), OpenGraph (article: publishedTime, authors, tags, images), Twitter card, and JSON‑LD Article. Uses optional `image` from the Velite post schema for OG; falls back to `site.defaultOgImage`.
-
-- **SEO routes**
-  - `src/app/sitemap.ts` — Generates sitemap for home, blog index, and all posts (with `lastModified`).
-  - `public/robots.txt` — Allows all; sets canonical `Host` and `Sitemap`.
-  - `src/app/head.tsx` — Preconnect/dns‑prefetch GTM/GA endpoints for faster analytics.
-
-- **Environment**
-  - `.env.local` example:
-
-    ```bash
-    NEXT_PUBLIC_SITE_URL=https://rajeevg.com
-    NEXT_PUBLIC_HOME_CANONICAL=self       # or latest-post
-    NEXT_PUBLIC_GTM_ID=GTM-XXXXXXX
-    ```
-
-## Performance & Caching
-
-- **Prefetch**: Disabled for large link lists to reduce network/CPU
-  - `src/components/app-sidebar.tsx` and `src/components/blog-index-client.tsx` use `prefetch={false}` on bulk `Link`s.
-- **MDX <img>**: Lightweight image mapping
-  - `src/components/mdx-components.tsx` maps `img` to add `loading="lazy"`, `decoding="async"`, and a default `alt=""`.
-- **ISR**: Stable caching
-  - Home and blog index export `revalidate = 3600` (1h) for incremental static regeneration.
-
-## Sidebar layout (shadcn/ui sidebar‑03)
-
-- **Files**
-  - `src/components/ui/sidebar.tsx` — shadcn/ui sidebar primitives.
-  - `src/components/app-sidebar.tsx` — app navigation built on the primitives.
-  - `src/app/layout.tsx` — wraps app with `SidebarProvider`, renders `<AppSidebar />`, `<SidebarInset>`, and header `<SidebarTrigger />`.
-- **Behavior**
-  - Nav includes "Site" links and a "Posts" section generated from Velite (`#velite`).
-  - Active states are derived from `usePathname()`.
-  - On mobile, the sidebar opens as a sheet and auto‑closes after clicking a link.
-  - The theme toggle is rendered in the header.
-- **Add links**
-  - Edit `data.navMain` and/or the `postsList` mapping in `src/components/app-sidebar.tsx`.
-  - For new routes (e.g. `/about`, `/projects`), add items under the "Site" group.
-
-### Recent fixes: sidebar overflow + hover-scroll titles
-
-- **Overflow containment**
-  - `src/components/ui/sidebar.tsx`
-    - Wrapper (`SidebarProvider` root): ensures `overflow-x-clip` on `[data-slot="sidebar-wrapper"]` so opening the sidebar never pushes content off-screen.
-    - Main area (`SidebarInset`): includes `min-w-0 flex-1` so the content region can shrink without causing horizontal scroll.
-- **Long titles: hover-scroll marquee**
-  - `src/components/hover-scroll-text.tsx` renders post titles in the sidebar with a smooth horizontal scroll on hover.
-  - `src/app/globals.css` defines the `@keyframes hover-marquee` animation used by the component.
-  - Behavior: titles remain single-line (`whitespace-nowrap`) and scroll horizontally on hover; a CSS custom property controls the scroll distance.
-- **Verification**
-  - Tested at 1024px, 768px, and 375px widths with the sidebar open: no horizontal overflow; long titles scroll as intended on hover.
-  - Checked that page `scrollWidth <= clientWidth` during sidebar interactions and that body/html do not introduce unintended horizontal scroll.
-- **Troubleshooting**
-  - If overflow appears, confirm `overflow-x-clip` on the wrapper and `min-w-0` on the main content container.
-  - If hover-scroll doesn’t trigger, ensure the title container uses `overflow-hidden` and `whitespace-nowrap`, and that the marquee keyframes exist in `globals.css`.
-
-## Layout and spacing (containers + alignment)
-
-- **Global container**: `src/app/layout.tsx` wraps page content in a single max-width container
-  - Width: `max-w-screen-lg`
-  - Gutters: `px-4 sm:px-6 md:px-8`
-  - Vertical rhythm: `py-8 md:py-10`
-- **Header alignment**: the header wraps the `SidebarTrigger` in the same container, so the left edges of the toggle and page content align.
-- **Wide screens**: on `xl+` viewports, the container is left-aligned via `xl:mx-0 xl:mr-auto` to avoid excessive left margin while staying aligned with the sidebar.
-- **Blog index**: `src/components/blog-index-client.tsx` no longer adds its own outer container; it relies on the global container and uses a local `section.space-y-6`.
-- **Article page**: `src/app/blog/[slug]/page.tsx` uses `<article className="space-y-6">` (no outer container) and uses Promise‑based route params in Next 15: `{ params: Promise<{ slug: string }> }` with `await params` in both the page and `generateMetadata()`.
-
-## Reading progress bar + Table of contents
-
-- **Files**
-  - `src/components/reading-progress.tsx` — Client component using shadcn `Progress` to show scroll progress for the article.
-  - `src/app/blog/[slug]/page.tsx` — Renders `<ReadingProgress />` above the article and tags content as `<section id="article-content">`.
-  - `content/posts/hello-world.md` — Includes a “Table of contents” with anchor links to sections below.
-- **Behavior**
-  - Progress is computed from the `#article-content` section height minus viewport height. If content is shorter than the viewport, the bar shows 100%.
-  - The bar is container-scoped and aligns with the article width under `SidebarInset`.
-  - It is sticky under the site header: wrapper classes `sticky top-12 pointer-events-none z-0 -mt-8 md:-mt-10 mb-3 md:mb-4` snap it to the bottom of the header from page load and keep space before the article title.
-  - When the desktop sidebar opens, the bar does not overlap (container width) and remains non-interactive (`pointer-events-none`).
-- **Configuration**
-  - Target element can be changed via `<ReadingProgress targetId="my-section-id" />`; default is `article-content`.
-  - Spacing under the bar can be tuned with the wrapper’s `mb-*` utilities.
-- **TOC anchors**
-  - Anchors are generated by `rehype-slug` and `rehype-autolink-headings` in `velite.config.ts`. Example links used in the sample post:
-    - `[Headings](#headings)`
-    - `[Paragraphs, links, and inline code](#paragraphs-links-and-inline-code)`
-    - `[Blockquote → Alert](#blockquote-alert)`
-    - `[Lists](#lists)`
-    - `[Table](#table)`
-    - `[Code blocks](#code-blocks)`
-
-## Syntax highlighting + MDX UI (Shiki + rehype-pretty-code)
-
-- **Config**: `web/velite.config.ts` uses dual themes and heading anchors:
-  - `theme: { light: 'github-light', dark: 'github-dark' }`
-  - `mdx.rehypePlugins`: `rehypeSlug`, `rehypeAutolinkHeadings` with `{ behavior: 'wrap', properties: { className: ['heading-anchor'] } }`
-  - No copy‑button transformer; copy is handled in React (`MdxPre`).
-- **Why CSS is required**: Shiki dual‑theme output is unstyled by default (tokens use CSS variables like `--shiki-light`, `--shiki-dark`).
-- **Global CSS**: in `src/app/globals.css` we map variables and style UI elements:
-  - Shiki color mapping (light/dark) for `code[data-theme]` and `pre:has(code)` backgrounds.
-  - Copy button styles for `.rehype-pretty-copy` (revealed on hover; click shows a success state). We also allow `pre:hover .rehype-pretty-copy { opacity: 1 }` for reliable reveal.
-  - Heading anchors: `.heading-anchor` shows a leading `#` on hover for h2–h6, aligned to avoid layout shift.
-- **MDX components**: `src/components/mdx-components.tsx`
-  - Maps `pre` → `MdxPre` (client copy button using the Clipboard API).
-  - External links render with an outbound icon and `target="_blank" rel="noreferrer noopener"`; internal links use `next/link`.
-- **Tailwind prose**: avoid overriding Shiki colors/background. In `src/app/blog/[slug]/page.tsx` we avoid extra `prose` overrides that affect `pre/code`.
-- **Usage**: add fenced code blocks in Markdown, e.g.
-
-  ```ts
-  export function greet(name: string) {
-    return `Hello, ${name}!`
-  }
-  ```
-
-  - **Customize theme**: change the theme names in `velite.config.ts` to any Shiki theme(s). The CSS above will continue to work with dual themes.
-
-## Mermaid diagrams — Client-side rendering (current)
-
-- **What**: Render Mermaid on the client using placeholders (`<pre class="mermaid">`) produced at build time via `rehype-mermaid` with `strategy: 'pre-mermaid'`. Mermaid JS hydrates these on the client to SVG.
-- **Why**: Avoid SSR parsing issues (e.g., copy button wrappers inside Mermaid), enable interactive links and tooltips reliably, and keep build fast.
-
-- **Files**
-  - `velite.config.ts` — `rehype-mermaid` configured with `strategy: 'pre-mermaid'` and placed before `rehype-pretty-code` in both `markdown` and `mdx`.
-  - `src/components/mdx-components.tsx` — `Pre` mapping skips `MdxPre` when the element has class `mermaid` to prevent injecting the React copy button into Mermaid blocks.
-  - `src/components/mermaid-init.tsx` — Client initializer that dynamically imports Mermaid, sets `{ startOnLoad: false, securityLevel: 'loose' }`, applies theme variables, serializes render passes so hydration and mutation-observer churn do not race Mermaid, retries placeholders that were marked processed without producing an SVG, adds scroll hints only after a real Mermaid SVG exists so the raw source text is not polluted before parsing, and dispatches a `mermaid:rendered` event after each successful pass.
-  - `src/components/mermaid-tooltips.tsx` — Scans rendered Mermaid SVGs for anchors and overlays accessible tooltips using shadcn/ui. Targets the article container.
-  - `src/app/blog/[slug]/page.tsx` and `src/app/page.tsx` — Any route that renders MDX with Mermaid wraps content in `<section id="article-content">` and mounts `MermaidInit` + `MermaidTooltips`.
-
-- **Usage in Markdown**
-
-  ```mermaid
-  graph TD
-    A[Home] --> B[Docs]
-    click A href "/" "Go to homepage"
-    click B href "https://github.com/" "View GitHub" _blank
-  ```
-
-  - Click directive argument order: `href`, then tooltip text, then target. Example used in `content/posts/hello-world.md`:
-    `click D href "https://mermaid.js.org" "Mermaid docs" _blank`
-
-- **Troubleshooting**
-  - __Syntax errors in Mermaid__: Ensure `Pre` mapping bypasses `MdxPre` for `.mermaid` and that `startOnLoad` is disabled with manual `mermaid.run()`.
-  - __Mermaid sometimes stays as raw text__: Verify the client initializer is mounted on every route that renders Mermaid-bearing MDX, not just the dedicated blog page, and that failed `.mermaid` placeholders are being retried instead of staying stuck with `data-processed="true"` and no SVG.
-  - __No anchors generated__: Use `securityLevel: 'loose'` and correct `click ... href` argument order. Verify the client script is loading and selectors match.
-  - __Tooltips not visible__: Confirm anchors exist in the SVG; ensure `MermaidTooltips` is mounted and listens to `mermaid:rendered`. Check that `#article-content` is `position: relative` and overlay z-index is sufficient.
-
-- **Verify**
-  - `pnpm content && pnpm build`
-  - `PORT=3006 pnpm start`
-  - Open `/blog/hello-world` and confirm: no Mermaid syntax error text, SVG is present, at least one `<a>` inside the SVG, tooltip overlay appears on hover/focus.
-
-## Dark mode (mobile-friendly, persistent)
-
-- **Library**: `next-themes` with `attribute="class"` via `ThemeProvider` in `src/app/layout.tsx`.
-- **Toggle**: `src/components/theme-toggle.tsx` toggles between `light` and `dark`. The `html` element receives/removes the `dark` class.
-{{ ... }}
-- **Tailwind**: Dark variant uses the class strategy (`darkMode: 'class'`) with selectors in `src/app/globals.css` compatible with mobile Chrome.
-
-## Analytics (Google Tag Manager)
-
-- **Summary**: The app mounts GTM at the root and maintains a first-class app-side `dataLayer` contract in [`src/lib/analytics.ts`](/Users/rajeev/Code/rajeevg.com/src/lib/analytics.ts) and [`src/components/analytics-data-layer.tsx`](/Users/rajeev/Code/rajeevg.com/src/components/analytics-data-layer.tsx). GTM still owns delivery to GA4, but the site now pushes structured page, content, navigation, filter, scroll, article, code-copy, consent, and engagement summary events instead of relying on thin generic clicks. Production transport is now client-side only.
-
-- **Env vars**:
-
-  ```bash
-  NEXT_PUBLIC_GTM_ID=GTM-K2VRQS47
-  NEXT_PUBLIC_SITE_URL=https://rajeevg.com
-  ```
-
-- **Root integration**:
-  - [`src/app/layout.tsx`](/Users/rajeev/Code/rajeevg.com/src/app/layout.tsx) mounts GTM when `NEXT_PUBLIC_GTM_ID` is present and seeds Google Consent Mode before GTM loads.
-  - [`src/components/tag-manager-script.tsx`](/Users/rajeev/Code/rajeevg.com/src/components/tag-manager-script.tsx) injects the standard client-side GTM loader from `https://www.googletagmanager.com`.
-  - [`src/app/head.tsx`](/Users/rajeev/Code/rajeevg.com/src/app/head.tsx) preconnects to Google Tag Manager and Google Analytics.
-  - [`next.config.ts`](/Users/rajeev/Code/rajeevg.com/next.config.ts) no longer rewrites `/metrics/:path*`; the retired server-side tagging path is intentionally unused.
-  - The layout pushes a Google consent-mode default before GTM loads so analytics/ad storage stay denied until the site consent manager updates consent.
-  - [`src/components/analytics-data-layer.tsx`](/Users/rajeev/Code/rajeevg.com/src/components/analytics-data-layer.tsx) adds page context, scroll depth, article progress, engaged-time milestones, section views, click metadata, and page engagement summary pushes.
-  - [`src/components/consent-manager.tsx`](/Users/rajeev/Code/rajeevg.com/src/components/consent-manager.tsx) persists the visitor choice, updates Google Consent Mode, exposes reopenable privacy controls, gates Vercel Analytics, and emits consent events into the shared `dataLayer`.
-  - [`src/app/privacy/page.tsx`](/Users/rajeev/Code/rajeevg.com/src/app/privacy/page.tsx) provides the public privacy policy linked from the consent banner, footer, and article header.
-  - The current live stack uses web container `GTM-K2VRQS47`, measurement ID `G-675W3V0C78`, and raw BigQuery export dataset `personal-gws-1:analytics_498363924`.
-
-- **Automatically attached dimensions**:
-  - Every event now includes shared runtime context such as `browser_session_id`, `page_view_id`, `page_view_sequence`, viewport and screen size, device pixel ratio, language, timezone, theme, color scheme, and reduced-motion preference.
-  - Every event also includes page context such as `page_type`, `site_section`, `content_slug`, `content_title`, route depth, referrer context, and any page-level metadata declared with `data-analytics-page-*`.
-
-- **Page metadata convention**:
-  - Mark the primary content root with `data-analytics-page-context="primary"`.
-  - Add `data-analytics-page-*` attributes for stable dimensions like `content_type`, `content_id`, `content_tags`, counts, categories, or publish dates.
-  - The analytics helper automatically folds those dimensions into every event on that page.
-
-- **Main custom events**:
-  - `page_context`
-  - `navigation_click`, `post_click`, `project_click`, `profile_click`, `contact_click`
-  - `tag_click`, `blog_search`, `blog_search_focus`
-  - `theme_toggle`, `copy_code`
-  - `scroll_depth`, `article_progress`, `article_complete`, `section_view`, `engaged_time`
-  - `page_engagement_summary`
-
-- **Send custom events manually**:
-
-  ```ts
-  import { pushDataLayerEvent } from "@/lib/analytics"
-
-  pushDataLayerEvent("cta_click", {
-    analytics_section: "hero",
-    item_type: "primary_cta",
-    item_name: "Start here",
-  })
-  ```
-
-- **Verification tips**:
-  - In DevTools, confirm `dataLayer` exists and that `https://www.googletagmanager.com/gtm.js?id=GTM-K2VRQS47` loads.
-  - Inspect `window.dataLayer` after navigation and interactions to confirm shared dimensions are present on each event object.
-  - Use GTM Preview to map the richer custom events to GA4 event tags and parameters.
-  - Watch requests to `https://www.google-analytics.com/g/collect` for the primary GA4 transport path.
-  - Confirm there are no live requests to `https://rajeevg.com/metrics/*` during the measured session.
-  - See [`docs/analytics.md`](/Users/rajeev/Code/rajeevg.com/docs/analytics.md) for the current event contract.
-  - See [`docs/google-tagging-stack.md`](/Users/rajeev/Code/rajeevg.com/docs/google-tagging-stack.md) for the current GA4, GTM, BigQuery, and decommission audit.
-
-## Build issues and prevention
-
-- **Symptom**: `next build` failed during “Collecting page data” with:
-  - `Cannot find module for page: /_not-found`
-  - sometimes also `Cannot find module for page: /dashboard`
-- **Root cause**: `src/app/blog/[slug]/page.tsx` calls `notFound()` for missing posts, but there was no root `src/app/not-found.tsx` page. When Next tried to render the global not‑found boundary during prerender, the module was missing.
-- **Fix**: add `src/app/not-found.tsx` (simple 404 page). After adding it, `pnpm build` completes successfully.
-- **How to avoid in future**:
-  - If any route calls `notFound()`, ensure a matching `src/app/not-found.tsx` exists.
-  - Keep Shiki CSS mappings in `globals.css`; avoid Tailwind prose rules that override `pre/code` colors/backgrounds.
-  - Ensure `tsconfig.json` has `"#velite": ["./.velite"]` and `next.config.ts` triggers Velite during dev/build.
-  - Run `pnpm content` to regenerate `.velite` outputs if you change Velite config or content schema.
-  - Note: Next 15 App Router uses Promise-based route params. Type `{ params: Promise<{ slug: string }> }` and `await params` in both the page and `generateMetadata`.
-
-## Scripts
-
-```bash
-pnpm dev          # Start dev server (Turbopack) + Velite watch
-pnpm build        # Production build (Velite runs automatically)
-pnpm start        # Start production server
-pnpm content      # Manual Velite build (cleans and rebuilds content)
-pnpm lint         # Lint
-```
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Do not put a scheduled `put()` loop on Vercel Blob.** Blob is billed per
+  operation on the Hobby plan, two thousand `put`/`copy`/`list` calls a month
+  across the whole account. A five-minute publisher burned through that in a
+  fortnight and Vercel suspended every Blob store on the team for thirty days,
+  which took down the Pareto refresh as collateral. Scheduled data jobs write to
+  a Git branch instead.
+- **The `pareto-data` branch is data, not code.** It is force-updated on every
+  refresh and is not meant to be read as history.
+- **Model identity is matched exactly.** The alias map in
+  `src/data/model-aliases.json` plus a deterministic auto-join. No fuzzy
+  matching, no edit distance. If a model is missing from the page, add it there.
