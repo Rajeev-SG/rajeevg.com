@@ -1,5 +1,17 @@
 name: Refresh Pareto Frontier data
 
+# Publishes a validated AI-model Pareto snapshot twice a day.
+#
+# Delivery target is the dedicated `pareto-data` Git branch (raw.githubusercontent),
+# NOT Vercel Blob and NOT a commit to main:
+#   - No Vercel deployment: vercel.json sets git.deploymentEnabled["pareto-data"] = false.
+#   - No metered storage: Vercel Blob is billed per operation on Hobby
+#     (2,000 advanced ops/month) and the shared allowance was exhausted by an
+#     unrelated publisher, which suspended every Blob store on the team for
+#     30 days and broke this workflow with HTTP 502.
+#   - The app reads that branch at runtime (src/lib/pareto/aa-fallback.ts).
+# Pipeline rationale and the operation budget: docs/pareto-frontier-data-pipeline.md
+
 on:
   schedule:
     - cron: "17 5,17 * * *"
@@ -28,13 +40,21 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+
       - name: Refresh and validate snapshot
+        # Writes src/data/pareto-aa-fallback.json (repo-local artefact only; this
+        # workflow never commits that file to main, so no deployment is created).
         run: pnpm pareto:refresh
         env:
           ARTIFICIAL_ANALYSIS_API_KEY_PF: ${{ secrets.ARTIFICIAL_ANALYSIS_API_KEY_PF }}
-          PARETO_REFRESH_ENDPOINT: ${{ vars.PARETO_REFRESH_ENDPOINT }}
-          PARETO_REFRESH_SECRET: ${{ secrets.PARETO_REFRESH_SECRET }}
+
+      - name: Publish snapshot to the pareto-data branch
+        run: node scripts/publish-pareto-data.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Refresh outcome summary
         if: always()
         run: |
-          echo "Refreshed snapshot delivered via Vercel Blob (no Git commit, no deployment)."
+          echo "Snapshot published to the pareto-data branch; production reads it at runtime."
+          echo "No Git commit to main and no Vercel deployment were created by this run."

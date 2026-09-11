@@ -10,5 +10,10 @@
         }
       ]
     }
-  ]
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "pareto-data": false
+    }
+  }
 }
