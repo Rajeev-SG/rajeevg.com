@@ -96,7 +96,28 @@ Simple operations come from cache-busting reads, which are always cache MISSes:
 * The bundled snapshot was regenerated (adds `deepseek-v4.1-flash`, AA intel 39.5,
   which auto-joins to `deepseek/deepseek-v4.1-flash`).
 
-## Recommended follow-ups (to get the account back within Hobby limits)
+## Follow-up status (2026-09-11, same day)
+
+All three operation-reduction follow-ups below are **done**; they were actioned
+in `Rajeev-SG/codex-session-orchestration-analysis` (PR #79):
+
+1. **Done** — the tokenmaxxing publisher no longer writes to Blob. It publishes
+to the public data repository `Rajeev-SG/tokenmaxxing-data` (single force-updated
+commit). This removes the ~8,800 advanced ops/month that caused the suspension.
+2. **Done** — the cache-busting read (`?now=` in the publisher, `?t=` in the
+dashboard) is gone; reads now ride the CDN's own revalidation.
+3. **Done** — the duplicate empty `rajeevg-content-ops` store was deleted.
+
+Result: **no Blob writer remains on a schedule.** The only Blob usage left in
+this account is the rajeevg-com content-ops media upload, which is user-triggered
+and low-volume.
+
+Blob access still unblocks automatically 30 days after the suspension; we are
+not paying Vercel to lift it, and with the loop removed usage stays inside the
+Hobby limits afterwards. The `tokenmaxxing-usage` store is now unused and can be
+deleted at leisure.
+
+## Original recommended follow-ups (kept for the record)
 
 We do not need to pay Vercel. The allowance is exceeded by *operations*, not
 storage.
