@@ -1,15 +1,15 @@
 {
   "provenance": {
     "source": "Artificial Analysis API v2 /language/models/free + OpenRouter /api/v1/models",
-    "fetchedAt": "2026-09-11T19:45:40.176Z",
+    "fetchedAt": "2026-09-12T09:25:12.706Z",
     "aaStatus": "ok",
     "note": "Validated automatic snapshot. Empty or incomplete refreshes never replace this file."
   },
-  "generatedAt": "2026-09-11T19:45:42.382Z",
+  "generatedAt": "2026-09-12T09:25:13.909Z",
   "freshness": {
-    "aaFetchedAt": "2026-09-11T19:45:40.176Z",
+    "aaFetchedAt": "2026-09-12T09:25:12.706Z",
     "aaStatus": "ok",
-    "openrouterFetchedAt": "2026-09-11T19:45:42.175Z",
+    "openrouterFetchedAt": "2026-09-12T09:25:13.721Z",
     "openrouterStatus": "ok",
     "arenaFetchedAt": null,
     "arenaStatus": "pending",
@@ -694,13 +694,13 @@
         "agenticIndex": 41.7,
         "costPerTaskUsd": 0.2196,
         "throughputTokensPerSecond": 210.09,
-        "latencyTtfbSeconds": 0.98,
+        "latencyTtfbSeconds": 1.08,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
         "modelId": "deepseek/deepseek-v4-flash-0731",
-        "inputPricePerMillion": 0.065,
-        "outputPricePerMillion": 0.18,
+        "inputPricePerMillion": 0.04,
+        "outputPricePerMillion": 0.08,
         "contextLength": 1310720,
         "createdAtUnix": 1785478908
       },
@@ -727,8 +727,8 @@
       },
       "openrouter": {
         "modelId": "deepseek/deepseek-v4-pro-0813",
-        "inputPricePerMillion": 0.57948,
-        "outputPricePerMillion": 1.73844,
+        "inputPricePerMillion": 0.57816,
+        "outputPricePerMillion": 1.73448,
         "contextLength": 1048576,
         "createdAtUnix": 1786549364
       },
@@ -1297,7 +1297,7 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 40.71,
+        "throughputTokensPerSecond": 40.42,
         "latencyTtfbSeconds": 2.54,
         "intelligenceIndexVersion": 4.3
       },
@@ -1354,7 +1354,7 @@
         "agenticIndex": null,
         "costPerTaskUsd": null,
         "throughputTokensPerSecond": 80.67,
-        "latencyTtfbSeconds": 1.64,
+        "latencyTtfbSeconds": 1.68,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -1415,8 +1415,8 @@
       },
       "openrouter": {
         "modelId": "minimax/minimax-m2.5",
-        "inputPricePerMillion": 0.27,
-        "outputPricePerMillion": 1.08,
+        "inputPricePerMillion": 0.3,
+        "outputPricePerMillion": 1.2,
         "contextLength": 204800,
         "createdAtUnix": 1770908502
       },
@@ -1773,14 +1773,14 @@
         "codingIndex": 76.2,
         "agenticIndex": 50.6,
         "costPerTaskUsd": 2.0001,
-        "throughputTokensPerSecond": 38.83,
-        "latencyTtfbSeconds": 3.6,
+        "throughputTokensPerSecond": 38.06,
+        "latencyTtfbSeconds": 3.76,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
         "modelId": "moonshotai/kimi-k3",
-        "inputPricePerMillion": 2.0999999999999996,
-        "outputPricePerMillion": 10.530000000000001,
+        "inputPricePerMillion": 2.30272875,
+        "outputPricePerMillion": 11.550195,
         "contextLength": 1048576,
         "createdAtUnix": 1784215858
       },
@@ -3168,7 +3168,7 @@
         "agenticIndex": 3.6,
         "costPerTaskUsd": 0.5517,
         "throughputTokensPerSecond": 110.36,
-        "latencyTtfbSeconds": 1.33,
+        "latencyTtfbSeconds": 1.34,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -3588,7 +3588,7 @@
         "agenticIndex": null,
         "costPerTaskUsd": null,
         "throughputTokensPerSecond": 56.13,
-        "latencyTtfbSeconds": 2.2,
+        "latencyTtfbSeconds": 2.19,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -3677,8 +3677,8 @@
       },
       "openrouter": {
         "modelId": "qwen/qwen3.8-27b",
-        "inputPricePerMillion": 0.42,
-        "outputPricePerMillion": 3,
+        "inputPricePerMillion": 0.21400000000000002,
+        "outputPricePerMillion": 2.5500000000000003,
         "contextLength": 1000000,
         "createdAtUnix": 1786722910
       },
@@ -3817,8 +3817,8 @@
       },
       "openrouter": {
         "modelId": "qwen/qwen3.8-27b",
-        "inputPricePerMillion": 0.42,
-        "outputPricePerMillion": 3,
+        "inputPricePerMillion": 0.21400000000000002,
+        "outputPricePerMillion": 2.5500000000000003,
         "contextLength": 1000000,
         "createdAtUnix": 1786722910
       },
@@ -3895,8 +3895,8 @@
       },
       "openrouter": {
         "modelId": "tencent/hy3",
-        "inputPricePerMillion": 0.0825,
-        "outputPricePerMillion": 0.33,
+        "inputPricePerMillion": 0.13199999999999998,
+        "outputPricePerMillion": 0.5279999999999999,
         "contextLength": 262144,
         "createdAtUnix": 1783344048
       },
@@ -4213,8 +4213,8 @@
         "codingIndex": 68.8,
         "agenticIndex": 39.4,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 66.67,
-        "latencyTtfbSeconds": 4.03,
+        "throughputTokensPerSecond": 67.56,
+        "latencyTtfbSeconds": 4.22,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -4275,8 +4275,8 @@
       },
       "openrouter": {
         "modelId": "z-ai/glm-5.3-flash",
-        "inputPricePerMillion": 0.15,
-        "outputPricePerMillion": 0.5,
+        "inputPricePerMillion": 0.075,
+        "outputPricePerMillion": 0.25,
         "contextLength": 1310720,
         "createdAtUnix": 1787752741
       },
