@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 800" role="img" aria-labelledby="title desc">
+  <title id="title">Web Automation Microbench</title>
+  <desc id="desc">Two rankings of browser automation tools: a fast-path speed ranking and a real-work capability ranking that reorders it.</desc>
+  <defs>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dy="8" stdDeviation="10" flood-color="#152033" flood-opacity=".12"/></filter>
+    <style>
+      .serif{font-family:Georgia,'Times New Roman',serif;fill:#172033}
+      .sans{font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#566174}
+      .node{font-size:20px;font-weight:650;fill:#172033}
+      .small{font-size:16px;fill:#7a8398}
+      .num{font-size:18px;font-weight:650;fill:#172033}
+      .fastlabel{font-size:14px;letter-spacing:.14em;text-transform:uppercase;fill:#b06a2c;font-weight:700}
+      .caplabel{font-size:14px;letter-spacing:.14em;text-transform:uppercase;fill:#2f6f8f;font-weight:700}
+    </style>
+  </defs>
+  <rect width="1280" height="800" fill="#fbfaf5"/>
+  <text x="64" y="74" class="serif" font-size="40" font-weight="700">Web Automation Microbench</text>
+  <text x="64" y="112" class="sans" font-size="20">33 tools, one fixed job, one independent pass test &#8212; ranked twice</text>
+
+  <!-- Fast-path card -->
+  <g transform="translate(64 156)">
+    <rect width="556" height="520" rx="20" fill="#fffef9" stroke="#d8d4c8" filter="url(#soft)"/>
+    <text x="34" y="52" class="fastlabel">Fast path &#183; median time</text>
+    <text x="34" y="86" class="serif" font-size="24" font-weight="700">Who finishes quickest</text>
+    <g>
+      <rect x="34" y="112" width="330" height="30" rx="6" fill="#e7a15c"/>
+      <text x="46" y="133" class="node">BrowserSkill</text>
+      <text x="500" y="133" class="num" text-anchor="end">4.1s</text>
+
+      <rect x="34" y="156" width="320" height="30" rx="6" fill="#e7a15c"/>
+      <text x="46" y="177" class="node">browser-relay</text>
+      <text x="500" y="177" class="num" text-anchor="end">4.3s</text>
+
+      <rect x="34" y="200" width="272" height="30" rx="6" fill="#efb378"/>
+      <text x="46" y="221" class="node">browser-cli</text>
+      <text x="500" y="221" class="num" text-anchor="end">6.2s</text>
+
+      <rect x="34" y="244" width="216" height="30" rx="6" fill="#efb378"/>
+      <text x="46" y="265" class="node">Browser Harness</text>
+      <text x="500" y="265" class="num" text-anchor="end">9.9s</text>
+
+      <rect x="34" y="288" width="150" height="30" rx="6" fill="#f2c79a"/>
+      <text x="46" y="309" class="node">chrome-devtools-mcp</text>
+      <text x="500" y="309" class="num" text-anchor="end">11.8s</text>
+
+      <rect x="34" y="332" width="96" height="30" rx="6" fill="#f2c79a"/>
+      <text x="46" y="353" class="node">opencli</text>
+      <text x="500" y="353" class="num" text-anchor="end">30.4s</text>
+
+      <rect x="34" y="376" width="60" height="30" rx="6" fill="#cfd6e2"/>
+      <text x="46" y="397" class="node">midscene</text>
+      <text x="500" y="397" class="num" text-anchor="end">33.4s</text>
+
+      <rect x="34" y="420" width="30" height="30" rx="6" fill="#cfd6e2"/>
+      <text x="46" y="441" class="node">skyvern</text>
+      <text x="500" y="441" class="num" text-anchor="end">186.5s</text>
+    </g>
+    <line x1="34" y1="470" x2="522" y2="470" stroke="#e3ddcd"/>
+    <text x="34" y="498" class="small">Thin harnesses, one native command per step, ~$0.0005/run.</text>
+  </g>
+
+  <!-- Capability card -->
+  <g transform="translate(660 156)">
+    <rect width="556" height="520" rx="20" fill="#fffef9" stroke="#d8d4c8" filter="url(#soft)"/>
+    <text x="34" y="52" class="caplabel">Real work &#183; 11 harvested tasks</text>
+    <text x="34" y="86" class="serif" font-size="24" font-weight="700">Who actually gets work done</text>
+    <g>
+      <rect x="34" y="112" width="420" height="30" rx="6" fill="#5b9cc0"/>
+      <text x="46" y="133" class="node">browser-relay</text>
+      <text x="500" y="133" class="num" text-anchor="end">22/33</text>
+
+      <rect x="34" y="156" width="325" height="30" rx="6" fill="#7fb6d3"/>
+      <text x="46" y="177" class="node">raw-playwright</text>
+      <text x="500" y="177" class="num" text-anchor="end">17/33</text>
+
+      <rect x="34" y="200" width="115" height="30" rx="6" fill="#a9cede"/>
+      <text x="46" y="221" class="node">agent-browser</text>
+      <text x="500" y="221" class="num" text-anchor="end">6/11</text>
+
+      <rect x="34" y="244" width="115" height="30" rx="6" fill="#a9cede"/>
+      <text x="46" y="265" class="node">cdp-browser</text>
+      <text x="500" y="265" class="num" text-anchor="end">6/11</text>
+
+      <rect x="34" y="288" width="38" height="30" rx="6" fill="#dcb0a3"/>
+      <text x="46" y="309" class="node">BrowserSkill</text>
+      <text x="500" y="309" class="num" text-anchor="end">2/11</text>
+    </g>
+    <rect x="34" y="346" width="488" height="104" rx="12" fill="#f3f6f9" stroke="#dbe4ec"/>
+    <text x="52" y="382" class="serif" font-size="19" font-weight="700" fill="#a3452c">The orderings invert.</text>
+    <text x="52" y="410" class="sans" font-size="17">BrowserSkill is the fastest tool here and the</text>
+    <text x="52" y="434" class="sans" font-size="17">weakest on real work. Speed alone misleads.</text>
+    <line x1="34" y1="470" x2="522" y2="470" stroke="#e3ddcd"/>
+    <text x="34" y="498" class="small">Multi-step journeys pass 0&#8211;2 of 9; read-only</text>
+    <text x="34" y="520" class="small">audits pass 7&#8211;9 of 9.</text>
+  </g>
+
+  <text x="64" y="726" class="sans" font-size="16" font-style="italic">Evidence date 12 Sep 2026 &#183; model z-ai/glm-5.3-flash &#183; github.com/Rajeev-SG/web-automation-microbench</text>
+</svg>

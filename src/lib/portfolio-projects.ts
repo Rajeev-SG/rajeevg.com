@@ -20,6 +20,26 @@ export type PortfolioProject = {
 
 export const currentSolutions: PortfolioProject[] = [
   {
+    slug: "web-automation-microbenchmarks",
+    title: "Web Automation Microbench",
+    category: "AI & Agent Systems",
+    tagline: "Head-to-head benchmarks of 33 browser automation tools on one identical task, with a second real-work ranking that reorders them.",
+    summary:
+      "One fixed job, one independent pass test, and 33 browser automation tools scored on the same terms. The project publishes two leaderboards that deliberately disagree: fast-path speed and cost on a controlled microbenchmark, and real-work capability on 11 harvested browser tasks. The fastest tool on the toy task is among the weakest on real work.",
+    howItWorks:
+      "A shared Python benchlib owns the task text, timer, token accounting and result schema, so each tool is a small adapter and nothing else. Pass or fail is decided by separate code reading the page and the app state, never the agent's own claim. Failed runs are kept, screened at two reps and promoted to five so a single lucky rep cannot inflate reliability.",
+    imagePath: "/images/solutions/web-automation-microbenchmarks.svg",
+    imageAlt: "Leaderboard diagram showing browser automation tools ranked by median task time, with a second ranking for real-work capability.",
+    liveUrl: "/solutions/web-automation-leaderboard",
+    liveLabel: "Open the leaderboard",
+    githubUrl: "https://github.com/Rajeev-SG/web-automation-microbench",
+    lastUpdated: "2026-09-13",
+    tech: ["Python", "OpenRouter", "Chrome DevTools Protocol", "Playwright", "CLI harnesses", "benchmarking"],
+    repoVisibility: "PUBLIC",
+    inclusionReason: "Public repo with reproducible adapters, raw per-run JSON, independent pass rules and a live leaderboard.",
+    detailLinks: [{ label: "Read the write-up", href: "/blog/web-automation-microbenchmarks" }],
+  },
+  {
     slug: "llm-pareto-frontier",
     title: "LLM Pareto Frontier",
     category: "AI & Agent Systems",
@@ -468,6 +488,7 @@ export function getPortfolioProject(slug: string) {
 }
 
 const publicProjectOrder = [
+  "web-automation-microbenchmarks",
   "llm-pareto-frontier",
   "agent-operations-control-plane",
   "agent-routing-and-lifecycle-system",
