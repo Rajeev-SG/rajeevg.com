@@ -1,0 +1,58 @@
+name: Refresh Agent Benchmark Matrix data
+
+# Publishes a validated Agent Benchmark Matrix snapshot to the dedicated
+# `benchmark-data` Git branch (raw.githubusercontent), NOT Vercel Blob and NOT a
+# commit to main:
+#   - No Vercel deployment: vercel.json sets git.deploymentEnabled["benchmark-data"] = false.
+#   - No metered storage: a Git branch has no per-operation quota and is free.
+#   - The app reads that branch at runtime (src/lib/agent-benchmarks/registry.ts)
+#     and falls back to the bundled reviewed seed on any read failure.
+#
+# Benchmarks change far more slowly than model prices, so a daily refresh is
+# enough. A failed or partially parsed source must never shrink or overwrite the
+# last-known-good snapshot on the branch.
+on:
+  schedule:
+    - cron: "42 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-agent-benchmarks
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.32.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Rebuild and validate the snapshot
+        # Writes src/data/agent-benchmarks/results.json (repo-local artefact only).
+        # Validation gates run inside the script; a snapshot that
+        # trips a gate fails the job and never reaches the branch.
+        run: pnpm agent-benchmarks:seed
+
+      - name: Publish snapshot to the benchmark-data branch
+        run: pnpm exec tsx scripts/publish-agent-benchmark-data.ts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Refresh outcome summary
+        if: always()
+        run: |
+          echo "Snapshot published to the benchmark-data branch; production reads it at runtime."
+          echo "No Git commit to main and no Vercel deployment were created by this run."

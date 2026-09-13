@@ -1,0 +1,11 @@
+[
+  { "id": "binary_completion", "label": "Binary completion", "description": "Share of tasks where every scoring checkpoint passed.", "unit": "percent", "higherIsBetter": true, "min": 0, "max": 100 },
+  { "id": "partial_score", "label": "Partial score", "description": "Mean share of scoring checkpoints reached, even when the task was not finished.", "unit": "percent", "higherIsBetter": true, "min": 0, "max": 100 },
+  { "id": "pass_at_1", "label": "Pass@1", "description": "Single-attempt task success rate.", "unit": "percent", "higherIsBetter": true, "min": 0, "max": 100 },
+  { "id": "accuracy", "label": "Accuracy", "description": "Share of tasks answered or completed correctly.", "unit": "percent", "higherIsBetter": true, "min": 0, "max": 100 },
+  { "id": "resolved", "label": "Resolved", "description": "Share of software-engineering issues resolved against the test suite.", "unit": "percent", "higherIsBetter": true, "min": 0, "max": 100 },
+  { "id": "full_completion", "label": "Full completion", "description": "Binary share of tasks with all checkpoints passed.", "unit": "percent", "higherIsBetter": true, "min": 0, "max": 100 },
+  { "id": "partial_completion", "label": "Partial completion", "description": "Weighted progress score that credits checkpoints plus a full-completion bonus.", "unit": "percent", "higherIsBetter": true, "min": 0, "max": 100 },
+  { "id": "elo", "label": "Elo", "description": "Preference-based rating from paired head-to-head judging.", "unit": "rating", "higherIsBetter": true, "min": 800, "max": 2400 },
+  { "id": "tool_invocation_rate", "label": "Tool invocation rate", "description": "Share of tasks where the agent actually invoked the required tool.", "unit": "percent", "higherIsBetter": true, "min": 0, "max": 100 }
+]

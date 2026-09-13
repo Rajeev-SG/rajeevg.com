@@ -15,7 +15,12 @@ export const dynamicParams = false
 const dateFormatter = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" })
 
 export function generateStaticParams() {
-  return portfolioProjects.map((project) => ({ slug: project.slug }))
+  // A project whose canonical link is a dedicated in-app route (for example a
+  // dashboard at /solutions/<slug>) must not also be statically generated here,
+  // or the two routes collide on the same output path and one shadows the other.
+  return portfolioProjects
+    .filter((project) => project.liveUrl !== `/solutions/${project.slug}`)
+    .map((project) => ({ slug: project.slug }))
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
