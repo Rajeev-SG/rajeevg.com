@@ -6,6 +6,7 @@
       "id": "osworld-2.0",
       "name": "OSWorld 2.0",
       "tier": "p0",
+      "comparePriority": 7,
       "category": "Desktop / CUA",
       "axes": [
         "desktop_cua",
@@ -37,6 +38,7 @@
       "id": "workarena-plus-plus",
       "name": "WorkArena++",
       "tier": "p0",
+      "comparePriority": 13,
       "category": "Enterprise / browser",
       "axes": [
         "enterprise_saas",
@@ -66,6 +68,7 @@
       "id": "enterpriseops-gym",
       "name": "EnterpriseOps-Gym",
       "tier": "p0",
+      "comparePriority": 14,
       "category": "Enterprise / browser",
       "axes": [
         "enterprise_saas",
@@ -96,6 +99,7 @@
       "id": "webarena-verified",
       "name": "WebArena-Verified",
       "tier": "p0",
+      "comparePriority": 8,
       "category": "Web chores / navigation",
       "axes": [
         "browser_navigation"
@@ -124,6 +128,7 @@
       "id": "webchorearena",
       "name": "WebChoreArena",
       "tier": "p0",
+      "comparePriority": 17,
       "category": "Web chores / navigation",
       "axes": [
         "browser_navigation"
@@ -152,6 +157,7 @@
       "id": "spreadsheetbench-2",
       "name": "SpreadsheetBench 2",
       "tier": "p0",
+      "comparePriority": 9,
       "category": "Enterprise / browser",
       "axes": [
         "cross_application_work"
@@ -180,6 +186,7 @@
       "id": "aa-analyst-agent",
       "name": "AA-AnalystAgent",
       "tier": "p0",
+      "comparePriority": 19,
       "category": "Research",
       "axes": [
         "cross_application_work",
@@ -209,6 +216,7 @@
       "id": "aa-briefcase",
       "name": "AA-Briefcase",
       "tier": "p0",
+      "comparePriority": 10,
       "category": "Research",
       "axes": [
         "cross_application_work",
@@ -238,6 +246,7 @@
       "id": "gdpval-aa-v2",
       "name": "GDPval-AA v2",
       "tier": "p0",
+      "comparePriority": 2,
       "category": "Research",
       "axes": [
         "cross_application_work",
@@ -267,6 +276,7 @@
       "id": "automationbench",
       "name": "AutomationBench",
       "tier": "p0",
+      "comparePriority": 3,
       "category": "Web chores / navigation",
       "axes": [
         "browser_navigation",
@@ -296,6 +306,7 @@
       "id": "apex-agents",
       "name": "APEX-Agents",
       "tier": "p0",
+      "comparePriority": 11,
       "category": "Enterprise / browser",
       "axes": [
         "cross_application_work",
@@ -325,6 +336,7 @@
       "id": "agents-last-exam",
       "name": "Agents' Last Exam",
       "tier": "p0",
+      "comparePriority": 4,
       "category": "Research",
       "axes": [
         "deep_research_browsing",
@@ -354,6 +366,7 @@
       "id": "toolathlon-verified",
       "name": "Toolathlon-Verified",
       "tier": "p0",
+      "comparePriority": 5,
       "category": "Tools / API / policy",
       "axes": [
         "tool_api_mcp",
@@ -383,6 +396,7 @@
       "id": "crmarena-pro",
       "name": "CRMArena-Pro",
       "tier": "p0",
+      "comparePriority": 16,
       "category": "Enterprise / browser",
       "axes": [
         "enterprise_saas",
@@ -412,6 +426,7 @@
       "id": "theagentcompany",
       "name": "TheAgentCompany",
       "tier": "p0",
+      "comparePriority": 15,
       "category": "Enterprise / browser",
       "axes": [
         "enterprise_saas",
@@ -443,6 +458,7 @@
       "id": "terminal-bench-2.1",
       "name": "Terminal-Bench 2.1",
       "tier": "p0",
+      "comparePriority": 1,
       "category": "Terminal / coding",
       "axes": [
         "terminal_coding",
@@ -472,6 +488,7 @@
       "id": "appworld",
       "name": "AppWorld",
       "tier": "p0",
+      "comparePriority": 18,
       "category": "Tools / API / policy",
       "axes": [
         "tool_api_mcp",
@@ -501,6 +518,7 @@
       "id": "tau3-bench",
       "name": "τ³-bench",
       "tier": "p0",
+      "comparePriority": 12,
       "category": "Tools / API / policy",
       "axes": [
         "tool_api_mcp",
@@ -530,6 +548,7 @@
       "id": "browsecomp",
       "name": "BrowseComp",
       "tier": "p0",
+      "comparePriority": 6,
       "category": "Research",
       "axes": [
         "deep_research_browsing",
@@ -559,6 +578,7 @@
       "id": "osworld-verified",
       "name": "OSWorld-Verified",
       "tier": "p1",
+      "comparePriority": null,
       "category": "Desktop / CUA",
       "axes": [
         "desktop_cua",
@@ -588,6 +608,7 @@
       "id": "mcpmark-verified",
       "name": "MCPMark Verified",
       "tier": "p1",
+      "comparePriority": null,
       "category": "Tools / API / policy",
       "axes": [
         "tool_api_mcp"
@@ -616,6 +637,7 @@
       "id": "mcp-atlas",
       "name": "MCP-Atlas",
       "tier": "p1",
+      "comparePriority": null,
       "category": "Tools / API / policy",
       "axes": [
         "tool_api_mcp"
@@ -644,6 +666,7 @@
       "id": "tau2-bench",
       "name": "τ²-bench",
       "tier": "p1",
+      "comparePriority": null,
       "category": "Tools / API / policy",
       "axes": [
         "tool_api_mcp",
@@ -759,6 +782,7 @@
       "displayName": "GPT-5.6 Sol",
       "family": "GPT-5.6",
       "organisation": "OpenAI",
+      "tracked": true,
       "releaseDate": "2026-08-06",
       "aliases": [
         "GPT-5.6 Sol",
@@ -773,6 +797,7 @@
       "displayName": "GPT-5.6 Terra",
       "family": "GPT-5.6",
       "organisation": "OpenAI",
+      "tracked": true,
       "releaseDate": "2026-08-06",
       "aliases": [
         "GPT-5.6 Terra",
@@ -786,6 +811,7 @@
       "displayName": "GPT-5.6 Luna",
       "family": "GPT-5.6",
       "organisation": "OpenAI",
+      "tracked": true,
       "releaseDate": "2026-08-06",
       "aliases": [
         "GPT-5.6 Luna",
@@ -799,6 +825,7 @@
       "displayName": "GPT-5.5",
       "family": "GPT-5.5",
       "organisation": "OpenAI",
+      "tracked": false,
       "releaseDate": "2026-04-23",
       "aliases": [
         "GPT-5.5",
@@ -812,6 +839,7 @@
       "displayName": "GLM-5.3",
       "family": "GLM-5.3",
       "organisation": "Z.ai",
+      "tracked": true,
       "releaseDate": "2026-06-17",
       "aliases": [
         "GLM-5.3",
@@ -825,6 +853,7 @@
       "displayName": "GLM-5.3 Flash",
       "family": "GLM-5.3",
       "organisation": "Z.ai",
+      "tracked": true,
       "releaseDate": "2026-06-17",
       "aliases": [
         "GLM-5.3-Flash",
@@ -839,6 +868,7 @@
       "displayName": "GLM-5.2",
       "family": "GLM-5.2",
       "organisation": "Z.ai",
+      "tracked": false,
       "releaseDate": "2026-03-15",
       "aliases": [
         "GLM-5.2",
@@ -851,6 +881,7 @@
       "displayName": "DeepSeek V4.1 Flash",
       "family": "DeepSeek V4.1",
       "organisation": "DeepSeek",
+      "tracked": true,
       "releaseDate": "2026-07-10",
       "aliases": [
         "DeepSeek-V4.1-Flash",
@@ -865,6 +896,7 @@
       "displayName": "DeepSeek V4 Pro",
       "family": "DeepSeek V4",
       "organisation": "DeepSeek",
+      "tracked": false,
       "releaseDate": "2026-06-09",
       "aliases": [
         "DeepSeek-V4-Pro",
@@ -878,6 +910,7 @@
       "displayName": "Kimi K3",
       "family": "Kimi K3",
       "organisation": "Moonshot AI",
+      "tracked": true,
       "releaseDate": "2026-08-01",
       "aliases": [
         "Kimi K3",
@@ -892,6 +925,7 @@
       "displayName": "Kimi K2.6",
       "family": "Kimi K2",
       "organisation": "Moonshot AI",
+      "tracked": false,
       "releaseDate": "2026-04-20",
       "aliases": [
         "Kimi K2.6",
@@ -904,6 +938,7 @@
       "displayName": "Qwen3.8 Max",
       "family": "Qwen3.8",
       "organisation": "Alibaba",
+      "tracked": true,
       "releaseDate": "2026-06-19",
       "aliases": [
         "Qwen3.8-Max",
@@ -917,6 +952,7 @@
       "displayName": "Qwen3.8-27B",
       "family": "Qwen3.8",
       "organisation": "Alibaba",
+      "tracked": false,
       "releaseDate": "2026-08-27",
       "aliases": [
         "Qwen3.8-27B",
@@ -929,6 +965,7 @@
       "displayName": "Qwen3.8-Flash-Next",
       "family": "Qwen3.8",
       "organisation": "Alibaba",
+      "tracked": false,
       "releaseDate": "2026-09-11",
       "aliases": [
         "Qwen3.8-Flash-Next",
@@ -941,6 +978,7 @@
       "displayName": "Qwen3.7-Plus",
       "family": "Qwen3.7",
       "organisation": "Alibaba",
+      "tracked": false,
       "releaseDate": "2026-05-11",
       "aliases": [
         "Qwen3.7-Plus",
@@ -953,6 +991,7 @@
       "displayName": "Claude Fable 5.1",
       "family": "Claude Fable",
       "organisation": "Anthropic",
+      "tracked": false,
       "releaseDate": "2026-07-15",
       "aliases": [
         "Claude Fable 5.1",
@@ -967,6 +1006,7 @@
       "displayName": "Claude Opus 4.8",
       "family": "Claude Opus",
       "organisation": "Anthropic",
+      "tracked": false,
       "releaseDate": "2026-05-28",
       "aliases": [
         "Claude Opus 4.8",
@@ -980,6 +1020,7 @@
       "displayName": "Claude Opus 5",
       "family": "Claude Opus",
       "organisation": "Anthropic",
+      "tracked": false,
       "releaseDate": "2026-09-02",
       "aliases": [
         "Claude Opus 5",
@@ -992,6 +1033,7 @@
       "displayName": "Gemini 3.1 Pro",
       "family": "Gemini 3",
       "organisation": "Google",
+      "tracked": false,
       "releaseDate": "2026-02-19",
       "aliases": [
         "Gemini 3.1 Pro",
@@ -1004,6 +1046,7 @@
       "displayName": "Gemini 3.5 Flash",
       "family": "Gemini 3",
       "organisation": "Google",
+      "tracked": false,
       "releaseDate": "2026-08-20",
       "aliases": [
         "Gemini 3.5 Flash",
@@ -1016,6 +1059,7 @@
       "displayName": "Muse Spark 1.1",
       "family": "Muse",
       "organisation": "Meta",
+      "tracked": false,
       "releaseDate": "2026-09-09",
       "aliases": [
         "Muse Spark 1.1",
@@ -1028,6 +1072,7 @@
       "displayName": "MiniMax-M3",
       "family": "MiniMax M",
       "organisation": "MiniMax",
+      "tracked": false,
       "releaseDate": "2026-03-21",
       "aliases": [
         "MiniMax-M3",
