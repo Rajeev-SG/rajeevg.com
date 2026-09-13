@@ -1,10 +1,13 @@
 /**
  * Build the seed evidence registry for /solutions/agent-benchmark-matrix.
  *
- * This is the single source of truth for the *curated* seed rows. It:
- *   1. emits `src/data/agent-benchmarks/results.json` (deterministic order), and
- *   2. emits `src/data/agent-benchmarks/fallback-snapshot.json` (the bundled
- *      last-known-good snapshot the page falls back to).
+ * This is the single source of truth for the *curated* seed rows. It emits
+ * `src/data/agent-benchmarks/results.json` (deterministic order, compact).
+ *
+ * The bundled last-known-good snapshot is *composed at runtime* from the seed
+ * registries in `src/lib/agent-benchmarks/registry.ts`, so it does not need a
+ * second, duplicated copy on disk. The publisher composes the same snapshot
+ * when it writes the durable copy to the `benchmark-data` branch.
  *
  * Every row cites an exact source URL and a provenance class. Where a number is
  * quoted from a competitor's comparison table rather than the model's own page,
@@ -311,8 +314,9 @@ if (validation.warnings.length > 0) {
   console.warn("Seed warnings:\n- " + validation.warnings.join("\n- "));
 }
 
-writeFileSync(resolve(DATA_DIR, "results.json"), JSON.stringify(results, null, 2) + "\n");
-writeFileSync(resolve(DATA_DIR, "fallback-snapshot.json"), JSON.stringify(snapshot, null, 2) + "\n");
+// Compact on purpose: the file is generated data and a pretty-printed copy
+// would roughly double the size of every diff that touches it.
+writeFileSync(resolve(DATA_DIR, "results.json"), JSON.stringify(results) + "\n");
 console.log(
   JSON.stringify(
     { results: results.length, benchmarks: benchmarks.length, models: models.length, reported: results.filter((r) => r.scoreState === "reported").length },

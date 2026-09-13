@@ -41,13 +41,13 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - name: Rebuild and validate the snapshot
-        # Writes src/data/agent-benchmarks/{results,fallback-snapshot}.json (repo-local
-        # artefacts only). Validation gates run inside the script; a snapshot that
+        # Writes src/data/agent-benchmarks/results.json (repo-local artefact only).
+        # Validation gates run inside the script; a snapshot that
         # trips a gate fails the job and never reaches the branch.
         run: pnpm agent-benchmarks:seed
 
       - name: Publish snapshot to the benchmark-data branch
-        run: node scripts/publish-agent-benchmark-data.mjs
+        run: pnpm exec tsx scripts/publish-agent-benchmark-data.ts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

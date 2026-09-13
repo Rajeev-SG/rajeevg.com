@@ -18,22 +18,22 @@ GitHub Actions (.github/workflows/refresh-agent-benchmarks.yml)
         |    +- validation gates (validation.ts): known ids, finite in-range
         |    |   scores, provenance present, no duplicate identity, no
         |    |   accidental corpus collapse
-        |    +- writes src/data/agent-benchmarks/{results,fallback-snapshot}.json
+        |    +- writes src/data/agent-benchmarks/results.json (compact)
         |
-        +- node scripts/publish-agent-benchmark-data.mjs
+        +- pnpm exec tsx scripts/publish-agent-benchmark-data.ts
              +- upserts agent-benchmark-snapshot.json on the `benchmark-data`
                 branch (GitHub Contents API; branch created from main's tip on
                 first run). Refuses to publish if the corpus shrinks > 50%.
 
 Runtime  (src/lib/agent-benchmarks/registry.ts)
   1. durable  : raw.githubusercontent.com/<repo>/benchmark-data/agent-benchmark-snapshot.json
-  2. bundled  : src/data/agent-benchmarks/fallback-snapshot.json  (last-known-good)
+  2. bundled  : seed registries + results.json, composed in registry.ts  (last-known-good)
 ```
 
 | Layer | Path | Updated | Purpose |
 |---|---|---|---|
 | **Durable** | `benchmark-data` branch, `agent-benchmark-snapshot.json` | every refresh | live data the site reads |
-| **Bundled** | `src/data/agent-benchmarks/fallback-snapshot.json` on `main` | on meaningful change | guaranteed render path + test fixture |
+| **Bundled** | the seed registries + `results.json` on `main`, composed at runtime | on meaningful change | guaranteed render path + test fixture |
 
 ## Why the seed is curated, not scraped (for now)
 
@@ -69,13 +69,13 @@ Automated adapters are the next step (see *Not yet covered*).
 4. **A result.** Add a row to the `ROWS` table in
    `scripts/build-agent-benchmark-seed.ts`, then run
    `pnpm agent-benchmarks:seed` and commit the regenerated
-   `results.json` + `fallback-snapshot.json`.
+   `results.json`.
 
 ## Operating it
 
 ```bash
 pnpm exec tsx scripts/build-agent-benchmark-seed.ts   # rebuild + validate
-GITHUB_TOKEN=... node scripts/publish-agent-benchmark-data.mjs   # publish to the branch
+GITHUB_TOKEN=... pnpm exec tsx scripts/publish-agent-benchmark-data.ts   # publish
 ```
 
 | Where | Name | Purpose |
