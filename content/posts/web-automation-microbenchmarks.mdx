@@ -1,8 +1,8 @@
 ---
-title: I raced 33 browser automation tools on the same five-second job
+title: I raced 34 browser automation tools on the same five-second job
 slug: web-automation-microbenchmarks
 date: 2026-09-13
-description: Almost every browser automation tool claims to be the fastest, the cheapest or the most reliable. I put 33 of them through the same job with the same browser and one independent pass test, then ranked them twice — because speed and real work do not agree.
+description: Almost every browser automation tool claims to be the fastest, the cheapest or the most reliable. I put 34 of them through the same job with the same browser and one independent pass test, then ranked them twice — because speed and real work do not agree.
 tags: [ai, agents, browser-automation, benchmarking, openrouter, tools]
 draft: false
 ---
@@ -16,7 +16,7 @@ draft: false
 
 Every browser automation tool has the same marketing line: fast, cheap, reliable, one line to install. None of them are compared on the same job under the same conditions, so "fastest" is usually whatever the author measured on their own laptop.
 
-I wanted the boring, comparable version. So I built [web-automation-microbench](https://github.com/Rajeev-SG/web-automation-microbench): one fixed job, one browser situation, one pass test that reads the page independently of whatever the agent claims. Then I ran 33 tools against it and put them on one leaderboard. The [full leaderboard is here](/solutions/web-automation-leaderboard).
+I wanted the boring, comparable version. So I built [web-automation-microbench](https://github.com/Rajeev-SG/web-automation-microbench): one fixed job, one browser situation, one pass test that reads the page independently of whatever the agent claims. Then I ran 34 tools against it and put them on one leaderboard. The [full leaderboard is here](/solutions/web-automation-leaderboard).
 
 ## One job, one honest pass test
 
@@ -50,6 +50,16 @@ The two rankings disagree, hard. **BrowserSkill is the fastest tool on the micro
 
 The difficulty split is clean, too: one-shot "inspect the live page and report" audits passed on almost anything that can evaluate JavaScript (8 out of 9 harnesses). The multi-step journeys — consent, find the product, add to cart, verify the tags — passed 0 to 2 times out of 9. Complexity, not harness quality, is what broke them.
 
+## The newest tool broke the rule
+
+The most recent addition is the most interesting, because it does not fit the pattern above. Browser Use Pi does not issue one browser command per model step — it runs its own agent loop, writes JavaScript into a persistent V8 REPL, and drives Chrome through raw CDP, building its own helpers as it goes. That is the "heavier architecture" the speed table punishes.
+
+And the speed table does punish it: **53.5 seconds median over ten reps against the leader's four**, with three of those ten ending in a false "done" that never left the default filter. On the toy job, the extra machinery is pure overhead.
+
+Then it did something no other tool in the set could. On the corpus, it is **the only harness that passes the CHANEL product-page tag inspection** — the task where the site's anti-bot behaviour defeats the thin CLIs two times out of nine. It also passed the crawlability, SEO-metadata and Porsche tag audits.
+
+So the honest summary is that the two rankings are not just different, they are *orthogonal*. The tool you want for a five-second deterministic job is the tool that adds the least between the model and the browser. The tool you want when the page fights back is one that can write its way around a problem instead of pressing the next button. I do not yet have evidence that code-batching wins on long authenticated workflows — that is the next thing to test — but I have a clear counter-example to "thin always wins".
+
 ## Three failures I did not expect
 
 - **page-agent** ships no key-press action at all, so it can never press Enter to commit a todo. It filled the field across roughly 16 attempts on 5 tabs and still reported failure. I only got it working after patching in `send_keys` and dispatching the key from the page's main world.
@@ -64,6 +74,6 @@ If your job is a multi-step authenticated journey, do not pick from the speed ta
 
 ## What this does not prove
 
-TodoMVC is a controlled instrument, not a proxy for real work, and I treat the two tables as separate claims. Several rows are two-rep screening results and should not be ordered finely against each other. Models matter as much as harnesses, so a different model could move the middle of the table. And because I wrote both the tasks and the test, the safest thing you can do is re-run it yourself — the repo has the exact task text, the pass rules, and the raw per-run JSON.
+TodoMVC is a controlled instrument, not a proxy for real work, and I treat the two tables as separate claims. Several rows are two-rep screening results and should not be ordered finely against each other, and the newest row is ten reps on the toy task but a single screening rep per real task. Models matter as much as harnesses, so a different model could move the middle of the table. And because I wrote both the tasks and the test, the safest thing you can do is re-run it yourself — the repo has the exact task text, the pass rules, and the raw per-run JSON.
 
 That is the whole point: not "trust my leaderboard", but "here is a fair race you can rerun". The [leaderboard lives on /solutions](/solutions/web-automation-leaderboard), and the [repo](https://github.com/Rajeev-SG/web-automation-microbench) is the source of truth behind it.
