@@ -1,15 +1,15 @@
 {
   "provenance": {
     "source": "Artificial Analysis API v2 /language/models/free + OpenRouter /api/v1/models",
-    "fetchedAt": "2026-09-12T19:24:41.591Z",
+    "fetchedAt": "2026-09-13T10:20:11.188Z",
     "aaStatus": "ok",
     "note": "Validated automatic snapshot. Empty or incomplete refreshes never replace this file."
   },
-  "generatedAt": "2026-09-12T19:24:43.302Z",
+  "generatedAt": "2026-09-13T10:20:12.754Z",
   "freshness": {
-    "aaFetchedAt": "2026-09-12T19:24:41.591Z",
+    "aaFetchedAt": "2026-09-13T10:20:11.188Z",
     "aaStatus": "ok",
-    "openrouterFetchedAt": "2026-09-12T19:24:43.158Z",
+    "openrouterFetchedAt": "2026-09-13T10:20:12.513Z",
     "openrouterStatus": "ok",
     "arenaFetchedAt": null,
     "arenaStatus": "pending",
@@ -727,8 +727,8 @@
       },
       "openrouter": {
         "modelId": "deepseek/deepseek-v4-pro-0813",
-        "inputPricePerMillion": 0.57948,
-        "outputPricePerMillion": 1.73844,
+        "inputPricePerMillion": 0.57816,
+        "outputPricePerMillion": 1.73448,
         "contextLength": 1048576,
         "createdAtUnix": 1786549364
       },
@@ -1191,8 +1191,8 @@
       },
       "openrouter": {
         "modelId": "meta/muse-glimmer-30b",
-        "inputPricePerMillion": 0.3,
-        "outputPricePerMillion": 1.1,
+        "inputPricePerMillion": 0.35,
+        "outputPricePerMillion": 1.5,
         "contextLength": 131072,
         "createdAtUnix": 1786302394
       },
@@ -3895,8 +3895,8 @@
       },
       "openrouter": {
         "modelId": "tencent/hy3",
-        "inputPricePerMillion": 0.0825,
-        "outputPricePerMillion": 0.33,
+        "inputPricePerMillion": 0.13199999999999998,
+        "outputPricePerMillion": 0.5279999999999999,
         "contextLength": 262144,
         "createdAtUnix": 1783344048
       },
@@ -4247,8 +4247,8 @@
       },
       "openrouter": {
         "modelId": "z-ai/glm-5.3",
-        "inputPricePerMillion": 1.4,
-        "outputPricePerMillion": 4.4,
+        "inputPricePerMillion": 1.092,
+        "outputPricePerMillion": 3.432,
         "contextLength": 1310720,
         "createdAtUnix": 1787086655
       },
