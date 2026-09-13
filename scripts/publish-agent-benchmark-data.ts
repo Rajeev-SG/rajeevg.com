@@ -127,4 +127,8 @@ async function main() {
   }));
 }
 
-await main();
+// Called without top-level await so the script runs under tsx from a CommonJS
+// package context as well as from an ESM one.
+main().catch((error: unknown) => {
+  fail(error instanceof Error ? error.message : String(error));
+});

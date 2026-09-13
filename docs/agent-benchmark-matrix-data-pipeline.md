@@ -57,14 +57,48 @@ So v1 ships a **curated, source-traced registry**:
 
 Automated adapters are the next step (see *Not yet covered*).
 
+## View design (why the default is dense, not complete)
+
+The registry is deliberately broader than the default view. A benchmark result
+is only comparable when benchmark, version, subset, metric, protocol and effort
+line up, and much of the public record simply does not cover current models —
+AutoBench, GDPval and Agents' Last Exam each ship several incompatible protocols,
+and seven tracked benchmarks currently have no current-model result at all.
+
+So the page has two views:
+
+| View | What it shows | Why |
+|---|---|---|
+| **Compare** (default) | Benchmarks with ≥ 3 cohort models and models with ≥ 2 results in that set | A dense, decision-useful comparison |
+| **Coverage** | Every model × every tracked benchmark, every gap | Sparsity is the information |
+
+Both thresholds come from the data (`MIN_MODELS_PER_BENCHMARK`,
+`MIN_BENCHMARKS_PER_MODEL` in `aggregate.ts`), so benchmarks graduate into the
+default comparison on their own as ingestion improves — no UI edit required.
+Nothing is deleted: benchmarks below the threshold appear under *Tracked,
+awaiting current results*, and are clickable.
+
+The dense view shows one metric per benchmark: whichever declared metric carries
+the most comparable coverage for the selected cohort (`selectCompareMetricId`).
+OSWorld 2.0, for example, shows its partial-progress metric rather than binary
+completion, because that is where the current-model evidence actually is. The
+coverage map shows every declared metric.
+
+Missing cells are never filled. `missingReason()` distinguishes *no public
+result*, *tracked but not ingested*, *incompatible protocol* and *filtered out*,
+and the reason is available on the cell.
+
 ## Adding data
 
 1. **A benchmark.** Add an entry to `src/data/agent-benchmarks/benchmarks.json`
-   (`tier`, `category`, `axes`, `primaryMetricIds`, source URLs, audit fields)
-   and a matching entry to `candidates.json`.
+   (`tier`, `comparePriority`, `category`, `axes`, `primaryMetricIds`, source
+   URLs, audit fields) and a matching entry to `candidates.json`.
+   `comparePriority` is the curated column order for the default comparison; set
+   it to `null` to fall back to coverage-descending, then name.
 2. **A model or alias.** Add to `models.json`. Aliases must be exact strings a
    source actually prints; matching is exact and case-insensitive only. A new
-   family member never inherits another member's scores.
+   family member never inherits another member's scores. Set `tracked: true`
+   only for the current-generation models that belong in the default cohort.
 3. **A harness.** Add to `harnesses.json` if it is not already there.
 4. **A result.** Add a row to the `ROWS` table in
    `scripts/build-agent-benchmark-seed.ts`, then run
@@ -82,6 +116,13 @@ GITHUB_TOKEN=... pnpm exec tsx scripts/publish-agent-benchmark-data.ts   # publi
 |---|---|---|
 | Actions default token | `GITHUB_TOKEN` (`contents: write`) | create/update the `benchmark-data` branch |
 | Vercel env (optional) | `AGENT_BENCHMARK_SNAPSHOT_URL` | override the durable snapshot URL |
+
+`BENCHMARK_SNAPSHOT_SCHEMA_VERSION` in `registry.ts` is appended to the snapshot
+URL as `?v=N`. Bump it whenever the snapshot shape changes: the read is cached
+for an hour, so without the bump a schema change could be served the previous
+shape until the cache expired. `isPlausibleSnapshot()` also rejects a snapshot
+whose models or benchmarks predate the current fields, falling back to the
+bundled seed rather than rendering a wrong view.
 
 ## Deliberate limits
 
@@ -105,3 +146,7 @@ GITHUB_TOKEN=... pnpm exec tsx scripts/publish-agent-benchmark-data.ts   # publi
   marked `pending` means "identified, not fetched".
 - Task-level OSWorld 2.0 artefacts are not available, so no derived
   "audit-clean" score is computed; only the audit caveat is surfaced.
+- The compare thresholds (3 models / 2 results) are fixed constants. They are
+  exported and unit-tested, but not yet configurable per benchmark.
+- "Frontier comparison" includes Anthropic, Google and Meta as baselines; this
+  is a hard-coded organisation list in `cohort.ts` rather than registry data.

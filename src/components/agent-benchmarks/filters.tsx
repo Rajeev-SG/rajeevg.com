@@ -1,8 +1,13 @@
 "use client";
 
+import type { Cohort } from "@/lib/agent-benchmarks/cohort";
+
+export { COHORT_OPTIONS, inCohort, type Cohort } from "@/lib/agent-benchmarks/cohort";
+
 export type ViewMode = "model" | "system";
 export type Comparability = "strict" | "all";
 export type EvidenceFilter = "official" | "official_vendor" | "all";
+/** Which models the page is about. */
 
 export interface FilterState {
   view: ViewMode;
@@ -11,7 +16,7 @@ export interface FilterState {
   organisation: string;
   harness: string;
   evidence: EvidenceFilter;
-  trackedOnly: boolean;
+  cohort: Cohort;
   includeP1: boolean;
   search: string;
 }
@@ -23,16 +28,10 @@ export const DEFAULT_FILTERS: FilterState = {
   organisation: "all",
   harness: "all",
   evidence: "all",
-  trackedOnly: true,
+  cohort: "my_models",
   includeP1: false,
   search: "",
 };
-
-const TRACKED_FAMILIES = ["GPT", "GLM", "DeepSeek", "Kimi", "Qwen"];
-
-export function isTrackedFamily(family: string): boolean {
-  return TRACKED_FAMILIES.some((tracked) => family.toLowerCase().includes(tracked.toLowerCase()));
-}
 
 function Segmented<T extends string>({
   legend, value, options, onChange,
@@ -81,7 +80,7 @@ export function Filters({
   const patch = (p: Partial<FilterState>) => onChange({ ...state, ...p });
 
   return (
-    <div className="flex flex-wrap items-end gap-x-6 gap-y-4 rounded-xl border p-4" role="group" aria-label="Matrix filters">
+    <div className="flex flex-wrap items-end gap-x-6 gap-y-4 rounded-xl border p-4" role="group" aria-label="Advanced filters">
       <Segmented
         legend="View"
         value={state.view}
@@ -121,17 +120,11 @@ export function Filters({
       ) : null}
 
       <fieldset className="space-y-1">
-        <legend className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Cohort</legend>
-        <div className="flex flex-col gap-1 text-sm">
-          <label className="flex items-center gap-2">
-            <input type="checkbox" checked={state.trackedOnly} onChange={(e) => patch({ trackedOnly: e.target.checked })} className="accent-primary" />
-            My tracked families (GPT / GLM / DeepSeek / Kimi / Qwen)
-          </label>
-          <label className="flex items-center gap-2">
-            <input type="checkbox" checked={state.includeP1} onChange={(e) => patch({ includeP1: e.target.checked })} className="accent-primary" />
-            Include secondary benchmarks (P1)
-          </label>
-        </div>
+        <legend className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Scope</legend>
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={state.includeP1} onChange={(e) => patch({ includeP1: e.target.checked })} className="accent-primary" />
+          Include secondary benchmarks (P1)
+        </label>
       </fieldset>
 
       <label className="space-y-1 text-sm">

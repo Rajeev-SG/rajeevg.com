@@ -1,24 +1,305 @@
 [
-  { "canonicalId": "gpt-5.6-sol", "displayName": "GPT-5.6 Sol", "family": "GPT-5.6", "organisation": "OpenAI", "releaseDate": "2026-08-06", "aliases": ["GPT-5.6 Sol", "GPT-5.6-Sol", "GPT-5.6 Sol (High)", "GPT-5.6 Sol Ultra"], "openrouterId": null },
-  { "canonicalId": "gpt-5.6-terra", "displayName": "GPT-5.6 Terra", "family": "GPT-5.6", "organisation": "OpenAI", "releaseDate": "2026-08-06", "aliases": ["GPT-5.6 Terra", "GPT-5.6-Terra", "GPT-5.6 Terra (High)"], "openrouterId": null },
-  { "canonicalId": "gpt-5.6-luna", "displayName": "GPT-5.6 Luna", "family": "GPT-5.6", "organisation": "OpenAI", "releaseDate": "2026-08-06", "aliases": ["GPT-5.6 Luna", "GPT-5.6-Luna", "GPT-5.6-Luna (High)"], "openrouterId": null },
-  { "canonicalId": "gpt-5.5", "displayName": "GPT-5.5", "family": "GPT-5.5", "organisation": "OpenAI", "releaseDate": "2026-04-23", "aliases": ["GPT-5.5", "GPT-5.5 (High)", "GPT-5.5 High"], "openrouterId": null },
-  { "canonicalId": "glm-5.3", "displayName": "GLM-5.3", "family": "GLM-5.3", "organisation": "Z.ai", "releaseDate": "2026-06-17", "aliases": ["GLM-5.3", "GLM-5.3 (High)", "GLM-5.3 High"], "openrouterId": "z-ai/glm-5.3" },
-  { "canonicalId": "glm-5.3-flash", "displayName": "GLM-5.3 Flash", "family": "GLM-5.3", "organisation": "Z.ai", "releaseDate": "2026-06-17", "aliases": ["GLM-5.3-Flash", "GLM-5.3 Flash", "GLM-5.3-Flash (High)", "GLM-5.3-Flash-FP8"], "openrouterId": "z-ai/glm-5.3-flash" },
-  { "canonicalId": "glm-5.2", "displayName": "GLM-5.2", "family": "GLM-5.2", "organisation": "Z.ai", "releaseDate": "2026-03-15", "aliases": ["GLM-5.2", "GLM-5.2 (High)"], "openrouterId": null },
-  { "canonicalId": "deepseek-v4.1-flash", "displayName": "DeepSeek V4.1 Flash", "family": "DeepSeek V4.1", "organisation": "DeepSeek", "releaseDate": "2026-07-10", "aliases": ["DeepSeek-V4.1-Flash", "DeepSeek V4.1 Flash", "deepseek-v4.1-flash", "DeepSeek-V4.1-Flash (Max)"], "openrouterId": "deepseek/deepseek-v4.1-flash" },
-  { "canonicalId": "deepseek-v4-pro", "displayName": "DeepSeek V4 Pro", "family": "DeepSeek V4", "organisation": "DeepSeek", "releaseDate": "2026-06-09", "aliases": ["DeepSeek-V4-Pro", "DeepSeek V4 Pro", "DeepSeek-V4-Pro-0813"], "openrouterId": null },
-  { "canonicalId": "kimi-k3", "displayName": "Kimi K3", "family": "Kimi K3", "organisation": "Moonshot AI", "releaseDate": "2026-08-01", "aliases": ["Kimi K3", "kimi-k3", "Kimi-K3", "K3"], "openrouterId": null },
-  { "canonicalId": "kimi-k2.6", "displayName": "Kimi K2.6", "family": "Kimi K2", "organisation": "Moonshot AI", "releaseDate": "2026-04-20", "aliases": ["Kimi K2.6", "Kimi-K2.6"], "openrouterId": null },
-  { "canonicalId": "qwen3.8-max", "displayName": "Qwen3.8 Max", "family": "Qwen3.8", "organisation": "Alibaba", "releaseDate": "2026-06-19", "aliases": ["Qwen3.8-Max", "Qwen3.8 Max", "qwen3.8-max"], "openrouterId": "qwen/qwen3.8-max" },
-  { "canonicalId": "qwen3.8-27b", "displayName": "Qwen3.8-27B", "family": "Qwen3.8", "organisation": "Alibaba", "releaseDate": "2026-08-27", "aliases": ["Qwen3.8-27B", "Qwen3.8 27B"], "openrouterId": null },
-  { "canonicalId": "qwen3.8-flash-next", "displayName": "Qwen3.8-Flash-Next", "family": "Qwen3.8", "organisation": "Alibaba", "releaseDate": "2026-09-11", "aliases": ["Qwen3.8-Flash-Next", "Qwen3.8 Flash Next"], "openrouterId": null },
-  { "canonicalId": "qwen3.7-plus", "displayName": "Qwen3.7-Plus", "family": "Qwen3.7", "organisation": "Alibaba", "releaseDate": "2026-05-11", "aliases": ["Qwen3.7-Plus", "Qwen3.7 Plus"], "openrouterId": null },
-  { "canonicalId": "claude-fable-5.1", "displayName": "Claude Fable 5.1", "family": "Claude Fable", "organisation": "Anthropic", "releaseDate": "2026-07-15", "aliases": ["Claude Fable 5.1", "Claude-Fable-5.1", "Fable 5.1", "Fable 5"], "openrouterId": null },
-  { "canonicalId": "claude-opus-4.8", "displayName": "Claude Opus 4.8", "family": "Claude Opus", "organisation": "Anthropic", "releaseDate": "2026-05-28", "aliases": ["Claude Opus 4.8", "Opus 4.8", "Claude-Opus-4.8"], "openrouterId": null },
-  { "canonicalId": "claude-opus-5", "displayName": "Claude Opus 5", "family": "Claude Opus", "organisation": "Anthropic", "releaseDate": "2026-09-02", "aliases": ["Claude Opus 5", "Opus 5"], "openrouterId": null },
-  { "canonicalId": "gemini-3.1-pro", "displayName": "Gemini 3.1 Pro", "family": "Gemini 3", "organisation": "Google", "releaseDate": "2026-02-19", "aliases": ["Gemini 3.1 Pro", "Gemini-3.1-Pro"], "openrouterId": null },
-  { "canonicalId": "gemini-3.5-flash", "displayName": "Gemini 3.5 Flash", "family": "Gemini 3", "organisation": "Google", "releaseDate": "2026-08-20", "aliases": ["Gemini 3.5 Flash", "Gemini-3.5-Flash"], "openrouterId": null },
-  { "canonicalId": "muse-spark-1.1", "displayName": "Muse Spark 1.1", "family": "Muse", "organisation": "Meta", "releaseDate": "2026-09-09", "aliases": ["Muse Spark 1.1", "Muse Spark"], "openrouterId": null },
-  { "canonicalId": "minimax-m3", "displayName": "MiniMax-M3", "family": "MiniMax M", "organisation": "MiniMax", "releaseDate": "2026-03-21", "aliases": ["MiniMax-M3", "MiniMax M3"], "openrouterId": null }
+  {
+    "canonicalId": "gpt-5.6-sol",
+    "displayName": "GPT-5.6 Sol",
+    "family": "GPT-5.6",
+    "organisation": "OpenAI",
+    "tracked": true,
+    "releaseDate": "2026-08-06",
+    "aliases": [
+      "GPT-5.6 Sol",
+      "GPT-5.6-Sol",
+      "GPT-5.6 Sol (High)",
+      "GPT-5.6 Sol Ultra"
+    ],
+    "openrouterId": null
+  },
+  {
+    "canonicalId": "gpt-5.6-terra",
+    "displayName": "GPT-5.6 Terra",
+    "family": "GPT-5.6",
+    "organisation": "OpenAI",
+    "tracked": true,
+    "releaseDate": "2026-08-06",
+    "aliases": [
+      "GPT-5.6 Terra",
+      "GPT-5.6-Terra",
+      "GPT-5.6 Terra (High)"
+    ],
+    "openrouterId": null
+  },
+  {
+    "canonicalId": "gpt-5.6-luna",
+    "displayName": "GPT-5.6 Luna",
+    "family": "GPT-5.6",
+    "organisation": "OpenAI",
+    "tracked": true,
+    "releaseDate": "2026-08-06",
+    "aliases": [
+      "GPT-5.6 Luna",
+      "GPT-5.6-Luna",
+      "GPT-5.6-Luna (High)"
+    ],
+    "openrouterId": null
+  },
+  {
+    "canonicalId": "gpt-5.5",
+    "displayName": "GPT-5.5",
+    "family": "GPT-5.5",
+    "organisation": "OpenAI",
+    "tracked": false,
+    "releaseDate": "2026-04-23",
+    "aliases": [
+      "GPT-5.5",
+      "GPT-5.5 (High)",
+      "GPT-5.5 High"
+    ],
+    "openrouterId": null
+  },
+  {
+    "canonicalId": "glm-5.3",
+    "displayName": "GLM-5.3",
+    "family": "GLM-5.3",
+    "organisation": "Z.ai",
+    "tracked": true,
+    "releaseDate": "2026-06-17",
+    "aliases": [
+      "GLM-5.3",
+      "GLM-5.3 (High)",
+      "GLM-5.3 High"
+    ],
+    "openrouterId": "z-ai/glm-5.3"
+  },
+  {
+    "canonicalId": "glm-5.3-flash",
+    "displayName": "GLM-5.3 Flash",
+    "family": "GLM-5.3",
+    "organisation": "Z.ai",
+    "tracked": true,
+    "releaseDate": "2026-06-17",
+    "aliases": [
+      "GLM-5.3-Flash",
+      "GLM-5.3 Flash",
+      "GLM-5.3-Flash (High)",
+      "GLM-5.3-Flash-FP8"
+    ],
+    "openrouterId": "z-ai/glm-5.3-flash"
+  },
+  {
+    "canonicalId": "glm-5.2",
+    "displayName": "GLM-5.2",
+    "family": "GLM-5.2",
+    "organisation": "Z.ai",
+    "tracked": false,
+    "releaseDate": "2026-03-15",
+    "aliases": [
+      "GLM-5.2",
+      "GLM-5.2 (High)"
+    ],
+    "openrouterId": null
+  },
+  {
+    "canonicalId": "deepseek-v4.1-flash",
+    "displayName": "DeepSeek V4.1 Flash",
+    "family": "DeepSeek V4.1",
+    "organisation": "DeepSeek",
+    "tracked": true,
+    "releaseDate": "2026-07-10",
+    "aliases": [
+      "DeepSeek-V4.1-Flash",
+      "DeepSeek V4.1 Flash",
+      "deepseek-v4.1-flash",
+      "DeepSeek-V4.1-Flash (Max)"
+    ],
+    "openrouterId": "deepseek/deepseek-v4.1-flash"
+  },
+  {
+    "canonicalId": "deepseek-v4-pro",
+    "displayName": "DeepSeek V4 Pro",
+    "family": "DeepSeek V4",
+    "organisation": "DeepSeek",
+    "tracked": false,
+    "releaseDate": "2026-06-09",
+    "aliases": [
+      "DeepSeek-V4-Pro",
+      "DeepSeek V4 Pro",
+      "DeepSeek-V4-Pro-0813"
+    ],
+    "openrouterId": null
+  },
+  {
+    "canonicalId": "kimi-k3",
+    "displayName": "Kimi K3",
+    "family": "Kimi K3",
+    "organisation": "Moonshot AI",
+    "tracked": true,
+    "releaseDate": "2026-08-01",
+    "aliases": [
+      "Kimi K3",
+      "kimi-k3",
+      "Kimi-K3",
+      "K3"
+    ],
+    "openrouterId": null
+  },
+  {
+    "canonicalId": "kimi-k2.6",
+    "displayName": "Kimi K2.6",
+    "family": "Kimi K2",
+    "organisation": "Moonshot AI",
+    "tracked": false,
+    "releaseDate": "2026-04-20",
+    "aliases": [
+      "Kimi K2.6",
+      "Kimi-K2.6"
+    ],
+    "openrouterId": null
+  },
+  {
+    "canonicalId": "qwen3.8-max",
+    "displayName": "Qwen3.8 Max",
+    "family": "Qwen3.8",
+    "organisation": "Alibaba",
+    "tracked": true,
+    "releaseDate": "2026-06-19",
+    "aliases": [
+      "Qwen3.8-Max",
+      "Qwen3.8 Max",
+      "qwen3.8-max"
+    ],
+    "openrouterId": "qwen/qwen3.8-max"
+  },
+  {
+    "canonicalId": "qwen3.8-27b",
+    "displayName": "Qwen3.8-27B",
+    "family": "Qwen3.8",
+    "organisation": "Alibaba",
+    "tracked": false,
+    "releaseDate": "2026-08-27",
+    "aliases": [
+      "Qwen3.8-27B",
+      "Qwen3.8 27B"
+    ],
+    "openrouterId": null
+  },
+  {
+    "canonicalId": "qwen3.8-flash-next",
+    "displayName": "Qwen3.8-Flash-Next",
+    "family": "Qwen3.8",
+    "organisation": "Alibaba",
+    "tracked": false,
+    "releaseDate": "2026-09-11",
+    "aliases": [
+      "Qwen3.8-Flash-Next",
+      "Qwen3.8 Flash Next"
+    ],
+    "openrouterId": null
+  },
+  {
+    "canonicalId": "qwen3.7-plus",
+    "displayName": "Qwen3.7-Plus",
+    "family": "Qwen3.7",
+    "organisation": "Alibaba",
+    "tracked": false,
+    "releaseDate": "2026-05-11",
+    "aliases": [
+      "Qwen3.7-Plus",
+      "Qwen3.7 Plus"
+    ],
+    "openrouterId": null
+  },
+  {
+    "canonicalId": "claude-fable-5.1",
+    "displayName": "Claude Fable 5.1",
+    "family": "Claude Fable",
+    "organisation": "Anthropic",
+    "tracked": false,
+    "releaseDate": "2026-07-15",
+    "aliases": [
+      "Claude Fable 5.1",
+      "Claude-Fable-5.1",
+      "Fable 5.1",
+      "Fable 5"
+    ],
+    "openrouterId": null
+  },
+  {
+    "canonicalId": "claude-opus-4.8",
+    "displayName": "Claude Opus 4.8",
+    "family": "Claude Opus",
+    "organisation": "Anthropic",
+    "tracked": false,
+    "releaseDate": "2026-05-28",
+    "aliases": [
+      "Claude Opus 4.8",
+      "Opus 4.8",
+      "Claude-Opus-4.8"
+    ],
+    "openrouterId": null
+  },
+  {
+    "canonicalId": "claude-opus-5",
+    "displayName": "Claude Opus 5",
+    "family": "Claude Opus",
+    "organisation": "Anthropic",
+    "tracked": false,
+    "releaseDate": "2026-09-02",
+    "aliases": [
+      "Claude Opus 5",
+      "Opus 5"
+    ],
+    "openrouterId": null
+  },
+  {
+    "canonicalId": "gemini-3.1-pro",
+    "displayName": "Gemini 3.1 Pro",
+    "family": "Gemini 3",
+    "organisation": "Google",
+    "tracked": false,
+    "releaseDate": "2026-02-19",
+    "aliases": [
+      "Gemini 3.1 Pro",
+      "Gemini-3.1-Pro"
+    ],
+    "openrouterId": null
+  },
+  {
+    "canonicalId": "gemini-3.5-flash",
+    "displayName": "Gemini 3.5 Flash",
+    "family": "Gemini 3",
+    "organisation": "Google",
+    "tracked": false,
+    "releaseDate": "2026-08-20",
+    "aliases": [
+      "Gemini 3.5 Flash",
+      "Gemini-3.5-Flash"
+    ],
+    "openrouterId": null
+  },
+  {
+    "canonicalId": "muse-spark-1.1",
+    "displayName": "Muse Spark 1.1",
+    "family": "Muse",
+    "organisation": "Meta",
+    "tracked": false,
+    "releaseDate": "2026-09-09",
+    "aliases": [
+      "Muse Spark 1.1",
+      "Muse Spark"
+    ],
+    "openrouterId": null
+  },
+  {
+    "canonicalId": "minimax-m3",
+    "displayName": "MiniMax-M3",
+    "family": "MiniMax M",
+    "organisation": "MiniMax",
+    "tracked": false,
+    "releaseDate": "2026-03-21",
+    "aliases": [
+      "MiniMax-M3",
+      "MiniMax M3"
+    ],
+    "openrouterId": null
+  }
 ]

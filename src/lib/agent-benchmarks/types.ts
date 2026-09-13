@@ -80,6 +80,12 @@ export interface BenchmarkMeta {
   name: string;
   /** p0 = default matrix column; p1 = tracked, shown on demand. */
   tier: "p0" | "p1";
+  /**
+   * Curated practical-relevance order for the default comparison (1 = first
+   * column). Null falls back to coverage-descending, then canonical name, so a
+   * newly added benchmark still appears in a stable place without an edit here.
+   */
+  comparePriority: number | null;
   category: BenchmarkCategory;
   axes: WorkloadAxis[];
   /** One plain-English sentence: what this benchmark measures. */
@@ -110,6 +116,13 @@ export interface ModelRecord {
   canonicalId: string;
   displayName: string;
   family: string;
+  /**
+   * Current-generation model the site actually tracks for model selection.
+   * Drives the default "My models" cohort. Older generations in the same family
+   * stay in the registry (and in the "All models" cohort) but do not pad the
+   * default comparison.
+   */
+  tracked: boolean;
   organisation: string;
   releaseDate: string | null;
   /** Exact strings used by benchmark sources that map to this canonical model. */
