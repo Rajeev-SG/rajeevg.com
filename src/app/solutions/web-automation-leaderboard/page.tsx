@@ -28,12 +28,12 @@ const dateFormatter = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: 
 export const metadata: Metadata = {
   title: "Web automation tool leaderboard",
   description:
-    "Head-to-head results for 33 browser automation tools on the same task: who finishes reliably, quickly, cheaply, and with the least AI overhead.",
+    "Head-to-head results for 34 browser automation tools on the same task: who finishes reliably, quickly, cheaply, and with the least AI overhead.",
   alternates: { canonical: "/solutions/web-automation-leaderboard" },
   openGraph: {
     title: `Web automation tool leaderboard • ${site.name}`,
     description:
-      "Head-to-head results for 33 browser automation tools racing the same job, plus a real-work capability ranking that reorders them.",
+      "Head-to-head results for 34 browser automation tools racing the same job, plus a real-work capability ranking that reorders them.",
     url: `${site.siteUrl}/solutions/web-automation-leaderboard`,
   },
 }
@@ -158,6 +158,8 @@ export default function WebAutomationLeaderboardPage() {
             The same harness set scored on 11 real, provenance-backed browser tasks harvested from recorded sessions — tag
             inspection, script inventory, SEO audits, crawlability, canvas creation, and consent-to-add-to-cart journeys.
             The latency ranking and the capability ranking genuinely disagree: the fastest tool is the weakest on real work.
+            The newest architecture — an own-loop agent that writes code against raw CDP instead of issuing one command
+            per step — is slow on the toy task and, on this evidence, extends neither ranking.
           </p>
         </div>
         <div className="overflow-x-auto rounded-xl border">
@@ -194,7 +196,8 @@ export default function WebAutomationLeaderboardPage() {
           <p className="text-sm leading-7 text-muted-foreground">
             Pass counts across all harnesses. One-shot &ldquo;inspect the live page and report&rdquo; audits converge on
             almost any harness that can evaluate JavaScript; multi-step journeys and canvas construction sit above the
-            current frontier.
+            current frontier. The anti-bot-boundary task is the hard one in the middle: three passes out of ten across all
+            harnesses, two of them from the same tool.
           </p>
         </div>
         <div className="overflow-x-auto rounded-xl border">
@@ -226,8 +229,9 @@ export default function WebAutomationLeaderboardPage() {
         <CardContent className="space-y-2 text-sm leading-7 text-foreground/90 sm:text-base">
           <p>
             This ranks the <em>latency microbenchmark</em> (one controlled instrument) and a <em>real-work capability</em> suite
-            (11 harvested tasks) as two separate claims. TodoMVC never feeds the capability number, and a 2-rep screening result
-            should not be ordered finely against another 2-rep row.
+            (11 harvested tasks) as two separate claims. TodoMVC never feeds the capability number, and a screening result
+            should not be ordered finely against another screening row — the newest row is 10 reps on the toy task but only
+            1 rep per real task, so treat its capability cell as a screen, not a score.
           </p>
           <p className="text-muted-foreground">
             The benchmark repo is the source of truth; this page is a dated snapshot of it. Full contracts, raw per-run JSON,
