@@ -1,15 +1,15 @@
 {
   "provenance": {
     "source": "Artificial Analysis API v2 /language/models/free + OpenRouter /api/v1/models",
-    "fetchedAt": "2026-09-13T10:20:11.188Z",
+    "fetchedAt": "2026-09-13T19:29:27.780Z",
     "aaStatus": "ok",
     "note": "Validated automatic snapshot. Empty or incomplete refreshes never replace this file."
   },
-  "generatedAt": "2026-09-13T10:20:12.754Z",
+  "generatedAt": "2026-09-13T19:29:29.132Z",
   "freshness": {
-    "aaFetchedAt": "2026-09-13T10:20:11.188Z",
+    "aaFetchedAt": "2026-09-13T19:29:27.780Z",
     "aaStatus": "ok",
-    "openrouterFetchedAt": "2026-09-13T10:20:12.513Z",
+    "openrouterFetchedAt": "2026-09-13T19:29:28.991Z",
     "openrouterStatus": "ok",
     "arenaFetchedAt": null,
     "arenaStatus": "pending",
@@ -727,8 +727,8 @@
       },
       "openrouter": {
         "modelId": "deepseek/deepseek-v4-pro-0813",
-        "inputPricePerMillion": 0.57816,
-        "outputPricePerMillion": 1.73448,
+        "inputPricePerMillion": 0.57948,
+        "outputPricePerMillion": 1.73844,
         "contextLength": 1048576,
         "createdAtUnix": 1786549364
       },
@@ -3895,8 +3895,8 @@
       },
       "openrouter": {
         "modelId": "tencent/hy3",
-        "inputPricePerMillion": 0.13199999999999998,
-        "outputPricePerMillion": 0.5279999999999999,
+        "inputPricePerMillion": 0.0825,
+        "outputPricePerMillion": 0.33,
         "contextLength": 262144,
         "createdAtUnix": 1783344048
       },
