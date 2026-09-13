@@ -157,8 +157,9 @@ export default function WebAutomationLeaderboardPage() {
           <p className="text-sm leading-7 text-muted-foreground">
             The same harness set scored on 11 real, provenance-backed browser tasks harvested from recorded sessions — tag
             inspection, script inventory, SEO audits, crawlability, canvas creation, and consent-to-add-to-cart journeys.
-            The latency ranking and the capability ranking genuinely disagree: the fastest tool is the weakest on real work,
-            and the tool that clears the anti-bot boundary the thin CLIs cannot is one of the slowest on the toy task.
+            The latency ranking and the capability ranking genuinely disagree: the fastest tool is the weakest on real work.
+            The newest architecture — an own-loop agent that writes code against raw CDP instead of issuing one command
+            per step — is slow on the toy task and, on this evidence, extends neither ranking.
           </p>
         </div>
         <div className="overflow-x-auto rounded-xl border">
@@ -195,8 +196,8 @@ export default function WebAutomationLeaderboardPage() {
           <p className="text-sm leading-7 text-muted-foreground">
             Pass counts across all harnesses. One-shot &ldquo;inspect the live page and report&rdquo; audits converge on
             almost any harness that can evaluate JavaScript; multi-step journeys and canvas construction sit above the
-            current frontier. The one anti-bot-boundary task is now passed by exactly one harness — an own-loop agent that
-            writes code against raw CDP rather than issuing one native command per step.
+            current frontier. The anti-bot-boundary task is the hard one in the middle: three passes out of ten across all
+            harnesses, two of them from the same tool.
           </p>
         </div>
         <div className="overflow-x-auto rounded-xl border">

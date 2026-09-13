@@ -83,7 +83,7 @@ export const capabilityRows: CapabilityRow[] = [
   { harness: "raw-playwright baseline", repo: "microsoft/playwright", url: "https://github.com/microsoft/playwright", fastPath: "3/4 · 42.7s", capability: "17/33", reps: "1, 2, 3", note: "Promoted past screening" },
   { harness: "agent-browser", repo: "vercel-labs/agent-browser", url: "https://github.com/vercel-labs/agent-browser", fastPath: "2/2 · 10.1s", capability: "6/11", reps: "1" },
   { harness: "cdp-browser", repo: "sids/cdp-browser", url: "https://github.com/sids/cdp-browser", fastPath: "2/2 · 10.7s", capability: "6/11", reps: "1" },
-  { harness: "Browser Use Pi", repo: "browser-use/browser-use-pi", url: "https://github.com/browser-use/browser-use-pi", fastPath: "7/10 · 53.5s", capability: "4/11", reps: "1", note: "Own-loop. The only harness in the set to pass chanel-gb-pdp-tag-inspection — the anti-bot boundary" },
+  { harness: "Browser Use Pi", repo: "browser-use/browser-use-pi", url: "https://github.com/browser-use/browser-use-pi", fastPath: "7/10 · 53.5s", capability: "4/11", reps: "1", note: "Own-loop (Pi Mono + V8 REPL). Every task it passed, browser-relay also passed, so it extends neither frontier" },
   { harness: "BrowserSkill", repo: "Tencent/BrowserSkill", url: "https://github.com/Tencent/BrowserSkill", fastPath: "2/2 · 4.1s", capability: "2/11", reps: "1", note: "Fastest fast-path, weakest real work — the orderings invert" },
 ]
 

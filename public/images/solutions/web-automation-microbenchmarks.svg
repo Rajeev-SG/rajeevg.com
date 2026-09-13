@@ -93,7 +93,7 @@
     <rect x="34" y="366" width="488" height="92" rx="12" fill="#f3f6f9" stroke="#dbe4ec"/>
     <text x="52" y="398" class="serif" font-size="19" font-weight="700" fill="#a3452c">The orderings invert.</text>
     <text x="52" y="424" class="sans" font-size="17">BrowserSkill is fastest here and weakest on real</text>
-    <text x="52" y="446" class="sans" font-size="17">work. The one anti-bot task falls to Browser Use Pi.</text>
+    <text x="52" y="446" class="sans" font-size="17">work. The heaviest new tool extends neither ranking.</text>
     <line x1="34" y1="478" x2="522" y2="478" stroke="#e3ddcd"/>
     <text x="34" y="504" class="small">Multi-step journeys pass 0&#8211;2 of 10; read-only</text>
     <text x="34" y="524" class="small">audits mostly pass 8&#8211;9 of 10.</text>

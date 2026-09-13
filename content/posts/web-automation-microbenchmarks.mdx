@@ -48,17 +48,19 @@ A leaderboard sorted by time tells you almost nothing about whether a tool can d
 
 The two rankings disagree, hard. **BrowserSkill is the fastest tool on the microbenchmark and among the weakest on real work. browser-relay is a hair slower on the toy task and the strongest on real work.** If I had only published the speed table, I would have recommended the wrong tool.
 
-The difficulty split is clean, too: one-shot "inspect the live page and report" audits passed on almost anything that can evaluate JavaScript (8 out of 9 harnesses). The multi-step journeys — consent, find the product, add to cart, verify the tags — passed 0 to 2 times out of 9. Complexity, not harness quality, is what broke them.
+The difficulty split is clean, too: one-shot "inspect the live page and report" audits were attempted 10 times each across the field and typically passed 8 or 9 of those attempts — one SEO variant excepted, where models over-report nested JSON-LD types. The multi-step journeys — consent, find the product, add to cart, verify the tags — passed 0 to 2 times out of 10. Complexity, not harness quality, is what broke them.
 
-## The newest tool broke the rule
+## The newest tool did not break the rule
 
-The most recent addition is the most interesting, because it does not fit the pattern above. Browser Use Pi does not issue one browser command per model step — it runs its own agent loop, writes JavaScript into a persistent V8 REPL, and drives Chrome through raw CDP, building its own helpers as it goes. That is the "heavier architecture" the speed table punishes.
+The most recent addition is the most interesting, because it was supposed to break the pattern above. Browser Use Pi does not issue one browser command per model step — it runs its own agent loop, writes JavaScript into a persistent V8 REPL, and drives Chrome through raw CDP, building its own helpers as it goes. That is exactly the "heavier architecture" the speed table punishes, and the hypothesis was that heavier would win once the work got long enough to need composing.
 
-And the speed table does punish it: **53.5 seconds median over ten reps against the leader's four**, with three of those ten ending in a false "done" that never left the default filter. On the toy job, the extra machinery is pure overhead.
+It did not, on this evidence. The speed table punishes it as expected: **53.5 seconds median over ten reps against the leader's four**, with three of those ten ending in a false "done" that never left the default filter. And on the real-work corpus its 4 passes out of 11 are a strict subset of what browser-relay — a thin CLI thirteen times faster on the toy job — already gets.
 
-Then it did something no other tool in the set could. On the corpus, it is **the only harness that passes the CHANEL product-page tag inspection** — the task where the site's anti-bot behaviour defeats the thin CLIs two times out of nine. It also passed the crawlability, SEO-metadata and Porsche tag audits.
+I want to be precise about one thing, because I got it wrong in my own notes at first. It *does* pass the CHANEL product-page tag inspection, the task where the site's anti-bot behaviour stops most harnesses. That is not unique to it: browser-relay passes the same task two times out of three, and the task sits at three passes out of ten across the whole field. It is a genuinely hard task and the new tool handles it, but it does not buy you a capability the cheaper tool lacks.
 
-So the honest summary is that the two rankings are not just different, they are *orthogonal*. The tool you want for a five-second deterministic job is the tool that adds the least between the model and the browser. The tool you want when the page fights back is one that can write its way around a problem instead of pressing the next button. I do not yet have evidence that code-batching wins on long authenticated workflows — that is the next thing to test — but I have a clear counter-example to "thin always wins".
+So the honest reading is narrower and less exciting than I expected: **the heavyweight architecture is a real capability that this task set does not reward.** Its round-trip count is low — 3 to 6 model calls on the one-shot audits, where a thin CLI needs 8 to 14 — so the code batching does exist and does something. It just does not convert into speed or reliability yet. The architecture permits bigger composed actions; the model largely used it as a slower one-command-per-step loop. I do not have evidence that code-batching wins on long authenticated workflows, and this run is mild evidence that it does not.
+
+## Three failures I did not expect
 
 ## Three failures I did not expect
 
