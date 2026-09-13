@@ -1,0 +1,93 @@
+---
+title: Why my AI assistant kept forgetting what it already knew
+slug: why-my-ai-assistant-kept-forgetting-what-it-already-knew
+date: 2026-09-13
+description: My assistant had 343 instruction sheets and could only see a fraction of them. The plain-English version of how I found the gap, why the built-in fix did not help, and what actually changed.
+tags: [ai, agents, context, plain-english, automation, skills]
+draft: false
+image: /images/blog/why-my-ai-assistant-kept-forgetting-what-it-already-knew/instructions-flow.svg
+---
+
+I keep written instructions for my AI assistant. One for auditing ad tracking on a website, one for spreadsheets, one for driving a browser through a checkout flow, and so on. It has 343 of them now.
+
+Last month it spent about eighty steps working out a procedure I had already written down six days earlier.
+
+That is the whole article in one sentence. The assistant has instructions, and sometimes cannot see them. Everything below is about why, and what I did.
+
+## The instruction sheets
+
+Each one is a folder with a short text file. The first few lines hold a name and a one-line summary. The rest is the actual procedure.
+
+The assistant is not handed all 343 files. It is shown the name and summary of each, and reads the full file only when something looks relevant. That design is sensible and it is standard across AI tools. Showing everything would flood the assistant and make it worse at the thing you asked for.
+
+So the question is not "why isn't everything loaded". It is "how big is the shortlist, and what happens when the answer is not on it".
+
+## The shelf was too small to hold the collection
+
+I did the arithmetic, because nobody had.
+
+For each instruction sheet the assistant needs its name and summary. Across 343 of them that is roughly 24,000 tokens of shortcut text. A token is a fragment of a word; 24,000 of them is a substantial document.
+
+The tool budgets 2% of the assistant's available memory for that shortlist, and caps it at 10,000 tokens. That cap is documented, not something I chose.
+
+10,000 out of 24,000 is about 42%. So at least half my instruction sheets cannot be on the shortlist at any moment. Not rarely. Never.
+
+Nothing warns you. A sheet that is not shown simply does not get used, and the assistant confidently does the job the long way instead.
+
+<Figure
+  src="/images/blog/why-my-ai-assistant-kept-forgetting-what-it-already-knew/instructions-flow.svg"
+  alt="Diagram: 343 instruction sheets on disk, only about 42 percent fit in view, the rest invisible; the assistant worked it out from scratch costing about 80 wasted steps; the fix searches all 343 sheets in about a tenth of a second."
+  caption="Roughly 42% of the collection fits on the shelf at once. The rest was invisible, and nothing warned me."
+/>
+
+## How I found it
+
+I went back through 1,463 saved transcripts and counted.
+
+Among sessions doing real multi-step work, the numbers were: 3% consulted the instructions before I wrote any rule about it, 13% once the rule existed in the assistant's standing orders, and 86% once I automated the check so it fired on its own.
+
+The middle number is the interesting one. Writing "always look for an instruction sheet first" into the rules barely moved anything. Rules are requests. The assistant had no reliable way to satisfy the request, so it mostly did not.
+
+## Why the built-in version did not save me
+
+This is the part I got wrong first, and it is the part worth being honest about.
+
+The tool already contained software for picking instruction sheets. I found traces of it in the program itself: code that matches names by fuzzy text, blends two ranking methods, plus an experiment that measures its own accuracy. I had rebuilt something that already existed.
+
+Three things made it useless to me.
+
+**It is a filter, not a search.** Its job is to decide which sheets fit the shelf. There is no "show me the rest", and no way for the assistant to ask for more. I checked its list of available tools: no instruction search appears there. The relevant switch is marked removed in this build.
+
+**Half the shelf was never on it.** The budget is the budget. A better filter cannot fit more sheets into the same space.
+
+**It was switched off for the assistant's helpers.** The delegated workers, which run the long jobs, had it explicitly disabled. That line had been copied in wholesale months earlier in a bulk configuration import, with no note recording a reason. Nobody had decided it should be off. It was just off.
+
+So the tool had a door, and the door only opened onto 42% of the room.
+
+## The fix, in three small pieces
+
+1. **A search that reads every sheet off the disk.** Not the shortlist. The disk. It takes about a tenth of a second and cannot go stale, because it reads what is actually there.
+2. **A check that runs automatically at the start of every task.** It searches from the task's own wording and puts the best matches in front of the assistant before it begins. No more depending on it to remember to look.
+3. **A retry with fewer words when nothing is found.** This was the real bug. The automatic check picks the longest words in your request as search terms, and demands that all of them appear. One awkward word made the whole search return nothing, silently.
+
+That third piece is the one that mattered. On 120 real requests taken from my own history, the search found an instruction sheet 11% of the time before, and 47% of the time after. Same search, same machine, one extra retry.
+
+## What it costs
+
+About a tenth of a second per task, measured directly on both the success and failure paths. Roughly 75 tokens added to the assistant's context, and only when there is something relevant to show.
+
+It runs one process per request whether or not it finds anything, so failure is not the expensive case.
+
+## What it does not fix
+
+Of the requests that started finding something after the change, roughly a third found a strong match, meaning the instruction sheet's own name appeared in the request. The other two thirds are looser. A request about writing a requirements document surfaced payment and marketplace sheets, which is defensible and also not obviously right. The assistant still has to judge what it is shown, and sometimes it will judge wrong.
+
+Requests that contain no signal at all, like "please implement 1 and 4", still find nothing. That is correct behaviour, not a gap.
+
+## What I took from it
+
+The failure was silent. Nothing errored, nothing looked broken, and the assistant never said "I could not find your notes on this". It just worked harder than it needed to. Silent failures do not get fixed by adding features; they get fixed by counting.
+
+Second, a bigger shelf is the wrong answer. The useful move was letting the assistant ask for something specific on demand, rather than trying to show it more up front.
+
+Third, and the part I keep coming back to: the built-in software was not broken. It was solving a different problem from the one I had. Worth checking what a feature is for before deciding it is missing.
