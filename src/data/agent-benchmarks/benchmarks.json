@@ -3,13 +3,21 @@
     "id": "osworld-2.0",
     "name": "OSWorld 2.0",
     "tier": "p0",
+    "comparePriority": 7,
     "category": "Desktop / CUA",
-    "axes": ["desktop_cua", "cross_application_work", "skills_harness"],
+    "axes": [
+      "desktop_cua",
+      "cross_application_work",
+      "skills_harness"
+    ],
     "measures": "Long-horizon desktop computer use: an agent drives a real Ubuntu desktop to finish multi-step tasks scored against checkpoints.",
     "taskCount": 108,
     "currentVersion": "2.0 (release v2026.08.08)",
     "versionToken": "v2026.08.08",
-    "primaryMetricIds": ["binary_completion", "partial_score"],
+    "primaryMetricIds": [
+      "binary_completion",
+      "partial_score"
+    ],
     "scoring": "deterministic",
     "environment": "self_hosted",
     "reproducibility": "reproducible",
@@ -27,13 +35,19 @@
     "id": "workarena-plus-plus",
     "name": "WorkArena++",
     "tier": "p0",
+    "comparePriority": 13,
     "category": "Enterprise / browser",
-    "axes": ["enterprise_saas", "browser_navigation"],
+    "axes": [
+      "enterprise_saas",
+      "browser_navigation"
+    ],
     "measures": "Knowledge-worker tasks inside ServiceNow: list filtering, form filling, ordering and cross-module reasoning.",
     "taskCount": null,
     "currentVersion": "WorkArena++ branch",
     "versionToken": "workarena-plus-plus",
-    "primaryMetricIds": ["accuracy"],
+    "primaryMetricIds": [
+      "accuracy"
+    ],
     "scoring": "deterministic",
     "environment": "self_hosted",
     "reproducibility": "reproducible",
@@ -51,13 +65,20 @@
     "id": "enterpriseops-gym",
     "name": "EnterpriseOps-Gym",
     "tier": "p0",
+    "comparePriority": 14,
     "category": "Enterprise / browser",
-    "axes": ["enterprise_saas", "cross_application_work", "tool_api_mcp"],
+    "axes": [
+      "enterprise_saas",
+      "cross_application_work",
+      "tool_api_mcp"
+    ],
     "measures": "Realistic enterprise operations workflows, including tool retrieval versus oracle tool access and feasibility/refusal handling.",
     "taskCount": null,
     "currentVersion": "v1",
     "versionToken": "v1",
-    "primaryMetricIds": ["accuracy"],
+    "primaryMetricIds": [
+      "accuracy"
+    ],
     "scoring": "deterministic",
     "environment": "self_hosted",
     "reproducibility": "reproducible",
@@ -75,13 +96,18 @@
     "id": "webarena-verified",
     "name": "WebArena-Verified",
     "tier": "p0",
+    "comparePriority": 8,
     "category": "Web chores / navigation",
-    "axes": ["browser_navigation"],
+    "axes": [
+      "browser_navigation"
+    ],
     "measures": "Self-hosted web navigation across shopping, CMS, GitLab, maps and forums, with verified task data and evaluators.",
     "taskCount": 812,
     "currentVersion": "1.0",
     "versionToken": "1.0",
-    "primaryMetricIds": ["accuracy"],
+    "primaryMetricIds": [
+      "accuracy"
+    ],
     "scoring": "deterministic",
     "environment": "self_hosted",
     "reproducibility": "reproducible",
@@ -99,13 +125,18 @@
     "id": "webchorearena",
     "name": "WebChoreArena",
     "tier": "p0",
+    "comparePriority": 17,
     "category": "Web chores / navigation",
-    "axes": ["browser_navigation"],
+    "axes": [
+      "browser_navigation"
+    ],
     "measures": "Repetitive, tedious and memory-intensive web chores that go beyond simple navigation.",
     "taskCount": 532,
     "currentVersion": "1.0",
     "versionToken": "1.0",
-    "primaryMetricIds": ["pass_at_1"],
+    "primaryMetricIds": [
+      "pass_at_1"
+    ],
     "scoring": "deterministic",
     "environment": "self_hosted",
     "reproducibility": "reproducible",
@@ -123,13 +154,18 @@
     "id": "spreadsheetbench-2",
     "name": "SpreadsheetBench 2",
     "tier": "p0",
+    "comparePriority": 9,
     "category": "Enterprise / browser",
-    "axes": ["cross_application_work"],
+    "axes": [
+      "cross_application_work"
+    ],
     "measures": "Deliverable-level spreadsheet work on large multi-sheet workbooks.",
     "taskCount": null,
     "currentVersion": "2.0",
     "versionToken": "2.0",
-    "primaryMetricIds": ["accuracy"],
+    "primaryMetricIds": [
+      "accuracy"
+    ],
     "scoring": "deterministic",
     "environment": "sandbox",
     "reproducibility": "reproducible",
@@ -147,13 +183,19 @@
     "id": "aa-analyst-agent",
     "name": "AA-AnalystAgent",
     "tier": "p0",
+    "comparePriority": 19,
     "category": "Research",
-    "axes": ["cross_application_work", "deep_research_browsing"],
+    "axes": [
+      "cross_application_work",
+      "deep_research_browsing"
+    ],
     "measures": "Long-horizon analyst work: finding, reconciling and reporting on data to produce a deliverable.",
     "taskCount": null,
     "currentVersion": "1.0",
     "versionToken": "1.0",
-    "primaryMetricIds": ["pass_at_1"],
+    "primaryMetricIds": [
+      "pass_at_1"
+    ],
     "scoring": "mixed",
     "environment": "sandbox",
     "reproducibility": "private_tasks",
@@ -171,13 +213,19 @@
     "id": "aa-briefcase",
     "name": "AA-Briefcase",
     "tier": "p0",
+    "comparePriority": 10,
     "category": "Research",
-    "axes": ["cross_application_work", "deep_research_browsing"],
+    "axes": [
+      "cross_application_work",
+      "deep_research_browsing"
+    ],
     "measures": "Professional deliverable production (briefs, decks) judged on rubric pass rate and head-to-head quality.",
     "taskCount": null,
     "currentVersion": "1.0",
     "versionToken": "1.0",
-    "primaryMetricIds": ["elo"],
+    "primaryMetricIds": [
+      "elo"
+    ],
     "scoring": "human",
     "environment": "sandbox",
     "reproducibility": "private_tasks",
@@ -195,13 +243,19 @@
     "id": "gdpval-aa-v2",
     "name": "GDPval-AA v2",
     "tier": "p0",
+    "comparePriority": 2,
     "category": "Research",
-    "axes": ["cross_application_work", "deep_research_browsing"],
+    "axes": [
+      "cross_application_work",
+      "deep_research_browsing"
+    ],
     "measures": "Agentic implementation of GDPval: real occupation deliverables judged pairwise for quality.",
     "taskCount": null,
     "currentVersion": "v2",
     "versionToken": "v2",
-    "primaryMetricIds": ["elo"],
+    "primaryMetricIds": [
+      "elo"
+    ],
     "scoring": "human",
     "environment": "sandbox",
     "reproducibility": "private_tasks",
@@ -219,13 +273,19 @@
     "id": "automationbench",
     "name": "AutomationBench",
     "tier": "p0",
+    "comparePriority": 3,
     "category": "Web chores / navigation",
-    "axes": ["browser_navigation", "enterprise_saas"],
+    "axes": [
+      "browser_navigation",
+      "enterprise_saas"
+    ],
     "measures": "End-to-end workflow automation across real SaaS apps, from a short business request.",
     "taskCount": 1997,
     "currentVersion": "1.0.6",
     "versionToken": "1.0.6",
-    "primaryMetricIds": ["pass_at_1"],
+    "primaryMetricIds": [
+      "pass_at_1"
+    ],
     "scoring": "deterministic",
     "environment": "self_hosted",
     "reproducibility": "partially_reproducible",
@@ -243,13 +303,19 @@
     "id": "apex-agents",
     "name": "APEX-Agents",
     "tier": "p0",
+    "comparePriority": 11,
     "category": "Enterprise / browser",
-    "axes": ["cross_application_work", "enterprise_saas"],
+    "axes": [
+      "cross_application_work",
+      "enterprise_saas"
+    ],
     "measures": "Professional-services tasks in realistic investment-banking, consulting and law workflows.",
     "taskCount": null,
     "currentVersion": "v1.1",
     "versionToken": "apex-agents-v1.1",
-    "primaryMetricIds": ["accuracy"],
+    "primaryMetricIds": [
+      "accuracy"
+    ],
     "scoring": "deterministic",
     "environment": "sandbox",
     "reproducibility": "partially_reproducible",
@@ -267,13 +333,19 @@
     "id": "agents-last-exam",
     "name": "Agents' Last Exam",
     "tier": "p0",
+    "comparePriority": 4,
     "category": "Research",
-    "axes": ["deep_research_browsing", "cross_application_work"],
+    "axes": [
+      "deep_research_browsing",
+      "cross_application_work"
+    ],
     "measures": "Expert-level multi-step reasoning and research tasks, scored on full completion and partial credit.",
     "taskCount": null,
     "currentVersion": "1.0",
     "versionToken": "1.0",
-    "primaryMetricIds": ["accuracy"],
+    "primaryMetricIds": [
+      "accuracy"
+    ],
     "scoring": "mixed",
     "environment": "sandbox",
     "reproducibility": "partially_reproducible",
@@ -291,13 +363,19 @@
     "id": "toolathlon-verified",
     "name": "Toolathlon-Verified",
     "tier": "p0",
+    "comparePriority": 5,
     "category": "Tools / API / policy",
-    "axes": ["tool_api_mcp", "cross_application_work"],
+    "axes": [
+      "tool_api_mcp",
+      "cross_application_work"
+    ],
     "measures": "Realistic tool-use workflows with automated verification and public trajectories.",
     "taskCount": 500,
     "currentVersion": "Verified",
     "versionToken": "verified",
-    "primaryMetricIds": ["pass_at_1"],
+    "primaryMetricIds": [
+      "pass_at_1"
+    ],
     "scoring": "deterministic",
     "environment": "sandbox",
     "reproducibility": "reproducible",
@@ -315,13 +393,19 @@
     "id": "crmarena-pro",
     "name": "CRMArena-Pro",
     "tier": "p0",
+    "comparePriority": 16,
     "category": "Enterprise / browser",
-    "axes": ["enterprise_saas", "policy_multi_turn"],
+    "axes": [
+      "enterprise_saas",
+      "policy_multi_turn"
+    ],
     "measures": "CRM tasks across B2B/B2C and interactive/non-interactive splits, including privacy-aware responses.",
     "taskCount": null,
     "currentVersion": "Pro",
     "versionToken": "pro",
-    "primaryMetricIds": ["accuracy"],
+    "primaryMetricIds": [
+      "accuracy"
+    ],
     "scoring": "deterministic",
     "environment": "sandbox",
     "reproducibility": "partially_reproducible",
@@ -339,13 +423,21 @@
     "id": "theagentcompany",
     "name": "TheAgentCompany",
     "tier": "p0",
+    "comparePriority": 15,
     "category": "Enterprise / browser",
-    "axes": ["enterprise_saas", "browser_navigation", "cross_application_work"],
+    "axes": [
+      "enterprise_saas",
+      "browser_navigation",
+      "cross_application_work"
+    ],
     "measures": "A simulated software company where an agent completes real tasks across GitLab, ownCloud, Plane and RocketChat.",
     "taskCount": 175,
     "currentVersion": "1.0.0",
     "versionToken": "1.0.0",
-    "primaryMetricIds": ["full_completion", "partial_completion"],
+    "primaryMetricIds": [
+      "full_completion",
+      "partial_completion"
+    ],
     "scoring": "deterministic",
     "environment": "self_hosted",
     "reproducibility": "reproducible",
@@ -363,13 +455,19 @@
     "id": "terminal-bench-2.1",
     "name": "Terminal-Bench 2.1",
     "tier": "p0",
+    "comparePriority": 1,
     "category": "Terminal / coding",
-    "axes": ["terminal_coding", "tool_api_mcp"],
+    "axes": [
+      "terminal_coding",
+      "tool_api_mcp"
+    ],
     "measures": "Terminal-native tasks an agent must complete end-to-end from a shell.",
     "taskCount": null,
     "currentVersion": "2.1",
     "versionToken": "2.1",
-    "primaryMetricIds": ["accuracy"],
+    "primaryMetricIds": [
+      "accuracy"
+    ],
     "scoring": "deterministic",
     "environment": "sandbox",
     "reproducibility": "reproducible",
@@ -387,13 +485,19 @@
     "id": "appworld",
     "name": "AppWorld",
     "tier": "p0",
+    "comparePriority": 18,
     "category": "Tools / API / policy",
-    "axes": ["tool_api_mcp", "cross_application_work"],
+    "axes": [
+      "tool_api_mcp",
+      "cross_application_work"
+    ],
     "measures": "Controllable apps (email, Spotify-like, shopping) driven through APIs to complete everyday and complex tasks.",
     "taskCount": 750,
     "currentVersion": "main",
     "versionToken": "main",
-    "primaryMetricIds": ["accuracy"],
+    "primaryMetricIds": [
+      "accuracy"
+    ],
     "scoring": "deterministic",
     "environment": "sandbox",
     "reproducibility": "reproducible",
@@ -409,22 +513,28 @@
   },
   {
     "id": "tau3-bench",
-    "name": "τ³-bench",
+    "name": "\u03c4\u00b3-bench",
     "tier": "p0",
+    "comparePriority": 12,
     "category": "Tools / API / policy",
-    "axes": ["tool_api_mcp", "policy_multi_turn"],
+    "axes": [
+      "tool_api_mcp",
+      "policy_multi_turn"
+    ],
     "measures": "Multi-turn tool + policy adherence with a simulated user, across domains like airline, retail, telecom and banking.",
     "taskCount": null,
-    "currentVersion": "τ³ (τ² lineage)",
+    "currentVersion": "\u03c4\u00b3 (\u03c4\u00b2 lineage)",
     "versionToken": "tau3",
-    "primaryMetricIds": ["pass_at_1"],
+    "primaryMetricIds": [
+      "pass_at_1"
+    ],
     "scoring": "mixed",
     "environment": "sandbox",
     "reproducibility": "reproducible",
     "officialUrl": "https://taubench.com/",
     "repoUrl": "https://github.com/sierra-research/tau2-bench",
     "paperUrl": null,
-    "notes": "τ / τ² / τ³ are distinct generations; τ³ knowledge/voice results are not comparable with older τ² text-domain scores. Preserve domain, split, pass@k, modality, user-simulator version and retrieval config.",
+    "notes": "\u03c4 / \u03c4\u00b2 / \u03c4\u00b3 are distinct generations; \u03c4\u00b3 knowledge/voice results are not comparable with older \u03c4\u00b2 text-domain scores. Preserve domain, split, pass@k, modality, user-simulator version and retrieval config.",
     "auditStatus": "unaudited",
     "auditSourceUrl": null,
     "knownMajorIssueCount": null,
@@ -435,13 +545,19 @@
     "id": "browsecomp",
     "name": "BrowseComp",
     "tier": "p0",
+    "comparePriority": 6,
     "category": "Research",
-    "axes": ["deep_research_browsing", "browser_navigation"],
+    "axes": [
+      "deep_research_browsing",
+      "browser_navigation"
+    ],
     "measures": "Hard-to-find factual questions that require browsing and reasoning to answer.",
     "taskCount": 1266,
     "currentVersion": "OpenAI reference",
     "versionToken": "browsecomp",
-    "primaryMetricIds": ["accuracy"],
+    "primaryMetricIds": [
+      "accuracy"
+    ],
     "scoring": "deterministic",
     "environment": "live_web",
     "reproducibility": "partially_reproducible",
@@ -459,13 +575,19 @@
     "id": "osworld-verified",
     "name": "OSWorld-Verified",
     "tier": "p1",
+    "comparePriority": null,
     "category": "Desktop / CUA",
-    "axes": ["desktop_cua", "cross_application_work"],
+    "axes": [
+      "desktop_cua",
+      "cross_application_work"
+    ],
     "measures": "The verified revision of the original OSWorld desktop benchmark.",
     "taskCount": null,
     "currentVersion": "verified",
     "versionToken": "verified",
-    "primaryMetricIds": ["binary_completion"],
+    "primaryMetricIds": [
+      "binary_completion"
+    ],
     "scoring": "deterministic",
     "environment": "self_hosted",
     "reproducibility": "reproducible",
@@ -483,13 +605,18 @@
     "id": "mcpmark-verified",
     "name": "MCPMark Verified",
     "tier": "p1",
+    "comparePriority": null,
     "category": "Tools / API / policy",
-    "axes": ["tool_api_mcp"],
+    "axes": [
+      "tool_api_mcp"
+    ],
     "measures": "Reproducible real MCP workflows across Notion, GitHub, Filesystem, Postgres and Playwright with automated verifiers.",
     "taskCount": null,
     "currentVersion": "Verified",
     "versionToken": "verified",
-    "primaryMetricIds": ["pass_at_1"],
+    "primaryMetricIds": [
+      "pass_at_1"
+    ],
     "scoring": "deterministic",
     "environment": "sandbox",
     "reproducibility": "reproducible",
@@ -507,13 +634,18 @@
     "id": "mcp-atlas",
     "name": "MCP-Atlas",
     "tier": "p1",
+    "comparePriority": null,
     "category": "Tools / API / policy",
-    "axes": ["tool_api_mcp"],
+    "axes": [
+      "tool_api_mcp"
+    ],
     "measures": "Tool use across 36 version-pinned real MCP servers with 307 tools.",
     "taskCount": 500,
     "currentVersion": "1.0",
     "versionToken": "1.0",
-    "primaryMetricIds": ["accuracy"],
+    "primaryMetricIds": [
+      "accuracy"
+    ],
     "scoring": "llm_judged",
     "environment": "sandbox",
     "reproducibility": "reproducible",
@@ -529,22 +661,28 @@
   },
   {
     "id": "tau2-bench",
-    "name": "τ²-bench",
+    "name": "\u03c4\u00b2-bench",
     "tier": "p1",
+    "comparePriority": null,
     "category": "Tools / API / policy",
-    "axes": ["tool_api_mcp", "policy_multi_turn"],
-    "measures": "The τ² generation of multi-turn tool + policy tasks; retained as a historical protocol.",
+    "axes": [
+      "tool_api_mcp",
+      "policy_multi_turn"
+    ],
+    "measures": "The \u03c4\u00b2 generation of multi-turn tool + policy tasks; retained as a historical protocol.",
     "taskCount": null,
-    "currentVersion": "τ² (historical protocol)",
+    "currentVersion": "\u03c4\u00b2 (historical protocol)",
     "versionToken": "tau2",
-    "primaryMetricIds": ["pass_at_1"],
+    "primaryMetricIds": [
+      "pass_at_1"
+    ],
     "scoring": "mixed",
     "environment": "sandbox",
     "reproducibility": "reproducible",
     "officialUrl": "https://taubench.com/",
     "repoUrl": "https://github.com/sierra-research/tau2-bench",
     "paperUrl": null,
-    "notes": "Historical protocol; do not compare directly with τ³ results.",
+    "notes": "Historical protocol; do not compare directly with \u03c4\u00b3 results.",
     "auditStatus": "unaudited",
     "auditSourceUrl": null,
     "knownMajorIssueCount": null,

@@ -35,9 +35,18 @@ import type {
 
 export const BENCHMARK_DATA_BRANCH = "benchmark-data";
 export const BENCHMARK_SNAPSHOT_PATH = "agent-benchmark-snapshot.json";
+
+/**
+ * Bumped whenever the snapshot schema changes. It is appended to the snapshot
+ * URL as a query string so a schema change cannot be served a stale cached copy
+ * of the previous shape (raw.githubusercontent.com ignores unknown query
+ * parameters, so the content is unchanged).
+ */
+export const BENCHMARK_SNAPSHOT_SCHEMA_VERSION = 2;
+
 export const BENCHMARK_SNAPSHOT_URL =
   process.env.AGENT_BENCHMARK_SNAPSHOT_URL ??
-  `https://raw.githubusercontent.com/Rajeev-SG/rajeevg.com/${BENCHMARK_DATA_BRANCH}/${BENCHMARK_SNAPSHOT_PATH}`;
+  `https://raw.githubusercontent.com/Rajeev-SG/rajeevg.com/${BENCHMARK_DATA_BRANCH}/${BENCHMARK_SNAPSHOT_PATH}?v=${BENCHMARK_SNAPSHOT_SCHEMA_VERSION}`;
 
 const SEED_REVIEWED_AT = "2026-09-13";
 
@@ -63,16 +72,31 @@ export function seedSnapshot(): BenchmarkSnapshot {
 let durableCache: { at: number; snap: BenchmarkSnapshot | null } = { at: 0, snap: null };
 const DURABLE_CACHE_MS = 60 * 60 * 1000;
 
-function isPlausibleSnapshot(parsed: unknown): parsed is BenchmarkSnapshot {
+/**
+ * Shape check for the durable snapshot. Deliberately stricter than "is it
+ * JSON": a snapshot written before a schema change (for example one whose model
+ * records predate the `tracked` flag) must be rejected so the page falls back to
+ * the bundled seed instead of silently rendering a wrong or empty view.
+ */
+export function isPlausibleSnapshot(parsed: unknown): parsed is BenchmarkSnapshot {
   const candidate = parsed as BenchmarkSnapshot | null;
-  return Boolean(
-    candidate &&
-      Array.isArray(candidate.benchmarks) &&
-      candidate.benchmarks.length > 0 &&
-      Array.isArray(candidate.results) &&
-      typeof candidate.generatedAt === "string" &&
-      candidate.generatedAt.length > 0
-  );
+  if (
+    !candidate ||
+    !Array.isArray(candidate.benchmarks) ||
+    candidate.benchmarks.length === 0 ||
+    !Array.isArray(candidate.models) ||
+    candidate.models.length === 0 ||
+    !Array.isArray(candidate.results) ||
+    typeof candidate.generatedAt !== "string" ||
+    candidate.generatedAt.length === 0
+  ) {
+    return false;
+  }
+  const benchmarksHavePriority = candidate.benchmarks.every((b) => "comparePriority" in (b as object));
+  const modelsHaveTracked = candidate.models.every((m) => typeof (m as { tracked?: unknown }).tracked === "boolean");
+  const benchmarkIds = new Set(candidate.benchmarks.map((b) => b.id));
+  const resultsAreResolvable = candidate.results.every((r) => benchmarkIds.has(r.benchmarkId));
+  return benchmarksHavePriority && modelsHaveTracked && resultsAreResolvable;
 }
 
 /**

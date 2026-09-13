@@ -34,8 +34,13 @@ export default async function AgentBenchmarkMatrixPage() {
         <p className="text-sm font-medium uppercase tracking-[0.2em] text-muted-foreground">Solutions · AI &amp; Agent Systems</p>
         <h1 className="text-4xl font-semibold tracking-tight">Agent Benchmark Matrix</h1>
         <p className="text-lg leading-8 text-muted-foreground">
-          A provenance-first matrix of agent benchmarks, showing exactly which model and harness combinations were evaluated,
-          under what protocol, and where evidence is still missing. No ranking across unlike runs, no invented composite score.
+          Compare current agent models where credible public evidence overlaps, then inspect where coverage is still missing.
+          No ranking across unlike runs, and no invented composite score.
+        </p>
+        <p className="text-sm leading-7 text-muted-foreground">
+          The default comparison deliberately holds back benchmark and model combinations with too little public evidence to
+          compare fairly; those combinations are not deleted, they appear in full under <strong>Coverage</strong> and in the
+          &ldquo;tracked, awaiting current results&rdquo; list. A blank always means no ingested public result, never a poor score.
         </p>
         <p className="text-sm leading-7 text-muted-foreground">
           Looking for the quality-versus-cost view instead? See the <Link href="/solutions/pareto-frontier" className="underline underline-offset-4">LLM Pareto Frontier</Link>.

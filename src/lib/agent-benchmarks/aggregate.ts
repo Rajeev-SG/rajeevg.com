@@ -152,3 +152,183 @@ export function summarise(snapshot: BenchmarkSnapshot): SnapshotSummary {
     unresolvedModelCount: snapshot.unresolvedModels.length,
   };
 }
+
+// ---------------------------------------------------------------------------
+// Compare-view eligibility (issue #145)
+//
+// The default view is a *dense* comparison, not the full sparse registry. Both
+// the benchmark columns and the model rows are chosen from the data, so the view
+// becomes denser on its own as the evidence registry improves — no manual edits.
+// ---------------------------------------------------------------------------
+
+/** Minimum distinct cohort models with a result before a benchmark is shown. */
+export const MIN_MODELS_PER_BENCHMARK = 3;
+/** Minimum visible benchmarks with a result before a model is shown. */
+export const MIN_BENCHMARKS_PER_MODEL = 2;
+
+export interface BenchmarkCoverage {
+  benchmarkId: string;
+  /** Distinct cohort models with at least one usable result here. */
+  modelCount: number;
+  /** Distinct cohort models that would populate a cell in the compare table. */
+  populatedModelIds: string[];
+}
+
+export interface AwaitingBenchmark extends BenchmarkCoverage {
+  /** Why the benchmark is not in the default comparison. */
+  reason: "no_results" | "below_threshold";
+  /** How many more cohort models are needed to reach the threshold. */
+  shortfall: number;
+}
+
+export interface CompareView {
+  benchmarkIds: string[];
+  modelIds: string[];
+  awaiting: AwaitingBenchmark[];
+  coverage: BenchmarkCoverage[];
+  populatedCells: number;
+  totalCells: number;
+  /** Share of model × benchmark cells that carry a value, 0-1. */
+  density: number;
+}
+
+export interface CompareViewOptions {
+  /** Candidate models, in the order rows should default to. */
+  cohortModelIds: string[];
+  /** Benchmark ids in scope (tier/category/search already applied). */
+  benchmarkIds: string[];
+  /** Results already filtered to reported + the active evidence filter. */
+  results: BenchmarkResult[];
+  /** Whether a specific benchmark/model cell has a usable value. */
+  hasValue?: (result: BenchmarkResult) => boolean;
+  minModelsPerBenchmark?: number;
+  minBenchmarksPerModel?: number;
+}
+
+/**
+ * Choose the dense default comparison: benchmarks with enough cohort coverage,
+ * then the models that are covered across those benchmarks. Pure and
+ * order-stable; adding rows only ever grows the view.
+ */
+export function selectCompareView(options: CompareViewOptions): CompareView {
+  const minModels = options.minModelsPerBenchmark ?? MIN_MODELS_PER_BENCHMARK;
+  const minBenchmarks = options.minBenchmarksPerModel ?? MIN_BENCHMARKS_PER_MODEL;
+  const hasValue = options.hasValue ?? (() => true);
+  const cohort = new Set(options.cohortModelIds);
+
+  const usable = options.results.filter((r) => cohort.has(r.modelCanonicalId) && hasValue(r));
+
+  // Distinct cohort models per benchmark.
+  const byBenchmark = new Map<string, Set<string>>();
+  for (const result of usable) {
+    const set = byBenchmark.get(result.benchmarkId) ?? new Set<string>();
+    set.add(result.modelCanonicalId);
+    byBenchmark.set(result.benchmarkId, set);
+  }
+
+  const coverage: BenchmarkCoverage[] = options.benchmarkIds.map((benchmarkId) => {
+    const models = byBenchmark.get(benchmarkId) ?? new Set<string>();
+    return { benchmarkId, modelCount: models.size, populatedModelIds: [...models].sort() };
+  });
+
+  const eligible = coverage.filter((c) => c.modelCount >= minModels);
+  const benchmarkIds = eligible.map((c) => c.benchmarkId);
+
+  const awaiting: AwaitingBenchmark[] = coverage
+    .filter((c) => c.modelCount < minModels)
+    .map((c): AwaitingBenchmark => ({
+      ...c,
+      reason: c.modelCount === 0 ? "no_results" : "below_threshold",
+      shortfall: minModels - c.modelCount,
+    }))
+    .sort((a, b) => b.modelCount - a.modelCount || (a.benchmarkId < b.benchmarkId ? -1 : 1));
+
+  const visibleBenchmarks = new Set(benchmarkIds);
+  const perModel = new Map<string, Set<string>>();
+  for (const result of usable) {
+    if (!visibleBenchmarks.has(result.benchmarkId)) continue;
+    const set = perModel.get(result.modelCanonicalId) ?? new Set<string>();
+    set.add(result.benchmarkId);
+    perModel.set(result.modelCanonicalId, set);
+  }
+
+  const modelIds = options.cohortModelIds.filter((id) => (perModel.get(id)?.size ?? 0) >= minBenchmarks);
+
+  let populatedCells = 0;
+  for (const id of modelIds) populatedCells += perModel.get(id)?.size ?? 0;
+  const totalCells = modelIds.length * benchmarkIds.length;
+
+  return {
+    benchmarkIds,
+    modelIds,
+    awaiting,
+    coverage,
+    populatedCells,
+    totalCells,
+    density: totalCells === 0 ? 0 : populatedCells / totalCells,
+  };
+}
+
+/**
+ * Why a cell in the compare table is empty. Distinguishes "we have nothing",
+ * "we have something, but not for this model", and "we have something for this
+ * model under a different protocol". Never used to invent a value.
+ */
+export type MissingReason =
+  | "no_public_result"
+  | "tracked_not_ingested"
+  | "incompatible_protocol"
+  | "filtered_out";
+
+export const MISSING_REASON_LABEL: Record<MissingReason, string> = {
+  no_public_result: "No public result found for this model.",
+  tracked_not_ingested: "Benchmark tracked, but no current-model result ingested yet.",
+  incompatible_protocol: "This model has results for this benchmark under a different version, subset or protocol, so it cannot be ranked in this column.",
+  filtered_out: "No comparable result under the current filters.",
+};
+
+export function missingReason(
+  snapshot: BenchmarkSnapshot,
+  opts: { benchmarkId: string; modelCanonicalId: string; scopedResults: BenchmarkResult[] }
+): MissingReason {
+  const allForModelAndBenchmark = snapshot.results.filter(
+    (r) => r.benchmarkId === opts.benchmarkId && r.modelCanonicalId === opts.modelCanonicalId && r.scoreState === "reported" && r.score !== null
+  );
+  if (allForModelAndBenchmark.length === 0) {
+    const anyForBenchmark = snapshot.results.some(
+      (r) => r.benchmarkId === opts.benchmarkId && r.scoreState === "reported" && r.score !== null
+    );
+    return anyForBenchmark ? "no_public_result" : "tracked_not_ingested";
+  }
+  const scoped = opts.scopedResults.some(
+    (r) => r.benchmarkId === opts.benchmarkId && r.modelCanonicalId === opts.modelCanonicalId
+  );
+  return scoped ? "incompatible_protocol" : "filtered_out";
+}
+
+/**
+ * Which metric column to show for a benchmark in the dense comparison.
+ *
+ * A benchmark can have several headline metrics (OSWorld 2.0 reports both binary
+ * completion and a partial score). Showing all of them multiplies the columns and
+ * re-sparsens the grid, so the default view shows the one metric that actually
+ * carries the broadest comparable coverage for the selected cohort. Ties fall
+ * back to the registry's declared metric order, so the choice is deterministic.
+ */
+export function selectCompareMetricId(
+  benchmark: { id: string; primaryMetricIds: string[] },
+  results: BenchmarkResult[],
+  cohortModelIds: string[]
+): string | null {
+  const cohort = new Set(cohortModelIds);
+  let best: { metricId: string; models: number } | null = null;
+  for (const metricId of benchmark.primaryMetricIds) {
+    const models = new Set(
+      results
+        .filter((r) => r.benchmarkId === benchmark.id && r.metricId === metricId && cohort.has(r.modelCanonicalId))
+        .map((r) => r.modelCanonicalId)
+    );
+    if (!best || models.size > best.models) best = { metricId, models: models.size };
+  }
+  return best?.metricId ?? null;
+}

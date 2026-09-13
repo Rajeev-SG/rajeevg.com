@@ -19,6 +19,8 @@ export interface MatrixRow {
   label: string;
   sublabel: string;
   track: string;
+  /** Populated cells out of the visible columns, for the per-row indicator. */
+  coverage?: { available: number; total: number };
   cells: Record<string, MatrixCell | null>;
 }
 
@@ -28,13 +30,15 @@ function formatScore(value: number, unit: MetricDef["unit"]): string {
 }
 
 export function CoverageMatrix({
-  columns, rows, onSelectCell, onSelectBenchmark, onSelectRow,
+  columns, rows, onSelectCell, onSelectBenchmark, onSelectRow, missingTitle,
 }: {
   columns: MatrixColumn[];
   rows: MatrixRow[];
   onSelectCell: (row: MatrixRow, column: MatrixColumn, cell: MatrixCell | null) => void;
   onSelectBenchmark: (benchmark: BenchmarkMeta) => void;
   onSelectRow: (row: MatrixRow) => void;
+  /** Why a cell is empty, so a blank is readable rather than looking like a zero. */
+  missingTitle?: (row: MatrixRow, column: MatrixColumn) => string;
 }) {
   if (columns.length === 0) {
     return <div className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">No benchmark columns match the current filters.</div>;
@@ -53,10 +57,10 @@ export function CoverageMatrix({
               {rows[0]?.track === "System" ? "System (model + harness)" : "Model"}
             </th>
             {columns.map((column) => (
-              <th key={column.key} scope="col" className="min-w-[8.5rem] px-3 py-2 text-left align-bottom font-medium">
+              <th key={column.key} scope="col" className="min-w-[9rem] px-3 py-2 text-left align-bottom font-medium">
                 <button type="button" onClick={() => onSelectBenchmark(column.benchmark)} className="text-left hover:underline">
                   <span className="block text-xs leading-tight">{column.benchmark.name}</span>
-                  <span className="mt-0.5 block text-[10px] font-normal uppercase tracking-wide text-muted-foreground">
+                  <span className="mt-0.5 block text-[10px] font-normal uppercase tracking-wide text-muted-foreground [overflow-wrap:normal] [word-break:normal] hyphens-none">
                     {column.metric.label}{column.benchmark.auditStatus === "audited_with_findings" ? " · audit" : ""}
                   </span>
                 </button>
@@ -71,14 +75,20 @@ export function CoverageMatrix({
                 <button type="button" onClick={() => onSelectRow(row)} className="text-left hover:underline">
                   <span className="block">{row.label}</span>
                   <span className="mt-0.5 block text-[11px] font-normal text-muted-foreground">{row.sublabel}</span>
+                  {row.coverage ? (
+                    <span className="mt-1 block text-[11px] font-normal tabular-nums text-muted-foreground/80">
+                      {row.coverage.available} / {row.coverage.total} benchmarks
+                    </span>
+                  ) : null}
                 </button>
               </th>
               {columns.map((column) => {
                 const cell = row.cells[column.key] ?? null;
                 if (!cell) {
+                  const reason = missingTitle?.(row, column) ?? "No ingested result. Missing data stays missing and is never inferred from another model or benchmark.";
                   return (
-                    <td key={column.key} className="px-3 py-2 text-muted-foreground" title="No ingested result. Missing data stays missing and is never inferred from another model or benchmark.">
-                      <button type="button" onClick={() => onSelectCell(row, column, null)} className="w-full text-left text-muted-foreground/70 hover:text-foreground">
+                    <td key={column.key} className="px-3 py-2 text-muted-foreground" title={reason}>
+                      <button type="button" onClick={() => onSelectCell(row, column, null)} className="w-full text-left text-muted-foreground/70 hover:text-foreground" aria-label={`No value: ${reason}`}>
                         &mdash;
                       </button>
                     </td>
