@@ -48,12 +48,12 @@ export function CoverageMatrix({
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border" role="region" aria-label="Agent benchmark coverage matrix">
+    <div className="overflow-x-auto rounded-xl border bg-card" role="region" aria-label="Agent benchmark coverage matrix" tabIndex={0}>
       <table className="w-full border-collapse text-sm">
         <caption className="sr-only">Model or system coverage across tracked agent benchmarks. Each cell shows the best credible score, its provenance class and its rank within its comparable group.</caption>
         <thead>
-          <tr className="bg-muted/50">
-            <th scope="col" className="sticky left-0 z-10 min-w-[13rem] border-r bg-muted/50 px-3 py-2 text-left font-medium">
+          <tr className="bg-muted">
+            <th scope="col" className="sticky left-0 z-20 min-w-[13rem] border-r bg-muted px-3 py-2 text-left font-medium">
               {rows[0]?.track === "System" ? "System (model + harness)" : "Model"}
             </th>
             {columns.map((column) => (
@@ -71,7 +71,7 @@ export function CoverageMatrix({
         <tbody>
           {rows.map((row) => (
             <tr key={row.id} className="border-t">
-              <th scope="row" className="sticky left-0 z-10 border-r bg-card px-3 py-2 text-left font-medium">
+              <th scope="row" className="sticky left-0 z-20 border-r bg-card px-3 py-2 text-left font-medium">
                 <button type="button" onClick={() => onSelectRow(row)} className="text-left hover:underline">
                   <span className="block">{row.label}</span>
                   <span className="mt-0.5 block text-[11px] font-normal text-muted-foreground">{row.sublabel}</span>

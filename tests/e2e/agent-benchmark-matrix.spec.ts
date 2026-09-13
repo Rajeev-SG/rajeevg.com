@@ -76,7 +76,9 @@ test("selecting a benchmark heading drives the benchmark-specific leaderboard", 
   const osworld = matrix(page).getByRole("button", { name: /OSWorld 2\.0/ }).first()
   await osworld.click()
   await expect(page.locator('select[aria-label="Benchmark"]')).toHaveValue("osworld-2.0")
-  await expect(leaderboard.locator("tbody tr").first()).toBeVisible()
+  // Ranked entries render as a table on wide screens and as cards on narrow ones,
+  // so assert the entry exists in whichever layout is active.
+  expect(await leaderboard.locator("tbody tr:visible, ul > li:visible").count()).toBeGreaterThan(1)
 
   // The leaderboard ranks only directly comparable runs, in labelled groups.
   await expect(leaderboard.getByText(/Ranked leaderboard/)).toBeVisible()
@@ -126,4 +128,50 @@ test("solutions index links to the matrix", async ({ page }) => {
   const card = page.locator("[data-analytics-item-id='agent-benchmark-matrix']").first()
   await expect(card).toBeVisible()
   await expect(card.getByRole("link", { name: /Open the matrix/ })).toHaveAttribute("href", "/solutions/agent-benchmark-matrix")
+})
+
+test("small screens use readable cards instead of sideways-scrolling tables", async ({ page }, testInfo) => {
+  test.setTimeout(90_000)
+  await fs.mkdir(artifactRoot, { recursive: true })
+  // Narrow viewport regardless of the project, so this asserts the mobile layout.
+  await page.setViewportSize({ width: 390, height: 844 })
+  await preparePage(page)
+
+  const visible = (selector: string) => page.evaluate(
+    (sel) => [...document.querySelectorAll(sel)].filter((el) => (el as HTMLElement).offsetParent !== null).length,
+    selector
+  )
+
+  // The page itself never scrolls sideways.
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1)
+
+  // The dense comparison and the leaderboard render as card lists, not tables.
+  await expect(page.getByRole("region", { name: "Benchmark leaderboard" }).locator("ul li").first()).toBeVisible()
+  expect(await visible("section[aria-label='Benchmark leaderboard'] table")).toBe(0)
+
+  // The coverage summary is cards too, so no figure is cut off.
+  await expect(page.getByText(/benchmark-official · \d+ vendor-reported/).first()).toBeVisible()
+  expect(await visible("section[aria-label='Coverage summary'] table")).toBe(0)
+
+  // The long explanation is a disclosure, keeping the header short.
+  const built = page.locator("details", { hasText: "How this page is built" })
+  await expect(built).toBeVisible()
+  expect(await built.evaluate((el) => (el as HTMLDetailsElement).open)).toBe(false)
+  await built.locator("summary").click()
+  expect(await built.evaluate((el) => (el as HTMLDetailsElement).open)).toBe(true)
+
+  // Coverage keeps the full evidence map, and it scrolls inside its own container.
+  await page.getByRole("button", { name: "Coverage", exact: true }).click()
+  const matrix = page.getByRole("region", { name: "Agent benchmark coverage matrix" })
+  await matrix.scrollIntoViewIfNeeded()
+  expect(await matrix.evaluate((el) => { el.scrollLeft = 300; return el.scrollLeft; })).toBeGreaterThan(0)
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1)
+
+  await page.screenshot({ path: path.join(artifactRoot, `${testInfo.project.name}-narrow.png`), fullPage: false })
+
+  // The sticky header cell must be opaque: no scrolled content bleeding through.
+  const headerBg = await matrix.locator("thead th").first().evaluate((el) => getComputedStyle(el).backgroundColor)
+  expect(headerBg).not.toMatch(/rgba\(.*,\s*0(\.\d+)?\)$/)
+
+  expect(consoleErrors).toEqual([])
 })
