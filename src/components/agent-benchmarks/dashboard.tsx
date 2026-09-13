@@ -342,7 +342,7 @@ export function AgentBenchmarkDashboard({ snapshot }: { snapshot: BenchmarkSnaps
 
   return (
     <div className="space-y-8">
-      <section aria-label="Snapshot summary" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <section aria-label="Snapshot summary" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {[
           { label: "Benchmarks tracked", value: `${p0Count} P0 · ${snapshot.benchmarks.length} total` },
           { label: "Models in registry", value: String(summary.modelCount) },
@@ -357,6 +357,7 @@ export function AgentBenchmarkDashboard({ snapshot }: { snapshot: BenchmarkSnaps
       </section>
 
       <div className="space-y-4 rounded-xl border p-4">
+        <div className="grid gap-4 sm:grid-cols-2">
         <Segmented
           legend="Page"
           size="lg"
@@ -367,17 +368,19 @@ export function AgentBenchmarkDashboard({ snapshot }: { snapshot: BenchmarkSnaps
             { value: "coverage", label: "Coverage", hint: "The full model × benchmark evidence map, including every gap." },
           ]}
         />
-        <p className="max-w-3xl text-sm leading-7 text-muted-foreground">
-          {page === "compare"
-            ? `Benchmarks with at least 3 tracked models and models with at least 2 results in that set. Ultra-sparse combinations are held back here and shown in full under Coverage; nothing is inferred to fill a gap.`
-            : "The full registry: every model against every tracked benchmark, ignoring the cohort and tier controls above. Sparsity is the information here — it shows where the public record does not yet cover a model."}
-        </p>
+
         <Segmented
           legend="Cohort"
           value={filters.cohort}
           onChange={(cohort: Cohort) => setFilters((f) => ({ ...f, cohort }))}
           options={COHORT_OPTIONS.map((o) => ({ value: o.value, label: o.label, hint: o.hint }))}
         />
+        </div>
+        <p className="max-w-3xl text-sm leading-7 text-muted-foreground">
+          {page === "compare"
+            ? `Benchmarks with at least 3 tracked models and models with at least 2 results in that set. Ultra-sparse combinations are held back here and shown in full under Coverage; nothing is inferred to fill a gap.`
+            : "The full registry: every model against every tracked benchmark, ignoring the cohort and tier controls above. Sparsity is the information here — it shows where the public record does not yet cover a model."}
+        </p>
       </div>
 
       {page === "compare" ? (
@@ -509,8 +512,26 @@ export function AgentBenchmarkDashboard({ snapshot }: { snapshot: BenchmarkSnaps
         <p className="text-sm leading-7 text-muted-foreground">
           Coverage answers “which of my tracked models have actually been evaluated broadly?”, and where the public record is thin. It is deliberately not a quality score.
         </p>
-        <div className="overflow-x-auto rounded-xl border">
-          <table className="w-full min-w-[560px] text-sm">
+        {/* Mobile: per-model cards, so every figure is visible without sideways scroll. */}
+        <div className="space-y-2 md:hidden">
+          {coverage.map((c) => (
+            <div key={c.modelCanonicalId} className="rounded-xl border p-3">
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="font-medium">{modelById.get(c.modelCanonicalId)?.displayName}</span>
+                <span className="tabular-nums text-sm text-muted-foreground">
+                  {c.benchmarksAvailable} / {p0Count} benchmarks
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {c.benchmarkOfficialCount} benchmark-official · {c.vendorReportedCount} vendor-reported
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop: full table. */}
+        <div className="hidden overflow-x-auto rounded-xl border md:block">
+          <table className="w-full text-sm">
             <thead className="bg-muted/50 text-left">
               <tr><th className="px-3 py-2 font-medium">Model</th><th className="px-3 py-2 font-medium">Benchmarks with a result</th><th className="px-3 py-2 font-medium">Official</th><th className="px-3 py-2 font-medium">Vendor-reported</th></tr>
             </thead>

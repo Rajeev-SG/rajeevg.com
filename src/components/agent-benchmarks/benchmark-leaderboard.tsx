@@ -75,7 +75,49 @@ export function BenchmarkLeaderboard({
               </h4>
               <p className="text-xs text-muted-foreground">{groupLabel(sample, metric)}</p>
             </div>
-            <div className="overflow-x-auto rounded-xl border">
+            {/* Mobile: one card per ranked run, so the score is never off-screen. */}
+            <ul className="space-y-2 md:hidden">
+              <li className="sr-only">
+                {benchmark.name} {metric.label}, ranked only within runs sharing {groupLabel(sample, metric)}.
+              </li>
+              {sorted.map((result) => {
+                const rank: GroupRank | undefined = ranks.get(result.id);
+                return (
+                  <li key={result.id} className="rounded-xl border p-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <button
+                          type="button"
+                          onClick={() => onSelectCell(result.modelCanonicalId, result.harnessCanonicalId)}
+                          className="text-left"
+                        >
+                          <span className="block truncate font-medium">
+                            {modelById.get(result.modelCanonicalId)?.displayName ?? result.modelCanonicalId}
+                          </span>
+                          <span className="mt-0.5 block text-xs text-muted-foreground">
+                            #{rank?.rank ?? "—"} · {modelById.get(result.modelCanonicalId)?.organisation}
+                          </span>
+                        </button>
+                      </div>
+                      <span className="shrink-0 text-right">
+                        <span className="block text-lg font-semibold tabular-nums leading-tight">
+                          {fmtScore(result.score as number, metric.unit)}
+                        </span>
+                        <span className="block text-[10px] uppercase tracking-wide text-muted-foreground">{metric.label}</span>
+                      </span>
+                    </div>
+                    <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                      <span>{result.harnessReportedName ?? "Unspecified harness"}</span>
+                      <ProvenanceBadge sourceType={result.sourceType} evidenceQuality={result.evidenceQuality} />
+                      <a href={result.sourceUrl} target="_blank" rel="noopener noreferrer" className="underline">Source</a>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+
+            {/* Desktop: full ranked table. */}
+            <div className="hidden overflow-x-auto rounded-xl border md:block">
               <table className="w-full min-w-[680px] text-sm">
                 <caption className="sr-only">
                   {benchmark.name} {metric.label}, ranked only within runs sharing {groupLabel(sample, metric)}.

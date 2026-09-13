@@ -38,14 +38,23 @@ export default async function AgentBenchmarkMatrixPage() {
           No ranking across unlike runs, and no invented composite score.
         </p>
         <p className="text-sm leading-7 text-muted-foreground">
-          The default comparison deliberately holds back benchmark and model combinations with too little public evidence to
-          compare fairly; those combinations are not deleted, they appear in full under <strong>Coverage</strong> and in the
-          &ldquo;tracked, awaiting current results&rdquo; list. A blank always means no ingested public result, never a poor score.
+          A blank always means no ingested public result, never a poor score. Looking for the quality-versus-cost view instead?
+          See the <Link href="/solutions/pareto-frontier" className="underline underline-offset-4">LLM Pareto Frontier</Link>.
         </p>
-        <p className="text-sm leading-7 text-muted-foreground">
-          Looking for the quality-versus-cost view instead? See the <Link href="/solutions/pareto-frontier" className="underline underline-offset-4">LLM Pareto Frontier</Link>.
-          This page answers a different question: what evidence exists that a model or system can actually do the work.
-        </p>
+
+        <details className="group rounded-xl border p-3 sm:p-4">
+          <summary className="cursor-pointer text-sm font-medium">
+            How this page is built
+          </summary>
+          <div className="mt-3 space-y-3 text-sm leading-7 text-muted-foreground">
+            <p>
+              The default comparison deliberately holds back benchmark and model combinations with too little public evidence to
+              compare fairly. Those combinations are not deleted: they appear in full under <strong>Coverage</strong> and in the
+              &ldquo;tracked, awaiting current results&rdquo; list, and they graduate into the comparison automatically once enough
+              results are ingested.
+            </p>
+          </div>
+        </details>
 
         <p className="text-sm text-muted-foreground">
           Snapshot generated {new Date(snapshot.generatedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
