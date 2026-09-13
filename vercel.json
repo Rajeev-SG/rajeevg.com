@@ -13,7 +13,8 @@
   ],
   "git": {
     "deploymentEnabled": {
-      "pareto-data": false
+      "pareto-data": false,
+      "benchmark-data": false
     }
   }
 }
