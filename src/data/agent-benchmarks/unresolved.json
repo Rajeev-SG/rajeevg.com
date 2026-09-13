@@ -1,0 +1,9 @@
+{
+  "benchmarks": [
+    { "name": "GAIA-2", "seenIn": "vendor release notes", "reason": "Referenced but no canonical benchmark identity established yet; queue for explicit triage." },
+    { "name": "\"τ-bench\" (unversioned)", "seenIn": "older vendor tables", "reason": "Ambiguous generation (τ vs τ² vs τ³); requires explicit version before it can be ingested." }
+  ],
+  "models": [
+    { "reportedName": "GPT-5.6 Sol Ultra", "seenIn": "OpenAI release table", "reason": "Same model evaluated under a higher reasoning/agentic config; stored as a config on gpt-5.6-sol rather than a separate model." }
+  ]
+}

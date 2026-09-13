@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 800" role="img" aria-labelledby="title desc">
+  <title id="title">Agent Benchmark Matrix</title>
+  <desc id="desc">A coverage matrix of models against agent benchmarks, with cells coloured by provenance class and grey where no result is ingested.</desc>
+<defs><pattern id="gridp" width="82" height="62" patternUnits="userSpaceOnUse"><path d="M82 0H0V62" fill="none" stroke="#d8d4c8"/></pattern><filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dy="8" stdDeviation="10" flood-color="#152033" flood-opacity=".12"/></filter><style>.serif{font-family:Georgia,'Times New Roman',serif;fill:#172033}.sans{font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#566174}</style></defs>
+  <rect width="1280" height="800" fill="#fbfaf5"/>
+  <text x="64" y="76" class="serif" font-size="38" font-weight="700">Agent Benchmark Matrix</text>
+  <text x="64" y="112" class="sans" font-size="19">Which models and harnesses were evaluated, under what protocol, and where evidence is missing</text>
+  <g><rect x="120" y="190" width="1040" height="470" rx="20" fill="#fffef9" stroke="#d8d4c8" filter="url(#soft)"/>
+  <text x="365" y="272" text-anchor="start" class="sans" font-size="13" transform="rotate(-32 365 272)">OSWorld 2.0</text>
+  <text x="481" y="272" text-anchor="start" class="sans" font-size="13" transform="rotate(-32 481 272)">Terminal-Bench</text>
+  <text x="597" y="272" text-anchor="start" class="sans" font-size="13" transform="rotate(-32 597 272)">WebArena-V</text>
+  <text x="713" y="272" text-anchor="start" class="sans" font-size="13" transform="rotate(-32 713 272)">Toolathlon</text>
+  <text x="829" y="272" text-anchor="start" class="sans" font-size="13" transform="rotate(-32 829 272)">BrowseComp</text>
+  <text x="945" y="272" text-anchor="start" class="sans" font-size="13" transform="rotate(-32 945 272)">ALE</text>
+  <text x="1061" y="272" text-anchor="start" class="sans" font-size="13" transform="rotate(-32 1061 272)">APEX</text>
+  <text x="294" y="316" text-anchor="end" class="sans" font-size="14">GPT-5.6 Sol</text>
+  <rect x="310" y="286" width="110" height="50" rx="8" fill="#c98a2b" stroke="none"/>
+  <rect x="426" y="286" width="110" height="50" rx="8" fill="#c98a2b" stroke="none"/>
+  <rect x="542" y="286" width="110" height="50" rx="8" fill="#eeece4" stroke="#d8d4c8"/>
+  <rect x="658" y="286" width="110" height="50" rx="8" fill="#c98a2b" stroke="none"/>
+  <rect x="774" y="286" width="110" height="50" rx="8" fill="#c98a2b" stroke="none"/>
+  <rect x="890" y="286" width="110" height="50" rx="8" fill="#c98a2b" stroke="none"/>
+  <rect x="1006" y="286" width="110" height="50" rx="8" fill="#c98a2b" stroke="none"/>
+  <text x="294" y="372" text-anchor="end" class="sans" font-size="14">GLM-5.3 Flash</text>
+  <rect x="310" y="342" width="110" height="50" rx="8" fill="#eeece4" stroke="#d8d4c8"/>
+  <rect x="426" y="342" width="110" height="50" rx="8" fill="#c98a2b" stroke="none"/>
+  <rect x="542" y="342" width="110" height="50" rx="8" fill="#eeece4" stroke="#d8d4c8"/>
+  <rect x="658" y="342" width="110" height="50" rx="8" fill="#c98a2b" stroke="none"/>
+  <rect x="774" y="342" width="110" height="50" rx="8" fill="#eeece4" stroke="#d8d4c8"/>
+  <rect x="890" y="342" width="110" height="50" rx="8" fill="#c98a2b" stroke="none"/>
+  <rect x="1006" y="342" width="110" height="50" rx="8" fill="#c98a2b" stroke="none"/>
+  <text x="294" y="428" text-anchor="end" class="sans" font-size="14">DeepSeek V4.1 Flash</text>
+  <rect x="310" y="398" width="110" height="50" rx="8" fill="#c98a2b" stroke="none"/>
+  <rect x="426" y="398" width="110" height="50" rx="8" fill="#c98a2b" stroke="none"/>
+  <rect x="542" y="398" width="110" height="50" rx="8" fill="#eeece4" stroke="#d8d4c8"/>
+  <rect x="658" y="398" width="110" height="50" rx="8" fill="#c98a2b" stroke="none"/>
+  <rect x="774" y="398" width="110" height="50" rx="8" fill="#eeece4" stroke="#d8d4c8"/>
+  <rect x="890" y="398" width="110" height="50" rx="8" fill="#c98a2b" stroke="none"/>
+  <rect x="1006" y="398" width="110" height="50" rx="8" fill="#c98a2b" stroke="none"/>
+  <text x="294" y="484" text-anchor="end" class="sans" font-size="14">Kimi K3</text>
+  <rect x="310" y="454" width="110" height="50" rx="8" fill="#c98a2b" stroke="none"/>
+  <rect x="426" y="454" width="110" height="50" rx="8" fill="#c98a2b" stroke="none"/>
+  <rect x="542" y="454" width="110" height="50" rx="8" fill="#eeece4" stroke="#d8d4c8"/>
+  <rect x="658" y="454" width="110" height="50" rx="8" fill="#c98a2b" stroke="none"/>
+  <rect x="774" y="454" width="110" height="50" rx="8" fill="#c98a2b" stroke="none"/>
+  <rect x="890" y="454" width="110" height="50" rx="8" fill="#c98a2b" stroke="none"/>
+  <rect x="1006" y="454" width="110" height="50" rx="8" fill="#c98a2b" stroke="none"/>
+  <text x="294" y="540" text-anchor="end" class="sans" font-size="14">Qwen3.8 Max</text>
+  <rect x="310" y="510" width="110" height="50" rx="8" fill="#eeece4" stroke="#d8d4c8"/>
+  <rect x="426" y="510" width="110" height="50" rx="8" fill="#c98a2b" stroke="none"/>
+  <rect x="542" y="510" width="110" height="50" rx="8" fill="#c98a2b" stroke="none"/>
+  <rect x="658" y="510" width="110" height="50" rx="8" fill="#eeece4" stroke="#d8d4c8"/>
+  <rect x="774" y="510" width="110" height="50" rx="8" fill="#eeece4" stroke="#d8d4c8"/>
+  <rect x="890" y="510" width="110" height="50" rx="8" fill="#eeece4" stroke="#d8d4c8"/>
+  <rect x="1006" y="510" width="110" height="50" rx="8" fill="#c98a2b" stroke="none"/>
+  <text x="294" y="596" text-anchor="end" class="sans" font-size="14">Claude Opus 4.8</text>
+  <rect x="310" y="566" width="110" height="50" rx="8" fill="#eeece4" stroke="#d8d4c8"/>
+  <rect x="426" y="566" width="110" height="50" rx="8" fill="#c98a2b" stroke="none"/>
+  <rect x="542" y="566" width="110" height="50" rx="8" fill="#c98a2b" stroke="none"/>
+  <rect x="658" y="566" width="110" height="50" rx="8" fill="#eeece4" stroke="#d8d4c8"/>
+  <rect x="774" y="566" width="110" height="50" rx="8" fill="#eeece4" stroke="#d8d4c8"/>
+  <rect x="890" y="566" width="110" height="50" rx="8" fill="#c98a2b" stroke="none"/>
+  <rect x="1006" y="566" width="110" height="50" rx="8" fill="#c98a2b" stroke="none"/>
+  <text x="640" y="638" text-anchor="middle" class="sans" font-size="16">Benchmarks tracked (P0) →</text>
+  <text x="154" y="425" text-anchor="middle" class="sans" font-size="16" transform="rotate(-90 154 425)">Models →</text>
+  </g>
+  <g transform="translate(64 726)">
+  <rect x="0" y="-10" width="16" height="16" rx="4" fill="#3f7d5a" stroke="#d8d4c8"/>
+  <text x="24" y="4" class="sans" font-size="16">Benchmark-official</text>
+  <rect x="220" y="-10" width="16" height="16" rx="4" fill="#c98a2b" stroke="#d8d4c8"/>
+  <text x="244" y="4" class="sans" font-size="16">Vendor-reported</text>
+  <rect x="440" y="-10" width="16" height="16" rx="4" fill="#8a94a6" stroke="#d8d4c8"/>
+  <text x="464" y="4" class="sans" font-size="16">Lower confidence</text>
+  <rect x="660" y="-10" width="16" height="16" rx="4" fill="#eeece4" stroke="#d8d4c8"/>
+  <text x="684" y="4" class="sans" font-size="16">Not ingested</text>
+  <text x="1216" y="4" text-anchor="end" class="serif" font-size="16" font-style="italic">updated 13 Sep 2026</text>
+  </g>
+</svg>

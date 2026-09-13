@@ -40,6 +40,24 @@ export const currentSolutions: PortfolioProject[] = [
     detailLinks: [{ label: "Read the write-up", href: "/blog/web-automation-microbenchmarks" }],
   },
   {
+    slug: "agent-benchmark-matrix",
+    title: "Agent Benchmark Matrix",
+    category: "AI & Agent Systems",
+    tagline: "A provenance-first coverage matrix of agent, computer-use and tool-use benchmarks, with harness separation and honest gaps.",
+    summary:
+      "A cross-model matrix that answers which relevant agent benchmarks a model has actually been evaluated on, under which harness and protocol, and what it scored. Every displayed number cites an exact source and provenance class; unlike runs are never ranked together, and missing cells stay missing rather than being filled from a neighbouring model or a different benchmark.",
+    howItWorks:
+      "A typed benchmark registry separates benchmark, version, subset, metric, model and harness identity, and a comparability key decides what may be ranked together. Curated results with exact source URLs and provenance classes feed a snapshot published to a dedicated data branch, with a bundled reviewed seed as the guaranteed render path. Benchmarks are tracked in a candidate registry with P0/P1/P2/rejected/superseded status so omissions stay reviewable.",
+    imagePath: "/images/solutions/agent-benchmark-matrix.svg",
+    imageAlt: "Coverage matrix showing models along the rows and agent benchmarks along the columns, with cells coloured by provenance class and left grey where no result has been ingested.",
+    liveUrl: "/solutions/agent-benchmark-matrix",
+    liveLabel: "Open the matrix",
+    lastUpdated: "2026-09-13",
+    tech: ["Next.js", "TypeScript", "Vitest", "Playwright", "provenance registry"],
+    repoVisibility: "PUBLIC",
+    inclusionReason: "Live, source-traced benchmark registry with deterministic comparability rules, validation gates and visible gaps.",
+  },
+  {
     slug: "llm-pareto-frontier",
     title: "LLM Pareto Frontier",
     category: "AI & Agent Systems",
@@ -489,6 +507,7 @@ export function getPortfolioProject(slug: string) {
 
 const publicProjectOrder = [
   "web-automation-microbenchmarks",
+  "agent-benchmark-matrix",
   "llm-pareto-frontier",
   "agent-operations-control-plane",
   "agent-routing-and-lifecycle-system",
