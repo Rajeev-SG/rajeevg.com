@@ -69,7 +69,7 @@ That is the part I had been missing while I was busy measuring shortlist sizes. 
 
 ## Why the built-in version did not save me
 
-This is the part I got wrong twice, so it is worth stating carefully.
+This is the part I got wrong, so it is worth stating carefully.
 
 The tool already contained software for choosing instruction sheets. I found traces of it in the program itself: code that matches names by fuzzy text, blends two ranking methods, and an experiment that measures its own accuracy. I had rebuilt something that already existed.
 
@@ -88,10 +88,32 @@ So the tool had a door, and the door only opened onto the sheets someone else ha
 ## The fix, in three small pieces
 
 1. **A search that reads every sheet off the disk.** Not the shortlist. The disk. It takes about a tenth of a second and cannot go stale, because it reads what is actually there.
-2. **A check that runs automatically at the start of every task.** It searches from the task's own wording and puts the best matches in front of the assistant before it begins. No more depending on it to remember to look.
-3. **A retry with fewer words when nothing is found.** This was the real bug. The automatic check picks the longest words in your request as search terms, and demands that all of them appear. One awkward word made the whole search return nothing, silently.
+2. **A check that runs automatically at the start of every task.** It puts the best matches in front of the assistant before it begins. No more depending on it to remember to look.
+3. **Better choice of search words.** This was the real bug, and it took two passes to see.
 
-That third piece is the one that mattered. On 120 real requests taken from my own history, the search found an instruction sheet 11% of the time before, and 47% of the time after. Same search, same machine, one extra retry.
+The first pass was the obvious one: the check took the **longest words** in your request and demanded that all of them appear, so one awkward word made the whole search return nothing. Silent. Letting it retry with fewer words fixed that, and took the hit rate on 120 real requests from 11% to 47%.
+
+Then I looked at the queries it was actually building and realised longest is not the same as most useful. "Put the invoice totals into a spreadsheet" produced the search words *spreadsheet invoice extract* — and **invoice** appears in none of my 343 sheets, so it was wasting one of only three slots. The word that mattered was *spreadsheet*.
+
+So the check now picks its words using the sheets themselves:
+
+- it only uses words that appear in at least one sheet, so a word nothing contains cannot waste a slot
+- it prefers distinctive words over common ones — *prometheus* beats *exporter*, even though *exporter* is longer
+- it spots two-word phrases that belong together, like *design review*
+- it understands that *spreadsheet* and *spreadsheets* are the same word
+- and it stays quiet when a message carries no task at all
+
+That last point matters more than it sounds. With a catalogue this size, almost any message contains *some* word that appears in a sheet somewhere. Without a rule to stay quiet, the check would fire on "thanks, that's great" and clutter every reply with irrelevant suggestions.
+
+## How it does now
+
+Measured two ways, both against my own history.
+
+**Does it find anything?** Over 120 real requests: **91%**, up from 51%. The old method found nothing on 4 messages in 10.
+
+**Does it find the right thing?** Over 20 requests where I know the correct answer: the right sheet appeared in the top three **85%** of the time, up from 80%.
+
+**Does it stay quiet?** 1 time in 22 on conversational messages, so it is not spraying suggestions into ordinary chat.
 
 ## What it costs
 
@@ -101,9 +123,9 @@ It runs one process per request whether or not it finds anything, so failure is 
 
 ## What it does not fix
 
-Of the requests that started finding something after the change, roughly a third found a strong match, meaning the instruction sheet's own name appeared in the request. The other two thirds are looser. A request about writing a requirements document surfaced payment and marketplace sheets, which is defensible and also not obviously right. The assistant still has to judge what it is shown, and sometimes it will judge wrong.
+The matches are suggestions, not answers. In the 20 cases where I knew the right sheet, it missed the top three 3 times — and in a couple of those the sheet it did surface was arguably fine. A request to write a requirements document surfaced payment and marketplace sheets, which is defensible and also not obviously right. The assistant still has to judge what it is shown.
 
-Requests that contain no signal at all, like "please implement 1 and 4", still find nothing. That is correct behaviour, not a gap.
+Around one request in ten produces no match at all, usually because it contains nothing to go on: "give me the link to it", "please implement 1 and 4". Staying quiet there is correct — better than guessing — but it means the sheet has to be findable some other way, which is the argument for keeping the shortlist.
 
 ## What I took from it
 
