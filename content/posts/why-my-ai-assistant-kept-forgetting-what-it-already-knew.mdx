@@ -8,6 +8,8 @@ draft: false
 image: /images/blog/why-my-ai-assistant-kept-forgetting-what-it-already-knew/instructions-flow.svg
 ---
 
+> **Correction (2026-09-13, same day).** The first version of this article claimed the shortlist held about 42% of the collection, so more than half the instruction sheets could never be shown. That was my own arithmetic (24,000 tokens of summaries against a 10,000-token budget) and it was wrong, because the tool trims each summary instead of showing it in full. Measured against what the assistant is actually handed: **315 of 343 on the desktop path, 250 of 343 for background helpers**. The list is not the broken part. The section below is the corrected version, and it keeps the mistake visible because the wrong number was more quotable than the right one.
+
 I keep written instructions for my AI assistant. One for auditing ad tracking on a website, one for spreadsheets, one for driving a browser through a checkout flow, and so on. It has 343 of them now.
 
 Last month it spent about eighty steps working out a procedure I had already written down six days earlier.
@@ -22,47 +24,66 @@ The assistant is not handed all 343 files. It is shown the name and summary of e
 
 So the question is not "why isn't everything loaded". It is "how big is the shortlist, and what happens when the answer is not on it".
 
-## The shelf was too small to hold the collection
+## I got the number wrong first
 
-I did the arithmetic, because nobody had.
+I worked this out on paper before I measured it.
 
-For each instruction sheet the assistant needs its name and summary. Across 343 of them that is roughly 24,000 tokens of shortcut text. A token is a fragment of a word; 24,000 of them is a substantial document.
+Take all 343 instruction sheets. Add up the name and summary for each. That comes to roughly 24,000 tokens of shortcut text, and the tool's documented budget for the shortlist is 10,000 tokens. Divide one by the other and you get about 42%.
 
-The tool budgets 2% of the assistant's available memory for that shortlist, and caps it at 10,000 tokens. That cap is documented, not something I chose.
+I wrote that down as "half my instruction sheets can never be shown". Then I checked it against what the assistant is actually handed, and the number was wrong. Not slightly wrong. Wrong in a way that changed the conclusion.
 
-10,000 out of 24,000 is about 42%. So at least half my instruction sheets cannot be on the shortlist at any moment. Not rarely. Never.
+| Where the assistant runs | Sheets shown | Missing |
+|---|---|---|
+| The desktop app I use daily | **315 of 343** | about 28 |
+| Background helpers doing long jobs | **250 of 343** | about 93 |
 
-Nothing warns you. A sheet that is not shown simply does not get used, and the assistant confidently does the job the long way instead.
+The reason my arithmetic failed is that the shortlist does not show summaries in full. It trims each one to its first sentence. That is why the list the assistant receives has entries that stop mid-word, like a description ending "...and derive visual varia". Shorter entries mean many more of them fit.
+
+It also does not simply take the first 343 and cut the rest off. It chooses a set, and the set changes between sessions. Across 34 sessions I logged ten different list lengths, from 238 skills to 315, with different sheets swapped in and out. On the desktop path the shortfall is about 28 sheets, and they are mostly template and plugin sheets I almost never use.
+
+**Why the measured number is the one to trust.** The calculated number measured text; the measured number measures what is actually in front of the assistant. Only the second one can be checked, and only the second one turned out to be true. It also moves the story somewhere more useful, because it takes away the easy explanation.
+
+The easy explanation was "the list is broken". The list is not broken. It shows about 92% of the collection on the path I actually use.
+
+So what was broken?
 
 <Figure
   src="/images/blog/why-my-ai-assistant-kept-forgetting-what-it-already-knew/instructions-flow.svg"
-  alt="Diagram: 343 instruction sheets on disk, only about 42 percent fit in view, the rest invisible; the assistant worked it out from scratch costing about 80 wasted steps; the fix searches all 343 sheets in about a tenth of a second."
-  caption="Roughly 42% of the collection fits on the shelf at once. The rest was invisible, and nothing warned me."
+  alt="Three panels. What the assistant has: 343 instruction sheets on disk, a shortlist of about 315 chosen for it, about 28 not shown. What actually broke: the list is only ever read and never searched, nothing prompted a look, and only 13 percent of tasks looked. The fix: a lookup fires at task start, searches all 343 on disk, and 86 percent of tasks look."
+  caption="The shortlist was mostly fine. Nothing made the assistant read it."
 />
 
 ## How I found it
 
-I went back through 1,463 saved transcripts and counted.
+Shortlists are hard to see going wrong. Nothing errors, nothing looks broken, and the assistant never says "I could not find your notes on this". So I went to the transcripts and counted.
 
-Among sessions doing real multi-step work, the numbers were: 3% consulted the instructions before I wrote any rule about it, 13% once the rule existed in the assistant's standing orders, and 86% once I automated the check so it fired on its own.
+I went back through 1,463 saved ones and looked at how often the assistant consulted an instruction sheet at all.
 
-The middle number is the interesting one. Writing "always look for an instruction sheet first" into the rules barely moved anything. Rules are requests. The assistant had no reliable way to satisfy the request, so it mostly did not.
+- **3%** consulted one before I had written any rule about it.
+- **13%** consulted one once the rule existed in the assistant's standing orders.
+- **86%** consulted one once I made the check fire on its own.
+
+Read the middle number again. Writing "always look for an instruction sheet first" into the rules moved the figure from 3% to 13%. Instructions to look are requests, and requests get skipped.
+
+That is the part I had been missing while I was busy measuring shortlist sizes. The sheets were mostly there. Almost nobody was looking at them.
 
 ## Why the built-in version did not save me
 
-This is the part I got wrong first, and it is the part worth being honest about.
+This is the part I got wrong twice, so it is worth stating carefully.
 
-The tool already contained software for picking instruction sheets. I found traces of it in the program itself: code that matches names by fuzzy text, blends two ranking methods, plus an experiment that measures its own accuracy. I had rebuilt something that already existed.
+The tool already contained software for choosing instruction sheets. I found traces of it in the program itself: code that matches names by fuzzy text, blends two ranking methods, and an experiment that measures its own accuracy. I had rebuilt something that already existed.
 
-Three things made it useless to me.
+What I had wrong was the shape of the thing. It is not a search box. It is the machinery that decides which sheets go on the shortlist. It runs before the assistant sees anything, picks about 315 of the 343, and routes whatever is left over into "unavailable" or "deferred" rather than offering a way to go and find them.
 
-**It is a filter, not a search.** Its job is to decide which sheets fit the shelf. There is no "show me the rest", and no way for the assistant to ask for more. I checked its list of available tools: no instruction search appears there. The relevant switch is marked removed in this build.
+I confirmed it exposes nothing the assistant can call. I turned its switch on explicitly, listed every tool available, and got 101 tools. None of them searches instruction sheets. There is no "show me the rest" and no way to ask a question of it.
 
-**Half the shelf was never on it.** The budget is the budget. A better filter cannot fit more sheets into the same space.
+Two more things made it a poor fit.
 
-**It was switched off for the assistant's helpers.** The delegated workers, which run the long jobs, had it explicitly disabled. That line had been copied in wholesale months earlier in a bulk configuration import, with no note recording a reason. Nobody had decided it should be off. It was just off.
+**I could not widen it.** The documented limit says explicit values are capped at 10,000 tokens. I tried setting it to 50,000 anyway. The shortlist stayed at 250 entries. The cap holds.
 
-So the tool had a door, and the door only opened onto 42% of the room.
+**It was switched off for the assistant's helpers.** The delegated workers, which run the long jobs, had it explicitly disabled. That line arrived through a bulk configuration import months ago with no note recording a reason. Nobody decided it should be off. It was just off.
+
+So the tool had a door, and the door only opened onto the sheets someone else had already chosen.
 
 ## The fix, in three small pieces
 
@@ -88,6 +109,6 @@ Requests that contain no signal at all, like "please implement 1 and 4", still f
 
 The failure was silent. Nothing errored, nothing looked broken, and the assistant never said "I could not find your notes on this". It just worked harder than it needed to. Silent failures do not get fixed by adding features; they get fixed by counting.
 
-Second, a bigger shelf is the wrong answer. The useful move was letting the assistant ask for something specific on demand, rather than trying to show it more up front.
+Second, the list was never the problem. I spent a while convinced it was, because a wrong calculation gave me a headline number. A bigger list would have changed nothing. What changed things was making the lookup happen at all.
 
-Third, and the part I keep coming back to: the built-in software was not broken. It was solving a different problem from the one I had. Worth checking what a feature is for before deciding it is missing.
+Third, and the part I keep coming back to: the built-in software was not broken, and it was not even the wrong shape of idea. It decides what to put in front of the assistant. Nothing in it was ever going to make the assistant look. Worth checking what a feature is for before deciding it is missing, and worth measuring before deciding it is broken.
