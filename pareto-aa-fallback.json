@@ -1,15 +1,15 @@
 {
   "provenance": {
     "source": "Artificial Analysis API v2 /language/models/free + OpenRouter /api/v1/models",
-    "fetchedAt": "2026-09-13T19:29:27.780Z",
+    "fetchedAt": "2026-09-14T10:44:14.747Z",
     "aaStatus": "ok",
     "note": "Validated automatic snapshot. Empty or incomplete refreshes never replace this file."
   },
-  "generatedAt": "2026-09-13T19:29:29.132Z",
+  "generatedAt": "2026-09-14T10:44:16.264Z",
   "freshness": {
-    "aaFetchedAt": "2026-09-13T19:29:27.780Z",
+    "aaFetchedAt": "2026-09-14T10:44:14.747Z",
     "aaStatus": "ok",
-    "openrouterFetchedAt": "2026-09-13T19:29:28.991Z",
+    "openrouterFetchedAt": "2026-09-14T10:44:16.102Z",
     "openrouterStatus": "ok",
     "arenaFetchedAt": null,
     "arenaStatus": "pending",
@@ -699,8 +699,8 @@
       },
       "openrouter": {
         "modelId": "deepseek/deepseek-v4-flash-0731",
-        "inputPricePerMillion": 0.04,
-        "outputPricePerMillion": 0.08,
+        "inputPricePerMillion": 0.06,
+        "outputPricePerMillion": 0.12,
         "contextLength": 1310720,
         "createdAtUnix": 1785478908
       },
@@ -727,8 +727,8 @@
       },
       "openrouter": {
         "modelId": "deepseek/deepseek-v4-pro-0813",
-        "inputPricePerMillion": 0.57948,
-        "outputPricePerMillion": 1.73844,
+        "inputPricePerMillion": 0.9833999999999999,
+        "outputPricePerMillion": 2.9502,
         "contextLength": 1048576,
         "createdAtUnix": 1786549364
       },
@@ -1835,8 +1835,8 @@
       },
       "openrouter": {
         "modelId": "nvidia/nemotron-3-ultra-550b-a55b",
-        "inputPricePerMillion": 0.625,
-        "outputPricePerMillion": 3.125,
+        "inputPricePerMillion": 0.6,
+        "outputPricePerMillion": 2.4,
         "contextLength": 262144,
         "createdAtUnix": 1780551208
       },
@@ -3895,8 +3895,8 @@
       },
       "openrouter": {
         "modelId": "tencent/hy3",
-        "inputPricePerMillion": 0.0825,
-        "outputPricePerMillion": 0.33,
+        "inputPricePerMillion": 0.13199999999999998,
+        "outputPricePerMillion": 0.5279999999999999,
         "contextLength": 262144,
         "createdAtUnix": 1783344048
       },
@@ -4219,8 +4219,8 @@
       },
       "openrouter": {
         "modelId": "z-ai/glm-5.2",
-        "inputPricePerMillion": 0.6,
-        "outputPricePerMillion": 2,
+        "inputPricePerMillion": 0.6832,
+        "outputPricePerMillion": 2.1471999999999998,
         "contextLength": 1048576,
         "createdAtUnix": 1781631930
       },
@@ -4247,8 +4247,8 @@
       },
       "openrouter": {
         "modelId": "z-ai/glm-5.3",
-        "inputPricePerMillion": 1.092,
-        "outputPricePerMillion": 3.432,
+        "inputPricePerMillion": 1.4,
+        "outputPricePerMillion": 4.4,
         "contextLength": 1310720,
         "createdAtUnix": 1787086655
       },
