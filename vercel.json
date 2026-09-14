@@ -13,6 +13,10 @@
   ],
   "git": {
     "deploymentEnabled": {
+      "main": true,
+      "manual-preview": true,
+      "*": false,
+      "**": false,
       "pareto-data": false,
       "benchmark-data": false
     }

@@ -92,7 +92,10 @@ You can see the data yourself:
   [`/api/solutions/pareto-frontier/data`](https://rajeevg.com/api/solutions/pareto-frontier/data).
 - **Vercel stops deploying the branch.** That is intentional. `vercel.json` sets
   `git.deploymentEnabled` for `pareto-data` to `false`, so a data update never
-  triggers a build. If that setting is removed, every refresh would deploy.
+  triggers a build. If that setting is removed, every refresh would deploy. The
+  same file also keeps automatic previews off for every other non-`main` branch;
+  [docs/vercel-deployments.md](./docs/vercel-deployments.md) has the whole policy
+  and the two supported ways to get a preview when you want one.
 
 The full rationale, including why this used to run on Vercel Blob and no longer
 does, is in
