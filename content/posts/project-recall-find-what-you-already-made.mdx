@@ -22,9 +22,7 @@ I built a small glue layer that does exactly that join. It is ~500 lines of Pyth
 
 ## The problem, specifically
 
-import { ArticleDiagramFigure } from '@/components/article-diagram-figure'
-
-<Figure
+<ArticleDiagramFigure
   src="/images/blog/project-recall/how-it-fits.png"
   alt="Diagram showing coding agents at the top, sessions and deliverables on disk in the middle, archived heavy sessions below, all feeding into a Project Recall index layer, which produces a single answer: project + session + file path + open the original"
   caption="What Project Recall joins: the agents you run, the sessions they generate, the real deliverables on disk, and the heavy archived logs that are deliberately out of normal indexing. The purple layer is the only new thing; everything else already existed."
@@ -48,7 +46,7 @@ No single tool answered that. The information existed across all three. The join
 
 ## The join layer
 
-<Figure
+<ArticleDiagramFigure
   src="/images/blog/project-recall/the-join-layer.png"
   alt="Three existing tools (grep on raw JSONL, AgentSessions FTS, QMD/RAG) each with their strengths and blind spots listed, all feeding into a Project Recall join layer that resolves to one answer: project + session + file path + open the original"
   caption="Each existing tool covers one slice and misses the others. The join layer is the only new thing: it reads the indexes that already exist, adds cross-references between files and sessions, and produces one answer you can act on."
