@@ -95,6 +95,8 @@ The answer that worked was not an MCP server (overkill for four CLI commands) an
 
 I wrote one `SKILL.md` describing the four commands, when to reach for each, and what the output format looks like. Then I copied it into `~/.codex/skills/`, `~/.claude/skills/`, `~/.omp/agent/managed-skills/`, and `~/.codeium/windsurf/skills/`. The skill search hook picks it up automatically, and agents invoke the CLI directly. No protocol, no server, no API to maintain.
 
+The first draft failed in an instructive way. I gave it to a Flash-class agent and asked it to find a CHANEL media guidelines session. It burned twelve tool calls trying `recoll -q` (not on PATH), then my wrapper (which re-indexes from scratch every call), then `which` and `--help` probes. The problem wasn't the index — it was that the skill didn't include exact binary paths or warn about the re-indexing trap. The rewrite leads with `/Applications/recoll.app/Contents/MacOS/recollq` as a copy-paste command, adds a "Common Pitfalls" section, and tells the agent to prefer `recollq` over anything that rebuilds. That's the difference between twelve calls and two.
+
 A thin wrapper script at `~/.local/bin/project-recall` handles the `PYTHONPATH` setup so the command works from any directory.
 
 ## Reuse, don't rebuild
