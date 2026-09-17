@@ -1,0 +1,106 @@
+---
+title: Finding What You Already Made
+slug: project-recall-find-what-you-already-made
+date: 2026-09-17
+description: Coding agents generate enormous context — sessions, deliverables, files, decisions. The bottleneck isn't generating more; it's finding what you already made. Here's the small glue layer I built to solve exactly that, and why grep, FTS, and RAG each miss part of the problem.
+tags: [ai, agents, recoll, search, sessions, local-first, playbook]
+draft: false
+---
+
+<div className="flex flex-wrap gap-2">
+  <span className="inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium">Agents</span>
+  <span className="inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium">Local-first</span>
+  <span className="inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium">Recoll</span>
+  <span className="inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium">Playbook</span>
+</div>
+
+If you run coding agents across more than one project, you have hit this: months of sessions, hundreds of files, four clients, no way to ask "where was I?"
+
+The tools you already have each solve one slice. `grep` finds exact strings inside files. AgentSessions' FTS finds sessions by content. QMD or a RAG pipeline finds semantically similar prose. None of them tell you which file on disk is the real deliverable, which session actually touched it, or whether that 400 MB archived log is searchable without restoring it.
+
+I built a small glue layer that does exactly that join. It is ~500 lines of Python on top of two mature OSS tools (Recoll and AgentSessions). It is not a new search engine, not a dashboard, not a database. It reads your existing indexes, adds the missing cross-references, and gets out of the way.
+
+## The problem, specifically
+
+import { ArticleDiagramFigure } from '@/components/article-diagram-figure'
+
+<Figure
+  src="/images/blog/project-recall/how-it-fits.png"
+  alt="Diagram showing coding agents at the top, sessions and deliverables on disk in the middle, archived heavy sessions below, all feeding into a Project Recall index layer, which produces a single answer: project + session + file path + open the original"
+  caption="What Project Recall joins: the agents you run, the sessions they generate, the real deliverables on disk, and the heavy archived logs that are deliberately out of normal indexing. The purple layer is the only new thing; everything else already existed."
+  slug="project-recall-how-it-fits"
+  editableHref="/downloads/project-recall-how-it-fits.excalidraw"
+  editableLabel="Download the editable Excalidraw source"
+  date="17 September 2026"
+/>
+
+Here is the state I was in on a Tuesday: 2,137 agent sessions across 8 providers. Roughly 40 project folders under `~/Work`, `~/Projects`, `~/Code`. A handful of client deliverables (pptx, docx, xlsx, pdf) scattered across output directories. Six archived Codex sessions, one of them 403 MiB, deliberately moved out of normal indexing because they were crashing the reader.
+
+I could ask any one tool a question and get part of the answer:
+
+- `grep -r "executive brief"` found the phrase inside markdown, but also inside Python build scripts and JSON config. It told me nothing about which file was the current deliverable.
+- AgentSessions' search returned 153 sessions mentioning CHANEL. It truncated excerpts at 48 KB and silently skipped two events over 8 MiB — one of which contained the answer I was looking for.
+- QMD found semantically similar markdown about the project, but returned prose chunks, not file paths I could open.
+
+What I actually wanted was: *"the executive brief for CHANEL Grasp, modified Sep 14, in this folder, here is the session that last touched it, and it is not confirmed finished."*
+
+No single tool answered that. The information existed across all three. The join was missing.
+
+## The join layer
+
+<Figure
+  src="/images/blog/project-recall/the-join-layer.png"
+  alt="Three existing tools (grep on raw JSONL, AgentSessions FTS, QMD/RAG) each with their strengths and blind spots listed, all feeding into a Project Recall join layer that resolves to one answer: project + session + file path + open the original"
+  caption="Each existing tool covers one slice and misses the others. The join layer is the only new thing: it reads the indexes that already exist, adds cross-references between files and sessions, and produces one answer you can act on."
+  slug="project-recall-the-join-layer"
+  editableHref="/downloads/project-recall-the-join-layer.excalidraw"
+  editableLabel="Download the editable Excalidraw source"
+  date="17 September 2026"
+/>
+
+The insight is that none of the hard problems were unsolved. Recoll has been indexing Office documents and PDFs on macOS since 2005. AgentSessions already has a SQLite index across eight providers. QMD is fine for what it does. The missing piece was a ~500-line adapter that:
+
+1. **Walks configured roots** and records metadata (path, size, mtime, whether it's a repo or worktree, whether it's a cloud placeholder) — without reading file content or hydrating placeholders.
+2. **Reads AgentSessions' existing SQLite index** in read-only mode and produces session cards linked to projects by explicit root, not by guessed cwd.
+3. **Streams archived JSONL** into bounded text chunks with line-offset provenance, so a 403 MiB file is searchable in 1 second using 269 MiB of RSS, and you can open the raw original without re-parsing.
+4. **Generates a Recoll config** that indexes only the real deliverables and skips generated mirrors, then drives `recollindex` and `recollq`.
+
+## Measured results on real data
+
+I ran this against my actual workload: 3 client projects, 2,132 real sessions, 8 archived files, and one 403 MiB session log.
+
+| Target | Result |
+| --- | --- |
+| Warm search p95 across 20 queries | **147 ms** (target: ≤ 2 s) |
+| 403 MiB archive export peak RSS | **269 MiB** (target: ≤ 512 MiB) |
+| Sessions indexed | 2,132 across 8 providers |
+| Archive manifest entries reconciled | 8 (6 archived with chunks extracted, 2 restored) |
+| Time to index pilot roots | ~30 seconds |
+| Network calls during operation | 0 |
+
+The 147 ms p95 is the number that changed my behaviour. At that speed, searching is cheaper than remembering. I stopped trying to keep a mental map of which folder held which deliverable and just asked.
+
+## What it does not do
+
+I want to be clear about the boundaries, because the failure mode of this kind of tool is silent scope creep:
+
+- **No cloud processing.** Everything runs offline. No embeddings sent to an API, no remote index, no telemetry.
+- **No file migration.** The tool never moves, renames, or restructures anything. Sources are read-only.
+- **No version history.** Recoverable deliverable versions are a real problem but a separate one; it is tracked in its own issue, not smuggled into v1.
+- **No session-to-project auto-linkage yet.** The data is there (session `cwd` fields), but the alias map that connects `.omp-lmm-chanel` to the CHANEL Grasp root needs to be configured, not guessed. This is a refinement, not a blocker — the raw data is in the index.
+
+## Making agents use it
+
+Building the index was the easy part. The harder question was: how do coding agents discover it mid-task?
+
+The answer that worked was not an MCP server (overkill for four CLI commands) and not a prompt injection (fragile). It was a **skill** — a markdown file that teaches the agent what commands exist and when to use them, installed into each agent's skill directory.
+
+I wrote one `SKILL.md` describing the four commands, when to reach for each, and what the output format looks like. Then I copied it into `~/.codex/skills/`, `~/.claude/skills/`, `~/.omp/agent/managed-skills/`, and `~/.codeium/windsurf/skills/`. The skill search hook picks it up automatically, and agents invoke the CLI directly. No protocol, no server, no API to maintain.
+
+A thin wrapper script at `~/.local/bin/project-recall` handles the `PYTHONPATH` setup so the command works from any directory.
+
+## Reuse, don't rebuild
+
+The most useful thing I learned building this: **the hard problems were already solved by mature OSS.** Recoll has been indexing documents since 2005. AgentSessions already normalises eight providers into one SQLite schema. The only new work was the join — and that was small, boring, and testable.
+
+If you are about to build a custom search engine, a vector database, or an agent memory layer: check whether the mature tool already covers 90% of the job. The remaining 10% is usually a few hundred lines of glue, and glue is testable in a way that a from-scratch system is not.
