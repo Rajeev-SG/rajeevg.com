@@ -32,6 +32,15 @@ const REVALIDATE_S = 3600
 let durableCache: { at: number; data: AdpiDataset | null } = { at: 0, data: null }
 const DURABLE_CACHE_MS = 60 * 60 * 1000
 
+/**
+ * Clear the in-process durable cache. Exported for tests: the cache is
+ * module-level, so sequential tests that change the mocked fetch would
+ * otherwise observe a previous test's result.
+ */
+export function resetDurableCache(): void {
+  durableCache = { at: 0, data: null }
+}
+
 function isPlausibleDataset(parsed: unknown): parsed is AdpiDataset {
   const candidate = parsed as AdpiDataset | null
   return Boolean(
@@ -88,13 +97,37 @@ export async function getAdpiDataset(): Promise<ResolvedDataset> {
   const live = await getDurableDataset()
   const questions = bundledDataset.questions ?? []
   if (!live) {
-    return { dataset: bundledDataset, live: false, questions }
+    return {
+      dataset: {
+        ...bundledDataset,
+        capabilities: bundledDataset.capabilities.map((c) => ({ ...c, reviewed: true as const })),
+      },
+      live: false,
+      questions,
+    }
   }
+  // Reviewed-WINS precedence, enforced explicitly rather than implied by array
+  // order: a live record that shares an id with a reviewed record is dropped.
+  // This is the integrity guarantee behind "documentation can never become an
+  // unqualified yes" — a drift in the public feed must not overwrite a
+  // reviewed "conditional" answer with a raw "supported" one.
   const reviewedIds = new Set(bundledDataset.capabilities.map((c) => c.id))
-  const merged: Capability[] = [
-    ...bundledDataset.capabilities,
-    ...live.capabilities.filter((c) => !reviewedIds.has(c.id)),
-  ]
+  const reviewed: Capability[] = bundledDataset.capabilities.map((c) => ({ ...c }))
+  const liveOnly = live.capabilities
+    .filter((c) => !reviewedIds.has(c.id))
+    // Live records carry no question mapping: they are inspection-only. Tag
+    // them so the planner can distinguish "not reviewed" from "uncovered".
+    .map((c) => ({ ...c, reviewed: false as const }))
+  const reviewedTagged: Capability[] = reviewed.map((c) => ({ ...c, reviewed: true as const }))
+  const merged: Capability[] = [...reviewedTagged, ...liveOnly]
+  // Defensive: assert the invariant rather than trust the filter above.
+  const seen = new Set<string>()
+  for (const capability of merged) {
+    if (seen.has(capability.id)) {
+      throw new Error(`duplicate capability id after merge: ${capability.id}`)
+    }
+    seen.add(capability.id)
+  }
   const dataset: AdpiDataset = {
     schema_version: live.schema_version,
     generated_at: live.generated_at,

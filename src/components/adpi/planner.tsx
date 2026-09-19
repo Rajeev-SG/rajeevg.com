@@ -25,6 +25,14 @@ export function Planner({ capabilities, questions }: PlannerProps) {
 
   const byId = useMemo(() => new Map(capabilities.map((c) => [c.id, c])), [capabilities])
 
+  // Live-feed records carry no question mapping (they are inspection-only).
+  // Counting them lets the planner distinguish "the question is genuinely
+  // uncovered" from "reviewed coverage plus unmapped live records".
+  const liveUnmapped = useMemo(
+    () => capabilities.filter((c) => c.reviewed === false).length,
+    [capabilities],
+  )
+
   const matches = useMemo(() => {
     const question = questions.find((q) => q.id === activeQuestion)
     if (question) {
@@ -105,6 +113,14 @@ export function Planner({ capabilities, questions }: PlannerProps) {
           className="max-w-xl"
         />
 
+        {activeQuestion && matches.length > 0 && liveUnmapped > 0 ? (
+          <p className="text-sm text-muted-foreground">
+            {liveUnmapped} live-feed record{liveUnmapped === 1 ? "" : "s"} are inspection-only and
+            not mapped to a reviewed question; they appear in the master table but cannot answer a
+            planner question.
+          </p>
+        ) : null}
+
         <div className="grid gap-4 md:grid-cols-2">
           {matches.map((capability) => (
             <QualifiedAnswerCard key={capability.id} answer={qualify(capability)} />
@@ -115,8 +131,11 @@ export function Planner({ capabilities, questions }: PlannerProps) {
           <div className="rounded-xl border border-dashed border-amber-600/50 p-5" data-analytics-item-type="question_unresolved">
             <p className="font-medium">No reviewed records for this question</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              The selected question has no matching capability records in the published dataset.
-              This is a data-contract failure surfaced explicitly, not hidden behind a fallback.
+              The selected question has no matching reviewed records. This is surfaced explicitly
+              rather than hidden behind a fallback.
+              {liveUnmapped > 0
+                ? ` ${liveUnmapped} live-feed record${liveUnmapped === 1 ? "" : "s"} are present but not mapped to a reviewed question, so they cannot answer it.`
+                : ""}
             </p>
           </div>
         ) : null}

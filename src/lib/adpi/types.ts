@@ -66,6 +66,8 @@ export interface Capability {
   last_verified_at?: string
   /** Launch-slice only: which planner questions this record answers. */
   question_ids?: string[]
+  /** True for reviewed-bundle records; false/absent for live-feed records. */
+  reviewed?: boolean
 }
 
 export interface PlannerQuestion {
