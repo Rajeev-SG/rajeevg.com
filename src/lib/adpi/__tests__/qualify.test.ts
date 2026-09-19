@@ -122,3 +122,28 @@ describe("the reviewed launch slice", () => {
     }
   })
 })
+
+describe("question-to-record join (#157 review F3)", () => {
+  it("joins on the stable question_ids field, not an id suffix guess", () => {
+    for (const question of bundledDataset.questions ?? []) {
+      const matched = bundledDataset.capabilities.filter((c) => c.question_ids?.includes(question.id))
+      expect(matched.length).toBeGreaterThan(0)
+    }
+  })
+
+  it("has no record claiming a question that does not exist", () => {
+    const questionIds = new Set((bundledDataset.questions ?? []).map((q) => q.id))
+    for (const capability of bundledDataset.capabilities) {
+      for (const id of capability.question_ids ?? []) {
+        expect(questionIds.has(id)).toBe(true)
+      }
+    }
+  })
+
+  it("keeps question_ids stable and unique per record", () => {
+    for (const capability of bundledDataset.capabilities) {
+      const ids = capability.question_ids ?? []
+      expect(new Set(ids).size).toBe(ids.length)
+    }
+  })
+})

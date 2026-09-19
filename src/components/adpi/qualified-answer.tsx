@@ -2,6 +2,13 @@ import { BasisBadge, ControlBadge, OutcomeBadge } from "./badges"
 import { groupConditions } from "@/lib/adpi/qualify"
 import type { QualifiedAnswer } from "@/lib/adpi/qualify"
 
+function formatVerified(value: string): string {
+  const date = new Date(value)
+  return Number.isNaN(date.getTime())
+    ? value
+    : date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+}
+
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="grid grid-cols-[9rem_1fr] gap-3 py-1.5 text-sm">
@@ -45,9 +52,7 @@ export function QualifiedAnswerCard({ answer }: { answer: QualifiedAnswer }) {
         <Row label="Evidence">
           {answer.evidenceRef ?? "No evidence reference recorded"}{" "}
           {answer.verifiedAt ? (
-            <span className="text-muted-foreground">
-              · verified {answer.verifiedAt}
-            </span>
+            <span className="text-muted-foreground">· verified {formatVerified(answer.verifiedAt)}</span>
           ) : (
             <span className="text-muted-foreground">· verification date unknown</span>
           )}

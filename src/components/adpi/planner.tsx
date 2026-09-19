@@ -5,7 +5,7 @@ import { useMemo, useState } from "react"
 import { Input } from "@/components/ui/input"
 import { QualifiedAnswerCard } from "./qualified-answer"
 import { compare, qualify } from "@/lib/adpi/qualify"
-import type { AdpiDataset, Capability, PlannerQuestion } from "@/lib/adpi/types"
+import type { Capability, PlannerQuestion } from "@/lib/adpi/types"
 
 interface PlannerProps {
   capabilities: Capability[]
@@ -28,11 +28,11 @@ export function Planner({ capabilities, questions }: PlannerProps) {
   const matches = useMemo(() => {
     const question = questions.find((q) => q.id === activeQuestion)
     if (question) {
-      // Prefer the reviewed launch cases for a launch question.
-      const reviewed = question.cases
-        .map((caseId) => capabilities.find((c) => c.id.endsWith(caseId)))
-        .filter((c): c is Capability => Boolean(c))
-      if (reviewed.length > 0) return reviewed
+      // Deterministic, exact join: each reviewed record declares the question
+      // ids it answers (the same `question_ids` the golden slice emits), so a
+      // broken link yields an empty set and an explicit unresolved state
+      // rather than silently substituting unrelated capabilities.
+      return capabilities.filter((c) => c.question_ids?.includes(question.id))
     }
     const needle = query.trim().toLowerCase()
     if (!needle) return capabilities.slice(0, 6)
@@ -46,14 +46,21 @@ export function Planner({ capabilities, questions }: PlannerProps) {
       .slice(0, 12)
   }, [activeQuestion, capabilities, questions, query])
 
-  // A deliberate unresolved case: a capability the dataset does not cover.
-  const unresolvedExample = useMemo(() => {
-    const needle = query.trim().toLowerCase() || "capability"
-    const matchesSearch = capabilities.some((c) =>
-      [c.name, c.vendor, c.platform].join(" ").toLowerCase().includes(needle),
+  // A deliberate unresolved state is shown ONLY when the user's own search
+  // returns nothing. It must never appear alongside question-driven answers
+  // (that was the review's contradictory-state bug), so it is gated on a
+  // non-empty query and an empty match set.
+  const unresolvedSearch = useMemo(() => {
+    const needle = query.trim().toLowerCase()
+    if (!needle) return null
+    const matched = capabilities.some((c) =>
+      [c.name, c.vendor, c.platform, c.vendor_term ?? ""]
+        .join(" ")
+        .toLowerCase()
+        .includes(needle),
     )
-    return matchesSearch ? null : { query: query.trim() || "capability", question: questions.find((q) => q.id === activeQuestion) }
-  }, [capabilities, query, questions, activeQuestion])
+    return matched ? null : needle
+  }, [capabilities, query])
 
   return (
     <div className="space-y-10">
@@ -104,11 +111,20 @@ export function Planner({ capabilities, questions }: PlannerProps) {
           ))}
         </div>
 
-        {matches.length === 0 || unresolvedExample ? (
-          <div className="rounded-xl border border-dashed p-5">
+        {activeQuestion && matches.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-amber-600/50 p-5" data-analytics-item-type="question_unresolved">
+            <p className="font-medium">No reviewed records for this question</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              The selected question has no matching capability records in the published dataset.
+              This is a data-contract failure surfaced explicitly, not hidden behind a fallback.
+            </p>
+          </div>
+        ) : null}
+        {unresolvedSearch ? (
+          <div className="rounded-xl border border-dashed p-5" data-analytics-item-type="unresolved_state">
             <p className="font-medium">Unresolved — no evidenced answer</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              No capability in the published dataset matches “{query || "this query"}”. This is an
+              No capability in the published dataset matches “{unresolvedSearch}”. This is an
               explicit unresolved state, not a default: the product will not assert availability it
               has no evidence for. A planner should treat this as “not covered yet”.
             </p>
@@ -188,11 +204,4 @@ function ComparisonView({ left, right }: { left: Capability; right: Capability }
       </div>
     </div>
   )
-}
-
-export function datasetStats(dataset: AdpiDataset) {
-  return {
-    records: dataset.capabilities.length,
-    generatedAt: dataset.generated_at,
-  }
 }

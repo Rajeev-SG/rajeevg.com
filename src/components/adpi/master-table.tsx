@@ -28,7 +28,22 @@ const CAPABILITY_TYPES = [
   "format",
 ] as const
 
-const CONTROL_MODES = ["all", "control", "signal", "automatic", "recommendation", "reporting_only"] as const
+const CONTROL_MODES = [
+  "all",
+  "control",
+  "signal",
+  "automatic",
+  "recommendation",
+  "reporting_only",
+  "not_applicable",
+] as const
+
+function formatVerified(value: string | undefined): string {
+  if (!value) return "—"
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+  return date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+}
 
 export function MasterTable({ capabilities }: { capabilities: Capability[] }) {
   const [query, setQuery] = useState("")
@@ -49,7 +64,9 @@ export function MasterTable({ capabilities }: { capabilities: Capability[] }) {
       if (vendor !== "all" && c.vendor !== vendor) return false
       if (type !== "all" && c.capability_type !== type) return false
       if (control !== "all" && c.control_mode !== control) return false
-      if (availability !== "all" && c.availability !== availability) return false
+      // Filter on the *qualified* outcome — the same value the Availability
+      // column renders — not the raw field, so the filter and the badge agree.
+      if (availability !== "all" && qualify(c).outcome !== availability) return false
       if (!needle) return true
       return [c.name, c.vendor, c.platform, c.capability_type, c.vendor_term ?? ""]
         .join(" ")
@@ -96,7 +113,9 @@ export function MasterTable({ capabilities }: { capabilities: Capability[] }) {
       {
         accessorKey: "last_verified_at",
         header: "Verified",
-        cell: ({ getValue }) => <span className="text-sm">{String(getValue() ?? "—")}</span>,
+        cell: ({ getValue }) => (
+          <span className="text-sm">{formatVerified(getValue() as string | undefined)}</span>
+        ),
       },
     ],
     [],
