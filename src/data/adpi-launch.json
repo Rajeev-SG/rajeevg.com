@@ -1,0 +1,214 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-19T00:00:00+00:00",
+  "provenance": {
+    "kind": "reviewed_launch_slice",
+    "note": "Reviewed launch snapshot for the three planner questions (issue #61 Stage 1 golden slice). Bundled last-known-good; the live dataset is fetched from Rajeev-SG/adpi-data at runtime.",
+    "reviewed_by": "rajeev",
+    "reviewed_at": "2026-09-19",
+    "extraction_prompt_sha256": "e34bad298f52a574d13320d04733f66a192dae8a9b0bef58aa1888d735e80570"
+  },
+  "questions": [
+    {
+      "id": "q1",
+      "text": "Does a Performance Max audience signal actually restrict who sees my ads?",
+      "cases": [
+        "pmax-audience-signals"
+      ]
+    },
+    {
+      "id": "q2",
+      "text": "Is a TikTok Search Ads Campaign the same as the automatic search placement?",
+      "cases": [
+        "tiktok-search-campaign",
+        "tiktok-auto-search-placement"
+      ]
+    },
+    {
+      "id": "q3",
+      "text": "Do Pinterest keyword match types give me exact control, or does optimisation override them?",
+      "cases": [
+        "pinterest-keyword-match-types",
+        "pinterest-automated-optimisation"
+      ]
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "google.ads.pmax.audience_signals.audience-signals",
+      "vendor": "Google Ads",
+      "platform": "Performance Max",
+      "family": "Performance Max",
+      "name": "Audience signals",
+      "capability_type": "audience",
+      "description": "Audience signals guide Performance Max optimisation but do not restrict delivery.",
+      "maturity": "live",
+      "control_mode": "signal",
+      "evidence_basis": "documented",
+      "availability": "conditional",
+      "scope": {
+        "prerequisites": [
+          "An audience signal requires a first-party audience or a custom segment"
+        ],
+        "conditions": [
+          {
+            "kind": "prerequisite",
+            "detail": "Requires a first-party audience or a custom segment",
+            "locator": null
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "source_id": "google.ads.pmax.audience_signals",
+          "source_url": "https://support.google.com/google-ads/answer/14545392",
+          "raw_sha256": "1ea8cd4e47cb",
+          "cleaned_sha256": "f83d10567240",
+          "locator": "## Audience signals"
+        }
+      ],
+      "last_verified_at": "2026-09-19",
+      "question_ids": [
+        "q1"
+      ],
+      "vendor_doc_title": "Audience signals"
+    },
+    {
+      "id": "tiktok.ads.search.campaign.search-ads-campaign",
+      "vendor": "TikTok",
+      "platform": "Search Ads",
+      "family": "Search Ads",
+      "name": "Search Ads Campaign",
+      "capability_type": "placement",
+      "description": "A Search Ads Campaign targets TikTok search results with advertiser-set keywords.",
+      "maturity": "live",
+      "control_mode": "control",
+      "evidence_basis": "documented",
+      "availability": "conditional",
+      "scope": {
+        "placements": [
+          "TikTok Search"
+        ],
+        "conditions": [
+          {
+            "kind": "eligibility",
+            "detail": "Requires eligibility for TikTok Search placements",
+            "locator": null
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "source_id": "tiktok.ads.search.campaign",
+          "source_url": "https://ads.tiktok.com/help/article/search-ads-campaign",
+          "raw_sha256": "092b3a4fad49",
+          "cleaned_sha256": "1df305f59cca",
+          "locator": "## Search Ads Campaign"
+        }
+      ],
+      "last_verified_at": "2026-09-19",
+      "question_ids": [
+        "q2"
+      ],
+      "vendor_doc_title": "Search Ads Campaign"
+    },
+    {
+      "id": "tiktok.ads.search.campaign.automatic-search-placement",
+      "vendor": "TikTok",
+      "platform": "Search Ads",
+      "family": "Search Ads",
+      "name": "Automatic search placement",
+      "capability_type": "placement",
+      "description": "The platform automatically places ads in search results without advertiser selection.",
+      "maturity": "live",
+      "control_mode": "automatic",
+      "evidence_basis": "documented",
+      "availability": "conditional",
+      "scope": {
+        "placements": [
+          "TikTok Search"
+        ]
+      },
+      "evidence": [
+        {
+          "source_id": "tiktok.ads.search.campaign",
+          "source_url": "https://ads.tiktok.com/help/article/search-ads-campaign",
+          "raw_sha256": "092b3a4fad49",
+          "cleaned_sha256": "1df305f59cca",
+          "locator": "## Automatic placements"
+        }
+      ],
+      "last_verified_at": "2026-09-19",
+      "question_ids": [
+        "q2"
+      ],
+      "vendor_doc_title": "Automatic search placement"
+    },
+    {
+      "id": "pinterest.ads.keyword_targeting.match.keyword-match-types",
+      "vendor": "Pinterest",
+      "platform": "Keyword targeting",
+      "family": "Keyword targeting",
+      "name": "Keyword match types",
+      "capability_type": "targeting",
+      "description": "Advertisers choose broad, phrase or exact keyword match types for targeting.",
+      "maturity": "live",
+      "control_mode": "control",
+      "evidence_basis": "documented",
+      "availability": "conditional",
+      "scope": {
+        "prerequisites": [
+          "Requires a keyword targeting campaign"
+        ],
+        "conditions": [
+          {
+            "kind": "prerequisite",
+            "detail": "Requires a keyword targeting campaign",
+            "locator": null
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "source_id": "pinterest.ads.keyword_targeting.match",
+          "source_url": "https://help.pinterest.com/en/business/article/keyword-targeting",
+          "raw_sha256": "4d5e6f708192",
+          "cleaned_sha256": "5e6f708192a3",
+          "locator": "## Keyword match types"
+        }
+      ],
+      "last_verified_at": "2026-09-19",
+      "question_ids": [
+        "q3"
+      ],
+      "vendor_doc_title": "Keyword match types"
+    },
+    {
+      "id": "pinterest.ads.keyword_targeting.match.automated-keyword-optimisation",
+      "vendor": "Pinterest",
+      "platform": "Keyword targeting",
+      "family": "Keyword targeting",
+      "name": "Automated keyword optimisation",
+      "capability_type": "optimisation",
+      "description": "Pinterest optimisation may adjust keyword delivery automatically beyond the selected match types.",
+      "maturity": "live",
+      "control_mode": "automatic",
+      "evidence_basis": "documented",
+      "availability": "conditional",
+      "evidence": [
+        {
+          "source_id": "pinterest.ads.keyword_targeting.match",
+          "source_url": "https://help.pinterest.com/en/business/article/keyword-targeting",
+          "raw_sha256": "4d5e6f708192",
+          "cleaned_sha256": "5e6f708192a3",
+          "locator": "## Automated optimisation"
+        }
+      ],
+      "last_verified_at": "2026-09-19",
+      "question_ids": [
+        "q3"
+      ],
+      "vendor_doc_title": "Automated keyword optimisation"
+    }
+  ]
+}

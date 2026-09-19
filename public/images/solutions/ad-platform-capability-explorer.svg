@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 800" role="img" aria-labelledby="title desc">
+  <title id="title">Ad Platform Capability Explorer</title>
+  <desc id="desc">A planner question resolved into a qualified answer: conditional availability, the behaviour type (control, signal or automation), the evidence basis (documented only), the condition that must hold, and the verification date.</desc>
+  <defs>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dy="8" stdDeviation="10" flood-color="#152033" flood-opacity=".12"/></filter>
+    <style>
+      .serif{font-family:Georgia,'Times New Roman',serif;fill:#172033}
+      .sans{font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#566174}
+      .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;fill:#566174}
+    </style>
+  </defs>
+  <rect width="1280" height="800" fill="#fbfaf5"/>
+  <text x="64" y="76" class="serif" font-size="38" font-weight="700">Ad Platform Capability Explorer</text>
+  <text x="64" y="112" class="sans" font-size="19">A planning question answered with conditions, behaviour type, evidence basis and a verification date</text>
+
+  <!-- question card -->
+  <g filter="url(#soft)"><rect x="64" y="160" width="480" height="112" rx="16" fill="#fffef9" stroke="#d8d4c8"/></g>
+  <text x="88" y="196" class="sans" font-size="13" letter-spacing="2">PLANNER QUESTION</text>
+  <text x="88" y="228" class="serif" font-size="20">Does a Performance Max audience</text>
+  <text x="88" y="254" class="serif" font-size="20">signal restrict who sees my ads?</text>
+
+  <!-- arrow -->
+  <path d="M556 216h72" stroke="#c98a2b" stroke-width="3" fill="none"/>
+  <path d="M620 208l16 8-16 8z" fill="#c98a2b"/>
+
+  <!-- answer card -->
+  <g filter="url(#soft)"><rect x="660" y="150" width="556" height="560" rx="18" fill="#fffef9" stroke="#d8d4c8"/></g>
+  <text x="692" y="190" class="sans" font-size="13" letter-spacing="2">QUALIFIED ANSWER · GOOGLE ADS</text>
+  <text x="692" y="228" class="serif" font-size="26" font-weight="700">Audience signals</text>
+
+  <!-- badges -->
+  <rect x="692" y="252" width="118" height="34" rx="17" fill="#f6ead2" stroke="#c98a2b"/>
+  <text x="751" y="274" text-anchor="middle" class="sans" font-size="15" fill="#8a5a12">Conditional</text>
+  <rect x="822" y="252" width="86" height="34" rx="17" fill="#f6ead2" stroke="#c98a2b"/>
+  <text x="865" y="274" text-anchor="middle" class="sans" font-size="15" fill="#8a5a12">Signal</text>
+  <rect x="920" y="252" width="130" height="34" rx="17" fill="#dce8f7" stroke="#3f6fa8"/>
+  <text x="985" y="274" text-anchor="middle" class="sans" font-size="15" fill="#2f5480">Documented</text>
+
+  <text x="692" y="322" class="serif" font-size="19">Conditionally — it exists, but availability depends</text>
+  <text x="692" y="348" class="serif" font-size="19">on the conditions below. An input to the platform&#8217;s</text>
+  <text x="692" y="374" class="serif" font-size="19">optimisation; it does not itself restrict delivery.</text>
+
+  <line x1="692" y1="400" x2="1184" y2="400" stroke="#e2ded2"/>
+
+  <text x="692" y="436" class="sans" font-size="15">Behaviour</text>
+  <text x="860" y="436" class="sans" font-size="15" fill="#172033">Signal (optimisation uses it)</text>
+
+  <text x="692" y="472" class="sans" font-size="15">Evidence basis</text>
+  <text x="860" y="472" class="sans" font-size="15" fill="#172033">Documented (vendor help page)</text>
+
+  <text x="692" y="508" class="sans" font-size="15">Evidence</text>
+  <text x="860" y="508" class="mono" font-size="14" fill="#172033">google.ads.pmax.audience_signals</text>
+  <text x="860" y="532" class="sans" font-size="14">verified 2026-09-19</text>
+
+  <text x="692" y="572" class="sans" font-size="15">Conditions</text>
+  <text x="860" y="572" class="sans" font-size="15" fill="#172033">Prerequisite: needs a first-party</text>
+  <text x="860" y="596" class="sans" font-size="15" fill="#172033">audience or custom segment</text>
+
+  <text x="692" y="640" class="sans" font-size="15" fill="#8a5a12">Unresolved</text>
+  <text x="860" y="640" class="sans" font-size="15" fill="#8a5a12">No market scope stated — unknown</text>
+
+  <!-- footer note -->
+  <text x="64" y="760" class="sans" font-size="16">Documentation alone never produces an unqualified &#8220;yes&#8221;. Behaviour is control, signal or automation &#8212; never a boolean.</text>
+</svg>

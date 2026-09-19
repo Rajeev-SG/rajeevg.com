@@ -20,6 +20,25 @@ export type PortfolioProject = {
 
 export const currentSolutions: PortfolioProject[] = [
   {
+    slug: "ad-platform-capability-explorer",
+    title: "Ad Platform Capability Explorer",
+    category: "Martech & Measurement",
+    tagline: "Qualified answers to ad-platform planning questions — availability, control vs signal vs automation, evidence basis and verification date — over a searchable capability dataset.",
+    summary:
+      "A planner asks whether a capability exists on a platform, and under what conditions. The answer is qualified rather than a boolean: it states whether the capability is control, an optimisation signal or automatic behaviour, whether the evidence is documentation or a live account observation, what conditions and eligibility gates apply, and when it was last verified. A searchable table exposes the whole dataset, and comparison never asserts that two vendors' concepts are equivalent.",
+    howItWorks:
+      "A public current-state dataset is published by the acquisition pipeline to a plain GitHub data repository and read over raw.githubusercontent, so refreshes never trigger a site deployment. Structured evidence basis (documented / account-observed / announced / unknown) and availability (supported / conditional / unknown) are first-class fields, gated so documentation alone can never produce an unqualified yes. Reviewed golden fixtures for the launch questions keep semantic accuracy honest, and every record keeps its provenance and verification date.",
+    imagePath: "/images/solutions/ad-platform-capability-explorer.svg",
+    imageAlt: "Capability explorer diagram showing a planner question resolved to a qualified answer with an evidence basis and verification date.",
+    liveUrl: "/solutions/ad-platform-explorer",
+    liveLabel: "Open the explorer",
+    githubUrl: "https://github.com/Rajeev-SG/ad-platform-intelligence",
+    lastUpdated: "2026-09-19",
+    tech: ["Next.js", "TanStack Table", "Python", "Pydantic", "GitHub raw data feed", "provenance"],
+    repoVisibility: "PUBLIC",
+    inclusionReason: "Public repo with a live explorer, provenance-carrying dataset, and a reviewed accuracy gate behind every qualified answer.",
+  },
+  {
     slug: "web-automation-microbenchmarks",
     title: "Web Automation Microbench",
     category: "AI & Agent Systems",
