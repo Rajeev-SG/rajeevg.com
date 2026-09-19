@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 800" role="img" aria-labelledby="title desc">
+  <title id="title">Ad Platform Capability Explorer</title>
+  <desc id="desc">A qualified planner answer showing supported, conditional and unknown outcomes with their conditions and evidence, above a master capability table.</desc>
+  <defs>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dy="8" stdDeviation="10" flood-color="#152033" flood-opacity=".12"/></filter>
+    <style>.serif{font-family:Georgia,'Times New Roman',serif;fill:#172033}.sans{font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#566174}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;fill:#566174}</style>
+  </defs>
+  <rect width="1280" height="800" fill="#fbfaf5"/>
+  <text x="64" y="76" class="serif" font-size="38" font-weight="700">Ad Platform Capability Explorer</text>
+  <text x="64" y="112" class="sans" font-size="19">Supported / conditional / unknown — a dated, qualified answer, never a bare yes/no</text>
+
+  <rect x="64" y="150" width="1152" height="182" rx="16" fill="#fffef9" stroke="#d8d4c8" filter="url(#soft)"/>
+  <text x="92" y="192" class="sans" font-size="20" font-weight="600">Performance Max audience signals — hard control or optimisation signal?</text>
+  <rect x="92" y="212" width="112" height="30" rx="15" fill="#f3e2c0" stroke="#c98a2b"/>
+  <text x="148" y="232" text-anchor="middle" class="sans" font-size="14" font-weight="600">Conditional</text>
+  <rect x="214" y="212" width="198" height="30" rx="15" fill="#e2e8f0" stroke="#b6c1d1"/>
+  <text x="313" y="232" text-anchor="middle" class="sans" font-size="13">Optimisation signal (guides it)</text>
+  <rect x="422" y="212" width="196" height="30" rx="15" fill="#ecece4" stroke="#cfd3c9"/>
+  <text x="520" y="232" text-anchor="middle" class="sans" font-size="13">Evidence basis: Documented</text>
+  <text x="92" y="274" class="sans" font-size="13">PREREQUISITE  An audience signal requires a first-party audience or a custom segment</text>
+  <text x="92" y="302" class="sans" font-size="13">VERIFIED 2026-09-19   ·   EVIDENCE  support.google.com/google-ads/answer/14530792</text>
+
+  <rect x="64" y="356" width="1152" height="392" rx="16" fill="#fffef9" stroke="#d8d4c8" filter="url(#soft)"/>
+  <g class="sans" font-size="12" font-weight="600">
+    <text x="92" y="392">CAPABILITY</text><text x="588" y="392">CONTROL</text><text x="792" y="392">AVAILABILITY</text><text x="1012" y="392">BASIS</text>
+  </g>
+  <line x1="92" y1="404" x2="1188" y2="404" stroke="#d8d4c8"/>
+  <g class="sans" font-size="13">
+    <rect x="92" y="414" width="1096" height="30" rx="6" fill="#f4f2ea"/>
+    <text x="104" y="434">Audience signals for Performance Max</text><text x="588" y="434">Hard control</text><text x="792" y="434">Conditional</text><text x="1012" y="434">Documented</text>
+    <text x="104" y="474">Automatic search placement</text><text x="588" y="474">Automatic</text><text x="792" y="474">Unknown</text><text x="1012" y="474">No stated basis</text>
+    <text x="104" y="514">Keyword match types</text><text x="588" y="514">Hard control</text><text x="792" y="514">Conditional</text><text x="1012" y="514">Documented</text>
+    <rect x="92" y="530" width="1096" height="30" rx="6" fill="#f4f2ea"/>
+    <text x="104" y="550">Automated keyword optimisation</text><text x="588" y="550">Automatic</text><text x="792" y="550">Unknown</text><text x="1012" y="550">No stated basis</text>
+    <text x="104" y="590">Brand safety inventory filtering</text><text x="588" y="590">Hard control</text><text x="792" y="590">Unknown</text><text x="1012" y="590">No stated basis</text>
+    <text x="104" y="630">Search query match types</text><text x="588" y="630">Hard control</text><text x="792" y="630">Unknown</text><text x="1012" y="630">No stated basis</text>
+  </g>
+  <text x="92" y="700" class="sans" font-size="13">Unknown is shown as unknown, never defaulted to supported. Control, signal and automation stay distinct.</text>
+  <text x="92" y="726" class="mono" font-size="12">837 published capabilities · live dataset Rajeev-SG/adpi-data</text>
+</svg>

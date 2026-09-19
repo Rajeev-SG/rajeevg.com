@@ -31,6 +31,7 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "@rehype-pretty/transformers": "^0.13.2",
     "@tanstack/react-table": "^8.21.3",
+    "@tanstack/react-virtual": "3.14.13",
     "@tiptap/extension-link": "^3.21.0",
     "@tiptap/extension-placeholder": "^3.21.0",
     "@tiptap/extension-table": "^3.21.0",

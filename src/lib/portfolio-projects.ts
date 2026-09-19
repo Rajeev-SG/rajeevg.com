@@ -20,6 +20,28 @@ export type PortfolioProject = {
 
 export const currentSolutions: PortfolioProject[] = [
   {
+    slug: "capability-explorer",
+    title: "Ad Platform Capability Explorer",
+    category: "Martech & Measurement",
+    tagline:
+      "Qualified planner answers for advertising-platform capabilities: supported / conditional / unknown, with conditions, evidence basis and a verification date, over a searchable master table of the published corpus.",
+    summary:
+      "Answers the planner question \u201ccan I do X on platform Y, in market Z, with this objective and control level, and under what conditions?\u201d with a dated, qualified answer rather than a bare yes/no. Control, signal and automation stay distinct; unknown stays unknown. A deliberate unresolved question abstains instead of guessing, and cross-platform comparisons never assert that two vendor concepts are the same.",
+    howItWorks:
+      "Official vendor documentation is extracted into a provenance-first capability corpus (normalised facts plus a source id, evidence pointer and verification date; raw snapshots stay private). The explorer reads the published dataset over raw.githubusercontent.com with a bundled reviewed seed as the guaranteed render path, answers the three reviewed launch questions from a human-reviewed Stage-1 slice, and browses the full corpus in a virtualised TanStack Table with client-side search and filters.",
+    imagePath: "/images/solutions/capability-explorer.svg",
+    imageAlt:
+      "A qualified planner answer showing the conditional outcome, its optimisation-signal control mode, prerequisite and evidence date, above a master table of capabilities with control, availability and evidence-basis columns.",
+    liveUrl: "/solutions/capability-explorer",
+    liveLabel: "Open the explorer",
+    githubUrl: "https://github.com/Rajeev-SG/ad-platform-intelligence",
+    lastUpdated: "2026-09-19",
+    tech: ["Next.js", "TanStack Table", "TanStack Virtual", "TypeScript", "Vitest", "Playwright", "provenance"],
+    repoVisibility: "PUBLIC",
+    inclusionReason:
+      "Public pipeline and dataset with a reviewed semantic slice, deterministic quality gates and a live explorer; qualified answers are evidenced, not asserted.",
+  },
+  {
     slug: "web-automation-microbenchmarks",
     title: "Web Automation Microbench",
     category: "AI & Agent Systems",
@@ -506,6 +528,7 @@ export function getPortfolioProject(slug: string) {
 }
 
 const publicProjectOrder = [
+  "capability-explorer",
   "web-automation-microbenchmarks",
   "agent-benchmark-matrix",
   "llm-pareto-frontier",
