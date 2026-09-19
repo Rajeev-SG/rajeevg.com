@@ -94,12 +94,23 @@ test("expanding a row shows its detail panel without clipping", async ({ page })
   // container, not clipped/overlapped by the next row.
   const detail = page.getByText("Capability detail").first()
   await expect(detail).toBeVisible()
-  const box = await detail.boundingBox()
-  expect(box).not.toBeNull()
+  // The whole detail panel (not just its label) must fit inside the scroll
+  // container: assert its parent panel's bottom edge, and that the next row
+  // starts below the panel rather than overlapping it.
+  const panel = detail.locator("xpath=ancestor::div[contains(@class,'border-t')][1]")
+  const panelBox = await panel.boundingBox()
   const scroll = await page.getByTestId("adpi-table-scroll").boundingBox()
+  expect(panelBox).not.toBeNull()
   expect(scroll).not.toBeNull()
-  expect(box!.y).toBeGreaterThanOrEqual(scroll!.y - 1)
-  expect(box!.y + 40).toBeLessThanOrEqual(scroll!.y + scroll!.height + 1)
+  expect(panelBox!.y).toBeGreaterThanOrEqual(scroll!.y - 1)
+  expect(panelBox!.y + panelBox!.height).toBeLessThanOrEqual(scroll!.y + scroll!.height + 1)
+
+  // The next rendered row must start at or below the panel's bottom edge.
+  const rows = page.locator("[data-index]")
+  const nextRow = rows.nth(1)
+  const nextBox = await nextRow.boundingBox()
+  expect(nextBox).not.toBeNull()
+  expect(nextBox!.y).toBeGreaterThanOrEqual(panelBox!.y + panelBox!.height - 1)
 })
 
 test("the compare tool can select from the full corpus", async ({ page }) => {
