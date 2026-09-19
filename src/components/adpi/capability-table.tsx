@@ -152,6 +152,11 @@ export function CapabilityTable({ records }: { records: CapabilityRecord[] }) {
     getScrollElement: () => scrollRef.current,
     estimateSize: () => ROW_HEIGHT,
     overscan: 12,
+    // Rows are variable height (an expanded row shows a detail panel), so the
+    // virtualizer must measure each rendered row rather than trust the 44px
+    // estimate — otherwise an expanded panel overflows its slot and following
+    // rows overlap it.
+    measureElement: (element) => element.getBoundingClientRect().height,
   })
 
   return (
@@ -217,7 +222,7 @@ export function CapabilityTable({ records }: { records: CapabilityRecord[] }) {
             </button>
           ))}
         </div>
-        <div ref={scrollRef} className="max-h-[560px] overflow-auto">
+        <div ref={scrollRef} data-testid="adpi-table-scroll" className="max-h-[560px] overflow-auto">
           <div style={{ height: virtualizer.getTotalSize(), position: "relative" }}>
             {virtualizer.getVirtualItems().map((virtualRow) => {
               const row = modelRows[virtualRow.index]
@@ -226,8 +231,9 @@ export function CapabilityTable({ records }: { records: CapabilityRecord[] }) {
                 <div
                   key={row.id}
                   data-index={virtualRow.index}
+                  ref={virtualizer.measureElement}
                   className="absolute left-0 top-0 w-full border-b"
-                  style={{ height: virtualRow.size, transform: `translateY(${virtualRow.start}px)` }}
+                  style={{ transform: `translateY(${virtualRow.start}px)` }}
                 >
                   <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1.4fr_1fr_1fr_0.9fr_1fr] items-center gap-2 px-3 py-2 text-sm">
                     {row.getVisibleCells().map((cell) => (

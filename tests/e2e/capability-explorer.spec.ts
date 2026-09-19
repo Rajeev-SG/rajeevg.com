@@ -80,3 +80,32 @@ test("cross-platform comparison warns that concepts are not equivalent", async (
   await page.locator("#adpi-right").selectOption({ label: tiktok })
   await expect(page.getByTestId("adpi-comparison-caveat").first()).toBeVisible()
 })
+
+
+test("expanding a row shows its detail panel without clipping", async ({ page }) => {
+  test.setTimeout(90_000)
+  await preparePage(page)
+  await page.getByRole("tab", { name: "Explorer" }).click()
+
+  const firstExpand = page.getByRole("button", { name: "Expand row" }).first()
+  await firstExpand.click()
+
+  // The detail panel must be fully visible: its bottom edge inside the scroll
+  // container, not clipped/overlapped by the next row.
+  const detail = page.getByText("Capability detail").first()
+  await expect(detail).toBeVisible()
+  const box = await detail.boundingBox()
+  expect(box).not.toBeNull()
+  const scroll = await page.getByTestId("adpi-table-scroll").boundingBox()
+  expect(scroll).not.toBeNull()
+  expect(box!.y).toBeGreaterThanOrEqual(scroll!.y - 1)
+  expect(box!.y + 40).toBeLessThanOrEqual(scroll!.y + scroll!.height + 1)
+})
+
+test("the compare tool can select from the full corpus", async ({ page }) => {
+  test.setTimeout(90_000)
+  await preparePage(page)
+  const optionCount = await page.locator("#adpi-left option").count()
+  // 1 placeholder + every published capability; not an arbitrary slice.
+  expect(optionCount).toBeGreaterThan(800)
+})

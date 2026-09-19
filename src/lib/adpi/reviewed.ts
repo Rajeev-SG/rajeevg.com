@@ -27,6 +27,8 @@ export interface ReviewedCase {
   prerequisites: string[];
   exclusions: string[];
   condition_kinds: string[];
+  /** The dataset record this reviewed case is attributed to, when one exists. */
+  record_id?: string | null;
   source: {
     source_id: string;
     source_url: string;

@@ -28,7 +28,8 @@
     "product": "Performance Max",
     "cleaned_sha256": "f83d10567240df58d5057ffed2971358fe2a18a1787b553e2c4cd5832dd03bf1",
     "raw_sha256": "1ea8cd4e47cb2be3613a94eb415efc2ca74d51ef2cc460262d8a257ee6fd5d7e"
-   }
+   },
+   "record_id": "google.pmax.audience_signals.audience-signals-for-performance-max-campaigns"
   },
   {
    "id": "tiktok-search-campaign",
@@ -55,7 +56,8 @@
     "product": "Search Ads",
     "cleaned_sha256": "1df305f59cca62483253afaa9bd61dc00844254a9d26760bfd5172bbb0d02713",
     "raw_sha256": "092b3a4fad4986d3ebee737679249127fae6f0df7e73099d991643876c69bc5e"
-   }
+   },
+   "record_id": "tiktok.search.keyword_suggestions.keyword-match-type-selection"
   },
   {
    "id": "tiktok-auto-search-placement",
@@ -80,7 +82,8 @@
     "product": "Search Ads",
     "cleaned_sha256": "1df305f59cca62483253afaa9bd61dc00844254a9d26760bfd5172bbb0d02713",
     "raw_sha256": "092b3a4fad4986d3ebee737679249127fae6f0df7e73099d991643876c69bc5e"
-   }
+   },
+   "record_id": "tiktok.search.automatic_placement.automatic-search-placement-feature"
   },
   {
    "id": "pinterest-keyword-match-types",
@@ -107,7 +110,8 @@
     "product": "Keyword targeting",
     "cleaned_sha256": "5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d",
     "raw_sha256": "4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c"
-   }
+   },
+   "record_id": "pinterest.search.keywords.keyword-match-type-control-using-brackets-or-quotes"
   },
   {
    "id": "pinterest-automated-optimisation",
@@ -130,7 +134,8 @@
     "product": "Keyword targeting",
     "cleaned_sha256": "5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d",
     "raw_sha256": "4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c"
-   }
+   },
+   "record_id": "pinterest.search.keywords.keyword-match-type-control-using-brackets-or-quotes"
   }
  ]
 }

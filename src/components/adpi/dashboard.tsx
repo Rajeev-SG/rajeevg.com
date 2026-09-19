@@ -17,11 +17,12 @@ import { Badge } from "@/components/ui/badge"
 function factFromReviewedCase(caseId: string, records: CapabilityRecord[]) {
   const reviewed = reviewedGolden().cases.find((entry) => entry.id === caseId)
   if (!reviewed) return null
-  const match = records.find((record) =>
-    reviewed.source.product
-      ? record.platform.toLowerCase().includes(reviewed.source.product.toLowerCase())
-      : false,
-  )
+  // Attribution is an explicit reviewed-case -> record-id mapping, never a
+  // substring guess: a provenance-first answer must bind to the exact record or
+  // to nothing, else it would inherit another capability's id and evidence.
+  const match = reviewed.record_id
+    ? records.find((record) => record.id === reviewed.record_id)
+    : undefined
   const base: CapabilityRecord =
     match ??
     ({
@@ -237,7 +238,7 @@ function ComparisonNote({ records }: { records: CapabilityRecord[] }) {
   const comparison = left && right ? compareCapabilities(left, right) : null
 
   const options = React.useMemo(
-    () => records.slice(0, 800).map((record) => ({ id: record.id, label: `${record.vendor}: ${record.name} — ${record.platform}` })),
+    () => records.map((record) => ({ id: record.id, label: `${record.vendor}: ${record.name} — ${record.platform}` })),
     [records],
   )
 
