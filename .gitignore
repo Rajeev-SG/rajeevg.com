@@ -29,6 +29,7 @@
 /output/acceptance/analytics-consent-*/
 /output/acceptance/article-analytics-stack-prod-*/
 /output/acceptance/remote-coding-workflow-*/
+/output/acceptance/capability-explorer-*/
 
 # misc
 .DS_Store
