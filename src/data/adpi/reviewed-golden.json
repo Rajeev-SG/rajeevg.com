@@ -1,0 +1,136 @@
+{
+ "reviewed_by": "rajeev",
+ "reviewed_at": "2026-09-19",
+ "extraction_prompt_sha256": "e34bad298f52a574d13320d04733f66a192dae8a9b0bef58aa1888d735e80570",
+ "cases": [
+  {
+   "id": "pmax-audience-signals",
+   "question": "Does a Performance Max audience signal actually restrict who sees my ads?",
+   "target": "Audience signals",
+   "reviewed_by": "rajeev",
+   "reviewed_at": "2026-09-19",
+   "control_mode": "signal",
+   "evidence_basis": "documented",
+   "availability": "conditional",
+   "markets": [],
+   "objectives": [],
+   "placements": [],
+   "prerequisites": [
+    "An audience signal requires a first-party audience or a custom segment"
+   ],
+   "exclusions": [],
+   "condition_kinds": [
+    "prerequisite"
+   ],
+   "source": {
+    "source_id": "google.ads.pmax.audience_signals",
+    "source_url": "https://support.google.com/google-ads/answer/14545392",
+    "product": "Performance Max",
+    "cleaned_sha256": "f83d10567240df58d5057ffed2971358fe2a18a1787b553e2c4cd5832dd03bf1",
+    "raw_sha256": "1ea8cd4e47cb2be3613a94eb415efc2ca74d51ef2cc460262d8a257ee6fd5d7e"
+   }
+  },
+  {
+   "id": "tiktok-search-campaign",
+   "question": "Is a TikTok Search Ads Campaign the same as the automatic search placement?",
+   "target": "Search Ads Campaign",
+   "reviewed_by": "rajeev",
+   "reviewed_at": "2026-09-19",
+   "control_mode": "control",
+   "evidence_basis": "documented",
+   "availability": "conditional",
+   "markets": [],
+   "objectives": [],
+   "placements": [
+    "TikTok Search"
+   ],
+   "prerequisites": [],
+   "exclusions": [],
+   "condition_kinds": [
+    "eligibility"
+   ],
+   "source": {
+    "source_id": "tiktok.ads.search.campaign",
+    "source_url": "https://ads.tiktok.com/help/article/search-ads-campaign",
+    "product": "Search Ads",
+    "cleaned_sha256": "1df305f59cca62483253afaa9bd61dc00844254a9d26760bfd5172bbb0d02713",
+    "raw_sha256": "092b3a4fad4986d3ebee737679249127fae6f0df7e73099d991643876c69bc5e"
+   }
+  },
+  {
+   "id": "tiktok-auto-search-placement",
+   "question": "Is a TikTok Search Ads Campaign the same as the automatic search placement?",
+   "target": "Automatic search placement",
+   "reviewed_by": "rajeev",
+   "reviewed_at": "2026-09-19",
+   "control_mode": "automatic",
+   "evidence_basis": "documented",
+   "availability": "conditional",
+   "markets": [],
+   "objectives": [],
+   "placements": [
+    "TikTok Search"
+   ],
+   "prerequisites": [],
+   "exclusions": [],
+   "condition_kinds": [],
+   "source": {
+    "source_id": "tiktok.ads.search.campaign",
+    "source_url": "https://ads.tiktok.com/help/article/search-ads-campaign",
+    "product": "Search Ads",
+    "cleaned_sha256": "1df305f59cca62483253afaa9bd61dc00844254a9d26760bfd5172bbb0d02713",
+    "raw_sha256": "092b3a4fad4986d3ebee737679249127fae6f0df7e73099d991643876c69bc5e"
+   }
+  },
+  {
+   "id": "pinterest-keyword-match-types",
+   "question": "Do Pinterest keyword match types give me exact control, or does optimisation override them?",
+   "target": "Keyword match types",
+   "reviewed_by": "rajeev",
+   "reviewed_at": "2026-09-19",
+   "control_mode": "control",
+   "evidence_basis": "documented",
+   "availability": "conditional",
+   "markets": [],
+   "objectives": [],
+   "placements": [],
+   "prerequisites": [
+    "Requires a keyword targeting campaign"
+   ],
+   "exclusions": [],
+   "condition_kinds": [
+    "prerequisite"
+   ],
+   "source": {
+    "source_id": "pinterest.ads.keyword_targeting.match",
+    "source_url": "https://help.pinterest.com/en/business/article/keyword-targeting",
+    "product": "Keyword targeting",
+    "cleaned_sha256": "5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d",
+    "raw_sha256": "4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c"
+   }
+  },
+  {
+   "id": "pinterest-automated-optimisation",
+   "question": "Do Pinterest keyword match types give me exact control, or does optimisation override them?",
+   "target": "Automated keyword optimisation",
+   "reviewed_by": "rajeev",
+   "reviewed_at": "2026-09-19",
+   "control_mode": "automatic",
+   "evidence_basis": "documented",
+   "availability": "conditional",
+   "markets": [],
+   "objectives": [],
+   "placements": [],
+   "prerequisites": [],
+   "exclusions": [],
+   "condition_kinds": [],
+   "source": {
+    "source_id": "pinterest.ads.keyword_targeting.match",
+    "source_url": "https://help.pinterest.com/en/business/article/keyword-targeting",
+    "product": "Keyword targeting",
+    "cleaned_sha256": "5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d",
+    "raw_sha256": "4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c"
+   }
+  }
+ ]
+}

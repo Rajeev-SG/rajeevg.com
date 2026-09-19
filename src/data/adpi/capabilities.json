@@ -1,0 +1,772 @@
+{
+ "schema_version": 2,
+ "generated_at": "2026-09-17T20:58:26.471439+00:00",
+ "note": "Reviewed subset of the published dataset, bundled as the guaranteed render path.",
+ "capabilities": [
+  {
+   "id": "google.pmax.audience_signals.audience-signals-for-performance-max-campaigns",
+   "vendor": "Google Ads",
+   "platform": "Performance Max",
+   "family": "Performance Max",
+   "name": "Audience signals for Performance Max campaigns",
+   "capability_type": "targeting",
+   "description": "Audience signals al\u2026",
+   "maturity": "live",
+   "control_mode": "control",
+   "scope": {
+    "campaign_types": [
+     "Performance Max"
+    ]
+   },
+   "evidence": [
+    {
+     "cleaned_sha256": "e7c023bf934b",
+     "locator": "About audience signals for Performance Max campaigns",
+     "raw_sha256": "590f0078a2c4",
+     "source_id": "google.pmax.audience_signals",
+     "source_url": "https://support.google.com/google-ads/answer/14530785?hl=en"
+    }
+   ],
+   "last_verified_at": "2026-09-17"
+  },
+  {
+   "id": "google.pmax.audience_signals.custom-audience-segments-for-performance-max-campaigns",
+   "vendor": "Google Ads",
+   "platform": "Performance Max",
+   "family": "Performance Max",
+   "name": "Custom audience segments for Performance Max campaigns",
+   "capability_type": "targeting",
+   "description": "Create custom audie\u2026",
+   "maturity": "live",
+   "control_mode": "control",
+   "vendor_term": "Custom audience segments",
+   "scope": {
+    "campaign_types": [
+     "Performance Max"
+    ]
+   },
+   "evidence": [
+    {
+     "cleaned_sha256": "e7c023bf934b",
+     "raw_sha256": "590f0078a2c4",
+     "source_id": "google.pmax.audience_signals",
+     "source_url": "https://support.google.com/google-ads/answer/14530785?hl=en"
+    }
+   ],
+   "last_verified_at": "2026-09-17"
+  },
+  {
+   "id": "tiktok.search.automatic_placement.automatic-search-placement-feature",
+   "vendor": "TikTok",
+   "platform": "Automatic Search Placement",
+   "family": "Automatic Search Placement",
+   "name": "Automatic Search Placement feature",
+   "capability_type": "placement",
+   "maturity": "live",
+   "control_mode": "automatic",
+   "vendor_term": "Automatic Search Placement",
+   "scope": {
+    "placements": [
+     "search"
+    ]
+   },
+   "api_available": true,
+   "evidence": [
+    {
+     "cleaned_sha256": "11f13c083b52",
+     "locator": "Automatic Search Placement (formerly Search Ads Toggle)",
+     "raw_sha256": "3131cf9f1f94",
+     "source_id": "tiktok.search.automatic_placement",
+     "source_url": "https://ads.tiktok.com/help/article/faqs-for-automatic-search-placement?lang=en"
+    }
+   ],
+   "last_verified_at": "2026-09-16"
+  },
+  {
+   "id": "tiktok.search.keyword_suggestions.keyword-match-type-selection",
+   "vendor": "TikTok",
+   "platform": "Search Ads Campaign",
+   "family": "Search Ads Campaign",
+   "name": "Keyword Match Type Selection",
+   "capability_type": "targeting",
+   "maturity": "live",
+   "control_mode": "control",
+   "vendor_term": "Match Type Dropdown",
+   "scope": {
+    "campaign_types": [
+     "Search Ads"
+    ],
+    "markets": [
+     "US"
+    ]
+   },
+   "ui_available": true,
+   "bulk_available": false,
+   "evidence": [
+    {
+     "cleaned_sha256": "9c086ee02b05",
+     "locator": "ptr:4ff754e633",
+     "raw_sha256": "40183add553a",
+     "source_id": "tiktok.search.keyword_suggestions",
+     "source_url": "https://ads.tiktok.com/resources/help/article/search-ads-keyword-suggestion-tool?lang=en"
+    }
+   ],
+   "last_verified_at": "2026-09-16"
+  },
+  {
+   "id": "pinterest.search.keywords.keyword-match-type-control-using-brackets-or-quotes",
+   "vendor": "Pinterest",
+   "platform": "Search",
+   "family": "Search",
+   "name": "Keyword match type control using brackets or quotes",
+   "capability_type": "targeting",
+   "description": "Allows specifying s\u2026",
+   "maturity": "live",
+   "control_mode": "control",
+   "vendor_term": "Keyword match types",
+   "ui_available": true,
+   "api_available": true,
+   "bulk_available": true,
+   "evidence": [
+    {
+     "cleaned_sha256": "da78602699f1",
+     "locator": "ptr:37b9488ccb",
+     "raw_sha256": "34f2b0cf2e5f",
+     "source_id": "pinterest.search.keywords",
+     "source_url": "https://help.pinterest.com/en-gb/business/article/keyword-targeting"
+    }
+   ],
+   "last_verified_at": "2026-09-16"
+  },
+  {
+   "id": "google.ads.attribution.attribution-model-for-conversion-tracking",
+   "vendor": "Google Ads",
+   "platform": "Google Ads",
+   "name": "Attribution model for conversion tracking",
+   "capability_type": "measurement",
+   "maturity": "live",
+   "control_mode": "control",
+   "vendor_term": "Attribution model",
+   "scope": {
+    "markets": [
+     "US",
+     "GB",
+     "AU",
+     "CA"
+    ],
+    "objectives": [
+     "Conversions",
+     "All conversions"
+    ],
+    "prerequisites": [
+     "Set up conversion tracking"
+    ]
+   },
+   "ui_available": true,
+   "api_available": true,
+   "bulk_available": true,
+   "evidence": [
+    {
+     "cleaned_sha256": "c8786d7a648e",
+     "locator": "paragraph 4: 'About attribution models'",
+     "raw_sha256": "6fe7e610349b",
+     "source_id": "google.ads.attribution",
+     "source_url": "https://support.google.com/google-ads/answer/6259715?hl=en"
+    }
+   ],
+   "last_verified_at": "2026-09-16"
+  },
+  {
+   "id": "google.ads.audience_customer_types.app-user-lists-audience-type",
+   "vendor": "Google Ads",
+   "platform": "Google Ads",
+   "name": "App user lists audience type",
+   "capability_type": "targeting",
+   "description": "Lists include custo\u2026",
+   "maturity": "live",
+   "control_mode": "control",
+   "vendor_term": "Audience customer types",
+   "scope": {
+    "objectives": [
+     "Customer lifecycle goals"
+    ],
+    "prerequisites": [
+     "First-party audience lists"
+    ]
+   },
+   "evidence": [
+    {
+     "cleaned_sha256": "6586582e5cde",
+     "locator": "About audience customer types",
+     "raw_sha256": "699efaef90e2",
+     "source_id": "google.ads.audience_customer_types",
+     "source_url": "https://support.google.com/google-ads/answer/14443483?hl=en"
+    }
+   ],
+   "last_verified_at": "2026-09-17"
+  },
+  {
+   "id": "google.ads.audience_customer_types.apply-customer-types-to-audience-lists",
+   "vendor": "Google Ads",
+   "platform": "Google Ads",
+   "name": "Apply customer types to audience lists",
+   "capability_type": "targeting",
+   "description": "Instructions for se\u2026",
+   "maturity": "live",
+   "control_mode": "control",
+   "vendor_term": "Customer type",
+   "scope": {
+    "prerequisites": [
+     "Signed in to Google Ads account"
+    ]
+   },
+   "evidence": [
+    {
+     "cleaned_sha256": "6586582e5cde",
+     "locator": "Instructions",
+     "raw_sha256": "699efaef90e2",
+     "source_id": "google.ads.audience_customer_types",
+     "source_url": "https://support.google.com/google-ads/answer/14443483?hl=en"
+    }
+   ],
+   "last_verified_at": "2026-09-17"
+  },
+  {
+   "id": "google.ads.audience_customer_types.customer-lists-audience-type",
+   "vendor": "Google Ads",
+   "platform": "Google Ads",
+   "name": "Customer lists audience type",
+   "capability_type": "targeting",
+   "description": "Audience customer t\u2026",
+   "maturity": "live",
+   "control_mode": "control",
+   "vendor_term": "Audience customer types",
+   "scope": {
+    "objectives": [
+     "Customer lifecycle goals"
+    ],
+    "prerequisites": [
+     "First-party audience lists"
+    ]
+   },
+   "evidence": [
+    {
+     "cleaned_sha256": "6586582e5cde",
+     "locator": "About audience customer types",
+     "raw_sha256": "699efaef90e2",
+     "source_id": "google.ads.audience_customer_types",
+     "source_url": "https://support.google.com/google-ads/answer/14443483?hl=en"
+    }
+   ],
+   "last_verified_at": "2026-09-17"
+  },
+  {
+   "id": "google.ads.audience_customer_types.google-analytics-audience-customer-types",
+   "vendor": "Google Ads",
+   "platform": "Google Ads",
+   "name": "Google Analytics audience customer types",
+   "capability_type": "targeting",
+   "description": "When Google Analyti\u2026",
+   "maturity": "live",
+   "control_mode": "control",
+   "vendor_term": "Audience customer types",
+   "scope": {
+    "objectives": [
+     "Customer lifecycle goals"
+    ],
+    "prerequisites": [
+     "Linked Google Analytics account"
+    ]
+   },
+   "evidence": [
+    {
+     "cleaned_sha256": "6586582e5cde",
+     "raw_sha256": "699efaef90e2",
+     "source_id": "google.ads.audience_customer_types",
+     "source_url": "https://support.google.com/google-ads/answer/14443483?hl=en"
+    }
+   ],
+   "last_verified_at": "2026-09-17"
+  },
+  {
+   "id": "google.ads.audience_customer_types.loyalty-program-member-audience-type",
+   "vendor": "Google Ads",
+   "platform": "Google Ads",
+   "name": "Loyalty program member audience type",
+   "capability_type": "targeting",
+   "description": "Enhance retention g\u2026",
+   "maturity": "live",
+   "control_mode": "control",
+   "vendor_term": "Loyalty program members",
+   "scope": {
+    "objectives": [
+     "Retention"
+    ],
+    "prerequisites": [
+     "Merchant Center loyalty program setup"
+    ]
+   },
+   "evidence": [
+    {
+     "cleaned_sha256": "6586582e5cde",
+     "locator": "Leveraging Loyalty program members",
+     "raw_sha256": "699efaef90e2",
+     "source_id": "google.ads.audience_customer_types",
+     "source_url": "https://support.google.com/google-ads/answer/14443483?hl=en"
+    }
+   ],
+   "last_verified_at": "2026-09-17"
+  },
+  {
+   "id": "meta.ads.guide.ad-specifications-for-meta-on-threads",
+   "vendor": "Meta",
+   "platform": "Paid Social",
+   "family": "Paid Social",
+   "name": "Ad specifications for Meta on Threads",
+   "capability_type": "format",
+   "description": "Specifications related to ads on Threads, including dimensions, file sizes, and character limits.",
+   "maturity": "live",
+   "control_mode": "control",
+   "vendor_term": "Threads Ad Specs",
+   "scope": {
+    "markets": [
+     "US"
+    ],
+    "placements": [
+     "Threads"
+    ]
+   },
+   "evidence": [
+    {
+     "cleaned_sha256": "f9245f354e6c",
+     "locator": "Review ad specifications for **ads on Threads**",
+     "raw_sha256": "e30177753e98",
+     "source_id": "meta.ads.guide",
+     "source_url": "https://www.facebook.com/business/ads-guide"
+    }
+   ],
+   "last_verified_at": "2026-09-16"
+  },
+  {
+   "id": "meta.ads.guide.carousel-ads",
+   "vendor": "Meta",
+   "platform": "Paid Social",
+   "family": "Paid Social",
+   "name": "Carousel ads",
+   "capability_type": "format",
+   "description": "Support for carousel ads which display multiple images or videos within a single ad unit.",
+   "maturity": "live",
+   "control_mode": "control",
+   "vendor_term": "Carousel",
+   "scope": {
+    "markets": [
+     "US",
+     "GB"
+    ],
+    "placements": [
+     "Facebook Feed",
+     "Instagram Feed"
+    ]
+   },
+   "evidence": [
+    {
+     "cleaned_sha256": "f9245f354e6c",
+     "locator": "[Carousel](https://www.facebook.com/business/ads-guide/update/carousel)",
+     "raw_sha256": "e30177753e98",
+     "source_id": "meta.ads.guide",
+     "source_url": "https://www.facebook.com/business/ads-guide"
+    }
+   ],
+   "last_verified_at": "2026-09-16"
+  },
+  {
+   "id": "meta.ads.guide.carousel.carousel-ad-format-for-facebook-feed",
+   "vendor": "Meta",
+   "platform": "Paid Social",
+   "family": "Paid Social",
+   "name": "Carousel ad format for Facebook Feed",
+   "capability_type": "format",
+   "description": "Use the video forma\u2026",
+   "maturity": "live",
+   "control_mode": "control",
+   "vendor_term": "Carousel",
+   "scope": {
+    "placements": [
+     "Facebook Feed"
+    ]
+   },
+   "evidence": [
+    {
+     "cleaned_sha256": "eb64cb836d2a",
+     "locator": "Carousel",
+     "raw_sha256": "37d4f8d53711",
+     "source_id": "meta.ads.guide.carousel",
+     "source_url": "https://www.facebook.com/business/ads-guide/update/carousel"
+    }
+   ],
+   "last_verified_at": "2026-09-17"
+  },
+  {
+   "id": "meta.ads.guide.collection-ads",
+   "vendor": "Meta",
+   "platform": "Paid Social",
+   "family": "Paid Social",
+   "name": "Collection ads",
+   "capability_type": "format",
+   "description": "Support for collect\u2026",
+   "maturity": "live",
+   "control_mode": "control",
+   "vendor_term": "Collection",
+   "scope": {
+    "markets": [
+     "US",
+     "GB"
+    ],
+    "placements": [
+     "Facebook Feed",
+     "Instagram Explore"
+    ]
+   },
+   "evidence": [
+    {
+     "cleaned_sha256": "f9245f354e6c",
+     "locator": "[Collection](https://www.facebook.com/business/ads-guide/update/collection)",
+     "raw_sha256": "e30177753e98",
+     "source_id": "meta.ads.guide",
+     "source_url": "https://www.facebook.com/business/ads-guide"
+    }
+   ],
+   "last_verified_at": "2026-09-16"
+  },
+  {
+   "id": "meta.ads.guide.collection.collection-ad-format-in-facebook-feed",
+   "vendor": "Meta",
+   "platform": "Paid Social",
+   "family": "Paid Social",
+   "name": "Collection ad format in Facebook Feed",
+   "capability_type": "format",
+   "description": "Use the collection \u2026",
+   "maturity": "live",
+   "control_mode": "control",
+   "vendor_term": "Collection",
+   "scope": {
+    "objectives": [
+     "Traffic",
+     "Engagement",
+     "Leads",
+     "Sales"
+    ],
+    "placements": [
+     "Facebook Feed"
+    ]
+   },
+   "evidence": [
+    {
+     "cleaned_sha256": "fc6f9bf29753",
+     "locator": "Collection",
+     "raw_sha256": "271ae2c981c8",
+     "source_id": "meta.ads.guide.collection",
+     "source_url": "https://www.facebook.com/business/ads-guide/update/collection"
+    }
+   ],
+   "last_verified_at": "2026-09-16"
+  },
+  {
+   "id": "meta.ads.guide.image-ads",
+   "vendor": "Meta",
+   "platform": "Paid Social",
+   "family": "Paid Social",
+   "name": "Image ads",
+   "capability_type": "format",
+   "description": "Support for image-based advertising on Meta platforms.",
+   "maturity": "live",
+   "control_mode": "control",
+   "vendor_term": "Image",
+   "scope": {
+    "markets": [
+     "US",
+     "GB",
+     "JP"
+    ],
+    "placements": [
+     "Facebook Feed",
+     "Instagram Feed"
+    ]
+   },
+   "evidence": [
+    {
+     "cleaned_sha256": "f9245f354e6c",
+     "locator": "[Image](https://www.facebook.com/business/ads-guide/update/image)",
+     "raw_sha256": "e30177753e98",
+     "source_id": "meta.ads.guide",
+     "source_url": "https://www.facebook.com/business/ads-guide"
+    }
+   ],
+   "last_verified_at": "2026-09-16"
+  },
+  {
+   "id": "pinterest.api.conversions.direct-api-integration-for-conversions",
+   "vendor": "Pinterest",
+   "platform": "Paid Media",
+   "family": "Paid Media",
+   "name": "Direct API integration for conversions",
+   "capability_type": "api",
+   "description": "Build a custom integration with the Pinterest Conversions API for maximum control.",
+   "maturity": "live",
+   "control_mode": "control",
+   "vendor_term": "Direct integration",
+   "evidence": [
+    {
+     "cleaned_sha256": "959055d190bd",
+     "locator": "ptr:cbe7ad40bf",
+     "raw_sha256": "81a030c72552",
+     "source_id": "pinterest.api.conversions",
+     "source_url": "https://help.pinterest.com/en-gb/business/article/the-pinterest-api-for-conversions"
+    }
+   ],
+   "last_verified_at": "2026-09-16"
+  },
+  {
+   "id": "pinterest.api.conversions.event-deduplication-with-event-id",
+   "vendor": "Pinterest",
+   "platform": "Paid Media",
+   "family": "Paid Media",
+   "name": "Event deduplication with event_id",
+   "capability_type": "targeting",
+   "description": "Deduplicate conversion events when passing data, especially if using Pinterest Tag or MMP, by including event_id parameter.",
+   "maturity": "live",
+   "control_mode": "signal",
+   "vendor_term": "deduplication",
+   "evidence": [
+    {
+     "cleaned_sha256": "959055d190bd",
+     "locator": "ptr:81a69798c8",
+     "raw_sha256": "81a030c72552",
+     "source_id": "pinterest.api.conversions",
+     "source_url": "https://help.pinterest.com/en-gb/business/article/the-pinterest-api-for-conversions"
+    }
+   ],
+   "last_verified_at": "2026-09-16"
+  },
+  {
+   "id": "pinterest.api.conversions.in-app-conversions-tracking-via-api",
+   "vendor": "Pinterest",
+   "platform": "Paid Media",
+   "family": "Paid Media",
+   "name": "In-app conversions tracking via API",
+   "capability_type": "measurement",
+   "description": "Send in-app conversion data directly to Pinterest for campaign optimisation and reporting.",
+   "maturity": "live",
+   "control_mode": "signal",
+   "vendor_term": "Conversions API",
+   "evidence": [
+    {
+     "cleaned_sha256": "959055d190bd",
+     "locator": "ptr:7a3bf42aec",
+     "raw_sha256": "81a030c72552",
+     "source_id": "pinterest.api.conversions",
+     "source_url": "https://help.pinterest.com/en-gb/business/article/the-pinterest-api-for-conversions"
+    }
+   ],
+   "last_verified_at": "2026-09-16"
+  },
+  {
+   "id": "pinterest.api.conversions.in-store-offline-conversions-tracking-via-api",
+   "vendor": "Pinterest",
+   "platform": "Paid Media",
+   "family": "Paid Media",
+   "name": "In-store/offline conversions tracking via API",
+   "capability_type": "measurement",
+   "description": "Send in-store or of\u2026",
+   "maturity": "live",
+   "control_mode": "signal",
+   "vendor_term": "Conversions API",
+   "evidence": [
+    {
+     "cleaned_sha256": "959055d190bd",
+     "locator": "ptr:7a3bf42aec",
+     "raw_sha256": "81a030c72552",
+     "source_id": "pinterest.api.conversions",
+     "source_url": "https://help.pinterest.com/en-gb/business/article/the-pinterest-api-for-conversions"
+    }
+   ],
+   "last_verified_at": "2026-09-16"
+  },
+  {
+   "id": "pinterest.api.conversions.real-time-data-passing",
+   "vendor": "Pinterest",
+   "platform": "Paid Media",
+   "family": "Paid Media",
+   "name": "Real-time data passing",
+   "capability_type": "measurement",
+   "description": "Pass conversion data in real-time (<1 hour) to enable immediate campaign optimisation, attribution, and measurement.",
+   "maturity": "live",
+   "control_mode": "automatic",
+   "vendor_term": "Real-time data pass",
+   "evidence": [
+    {
+     "cleaned_sha256": "959055d190bd",
+     "locator": "ptr:04770b798b",
+     "raw_sha256": "81a030c72552",
+     "source_id": "pinterest.api.conversions",
+     "source_url": "https://help.pinterest.com/en-gb/business/article/the-pinterest-api-for-conversions"
+    }
+   ],
+   "last_verified_at": "2026-09-16"
+  },
+  {
+   "id": "pinterest.api.conversions.third-party-partner-api-integration",
+   "vendor": "Pinterest",
+   "platform": "Paid Media",
+   "family": "Paid Media",
+   "name": "Third-party partner API integration",
+   "capability_type": "api",
+   "description": "Integrate Pinterest Conversions API through partner platforms for conversion data submission.",
+   "maturity": "live",
+   "control_mode": "control",
+   "vendor_term": "Partner integrations",
+   "evidence": [
+    {
+     "cleaned_sha256": "959055d190bd",
+     "locator": "ptr:6a1bc8b461",
+     "raw_sha256": "81a030c72552",
+     "source_id": "pinterest.api.conversions",
+     "source_url": "https://help.pinterest.com/en-gb/business/article/the-pinterest-api-for-conversions"
+    }
+   ],
+   "last_verified_at": "2026-09-16"
+  },
+  {
+   "id": "tiktok.advanced_matching.advanced-matching-for-customer-data",
+   "vendor": "TikTok",
+   "platform": "Events",
+   "family": "Events",
+   "name": "Advanced Matching for Customer Data",
+   "capability_type": "identity",
+   "description": "Helps match custome\u2026",
+   "maturity": "live",
+   "control_mode": "automatic",
+   "vendor_term": "Advanced Matching",
+   "evidence": [
+    {
+     "cleaned_sha256": "c9a2e545458f",
+     "locator": "ptr:2b4a6a5cd6",
+     "raw_sha256": "fd990b4989ec",
+     "source_id": "tiktok.advanced_matching",
+     "source_url": "https://ads.tiktok.com/help/article/advanced-matching-web?lang=en"
+    }
+   ],
+   "last_verified_at": "2026-09-17"
+  },
+  {
+   "id": "tiktok.advanced_matching.automatic-advanced-matching-identification",
+   "vendor": "TikTok",
+   "platform": "Events",
+   "family": "Events",
+   "name": "Automatic Advanced Matching Identification",
+   "capability_type": "format",
+   "description": "Automatically ident\u2026",
+   "maturity": "live",
+   "control_mode": "automatic",
+   "vendor_term": "Automatic Advanced Matching",
+   "evidence": [
+    {
+     "cleaned_sha256": "c9a2e545458f",
+     "locator": "ptr:2374a718e2",
+     "raw_sha256": "fd990b4989ec",
+     "source_id": "tiktok.advanced_matching",
+     "source_url": "https://ads.tiktok.com/help/article/advanced-matching-web?lang=en"
+    }
+   ],
+   "last_verified_at": "2026-09-17"
+  },
+  {
+   "id": "tiktok.advanced_matching.expand-audience-reach-with-advanced-matching",
+   "vendor": "TikTok",
+   "platform": "Events",
+   "family": "Events",
+   "name": "Expand Audience Reach with Advanced Matching",
+   "capability_type": "targeting",
+   "description": "Match website visitors with TikTok users to expand audience sizes for solutions like web retargeting.",
+   "maturity": "live",
+   "control_mode": "automatic",
+   "vendor_term": "Advanced Matching",
+   "evidence": [
+    {
+     "cleaned_sha256": "c9a2e545458f",
+     "locator": "ptr:a4ba5cd86b",
+     "raw_sha256": "fd990b4989ec",
+     "source_id": "tiktok.advanced_matching",
+     "source_url": "https://ads.tiktok.com/help/article/advanced-matching-web?lang=en"
+    }
+   ],
+   "last_verified_at": "2026-09-17"
+  },
+  {
+   "id": "tiktok.advanced_matching.improve-ad-delivery-with-advanced-matching",
+   "vendor": "TikTok",
+   "platform": "Events",
+   "family": "Events",
+   "name": "Improve Ad Delivery with Advanced Matching",
+   "capability_type": "targeting",
+   "description": "Identify and deliver ads to people more likely to take desired actions, increasing efficiency and decreasing costs.",
+   "maturity": "live",
+   "control_mode": "automatic",
+   "vendor_term": "Advanced Matching",
+   "evidence": [
+    {
+     "cleaned_sha256": "c9a2e545458f",
+     "locator": "ptr:d3bdbef0b5",
+     "raw_sha256": "fd990b4989ec",
+     "source_id": "tiktok.advanced_matching",
+     "source_url": "https://ads.tiktok.com/help/article/advanced-matching-web?lang=en"
+    }
+   ],
+   "last_verified_at": "2026-09-17"
+  },
+  {
+   "id": "tiktok.advanced_matching.manual-advanced-matching-setup",
+   "vendor": "TikTok",
+   "platform": "Events",
+   "family": "Events",
+   "name": "Manual Advanced Matching Setup",
+   "capability_type": "format",
+   "description": "Allows manual control over which Advanced Matching parameters are shared with TikTok, using code or partner platform settings.",
+   "maturity": "live",
+   "control_mode": "control",
+   "vendor_term": "Manual Advanced Matching",
+   "evidence": [
+    {
+     "cleaned_sha256": "c9a2e545458f",
+     "locator": "ptr:c07293593f",
+     "raw_sha256": "fd990b4989ec",
+     "source_id": "tiktok.advanced_matching",
+     "source_url": "https://ads.tiktok.com/help/article/advanced-matching-web?lang=en"
+    }
+   ],
+   "last_verified_at": "2026-09-17"
+  },
+  {
+   "id": "tiktok.advanced_matching.measure-conversions-with-advanced-matching",
+   "vendor": "TikTok",
+   "platform": "Events",
+   "family": "Events",
+   "name": "Measure Conversions with Advanced Matching",
+   "capability_type": "measurement",
+   "description": "Increase conversions by connecting TikTok ads to conversion events on your website, app, or store, improving ROI understanding.",
+   "maturity": "live",
+   "control_mode": "automatic",
+   "vendor_term": "Advanced Matching",
+   "evidence": [
+    {
+     "cleaned_sha256": "c9a2e545458f",
+     "locator": "ptr:dc78623fdb",
+     "raw_sha256": "fd990b4989ec",
+     "source_id": "tiktok.advanced_matching",
+     "source_url": "https://ads.tiktok.com/help/article/advanced-matching-web?lang=en"
+    }
+   ],
+   "last_verified_at": "2026-09-17"
+  }
+ ]
+}
