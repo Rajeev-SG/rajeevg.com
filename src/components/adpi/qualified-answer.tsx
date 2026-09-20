@@ -29,6 +29,38 @@ function ConditionList({ conditions }: { conditions: AnswerCondition[] }) {
   )
 }
 
+const PROVENANCE_LABEL: Record<string, string> = {
+  live: "From the live published corpus",
+  bundled: "From the bundled reviewed seed (live feed unavailable)",
+  reviewed_reference: "Reviewed reference — no live record yet",
+  none: "No source asserted this",
+}
+
+const PROVENANCE_CLASS: Record<string, string> = {
+  live: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
+  bundled: "bg-amber-500/10 text-amber-700 dark:text-amber-400",
+  reviewed_reference: "bg-slate-500/10 text-slate-700 dark:text-slate-400",
+  none: "bg-slate-500/10 text-slate-700 dark:text-slate-400",
+}
+
+/**
+ * Where this answer came from, stated plainly so synthetic provenance is never
+ * shown as live output (#163).
+ */
+function ProvenanceLabel({ provenance }: { provenance?: string }) {
+  if (!provenance) return null
+  const label = PROVENANCE_LABEL[provenance] ?? provenance
+  return (
+    <Badge
+      variant="outline"
+      className={PROVENANCE_CLASS[provenance] ?? ""}
+      data-testid="adpi-provenance"
+    >
+      {label}
+    </Badge>
+  )
+}
+
 /**
  * The qualified answer for one planner question (#57): supported / conditional /
  * unknown, never a boolean, with the structured conditions, evidence basis,
@@ -41,10 +73,11 @@ export function QualifiedAnswerCard({ answer }: { answer: QualifiedAnswer }) {
         data-testid="adpi-abstention"
         className="rounded-xl border border-slate-500/40 bg-slate-500/5 p-4 sm:p-5"
       >
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Badge variant="outline" className="bg-slate-500/10 text-slate-700 dark:text-slate-400">
             Unknown — no answer asserted
           </Badge>
+          <ProvenanceLabel provenance={answer.provenance} />
         </div>
         <p className="mt-3 text-sm leading-7">{answer.rationale}</p>
       </div>
@@ -61,6 +94,7 @@ export function QualifiedAnswerCard({ answer }: { answer: QualifiedAnswer }) {
         >
           {AVAILABILITY_LABEL[answer.verdict]}
         </Badge>
+        <ProvenanceLabel provenance={answer.provenance} />
         <span className="text-sm text-muted-foreground">{answer.rationale}</span>
       </div>
 

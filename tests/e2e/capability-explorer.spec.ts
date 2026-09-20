@@ -26,25 +26,53 @@ async function preparePage(page: Page, url = "/solutions/capability-explorer") {
   ).toBeVisible()
 }
 
-test("the three launch questions return qualified answers, not booleans", async ({ page }) => {
+test("the three launch questions are answered honestly, from live records or not at all", async ({ page }) => {
   test.setTimeout(90_000)
   await fs.mkdir(artifactRoot, { recursive: true })
   await preparePage(page)
 
-  const verdicts = await page.getByTestId("adpi-verdict").allTextContents()
-  expect(verdicts.length).toBeGreaterThanOrEqual(3)
-  for (const verdict of verdicts) {
-    expect(["Supported", "Conditional", "Unknown"]).toContain(verdict)
+  // #163: every launch answer states its provenance on its OWN card — never a
+  // page-wide label that could be satisfied by one card while another is wrong.
+  // Assertions are scoped per card so a regression that flips one answer to a
+  // wrong label, or drops its verdict/evidence, fails here.
+  const cards = page.locator('section[aria-label="Reviewed launch answers"] article')
+  const cardCount = await cards.count()
+  expect(cardCount).toBeGreaterThanOrEqual(3)
+
+  const LIVE_LABELS = [
+    "From the live published corpus",
+    "From the bundled reviewed seed (live feed unavailable)",
+  ]
+
+  for (let i = 0; i < cardCount; i++) {
+    const card = cards.nth(i)
+    const label = (await card.getByTestId("adpi-provenance").textContent())?.trim()
+    expect(label, `card ${i} must state its provenance`).toBeTruthy()
+    expect([
+      ...LIVE_LABELS,
+      "Reviewed reference — no live record yet",
+      "No source asserted this",
+    ]).toContain(label)
+
+    if (label && LIVE_LABELS.includes(label)) {
+      // An asserted answer must carry its own qualified, non-boolean fields.
+      await expect(card.getByTestId("adpi-verdict")).toBeVisible()
+      const verdict = (await card.getByTestId("adpi-verdict").textContent())?.trim()
+      expect(["Supported", "Conditional", "Unknown"]).toContain(verdict)
+      await expect(card.getByText(/Evidence basis:/)).toBeVisible()
+      await expect(card.getByText(/Verified:/)).toBeVisible()
+    } else {
+      // No live record (yet): the card must show the explicit abstention, not a
+      // synthetic assertion.
+      await expect(card.getByTestId("adpi-abstention")).toBeVisible()
+    }
   }
 
-  await expect(page.getByText("Optimisation signal (guides it)").first()).toBeVisible()
-  await expect(page.getByText("Automatic (platform decides)").first()).toBeVisible()
-  await expect(page.getByText("Hard control (you set it)").first()).toBeVisible()
-
-  await expect(page.getByText("Evidence basis: Documented").first()).toBeVisible()
-  await expect(page.getByText(/Verified: 2026-09-19/).first()).toBeVisible()
-
-  const abstention = page.getByTestId("adpi-abstention").first()
+  // The deliberate abstention proof is always present and honest. Scope it to
+  // the abstention section, since a launch answer may also abstain (#163).
+  const abstention = page
+    .getByRole("region", { name: "Abstention example" })
+    .getByTestId("adpi-abstention")
   await expect(abstention).toBeVisible()
   await expect(abstention).toContainText("No published capability matched")
 

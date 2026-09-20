@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 
 import { AdpiDashboard } from "@/components/adpi/dashboard"
+import { AdpiFreshness } from "@/components/adpi/freshness"
 import { capabilitiesOf, getCapabilityDataset } from "@/lib/adpi/registry"
 import { reviewedGolden } from "@/lib/adpi/reviewed"
 import { site } from "@/lib/site"
@@ -77,6 +78,8 @@ export default async function CapabilityExplorerPage() {
           .
         </p>
 
+        {source === "durable" ? <AdpiFreshness dataset={dataset} /> : null}
+
         {degraded ? (
           <p className="rounded-lg border border-blue-500/40 bg-blue-500/5 px-3 py-2 text-sm text-blue-700 dark:text-blue-400">
             {note ?? "Showing the bundled reviewed seed."}
@@ -91,7 +94,7 @@ export default async function CapabilityExplorerPage() {
         </p>
       </header>
 
-      <AdpiDashboard records={records} />
+      <AdpiDashboard records={records} source={source} />
 
       <section aria-label="Methodology" className="max-w-3xl space-y-2 text-sm leading-7 text-muted-foreground">
         <h2 className="text-lg font-medium text-foreground">Where the data comes from</h2>
