@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { LAUNCH_QUESTIONS, ABSTENTION_QUESTION } from "@/lib/adpi/launch"
 import { answerFromLiveCorpus, answerQuery, compareCapabilities } from "@/lib/adpi/qualified"
 import { reviewedGolden } from "@/lib/adpi/reviewed"
-import type { CapabilityRecord, PlannerQuery, QualifiedAnswer } from "@/lib/adpi/types"
+import type { CapabilityRecord, DatasetSource, PlannerQuery, QualifiedAnswer } from "@/lib/adpi/types"
 import { AVAILABILITY_CLASS, AVAILABILITY_LABEL } from "@/lib/adpi/labels"
 import { Badge } from "@/components/ui/badge"
 
@@ -23,11 +23,12 @@ function answerForLaunchQuestion(
   caseIds: string[],
   query: PlannerQuery,
   records: CapabilityRecord[],
+  source: DatasetSource,
 ): QualifiedAnswer {
   const cases = caseIds
     .map((caseId) => reviewedGolden().cases.find((entry) => entry.id === caseId))
     .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry))
-  return answerFromLiveCorpus(cases, query, records)
+  return answerFromLiveCorpus(cases, query, records, source)
 }
 
 function LaunchQuestionCard({
@@ -50,7 +51,14 @@ function LaunchQuestionCard({
   )
 }
 
-export function AdpiDashboard({ records }: { records: CapabilityRecord[] }) {
+export function AdpiDashboard({
+  records,
+  source,
+}: {
+  records: CapabilityRecord[]
+  /** Where `records` came from, so provenance labels reflect reality. */
+  source: DatasetSource
+}) {
   const [question, setQuestion] = React.useState("")
   const [freeAnswer, setFreeAnswer] = React.useState<QualifiedAnswer | null>(null)
 
@@ -58,23 +66,23 @@ export function AdpiDashboard({ records }: { records: CapabilityRecord[] }) {
     () =>
       LAUNCH_QUESTIONS.map((entry) => ({
         entry,
-        answer: answerForLaunchQuestion(entry.caseIds, entry.query, records),
+        answer: answerForLaunchQuestion(entry.caseIds, entry.query, records, source),
       })),
-    [records],
+    [records, source],
   )
 
 
   const abstentionAnswer = React.useMemo(
-    () => answerQuery(records, ABSTENTION_QUESTION.query),
-    [records],
+    () => answerQuery(records, ABSTENTION_QUESTION.query, { source }),
+    [records, source],
   )
 
   const onAsk = React.useCallback(
     (event: React.FormEvent) => {
       event.preventDefault()
-      setFreeAnswer(answerQuery(records, { text: question }))
+      setFreeAnswer(answerQuery(records, { text: question }, { source }))
     },
-    [question, records],
+    [question, records, source],
   )
 
   return (

@@ -114,6 +114,34 @@ describe("live precedence (#163)", () => {
     expect(answer.provenance).toBe("reviewed_reference")
   })
 
+  it("labels a seed-rendered answer as bundled, not live (F1)", () => {
+    const answer = answerFromLiveCorpus(
+      [reviewedCase()],
+      { text: "audience signals", vendor: "Google Ads" },
+      [liveRecord()],
+      "bundled",
+    )
+    expect(answer.abstained).toBe(false)
+    expect(answer.provenance).toBe("bundled")
+  })
+
+  it("treats a live record with no evidence pointer as not usable (F2)", () => {
+    const noEvidence = liveRecord({ evidence: [] })
+    expect(isLiveQualified(noEvidence)).toBe(false)
+    const answer = answerFromLiveCorpus([reviewedCase()], { text: "audience signals" }, [
+      noEvidence,
+    ])
+    // Must abstain, and must NOT fall back to the reviewed case's pointer.
+    expect(answer.abstained).toBe(true)
+    expect(answer.facts).toHaveLength(0)
+  })
+
+  it("reports the seed-unavailable rationale when the corpus is the bundled seed", () => {
+    const answer = answerFromLiveCorpus([reviewedCase()], { text: "audience signals" }, [], "bundled")
+    expect(answer.abstained).toBe(true)
+    expect(answer.rationale).toMatch(/bundled reviewed seed/i)
+  })
+
   it("resolves a concept by match when the review pinned no record_id", () => {
     const live = liveRecord({ id: "free.surface.record", name: "Audience signals" })
     const frame = reviewedCase({ record_id: null })

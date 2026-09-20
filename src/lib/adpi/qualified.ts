@@ -12,6 +12,7 @@
 import type {
   AnswerCondition,
   AnswerFact,
+  AnswerProvenance,
   Availability,
   CapabilityRecord,
   EvidencePointer,
@@ -125,7 +126,11 @@ const VERDICT_REASON: Record<Availability, string> = {
  * capabilities; the top matches are qualified together, and an empty match set
  * abstains.
  */
-export function answerQuery(records: CapabilityRecord[], query: PlannerQuery, options?: { limit?: number }): QualifiedAnswer {
+export function answerQuery(
+  records: CapabilityRecord[],
+  query: PlannerQuery,
+  options?: { limit?: number; source?: "durable" | "bundled" },
+): QualifiedAnswer {
   const limit = options?.limit ?? 5;
   const tokens = tokenise(query.text);
   if (tokens.length === 0) {
@@ -180,7 +185,7 @@ export function answerQuery(records: CapabilityRecord[], query: PlannerQuery, op
       (conditionalCount > 0 ? `, ${conditionalCount} conditional` : "") +
       `. ${basisNote}`,
     abstained: false,
-    provenance: "live",
+    provenance: options?.source === "bundled" ? "bundled" : "live",
   };
 }
 
@@ -269,14 +274,22 @@ export interface ReviewedCaseRef {
   };
 }
 
-/** Does a live record assert a qualified outcome, or is it a bare unknown placeholder? */
+/**
+ * Does a record assert a qualified outcome, or is it a bare unknown placeholder?
+ *
+ * Two ways a record fails to establish anything — and both must abstain rather
+ * than be presented as an answer:
+ *  - its qualified fields normalise to the "not evidenced" default; and
+ *  - it carries no evidence pointer, so there is nothing to attribute the claim
+ *    to. Every published capability must carry provenance, so a live record with
+ *    no evidence is a defect, not a fact.
+ */
 export function isLiveQualified(record: CapabilityRecord): boolean {
-  // A record whose qualified fields all normalise to the "not evidenced" default
-  // establishes nothing: presenting it would be a placeholder read as an answer.
   const basisKnown = record.evidence_basis !== undefined && record.evidence_basis !== "unknown";
   const availabilityKnown =
     record.availability !== undefined && record.availability !== "unknown";
-  return basisKnown && availabilityKnown;
+  const hasEvidence = (record.evidence ?? []).length > 0;
+  return basisKnown && availabilityKnown && hasEvidence;
 }
 
 /** Concept tokens a reviewer used, for the fallback match when no record_id is pinned. */
@@ -318,17 +331,14 @@ export function resolveLiveRecord(
   return scored.length > 0 ? scored[0].record : null;
 }
 
-/** A live evidence pointer list, or the reviewed source pointer when live carries none. */
-function evidenceFor(record: CapabilityRecord | null, caseRef: ReviewedCaseRef): EvidencePointer[] {
-  if (record && (record.evidence ?? []).length > 0) return record.evidence;
-  return [
-    {
-      source_id: caseRef.source.source_id,
-      source_url: caseRef.source.source_url,
-      cleaned_sha256: caseRef.source.cleaned_sha256,
-      raw_sha256: caseRef.source.raw_sha256,
-    },
-  ];
+/**
+ * Evidence for a fact. A matched record's own pointers only: falling back to the
+ * reviewed case's pointer (with the reviewer's hashes) under a live label would
+ * be a provenance mix. A record with no pointers is not usable in the first
+ * place (see ``isLiveQualified``), so this never has to invent one.
+ */
+function evidenceFor(record: CapabilityRecord): EvidencePointer[] {
+  return record.evidence;
 }
 
 /** Build one launch answer from the live corpus, with the reviewed fixture as framing only. */
@@ -336,6 +346,10 @@ export function answerFromLiveCorpus(
   cases: ReviewedCaseRef[],
   query: PlannerQuery,
   records: CapabilityRecord[],
+  /** Where `records` came from: "durable" is the live published feed, "bundled"
+   * is the reviewed seed fallback. The label must follow the records, not the
+   * code path. */
+  source: "durable" | "bundled" = "durable",
 ): QualifiedAnswer {
   const resolved = cases.map((caseRef) => {
     const live = resolveLiveRecord(caseRef, records, { vendor: query.vendor, platform: query.platform });
@@ -343,6 +357,10 @@ export function answerFromLiveCorpus(
   });
 
   const established = resolved.filter((entry) => entry.live && entry.qualified);
+  // The records here are the bundled reviewed seed, not the live feed: the
+  // qualified fields are real, but the provenance is the seed. Label it as such
+  // so a seed-rendered answer is never shown as live published output.
+  const provenanced: AnswerProvenance = source === "bundled" ? "bundled" : "live";
 
   if (established.length === 0) {
     // No live qualified record for any concept in this question. Abstain, and
@@ -353,9 +371,13 @@ export function answerFromLiveCorpus(
       verdict: "unknown",
       facts: [],
       rationale:
-        `No live published capability currently evidences ${reviewedOnly}. ` +
-        "The reviewed reference describes the concept, but the explorer will not " +
-        "present reviewed provenance as live output, so this stays unresolved.",
+        (source === "bundled"
+          ? `The published corpus is unavailable and the bundled reviewed seed has no ` +
+            `qualified record for ${reviewedOnly}. The explorer will not assert an ` +
+            "answer from the seed alone, so this stays unresolved."
+          : `No live published capability currently evidences ${reviewedOnly}. The ` +
+            "reviewed reference describes the concept, but the explorer will not " +
+            "present reviewed provenance as live output, so this stays unresolved."),
       abstained: true,
       provenance: "reviewed_reference",
     };
@@ -369,7 +391,7 @@ export function answerFromLiveCorpus(
       name: live!.name,
     },
     conditions: conditionsFor(live!, query.market, query.objective),
-    evidence: evidenceFor(live!, caseRef),
+    evidence: evidenceFor(live!),
     verificationDate: live!.last_verified_at ?? null,
   }));
 
@@ -388,6 +410,6 @@ export function answerFromLiveCorpus(
         : "") +
       ` ${basisNote}`,
     abstained: false,
-    provenance: "live",
+    provenance: provenanced,
   };
 }

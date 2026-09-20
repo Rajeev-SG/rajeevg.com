@@ -94,7 +94,7 @@ export default async function CapabilityExplorerPage() {
         </p>
       </header>
 
-      <AdpiDashboard records={records} />
+      <AdpiDashboard records={records} source={source} />
 
       <section aria-label="Methodology" className="max-w-3xl space-y-2 text-sm leading-7 text-muted-foreground">
         <h2 className="text-lg font-medium text-foreground">Where the data comes from</h2>

@@ -31,29 +31,40 @@ test("the three launch questions are answered honestly, from live records or not
   await fs.mkdir(artifactRoot, { recursive: true })
   await preparePage(page)
 
-  // #163: every launch answer states its provenance. It is either built from the
-  // live published corpus, or an explicit unresolved state — never reviewed /
-  // synthetic provenance presented as live output.
-  const provenance = page.getByTestId("adpi-provenance")
-  await expect(provenance.first()).toBeVisible()
-  const labels = await provenance.allTextContents()
-  expect(labels.length).toBeGreaterThanOrEqual(3)
-  for (const label of labels) {
+  // #163: every launch answer states its provenance on its OWN card — never a
+  // page-wide label that could be satisfied by one card while another is wrong.
+  // Assertions are scoped per card so a regression that flips one answer to a
+  // wrong label, or drops its verdict/evidence, fails here.
+  const cards = page.locator('section[aria-label="Reviewed launch answers"] article')
+  const cardCount = await cards.count()
+  expect(cardCount).toBeGreaterThanOrEqual(3)
+
+  const LIVE_LABELS = [
+    "From the live published corpus",
+    "From the bundled reviewed seed (live feed unavailable)",
+  ]
+
+  for (let i = 0; i < cardCount; i++) {
+    const card = cards.nth(i)
+    const label = (await card.getByTestId("adpi-provenance").textContent())?.trim()
+    expect(label, `card ${i} must state its provenance`).toBeTruthy()
     expect([
-      "From the live published corpus",
+      ...LIVE_LABELS,
       "Reviewed reference — no live record yet",
       "No source asserted this",
     ]).toContain(label)
-  }
 
-  // Any answer asserted as live must carry qualified, non-boolean fields; any
-  // answer without a live record must show the explicit abstention card instead.
-  for (const label of labels) {
-    if (label === "From the live published corpus") {
-      const verdicts = await page.getByTestId("adpi-verdict").allTextContents()
-      for (const verdict of verdicts) {
-        expect(["Supported", "Conditional", "Unknown"]).toContain(verdict)
-      }
+    if (label && LIVE_LABELS.includes(label)) {
+      // An asserted answer must carry its own qualified, non-boolean fields.
+      await expect(card.getByTestId("adpi-verdict")).toBeVisible()
+      const verdict = (await card.getByTestId("adpi-verdict").textContent())?.trim()
+      expect(["Supported", "Conditional", "Unknown"]).toContain(verdict)
+      await expect(card.getByText(/Evidence basis:/)).toBeVisible()
+      await expect(card.getByText(/Verified:/)).toBeVisible()
+    } else {
+      // No live record (yet): the card must show the explicit abstention, not a
+      // synthetic assertion.
+      await expect(card.getByTestId("adpi-abstention")).toBeVisible()
     }
   }
 

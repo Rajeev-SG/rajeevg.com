@@ -31,12 +31,14 @@ function ConditionList({ conditions }: { conditions: AnswerCondition[] }) {
 
 const PROVENANCE_LABEL: Record<string, string> = {
   live: "From the live published corpus",
+  bundled: "From the bundled reviewed seed (live feed unavailable)",
   reviewed_reference: "Reviewed reference — no live record yet",
   none: "No source asserted this",
 }
 
 const PROVENANCE_CLASS: Record<string, string> = {
   live: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
+  bundled: "bg-amber-500/10 text-amber-700 dark:text-amber-400",
   reviewed_reference: "bg-slate-500/10 text-slate-700 dark:text-slate-400",
   none: "bg-slate-500/10 text-slate-700 dark:text-slate-400",
 }

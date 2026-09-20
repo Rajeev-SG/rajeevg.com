@@ -170,10 +170,15 @@ export interface QualifiedAnswer {
    * Where this answer's facts came from. `live` means the published corpus
    * carried a qualified record; `reviewed_reference` means only the reviewed
    * fixture describes the concept and the live record is missing, so the answer
-   * abstains; `none` means no source asserted anything.
+   * abstains; `bundled` means the answer was built from the bundled reviewed
+   * seed because the live feed was unavailable; `none` means no source asserted
+   * anything.
    */
   provenance?: AnswerProvenance;
 }
 
 /** Honest source label for an answer, so synthetic provenance is never shown as live. */
-export type AnswerProvenance = "live" | "reviewed_reference" | "none";
+export type AnswerProvenance = "live" | "bundled" | "reviewed_reference" | "none";
+
+/** Where the records a view renders came from. */
+export type DatasetSource = "durable" | "bundled";
