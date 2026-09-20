@@ -3,7 +3,9 @@ import Link from "next/link"
 
 import { AdpiDashboard } from "@/components/adpi/dashboard"
 import { AdpiFreshness } from "@/components/adpi/freshness"
+import { AdpiChangeLog } from "@/components/adpi/change-log"
 import { capabilitiesOf, getCapabilityDataset } from "@/lib/adpi/registry"
+import { getDurableHistory } from "@/lib/adpi/history"
 import { reviewedGolden } from "@/lib/adpi/reviewed"
 import { site } from "@/lib/site"
 
@@ -27,6 +29,9 @@ export default async function CapabilityExplorerPage() {
   const { dataset, source, degraded, note } = await getCapabilityDataset()
   const records = capabilitiesOf(dataset)
   const reviewed = reviewedGolden()
+  // The fact-history artefact (#58) is a separate published file; only fetch it
+  // for the live dataset, and let a missing one simply show no history surface.
+  const history = source === "durable" ? await getDurableHistory() : null
 
   return (
     <section className="space-y-8" data-analytics-section="capability_explorer" data-analytics-item-type="tool">
@@ -79,6 +84,7 @@ export default async function CapabilityExplorerPage() {
         </p>
 
         {source === "durable" ? <AdpiFreshness dataset={dataset} /> : null}
+        {source === "durable" && history ? <AdpiChangeLog history={history} /> : null}
 
         {degraded ? (
           <p className="rounded-lg border border-blue-500/40 bg-blue-500/5 px-3 py-2 text-sm text-blue-700 dark:text-blue-400">
