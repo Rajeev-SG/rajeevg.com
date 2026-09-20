@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+<title>JEV Turn: What Crosses Each Hop</title>
+<desc>The model emits an index. The code turns it into a selector. Every payload in one turn.</desc>
+<defs>
+  <filter id="wobble" x="-2%" y="-2%" width="104%" height="104%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="2" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="1.5"/>
+  </filter>
+  <pattern id="dotgrid" width="24" height="24" patternUnits="userSpaceOnUse">
+    <circle cx="12" cy="12" r="0.7" fill="#e7e2d5"/>
+  </pattern>
+</defs>
+<style>
+  text { font-family: "Inter", "SF Pro Text", system-ui, sans-serif; }
+  .title { font-size: 28px; font-weight: 700; fill: #172033; }
+  .subtitle { font-size: 17px; fill: #566174; }
+  .footer { font-size: 14px; fill: #566174; text-anchor: middle; }
+  .box-title { font-size: 18px; font-weight: 700; fill: #172033; }
+  .box-body { font-size: 16px; fill: #172033; font-family: "SF Mono", "Fira Code", monospace; }
+  .box-note { font-size: 14px; fill: #566174; font-style: italic; }
+  .arrow-label { font-size: 15px; fill: #566174; }
+  .annotation { font-size: 16px; font-weight: 600; fill: #172033; }
+  .annotation-sub { font-size: 14px; fill: #566174; }
+</style>
+<rect width="1280" height="720" fill="#fbfaf5"/>
+<rect width="1280" height="720" fill="url(#dotgrid)"/>
+<text class="title" x="48" y="60">JEV Turn: What Crosses Each Hop</text>
+<text class="subtitle" x="48" y="91">The model emits an index. The code turns it into a selector. Every payload in one turn.</text>
+<line x1="48" y1="101" x2="1232" y2="101" stroke="#e7e2d5" stroke-width="1"/>
+<rect x="48" y="115" width="300" height="147" rx="8" fill="#fff0c9" stroke="#a97921" stroke-width="1.5" filter="url(#wobble)"/>
+<text class="box-title" x="62" y="158">1. Driver -&gt; Agent Loop</text>
+<text class="box-body" x="62" y="194">Agent(url=&quot;...todomvc/&quot;,</text>
+<text class="box-body" x="62" y="219">goal=&quot;Add two todos, click Active&quot;)</text>
+<rect x="420" y="115" width="330" height="172" rx="8" fill="#dce8ff" stroke="#4f6fad" stroke-width="1.5" filter="url(#wobble)"/>
+<text class="box-title" x="434" y="158">2. Agent -&gt; Jev (HTTP)</text>
+<text class="box-body" x="434" y="194">{goal, page:{url,title,text},</text>
+<text class="box-body" x="434" y="219"> elements:[...numbered...],</text>
+<text class="box-body" x="434" y="244"> recent_actions:[...]}</text>
+<rect x="830" y="115" width="390" height="172" rx="8" fill="#dce8ff" stroke="#4f6fad" stroke-width="1.5" filter="url(#wobble)"/>
+<text class="box-title" x="844" y="158">3. Jev -&gt; Agent Loop</text>
+<text class="box-body" x="844" y="194">Response: &quot;e5&quot;</text>
+<text class="box-body" x="844" y="219">An index into the element list.</text>
+<text class="box-body" x="844" y="244">Not a selector.</text>
+<rect x="48" y="365" width="330" height="172" rx="8" fill="#dcf3e5" stroke="#3f8460" stroke-width="1.5" filter="url(#wobble)"/>
+<text class="box-title" x="62" y="408">4. Agent -&gt; BridgeBrowser</text>
+<text class="box-body" x="62" y="444">act({id:&quot;e5&quot;, kind:&quot;click&quot;,</text>
+<text class="box-body" x="62" y="469"> node:5}, page)</text>
+<text class="box-body" x="62" y="494">Text fields: also passes text</text>
+<rect x="420" y="365" width="330" height="172" rx="8" fill="#dcf3e5" stroke="#3f8460" stroke-width="1.5" filter="url(#wobble)"/>
+<text class="box-title" x="434" y="408">5. Bridge -&gt; Transport</text>
+<text class="box-body" x="434" y="444">[data-jev-fast-target=</text>
+<text class="box-body" x="434" y="469"> &quot;jev-9f2c...&quot;]</text>
+<text class="box-body" x="434" y="494">One-use attr on chosen element</text>
+<rect x="830" y="365" width="390" height="172" rx="8" fill="#e9e1ff" stroke="#7459a8" stroke-width="1.5" filter="url(#wobble)"/>
+<text class="box-title" x="844" y="408">6. Transport -&gt; Chrome</text>
+<text class="box-body" x="844" y="444">browser-relay click &quot;[sel]&quot;</text>
+<text class="box-body" x="844" y="469"> --tab t_X</text>
+<text class="box-body" x="844" y="494">page.locator(&quot;[sel]&quot;).click()</text>
+<defs><marker id="ah_348_195" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#a97921"/></marker></defs>
+<line x1="348" y1="195" x2="420" y2="195" stroke="#a97921" stroke-width="1.5" marker-end="url(#ah_348_195)"/>
+<defs><marker id="ah_750_195" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#4f6fad"/></marker></defs>
+<line x1="750" y1="195" x2="830" y2="195" stroke="#4f6fad" stroke-width="1.5" marker-end="url(#ah_750_195)"/>
+<defs><marker id="ah_c_5052" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#566174"/></marker></defs>
+<path d="M 1025 287 C 1025 325, 213 325, 213 365" fill="none" stroke="#566174" stroke-width="1.5" marker-end="url(#ah_c_5052)"/>
+<defs><marker id="ah_378_451" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#3f8460"/></marker></defs>
+<line x1="378" y1="451" x2="420" y2="451" stroke="#3f8460" stroke-width="1.5" marker-end="url(#ah_378_451)"/>
+<defs><marker id="ah_750_451" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#3f8460"/></marker></defs>
+<line x1="750" y1="451" x2="830" y2="451" stroke="#3f8460" stroke-width="1.5" marker-end="url(#ah_750_451)"/>
+<defs><marker id="ah_c_6580" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#566174"/></marker></defs>
+<path d="M 1200 565 L 100 565" fill="none" stroke="#566174" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#ah_c_6580)"/>
+<text class="arrow-label" x="640" y="581" text-anchor="middle">After action: Agent calls browser.observe() -> fresh numbered list -> turn repeats</text>
+<rect x="340" y="593" width="600" height="44" rx="6" fill="#ffe1de" stroke="#a45350" stroke-width="1"/>
+<text class="annotation" x="640" y="611" text-anchor="middle">The model produced an index; the code produced the selector.</text>
+<text class="annotation-sub" x="640" y="629" text-anchor="middle">Jev outputs "e5" (blue). BridgeBrowser resolves it to a CSS attribute selector (green).</text>
+<text class="arrow-label" x="384" y="299" text-anchor="middle">goal + url</text>
+<text class="arrow-label" x="790" y="299" text-anchor="middle">numbered DOM</text>
+<text class="arrow-label" x="399" y="549" text-anchor="middle">resolved node</text>
+<text class="arrow-label" x="790" y="549" text-anchor="middle">stamped attr</text>
+
+<line x1="48" y1="674" x2="1232" y2="674" stroke="#e7e2d5" stroke-width="1"/>
+<text class="footer" x="640" y="700">JEV Browser Bridge · Turn Payload Diagram</text>
+</svg>
