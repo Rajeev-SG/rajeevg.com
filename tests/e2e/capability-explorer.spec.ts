@@ -59,8 +59,13 @@ test("the three launch questions are answered honestly, from live records or not
       await expect(card.getByTestId("adpi-verdict")).toBeVisible()
       const verdict = (await card.getByTestId("adpi-verdict").textContent())?.trim()
       expect(["Supported", "Conditional", "Unknown"]).toContain(verdict)
-      await expect(card.getByText(/Evidence basis:/)).toBeVisible()
-      await expect(card.getByText(/Verified:/)).toBeVisible()
+      // `.first()`: a card's rationale line and its per-fact badge can both
+      // contain "Evidence basis:", so match the first occurrence rather than
+      // tripping Playwright's strict-mode check. The point is that the card
+      // *renders* the evidence basis and a verification date, not that there is
+      // exactly one occurrence.
+      await expect(card.getByText(/Evidence basis:/).first()).toBeVisible()
+      await expect(card.getByText(/Verified:/).first()).toBeVisible()
     } else {
       // No live record (yet): the card must show the explicit abstention, not a
       // synthetic assertion.
