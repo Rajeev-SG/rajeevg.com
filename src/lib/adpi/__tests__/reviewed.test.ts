@@ -4,7 +4,7 @@ import capabilities from "@/data/adpi/capabilities.json"
 import { reviewedGolden } from "../reviewed"
 import type { CapabilityRecord } from "../types"
 
-const records = (capabilities as { capabilities: CapabilityRecord[] }).capabilities
+const records = (capabilities as unknown as { capabilities: CapabilityRecord[] }).capabilities
 const byId = new Map(records.map((record) => [record.id, record]))
 
 describe("reviewed golden slice", () => {

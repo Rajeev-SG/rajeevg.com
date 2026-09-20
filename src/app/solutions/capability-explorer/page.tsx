@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 
 import { AdpiDashboard } from "@/components/adpi/dashboard"
+import { AdpiFreshness } from "@/components/adpi/freshness"
 import { capabilitiesOf, getCapabilityDataset } from "@/lib/adpi/registry"
 import { reviewedGolden } from "@/lib/adpi/reviewed"
 import { site } from "@/lib/site"
@@ -76,6 +77,8 @@ export default async function CapabilityExplorerPage() {
           })}
           .
         </p>
+
+        {source === "durable" ? <AdpiFreshness dataset={dataset} /> : null}
 
         {degraded ? (
           <p className="rounded-lg border border-blue-500/40 bg-blue-500/5 px-3 py-2 text-sm text-blue-700 dark:text-blue-400">

@@ -93,12 +93,34 @@ export interface CapabilityRecord {
   evidence: EvidencePointer[];
   /** Day-precision observation date, e.g. "2026-09-17". */
   last_verified_at?: string;
+  /** When the source was last examined — distinct from when the fact was verified. */
+  last_checked_at?: string;
+  /** True when the source was re-examined after verification and the fact was unchanged. */
+  reconfirmed?: boolean;
+  /** True when the source's most recent run failed and this is the last-known-good value. */
+  last_known_good?: boolean;
+}
+
+export interface CoverageManifest {
+  record_count?: number;
+  vendors?: Record<string, number>;
+  families?: Record<string, number>;
+  source_classes?: Record<string, number>;
+  known_gaps?: {
+    unknown_availability?: number;
+    unknown_maturity?: number;
+    missing_family?: number;
+  };
 }
 
 export interface CapabilityDataset {
   schema_version: number;
   /** Publication time — never evidence freshness. */
   generated_at: string;
+  /** Publication time is not evidence freshness; the feed states this itself. */
+  freshness_note?: string;
+  /** A stated coverage manifest (#60), so breadth is not read as completeness. */
+  coverage?: CoverageManifest;
   capabilities: CapabilityRecord[];
 }
 
@@ -144,4 +166,14 @@ export interface QualifiedAnswer {
   rationale: string;
   /** True when the explorer deliberately declines to assert an outcome. */
   abstained: boolean;
+  /**
+   * Where this answer's facts came from. `live` means the published corpus
+   * carried a qualified record; `reviewed_reference` means only the reviewed
+   * fixture describes the concept and the live record is missing, so the answer
+   * abstains; `none` means no source asserted anything.
+   */
+  provenance?: AnswerProvenance;
 }
+
+/** Honest source label for an answer, so synthetic provenance is never shown as live. */
+export type AnswerProvenance = "live" | "reviewed_reference" | "none";

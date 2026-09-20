@@ -14,6 +14,7 @@ import type {
   AnswerFact,
   Availability,
   CapabilityRecord,
+  EvidencePointer,
   PlannerQuery,
   QualifiedAnswer,
 } from "./types";
@@ -134,6 +135,7 @@ export function answerQuery(records: CapabilityRecord[], query: PlannerQuery, op
       facts: [],
       rationale: "The question had no searchable terms; nothing was asserted.",
       abstained: true,
+      provenance: "none",
     };
   }
 
@@ -153,6 +155,7 @@ export function answerQuery(records: CapabilityRecord[], query: PlannerQuery, op
       rationale:
         "No published capability matched this question. The explorer will not infer an answer from a neighbouring platform or capability.",
       abstained: true,
+      provenance: "none",
     };
   }
 
@@ -177,6 +180,7 @@ export function answerQuery(records: CapabilityRecord[], query: PlannerQuery, op
       (conditionalCount > 0 ? `, ${conditionalCount} conditional` : "") +
       `. ${basisNote}`,
     abstained: false,
+    provenance: "live",
   };
 }
 
@@ -215,5 +219,175 @@ export function compareCapabilities(left: CapabilityRecord, right: CapabilityRec
       ? `“${left.name}” (${left.platform}) and “${right.name}” (${right.platform}) come from different ` +
         "surfaces. Similar wording does not mean the same control, and any apparent equivalence is not asserted."
       : null,
+  };
+}
+
+/**
+ * Live-precedence resolver (#163).
+ *
+ * The product promise: a launch answer is built from the *live published
+ * corpus* whenever a qualified record for the concept exists. The reviewed
+ * fixture supplies the question framing and the distinction a planner must not
+ * flatten — never the qualified fields, and never a synthetic record whose
+ * provenance would read as live output.
+ *
+ * Two rules:
+ *  1. Live first. Match the reviewed case to a live record (exact `record_id`
+ *     when the review pinned one, else a concept match) and build the answer
+ *     from that live record's own control_mode / evidence_basis / availability
+ *     / scope / last_verified_at.
+ *  2. Explicit abstention when the live record is missing. A concept the
+ *     published corpus does not carry yet resolves to `unknown` with an honest
+ *     "no live record yet" rationale — never a synthetic fact. A live record
+ *     that exists but carries no qualified fields (they would normalise to
+ *     `unknown`) is treated as *not* establishing the concept, so the answer
+ *     abstains rather than presenting a placeholder as an assertion.
+ */
+/** Minimal shape the resolver needs from a reviewed case (avoids a cyclic import). */
+export interface ReviewedCaseRef {
+  id: string;
+  question: string;
+  target: string;
+  reviewed_by: string;
+  reviewed_at: string;
+  control_mode: CapabilityRecord["control_mode"];
+  evidence_basis: CapabilityRecord["evidence_basis"];
+  availability: CapabilityRecord["availability"];
+  markets: string[];
+  objectives: string[];
+  placements: string[];
+  prerequisites: string[];
+  exclusions: string[];
+  /** The dataset record this reviewed case is attributed to, when one exists. */
+  record_id?: string | null;
+  source: {
+    source_id: string;
+    source_url: string;
+    product?: string | null;
+    cleaned_sha256: string;
+    raw_sha256: string;
+  };
+}
+
+/** Does a live record assert a qualified outcome, or is it a bare unknown placeholder? */
+export function isLiveQualified(record: CapabilityRecord): boolean {
+  // A record whose qualified fields all normalise to the "not evidenced" default
+  // establishes nothing: presenting it would be a placeholder read as an answer.
+  const basisKnown = record.evidence_basis !== undefined && record.evidence_basis !== "unknown";
+  const availabilityKnown =
+    record.availability !== undefined && record.availability !== "unknown";
+  return basisKnown && availabilityKnown;
+}
+
+/** Concept tokens a reviewer used, for the fallback match when no record_id is pinned. */
+function conceptTokens(caseRef: ReviewedCaseRef): string[] {
+  return tokenise(`${caseRef.target} ${caseRef.source.product ?? ""}`);
+}
+
+/**
+ * Find the live record a reviewed case is about.
+ * - exact `record_id` when the review pinned one and it is present live;
+ * - otherwise the best-scoring live record on the reviewed concept, but only
+ *   when it clears the same relevance bar `answerQuery` uses.
+ */
+export function resolveLiveRecord(
+  caseRef: ReviewedCaseRef,
+  records: CapabilityRecord[],
+  filter?: { vendor?: string; platform?: string },
+): CapabilityRecord | null {
+  if (caseRef.record_id) {
+    const exact = records.find((record) => record.id === caseRef.record_id);
+    if (exact) return exact;
+    // A pinned record that is no longer live is an explicit miss: do not fall
+    // back to a neighbouring record, which would answer from another concept.
+    return null;
+  }
+  const tokens = conceptTokens(caseRef);
+  if (tokens.length === 0) return null;
+  // A concept match must stay on the surface the planner named: matching across
+  // vendors would bind the reviewed concept to an unrelated platform's record.
+  const candidates = records.filter(
+    (record) =>
+      (filter?.vendor ? record.vendor === filter.vendor : true) &&
+      (filter?.platform ? record.platform === filter.platform : true),
+  );
+  const scored = candidates
+    .map((record) => ({ record, value: score(record, tokens) }))
+    .filter((entry) => entry.value >= 0.5)
+    .sort((a, b) => b.value - a.value || a.record.name.localeCompare(b.record.name));
+  return scored.length > 0 ? scored[0].record : null;
+}
+
+/** A live evidence pointer list, or the reviewed source pointer when live carries none. */
+function evidenceFor(record: CapabilityRecord | null, caseRef: ReviewedCaseRef): EvidencePointer[] {
+  if (record && (record.evidence ?? []).length > 0) return record.evidence;
+  return [
+    {
+      source_id: caseRef.source.source_id,
+      source_url: caseRef.source.source_url,
+      cleaned_sha256: caseRef.source.cleaned_sha256,
+      raw_sha256: caseRef.source.raw_sha256,
+    },
+  ];
+}
+
+/** Build one launch answer from the live corpus, with the reviewed fixture as framing only. */
+export function answerFromLiveCorpus(
+  cases: ReviewedCaseRef[],
+  query: PlannerQuery,
+  records: CapabilityRecord[],
+): QualifiedAnswer {
+  const resolved = cases.map((caseRef) => {
+    const live = resolveLiveRecord(caseRef, records, { vendor: query.vendor, platform: query.platform });
+    return { caseRef, live, qualified: live ? isLiveQualified(live) : false };
+  });
+
+  const established = resolved.filter((entry) => entry.live && entry.qualified);
+
+  if (established.length === 0) {
+    // No live qualified record for any concept in this question. Abstain, and
+    // say exactly why: this is the honesty rule, not a failure.
+    const reviewedOnly = resolved.map((entry) => entry.caseRef.target).join(", ");
+    return {
+      query,
+      verdict: "unknown",
+      facts: [],
+      rationale:
+        `No live published capability currently evidences ${reviewedOnly}. ` +
+        "The reviewed reference describes the concept, but the explorer will not " +
+        "present reviewed provenance as live output, so this stays unresolved.",
+      abstained: true,
+      provenance: "reviewed_reference",
+    };
+  }
+
+  const facts = established.map(({ caseRef, live }) => ({
+    record: {
+      ...live!,
+      // The reviewed case names the concept the planner typed; the qualified
+      // fields are the live record's own, never the fixture's.
+      name: live!.name,
+    },
+    conditions: conditionsFor(live!, query.market, query.objective),
+    evidence: evidenceFor(live!, caseRef),
+    verificationDate: live!.last_verified_at ?? null,
+  }));
+
+  const verdict = combineVerdicts(facts.map((fact) => fact.record.availability));
+  const basisNote = describeBasis(facts.map((fact) => fact.record.evidence_basis));
+  const missing = resolved.filter((entry) => !(entry.live && entry.qualified)).map((entry) => entry.caseRef.target);
+
+  return {
+    query,
+    verdict,
+    facts,
+    rationale:
+      `${VERDICT_REASON[verdict]} Matched ${facts.length} live published capability${facts.length === 1 ? "" : "ies"}` +
+      (missing.length > 0
+        ? `; ${missing.length} concept${missing.length === 1 ? "" : "s"} (${missing.join(", ")}) has no live record and stays unresolved.`
+        : "") +
+      ` ${basisNote}`,
+    abstained: false,
+    provenance: "live",
   };
 }

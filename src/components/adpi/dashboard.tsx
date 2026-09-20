@@ -7,94 +7,27 @@ import { QualifiedAnswerCard } from "./qualified-answer"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { LAUNCH_QUESTIONS, ABSTENTION_QUESTION } from "@/lib/adpi/launch"
-import { answerQuery, compareCapabilities } from "@/lib/adpi/qualified"
+import { answerFromLiveCorpus, answerQuery, compareCapabilities } from "@/lib/adpi/qualified"
 import { reviewedGolden } from "@/lib/adpi/reviewed"
-import type { AnswerCondition, Availability, CapabilityRecord, PlannerQuery, QualifiedAnswer } from "@/lib/adpi/types"
+import type { CapabilityRecord, PlannerQuery, QualifiedAnswer } from "@/lib/adpi/types"
 import { AVAILABILITY_CLASS, AVAILABILITY_LABEL } from "@/lib/adpi/labels"
 import { Badge } from "@/components/ui/badge"
 
-/** Build one reviewed fact from a golden case id, attributed to a real record when possible. */
-function factFromReviewedCase(caseId: string, records: CapabilityRecord[]) {
-  const reviewed = reviewedGolden().cases.find((entry) => entry.id === caseId)
-  if (!reviewed) return null
-  // Attribution is an explicit reviewed-case -> record-id mapping, never a
-  // substring guess: a provenance-first answer must bind to the exact record or
-  // to nothing, else it would inherit another capability's id and evidence.
-  const match = reviewed.record_id
-    ? records.find((record) => record.id === reviewed.record_id)
-    : undefined
-  const base: CapabilityRecord =
-    match ??
-    ({
-      id: `reviewed.${reviewed.id}`,
-      vendor: reviewed.source.product ?? "Reviewed",
-      platform: reviewed.source.product ?? "Reviewed",
-      name: reviewed.target,
-      capability_type: "targeting",
-      maturity: "live",
-      control_mode: reviewed.control_mode,
-      evidence_basis: reviewed.evidence_basis,
-      availability: reviewed.availability,
-      evidence: [],
-    } as CapabilityRecord)
-
-  const conditions: AnswerCondition[] = [
-    ...reviewed.prerequisites.map((detail) => ({ kind: "prerequisite" as const, detail })),
-    ...reviewed.exclusions.map((detail) => ({ kind: "other" as const, detail: `Excluded: ${detail}` })),
-    ...reviewed.markets.map((detail) => ({ kind: "market" as const, detail: `Evidenced market: ${detail}` })),
-    ...reviewed.objectives.map((detail) => ({ kind: "objective" as const, detail: `Evidenced objective: ${detail}` })),
-  ]
-
-  return {
-    fact: {
-      record: {
-        ...base,
-        name: reviewed.target,
-        vendor: reviewed.source.product ?? base.vendor,
-        control_mode: reviewed.control_mode,
-        evidence_basis: reviewed.evidence_basis,
-        availability: reviewed.availability,
-      },
-      conditions,
-      evidence: [
-        {
-          source_id: reviewed.source.source_id,
-          source_url: reviewed.source.source_url,
-          cleaned_sha256: reviewed.source.cleaned_sha256,
-          raw_sha256: reviewed.source.raw_sha256,
-        },
-      ],
-      verificationDate: reviewed.reviewed_at,
-    },
-    availability: reviewed.availability,
-  }
-}
-
-/** Honest verdict: documentation alone can only establish `conditional`, never a yes. */
-function combineReviewedAvailability(values: Availability[]): Availability {
-  if (values.length === 0) return "unknown"
-  if (values.every((value) => value === "unknown")) return "unknown"
-  return "conditional"
-}
-
+/**
+ * Launch answers are built from the LIVE published corpus (#163). The reviewed
+ * fixture supplies the question framing and the distinction, never the qualified
+ * fields and never a synthetic record. A concept with no live qualified record
+ * abstains rather than presenting reviewed provenance as live output.
+ */
 function answerForLaunchQuestion(
   caseIds: string[],
   query: PlannerQuery,
   records: CapabilityRecord[],
 ): QualifiedAnswer {
-  const built = caseIds
-    .map((caseId) => factFromReviewedCase(caseId, records))
-    .filter((entry): entry is NonNullable<typeof entry> => entry !== null)
-  if (built.length === 0) return answerQuery(records, query)
-  return {
-    query,
-    verdict: combineReviewedAvailability(built.map((entry) => entry.availability)),
-    facts: built.map((entry) => entry.fact),
-    rationale:
-      "Reviewed Stage-1 answer. Documentation establishes the capability and its conditions; it " +
-      "cannot establish an unqualified yes for a given account, so the outcome is conditional.",
-    abstained: false,
-  }
+  const cases = caseIds
+    .map((caseId) => reviewedGolden().cases.find((entry) => entry.id === caseId))
+    .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry))
+  return answerFromLiveCorpus(cases, query, records)
 }
 
 function LaunchQuestionCard({

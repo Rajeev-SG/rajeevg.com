@@ -26,25 +26,42 @@ async function preparePage(page: Page, url = "/solutions/capability-explorer") {
   ).toBeVisible()
 }
 
-test("the three launch questions return qualified answers, not booleans", async ({ page }) => {
+test("the three launch questions are answered honestly, from live records or not at all", async ({ page }) => {
   test.setTimeout(90_000)
   await fs.mkdir(artifactRoot, { recursive: true })
   await preparePage(page)
 
-  const verdicts = await page.getByTestId("adpi-verdict").allTextContents()
-  expect(verdicts.length).toBeGreaterThanOrEqual(3)
-  for (const verdict of verdicts) {
-    expect(["Supported", "Conditional", "Unknown"]).toContain(verdict)
+  // #163: every launch answer states its provenance. It is either built from the
+  // live published corpus, or an explicit unresolved state — never reviewed /
+  // synthetic provenance presented as live output.
+  const provenance = page.getByTestId("adpi-provenance")
+  await expect(provenance.first()).toBeVisible()
+  const labels = await provenance.allTextContents()
+  expect(labels.length).toBeGreaterThanOrEqual(3)
+  for (const label of labels) {
+    expect([
+      "From the live published corpus",
+      "Reviewed reference — no live record yet",
+      "No source asserted this",
+    ]).toContain(label)
   }
 
-  await expect(page.getByText("Optimisation signal (guides it)").first()).toBeVisible()
-  await expect(page.getByText("Automatic (platform decides)").first()).toBeVisible()
-  await expect(page.getByText("Hard control (you set it)").first()).toBeVisible()
+  // Any answer asserted as live must carry qualified, non-boolean fields; any
+  // answer without a live record must show the explicit abstention card instead.
+  for (const label of labels) {
+    if (label === "From the live published corpus") {
+      const verdicts = await page.getByTestId("adpi-verdict").allTextContents()
+      for (const verdict of verdicts) {
+        expect(["Supported", "Conditional", "Unknown"]).toContain(verdict)
+      }
+    }
+  }
 
-  await expect(page.getByText("Evidence basis: Documented").first()).toBeVisible()
-  await expect(page.getByText(/Verified: 2026-09-19/).first()).toBeVisible()
-
-  const abstention = page.getByTestId("adpi-abstention").first()
+  // The deliberate abstention proof is always present and honest. Scope it to
+  // the abstention section, since a launch answer may also abstain (#163).
+  const abstention = page
+    .getByRole("region", { name: "Abstention example" })
+    .getByTestId("adpi-abstention")
   await expect(abstention).toBeVisible()
   await expect(abstention).toContainText("No published capability matched")
 
