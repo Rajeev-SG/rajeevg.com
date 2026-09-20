@@ -15,7 +15,15 @@ describe("isPlausibleHistory", () => {
     expect(isPlausibleHistory({ generated_at: "t", entries: "nope" })).toBe(false)
   })
   it("rejects entries missing id or change", () => {
-    expect(isPlausibleHistory({ generated_at: "t", entries: [{ vendor: "x" }] })).toBe(false)
+    expect(isPlausibleHistory({ schema_version: 2, generated_at: "t", entries: [{ vendor: "x" }] })).toBe(false)
+  })
+  it("rejects a null entry without throwing (F2)", () => {
+    expect(isPlausibleHistory({ schema_version: 2, generated_at: "t", entries: [null] })).toBe(false)
+    expect(isPlausibleHistory({ schema_version: 2, generated_at: "t", entries: ["x", 3] })).toBe(false)
+  })
+  it("rejects an unknown schema version (F3)", () => {
+    expect(isPlausibleHistory({ schema_version: 3, generated_at: "t", entries: [] })).toBe(false)
+    expect(isPlausibleHistory({ generated_at: "t", entries: [] })).toBe(false)
   })
 })
 
@@ -30,10 +38,21 @@ describe("summariseHistory", () => {
     const s = summariseHistory(h)
     expect(s.total).toBe(4)
     expect(s.byChange).toEqual({ added: 1, superseded: 1, retired: 1, changed: 1 })
-    // "added" is excluded from recent changes; newest effective_to first.
-    expect(s.recentChanges.map((e) => e.id).slice(0, 2)).toEqual(["c", "d"])
+    // "added" is excluded; newest effective_to first, tiebroken by latest
+    // verification — d (verified 09-20) ahead of c (verified 09-17).
+    expect(s.recentChanges.map((e) => e.id).slice(0, 2)).toEqual(["d", "c"])
     expect(s.recentChanges.every((e) => e.change !== "added")).toBe(true)
     expect(s.lastVerifiedAt).toBe("2026-09-20")
+  })
+
+  it("treats a still-current changed entry as recent (F1)", () => {
+    const h = history([
+      { id: "old", change: "superseded", vendor: "Meta", platform: "p", name: "Old", effective_to: "2026-08-01", last_verified_at: "2026-08-01" },
+      { id: "now", change: "changed", vendor: "Pinterest", platform: "p", name: "Now", effective_to: null, last_verified_at: "2026-09-20" },
+    ])
+    const s = summariseHistory(h, 5)
+    // The still-current changed entry must sort first, not be demoted to last.
+    expect(s.recentChanges[0].id).toBe("now")
   })
 
   it("caps the recent-changes list", () => {

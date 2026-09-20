@@ -38,22 +38,41 @@ export interface AdpiHistory {
   entries: AdpiHistoryEntry[];
 }
 
+/** The schema this reader understands; a mismatch is rejected, not rendered. */
+export const ADPI_HISTORY_SCHEMA_VERSION = 2;
+
 export const ADPI_HISTORY_URL =
   process.env.ADPI_HISTORY_URL ??
   "https://raw.githubusercontent.com/Rajeev-SG/adpi-data/main/history.json";
 
-/** Shape check: a payload from a different schema must be rejected, not rendered. */
+/**
+ * Shape check: a payload from a different schema must be rejected, not rendered.
+ * Every entry is guarded for null/non-object before its fields are read, and the
+ * `schema_version` is checked — a future schema must degrade to "no history
+ * surface", never render a wrong view.
+ */
 export function isPlausibleHistory(parsed: unknown): parsed is AdpiHistory {
   const candidate = parsed as AdpiHistory | null;
-  if (!candidate || typeof candidate.generated_at !== "string") return false;
+  if (!candidate || typeof candidate !== "object") return false;
+  if (candidate.schema_version !== ADPI_HISTORY_SCHEMA_VERSION) return false;
+  if (typeof candidate.generated_at !== "string") return false;
   if (!Array.isArray(candidate.entries)) return false;
   return candidate.entries.every(
-    (entry) => typeof entry.id === "string" && typeof entry.change === "string",
+    (entry) =>
+      typeof entry === "object" &&
+      entry !== null &&
+      typeof entry.id === "string" &&
+      typeof entry.change === "string",
   );
 }
 
-let historyCache: { at: number; history: AdpiHistory | null } = { at: 0, history: null };
+// Cache lifetime aligned with the Next fetch `revalidate` (1 h), so the two
+// layers do not compound into a doubly-stale read. Only a *successful* fetch
+// refreshes `at`: a failure serves the last known history but does not extend
+// its lifetime, so a persistently broken feed eventually surfaces as no history
+// rather than serving a superseded artefact forever (F4).
 const CACHE_MS = 60 * 60 * 1000;
+let historyCache: { at: number; history: AdpiHistory | null } = { at: 0, history: null };
 
 /** Read the published history, cached in-process. Never throws, never invents one. */
 export async function getDurableHistory(): Promise<AdpiHistory | null> {
@@ -70,7 +89,8 @@ export async function getDurableHistory(): Promise<AdpiHistory | null> {
     historyCache = { at: now, history: parsed };
     return parsed;
   } catch {
-    historyCache = { at: now, history: historyCache.history };
+    // Serve the last known history without extending its lifetime; a null cache
+    // simply yields no history surface.
     return historyCache.history;
   }
 }
@@ -94,12 +114,21 @@ export function summariseHistory(history: AdpiHistory, limit = 5): HistorySummar
   for (const entry of history.entries) {
     byChange[entry.change] = (byChange[entry.change] ?? 0) + 1;
   }
+  // Recency key: a still-current changed entry (effective_to null) is *recent*,
+  // so fall back to its last_verified_at, then first_seen_at, rather than
+  // sorting it last behind every dated supersession (F1). The documented
+  // tiebreak is applied in the comparator.
+  const recency = (entry: AdpiHistoryEntry): string =>
+    entry.effective_to ?? entry.last_verified_at ?? entry.first_seen_at ?? "";
   const recentChanges = history.entries
     .filter((entry) => entry.change !== "added")
     .slice()
-    // Most recent first: by the date the change took effect (effective_to), then
-    // by last_verified_at, so a supersession/retirement sorts ahead of older ones.
-    .sort((a, b) => (b.effective_to ?? "").localeCompare(a.effective_to ?? ""))
+    .sort((a, b) => {
+      const byRecency = recency(b).localeCompare(recency(a));
+      if (byRecency !== 0) return byRecency;
+      // Tiebreak: latest verification first, then newest first-seen.
+      return (b.last_verified_at ?? "").localeCompare(a.last_verified_at ?? "");
+    })
     .slice(0, limit);
   const lastVerifiedAt =
     history.entries

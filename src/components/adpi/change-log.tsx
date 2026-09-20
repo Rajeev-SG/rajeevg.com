@@ -39,6 +39,15 @@ export function AdpiChangeLog({ history }: { history: AdpiHistory }) {
           end date is still current; superseded and retired versions show where a
           fact stopped being current.
         </p>
+        <p className="text-xs">
+          History published{" "}
+          {new Date(history.generated_at).toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          })}
+          . Publication time is not evidence freshness.
+        </p>
         {summary.recentChanges.length > 0 ? (
           <ul className="space-y-1">
             {summary.recentChanges.map((entry) => (
