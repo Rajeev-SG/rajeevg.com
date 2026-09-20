@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">One interface, two transports</title>
+  <desc id="desc">navigate · evaluate · click · fill · key · scroll. Swap the implementation, keep the loop identical.</desc>
+  <defs>
+    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.1" fill="#e7e2d5"/></pattern>
+    <filter id="wobble" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="11" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="0.85"/></filter>
+    <marker id="arrowEnd" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M 0 0 L 9 5 L 0 10 z" fill="#172033"/></marker>
+    <marker id="arrowStart" markerWidth="10" markerHeight="10" refX="2" refY="5" orient="auto-start-reverse"><path d="M 10 0 L 1 5 L 10 10 z" fill="#172033"/></marker>
+    <style>
+      .rough { filter: url(#wobble); }
+      .title { font: 700 34px Georgia, serif; fill: #172033; }
+      .subtitle { font: 18px Georgia, serif; fill: #566174; }
+      .node-title { font: 700 24px "Comic Sans MS", "Bradley Hand", cursive; fill: #172033; }
+      .body { font: 17px "Comic Sans MS", "Bradley Hand", cursive; fill: #172033; }
+      .arrow-label { font: 14px "Comic Sans MS", "Bradley Hand", cursive; fill: #566174; paint-order: stroke; stroke: #fbfaf5; stroke-width: 7px; }
+      .footer { font: 16px Georgia, serif; font-style: italic; fill: #566174; }
+    </style>
+  </defs>
+  <rect width="1280" height="720" fill="#fbfaf5"/>
+  <rect width="1280" height="720" fill="url(#dots)" opacity=".68"/>
+  <path d="M 48 101 C 330 98, 580 105, 846 100 S 1125 103, 1230 99" fill="none" stroke="#172033" stroke-width="2" stroke-opacity=".18" class="rough"/>
+  <text x="48" y="60" class="title">One interface, two transports</text>
+  <text x="48" y="91" class="subtitle">navigate · evaluate · click · fill · key · scroll. Swap the implementation, keep the loop identical.</text>
+  <g><path d="M 560 224 C 455 224, 455 270, 350 270" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arrowEnd)" class="rough"/><text x="385" y="260" text-anchor="middle" class="arrow-label">browser-relay</text></g>
+<g><path d="M 720 224 C 825 224, 825 270, 930 270" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arrowEnd)" class="rough"/><text x="895" y="260" text-anchor="middle" class="arrow-label">playwriter</text></g>
+<g><path d="M 360 495 C 370 495, 370 520, 380 520" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arrowEnd)" class="rough"/><text x="370" y="492.5" text-anchor="middle" class="arrow-label">drives</text></g>
+<g><path d="M 920 495 C 910 495, 910 520, 900 520" fill="none" stroke="#172033" stroke-width="2.5" marker-end="url(#arrowEnd)" class="rough"/><text x="910" y="492.5" text-anchor="middle" class="arrow-label">drives</text></g>
+  <g transform="rotate(-0.25 640 160)"><rect x="470" y="96" width="340" height="128" rx="18" fill="#e9e1ff" stroke="#7459a8" stroke-width="3" class="rough"/><rect x="475" y="101" width="330" height="118" rx="14" fill="none" stroke="#7459a8" stroke-opacity=".22" stroke-width="1.5"/><text x="640" y="139" text-anchor="middle" class="node-title">Transport interface</text><text x="640" y="175" text-anchor="middle" class="body">navigate · evaluate · click</text>
+<text x="640" y="200" text-anchor="middle" class="body">fill · key · scroll</text></g>
+<g transform="rotate(0.25 350 382.5)"><rect x="130" y="270" width="440" height="225" rx="18" fill="#dce8ff" stroke="#4f6fad" stroke-width="3" class="rough"/><rect x="135" y="275" width="430" height="215" rx="14" fill="none" stroke="#4f6fad" stroke-opacity=".22" stroke-width="1.5"/><text x="350" y="313" text-anchor="middle" class="node-title">Browser Relay</text><text x="350" y="349" text-anchor="middle" class="body">one CLI call per action</text>
+<text x="350" y="374" text-anchor="middle" class="body">browser-relay click "&lt;sel&gt;" --tab t_X</text>
+<text x="350" y="399" text-anchor="middle" class="body"></text>
+<text x="350" y="424" text-anchor="middle" class="body">local relay server on :18795</text>
+<text x="350" y="449" text-anchor="middle" class="body">⇄ WebSocket ⇄ MV3 extension</text>
+<text x="350" y="474" text-anchor="middle" class="body">⇄ chrome.debugger ⇄ the tab</text></g>
+<g transform="rotate(-0.25 930 382.5)"><rect x="710" y="270" width="440" height="225" rx="18" fill="#dcf3e5" stroke="#3f8460" stroke-width="3" class="rough"/><rect x="715" y="275" width="430" height="215" rx="14" fill="none" stroke="#3f8460" stroke-opacity=".22" stroke-width="1.5"/><text x="930" y="313" text-anchor="middle" class="node-title">Playwriter</text><text x="930" y="349" text-anchor="middle" class="body">one CLI call per action</text>
+<text x="930" y="374" text-anchor="middle" class="body">playwriter -s 3 -e "await page..."</text>
+<text x="930" y="399" text-anchor="middle" class="body"></text>
+<text x="930" y="424" text-anchor="middle" class="body">persistent session, held open</text>
+<text x="930" y="449" text-anchor="middle" class="body">materialises a Playwright page</text>
+<text x="930" y="474" text-anchor="middle" class="body">object over the same tab</text></g>
+<g transform="rotate(0.25 640 582)"><rect x="470" y="520" width="340" height="124" rx="18" fill="#fff0c9" stroke="#a97921" stroke-width="3" class="rough"/><rect x="475" y="525" width="330" height="114" rx="14" fill="none" stroke="#a97921" stroke-opacity=".22" stroke-width="1.5"/><text x="640" y="563" text-anchor="middle" class="node-title">The same Chrome</text><text x="640" y="599" text-anchor="middle" class="body">profile, cookies, logins</text></g>
+  <path d="M 48 674 C 360 670, 620 678, 950 672 S 1160 675, 1230 671" fill="none" stroke="#172033" stroke-width="1.5" stroke-opacity=".18" class="rough"/>
+  <text x="640" y="700" text-anchor="middle" class="footer">The bridge does not know which transport it holds. That is what made the two runs comparable. Evidence date: 20 Sep 2026.</text>
+</svg>
