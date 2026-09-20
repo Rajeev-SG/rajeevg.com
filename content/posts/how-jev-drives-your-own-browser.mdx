@@ -1,0 +1,146 @@
+---
+title: How Jev Drives Your Own Browser, Over Playwriter and Browser Relay
+slug: how-jev-drives-your-own-browser
+date: 2026-09-20
+description: A walk through the actual code path behind a Jev browser agent - what gets observed, what the model is allowed to decide, and how the same loop runs over two completely different transports without changing a line of the decision logic.
+tags: [ai, agents, browser-automation, architecture, playwriter, browser-relay, jev]
+draft: false
+---
+
+<div className="flex flex-wrap gap-2">
+  <span className="inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium">Browser automation</span>
+  <span className="inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium">Architecture</span>
+  <span className="inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium">Agents</span>
+</div>
+
+Most "AI browser agent" writing stops at the idea: the model looks at a page and clicks things. The interesting part is the plumbing underneath, because that is where agents either stay safe or quietly click the wrong button.
+
+This is a walk through the actual path I run: [Jev Ultrafast](https://github.com/browser-use/jev-ultrafast) deciding what to do, driving my own logged-in Chrome through either [Playwriter](https://playwriter.dev) or [Browser Relay](https://github.com/raymondclr/browser-relay). Same loop, two very different transports.
+
+## The core rule: the model picks a number
+
+The whole design rests on one constraint. **The model never sees or emits a selector, a coordinate, or a line of JavaScript.** It gets handed a menu of things the page says are clickable, and it returns one index from that menu.
+
+That is the entire output of a decision. Not "click the submit button" — something closer to `CLICK [7]`, where `[7]` was a real element the code found and numbered a moment earlier.
+
+<figure className="not-prose my-10">
+  <img
+    src="/images/blog/jev-browser-bridge/jev-bridge-loop.svg"
+    alt="Excalidraw diagram of the Jev bridge loop: the Jev agent chooses one indexed action, snapshot.js builds the element table from the live page, BridgeBrowser re-validates the chosen node and stamps a one-use attribute on it, and the transport executes a real click in the user's own Chrome tab"
+    className="relative left-1/2 block w-[min(96vw,92rem)] max-w-none -translate-x-1/2 rounded-2xl border border-slate-200 bg-white shadow-sm"
+  />
+  <figcaption className="mx-auto mt-3 max-w-3xl text-center text-sm leading-6 text-slate-600 dark:text-slate-400">
+    One decision per turn. The model's entire output is an index it saw; everything that touches the browser is code-owned. <a className="font-medium underline underline-offset-4" href="/downloads/jev-bridge-loop.excalidraw">Download the editable Excalidraw source</a>.
+  </figcaption>
+</figure>
+
+### Step 1 — observe
+
+A small script (`snapshot.js`, shipped with Jev) runs inside the live page. It walks the DOM, keeps only things a human could actually interact with, and builds a table: label, role, current value, whether it is checked, enabled, visible.
+
+The same script also attaches a per-node **guard** — a fingerprint of that specific element's identity, role, text and state — plus a **page key** covering the URL, scroll position, viewport, and every field's value. Those two things are what make the next steps safe.
+
+### Step 2 — decide
+
+That table goes to Jev, along with the goal and the last few actions. Jev picks one operation and one target from the table. This is a genuinely small decision — the model is choosing from a menu it was just handed, not reasoning about DOM structure.
+
+The output is an index. `CLICK [7]`.
+
+### Step 3 — re-validate, then act
+
+This is the part that matters, and it is why the model cannot click the wrong button.
+
+Before anything touches the browser, the bridge re-checks the chosen node. Not "does a button with this text exist" — that is the fragile approach — but "is *this exact element* still the thing I numbered."
+
+Four checks, in order:
+
+<figure className="not-prose my-10">
+  <img
+    src="/images/blog/jev-browser-bridge/jev-stale-target-guard.svg"
+    alt="Excalidraw diagram of four validation checks between a decision and an input: is the page unchanged, is the same node still present and enabled and visible, is anything overlapping the target when hit-tested at its centre, then stamp a one-use attribute and act; any failure raises a stale-page error and forces a fresh observation"
+    className="relative left-1/2 block w-[min(96vw,92rem)] max-w-none -translate-x-1/2 rounded-2xl border border-slate-200 bg-white shadow-sm"
+  />
+  <figcaption className="mx-auto mt-3 max-w-3xl text-center text-sm leading-6 text-slate-600 dark:text-slate-400">
+    A covered or moved target becomes a failed decision, not a wrong click. <a className="font-medium underline underline-offset-4" href="/downloads/jev-stale-target-guard.excalidraw">Download the editable Excalidraw source</a>.
+  </figcaption>
+</figure>
+
+If all four pass, the bridge stamps a **one-use attribute** on the element — a random token, `data-jev-fast-target="jev-<uuid>"` — and removes any previous stamp. The transport then acts on that generated selector, not on anything the model produced. The attribute is one-use by construction: it is retagged on every action, so a stale token cannot be replayed.
+
+If any check fails, nothing is clicked. The bridge raises a stale-page error and the loop simply observes again. A decision that was true two seconds ago is discarded rather than trusted.
+
+There is one subtlety worth naming, because it cost me real time: the cheap "has the page changed?" probe deliberately does *not* re-serialise the whole page. An early version re-ran the full snapshot just to compare freshness, which doubled the work per decision and inflated exactly the latency I was trying to measure. Safety does not depend on it — the per-node guard is the real check — so the freshness probe was replaced with a short identity tuple.
+
+## Two transports, one interface
+
+Everything above is transport-independent. The bridge holds a small interface:
+
+```
+navigate · evaluate · click · fill · key · scroll
+```
+
+Two implementations satisfy it. Which one you get is a single environment variable: `JEV_BROWSER_BACKEND=browser-relay` or `playwriter`.
+
+<figure className="not-prose my-10">
+  <img
+    src="/images/blog/jev-browser-bridge/jev-transport-swap.svg"
+    alt="Excalidraw diagram of one transport interface with two implementations: Browser Relay issues a CLI call per action against a local relay server on port 18795 that talks over a WebSocket to an MV3 Chrome extension using chrome.debugger, while Playwriter issues a CLI call per action into a persistent session that materialises a Playwright page object over the same Chrome tab"
+    className="relative left-1/2 block w-[min(96vw,92rem)] max-w-none -translate-x-1/2 rounded-2xl border border-slate-200 bg-white shadow-sm"
+  />
+  <figcaption className="mx-auto mt-3 max-w-3xl text-center text-sm leading-6 text-slate-600 dark:text-slate-400">
+    Both drive the same logged-in Chrome. The bridge does not know which one it holds. <a className="font-medium underline underline-offset-4" href="/downloads/jev-transport-swap.excalidraw">Download the editable Excalidraw source</a>.
+  </figcaption>
+</figure>
+
+### Jev + Browser Relay
+
+Browser Relay is a CLI that talks to a local relay server, which holds a WebSocket to a Chrome extension, which uses the `chrome.debugger` API to drive the tab. Every action is one process:
+
+```bash
+browser-relay click '[data-jev-fast-target="jev-9f2c…"]' --tab t_M0X65KrUJQ
+browser-relay type 'Email supplier' --selector '[data-…]' --clear --tab t_M0X65KrUJQ
+browser-relay eval "$(snapshot_js)" --tab t_M0X65KrUJQ
+```
+
+The bridge picks a tab by asking the relay for its attached tabs and matching the target host, falling back to the first tab if nothing matches. You can pin it explicitly with `BROWSER_RELAY_TAB`.
+
+One practical wrinkle I hit: **the relay drops keyboard input when the attached tab is backgrounded.** Pressing Enter into a tab that is not focused silently does nothing, which looks like a broken agent when it is actually a focus problem. Focus the tab before a run. I verified this directly — with the tab focused, Enter committed the item three times out of three; unfocused, zero out of three.
+
+### Jev + Playwriter
+
+Playwriter is the other shape. It holds a **persistent session** with a real Playwright `page` object over your Chrome tab, and each action is a small snippet of JS evaluated in that session:
+
+```bash
+playwriter -s 3 -e "await page.locator('[data-jev-fast-target=\"jev-9f2c…\"]').click()"
+playwriter -s 3 -e "await page.keyboard.press('Enter')"
+playwriter -s 3 -e "console.log('__JEV_JSON__' + JSON.stringify(await page.evaluate(...)))"
+```
+
+Because a real page object exists, the transport maps directly onto Playwright's own API: `locator(...).click()`, `locator(...).fill(...)`, `keyboard.press(...)`, `mouse.wheel(...)`. The evaluate path is slightly more indirect — the expression is passed as a string and executed with an indirect `eval`, and the result is returned through a `__JEV_JSON__` marker on stdout, because the CLI's output is text and the value has to survive the trip.
+
+### What the difference actually costs
+
+Both transports spawn a process per action, which is the dominant per-action overhead. Measured on my machine, one spawn costs roughly **42 ms for `browser-relay`** and **109 ms for `playwriter`** — the Node startup for the Playwriter CLI is heavier.
+
+That is a real architectural difference, and it shows up in the numbers. Over five runs each on the same task with the same decision policy, Jev on Playwriter finished with a median of **16.1 seconds** (4 of 5 passing) and Jev on Browser Relay **13.1 seconds** (5 of 5). Same decisions, same browser, different plumbing underneath — and a measurable difference in what it costs to make each one.
+
+## Why build it this way
+
+Three properties fall out of this design, and they are the reason it is worth the wiring.
+
+**The model cannot invent a target.** It answers with an index. If it hallucinates `[999]`, no such node exists and the action fails closed. There is no syntax for "click the thing near the other thing."
+
+**A stale decision is a failed decision.** The guard is re-checked immediately before input, so the window between deciding and acting is the only window that matters. On a page that re-renders — which is most real pages — this is the difference between an agent and a lottery ticket.
+
+**The transport is swappable.** Because the bridge only depends on the interface, I could run the identical decision logic over two completely different browser stacks and compare them honestly. A result measured over one transport is a result about the *policy*, not about the transport's quirks.
+
+That last property is what made the comparison in my [browser automation benchmark](/blog/web-automation-microbenchmarks) possible: when you want to know whether a fast decision model helps, you have to hold the browser fixed and change only the decider. This bridge is what lets me do that.
+
+## The honest limits
+
+- **Jev's policy is a separate service.** The decisions here come through classifier.dev, whose fast tier is Jev; the direct TypeSafe path needs its own key. Same decision model, different endpoint.
+- **A process per action is not free.** Both transports pay Node startup per step. A transport with a persistent socket and no subprocess boundary would remove that cost entirely — that is the obvious next step, not a solved problem.
+- **Focus still matters for keyboard input** on the relay path, as noted above.
+- **Everything here is small-n.** The numbers quoted are from a handful of runs on one controlled task, and should be read as a strong signal rather than a settled result.
+
+If you want the code, it lives in [jev-tests](https://github.com/Rajeev-SG/jev-tests): `src/jev_tests/bridge.py` for the bridge and both transports, and `src/jev_tests/classifier_policy.py` for the decision policy.
