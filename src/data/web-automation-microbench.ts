@@ -36,6 +36,8 @@ export const microbench = {
   evidenceDate: "2026-09-21",
   updated: "2026-09-21",
   harnesses: 35,
+  // Real-work (harvested-corpus) runs only: sum over capabilityRows of (rep labels x 11 tasks).
+  // TodoMVC fast-path runs are excluded. 6 harnesses = 110 before; +22 for the new 2-rep screen.
   runs: 132,
 } as const
 
@@ -118,7 +120,7 @@ export const jevFastPath = {
   evidenceDate: "2026-09-19",
   pin: "browser-use/jev-ultrafast@452c1ad",
   summary:
-    "On the same TodoMVC job with one loop, one bridge and one verifier, only the decision model changes. Jev decides about twice as fast as GLM and, on Browser Relay, is the reliable arm.",
+    "On the same TodoMVC job with one loop, one bridge and one verifier, only the decision model changes. Jev decides about twice as fast as GLM (n=5 per arm; indicative, not a powered result) and, on Browser Relay, is the arm that finishes.",
   offline:
     "Offline next-action replay (400 scored real-work decisions): Jev does not beat the always-inspect baseline (0.68 vs 0.86 raw), but at a 0.7 confidence gate it covers 63.3% of decisions at 96.9% held-out accuracy (95% CI 0.92-0.99). Use as a gate, not the sole router.",
   caveat:
@@ -127,7 +129,7 @@ export const jevFastPath = {
 
 export const jevFastPathRows: JevFastPathRow[] = [
   { arm: "Jev + Browser Relay", pass: "5/5", median: "13.1s", decision: "1218 ms", note: "Reliable arm; GLM fails the same transport" },
-  { arm: "GLM + Browser Relay", pass: "1/5", median: "13.4s", decision: "2453 ms", note: "Level on time, but three runs never applied the filter" },
+  { arm: "GLM + Browser Relay", pass: "1/5", median: "13.4s", decision: "2453 ms", note: "Level on time, but four runs failed: three stopped without applying the filter, one emitted an invalid action" },
   { arm: "Jev + Playwriter", pass: "4/5", median: "16.1s", decision: "1350 ms", note: "~40% lower median than GLM on the same transport" },
   { arm: "GLM + Playwriter", pass: "4/5", median: "27.1s", decision: "2619 ms", note: "Same pass count, ~11s slower" },
 ]
