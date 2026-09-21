@@ -2,6 +2,7 @@
 title: I raced 34 browser automation tools on the same five-second job
 slug: web-automation-microbenchmarks
 date: 2026-09-13
+updated: 2026-09-21
 description: Almost every browser automation tool claims to be the fastest, the cheapest or the most reliable. I put 34 of them through the same job with the same browser and one independent pass test, then ranked them twice — because speed and real work do not agree.
 tags: [ai, agents, browser-automation, benchmarking, openrouter, tools]
 draft: false
@@ -60,7 +61,31 @@ I want to be precise about one thing, because I got it wrong in my own notes at 
 
 So the honest reading is narrower and less exciting than I expected: **the heavyweight architecture is a real capability that this task set does not reward.** Its round-trip count is low — 3 to 6 model calls on the one-shot audits, where a thin CLI needs 8 to 14 — so the code batching does exist and does something. It just does not convert into speed or reliability yet. The architecture permits bigger composed actions; the model largely used it as a slower one-command-per-step loop. I do not have evidence that code-batching wins on long authenticated workflows, and this run is mild evidence that it does not.
 
-## Three failures I did not expect
+## The newest own-loop contender lost outright
+
+Round 8 added **adaptive-ui-runtime** — an own-loop runtime with its own plan / route / act / verify engine, a strong-manager model and a free classifier fast path. It is the most interesting-shaped contender yet, and on this instrument it scored **0/2 on the toy task and 0/22 across the whole real-work corpus**.
+
+Two reasons, both structural rather than a speed story:
+
+- **It cannot record a finding.** Every real-work task ends by the agent writing its answer into a page variable the verifier reads. The runtime's action set — click, type, key, select, scroll, wait, focus, inspect — has **no "run this JavaScript" action**, so on all eleven audits it is incapable of finishing at all. The thin CLIs have an `eval` command, so they just do it.
+- **Where it can act, it does not commit the action.** On TodoMVC it typed the todo text repeatedly and never pressed Enter. On a real retailer, its first click accepted a cookie banner (navigating the page), and every later attempt re-clicked the same now-stale element.
+
+Its self-verification is also not trustworthy on its own: on 3 of 24 runs its own checker said "passed" while the independent verifier found the work was never done — on empty data. That is exactly why the pass test is independent.
+
+It is cheap (~$0.0003/run) and its classifier fast path is real, but it is cheaper at failing. It buys no advantage over browser-relay on this workload.
+
+## The classifier fast path, measured
+
+Underneath the decision-heavy rows sits **Jev Ultrafast** — a small classifier that picks the next browser action over a bounded candidate set, instead of a chat model reading the whole page each step. Its head-to-head lives in [jev-tests](https://github.com/Rajeev-SG/jev-tests) (same TodoMVC job, one loop, one bridge, one verifier; only the decision model changes; 5 reps per arm per transport).
+
+| Arm | Pass | Median | Decision p50 |
+|---|---:|---:|---:|
+| Jev + Browser Relay | 5/5 | 13.1s | 1218 ms |
+| GLM + Browser Relay | 1/5 | 13.4s | 2453 ms |
+| Jev + Playwriter | 4/5 | 16.1s | 1350 ms |
+| GLM + Playwriter | 4/5 | 27.1s | 2619 ms |
+
+Jev decides about **twice as fast** (1.2–1.4s vs 2.5–2.6s) and on Browser Relay it is the reliable arm (5/5 against GLM's 1/5). On Playwriter the median wall time is ~40% lower. The honest boundary is offline: on 400 scored real-work decisions Jev does **not** beat the trivial "always inspect the page" baseline (0.68 vs 0.86 raw accuracy) — but at a confidence gate of 0.7 it covers **63%** of decisions at **97%** accuracy on held-out data. Use it as a gate in front of the planner, not as the sole router. (Measured via classifier.dev, since this machine has no TypeSafe key.)
 
 ## Three failures I did not expect
 
