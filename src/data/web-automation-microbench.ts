@@ -1,6 +1,9 @@
 // Leaderboard data for the web-automation microbench.
 // Source of truth: https://github.com/Rajeev-SG/web-automation-microbench (README master + capability tables).
 // Transcribed by hand from the repo README; the repo is authoritative if the two ever disagree.
+// Round 8 provenance: microbench README @ merged PR #38 (issue #37) and jev-tests
+// results/browser-fastpath/live-summary.json + results/06_browser_routing/summary.json
+// (@ Rajeev-SG/jev-tests 4e5ed27). See src/data/__tests__ for the invariant checks.
 
 export type LatencyRow = {
   harness: string
@@ -33,10 +36,12 @@ export type CorpusTask = {
 export const microbench = {
   repoUrl: "https://github.com/Rajeev-SG/web-automation-microbench",
   model: "z-ai/glm-5.3-flash",
-  evidenceDate: "2026-09-13",
-  updated: "2026-09-13",
-  harnesses: 34,
-  runs: 110,
+  evidenceDate: "2026-09-21",
+  updated: "2026-09-21",
+  harnesses: 35,
+  // Real-work (harvested-corpus) runs only: sum over capabilityRows of (rep labels x 11 tasks).
+  // TodoMVC fast-path runs are excluded. 6 harnesses = 110 before; +22 for the new 2-rep screen.
+  runs: 132,
 } as const
 
 /** TodoMVC fast-path leaderboard — speed and cost on one controlled instrument. Sorted by median time. */
@@ -69,6 +74,7 @@ export const latencyRows: LatencyRow[] = [
   { harness: "bb-browser", repo: "epiral/bb-browser", url: "https://github.com/epiral/bb-browser", round: 6, pass: "0/2", median: "32.7s", tokens: "~12.6k / ~380", cost: "~$0.0021", note: "Scored failure: native key event carries no keyCode" },
   { harness: "midscene", repo: "web-infra-dev/midscene", url: "https://github.com/web-infra-dev/midscene", round: 6, pass: "2/2", median: "33.4s", tokens: "~444k / ~62k", cost: "~$0.074", note: "Vision-first; belongs to the capability suite, not the speed ranking" },
   { harness: "raw-playwright baseline", repo: "microsoft/playwright", url: "https://github.com/microsoft/playwright", round: 3, pass: "3/4", median: "42.7s", tokens: "~18.1k / ~410", cost: "~$0.0010" },
+  { harness: "adaptive-ui-runtime", repo: "Rajeev-SG/adaptive-ui-runtime", url: "https://github.com/Rajeev-SG/adaptive-ui-runtime", round: 8, pass: "0/2", median: "45.8s", tokens: "~3.0k / ~210", cost: "~$0.0003", note: "Own-loop (plan/route/act/verify). Fails the job outright: no page-eval action and it re-issues the same action instead of committing it" },
   { harness: "Magnitude", repo: "magnitudedev/magnitude", url: "https://github.com/magnitudedev/magnitude", round: 2, pass: "4/4", median: "52.6s", tokens: "~18.3k / ~2.9k", cost: "~$0.0021", note: "Vision-first: most reliable on messy JS sites, slower and pricier" },
   { harness: "Browser Use Pi", repo: "browser-use/browser-use-pi", url: "https://github.com/browser-use/browser-use-pi", round: 7, pass: "7/10", median: "53.5s", tokens: "~6.6k / ~0.7k", cost: "~$0.0010", note: "Own loop: Pi Mono agent + persistent V8 REPL + raw CDP. Three failures are false successes caught by the verifier" },
   { harness: "BrowserCode", repo: "uuuuytgg/browser-code", url: "https://github.com/uuuuytgg/browser-code", round: 2, pass: "2/2", median: "153.0s", tokens: "~55.6k / ~3.0k", cost: "~$0.026", note: "Own heavyweight agent loop; 10–100x more wall-clock for no accuracy gain" },
@@ -85,6 +91,7 @@ export const capabilityRows: CapabilityRow[] = [
   { harness: "cdp-browser", repo: "sids/cdp-browser", url: "https://github.com/sids/cdp-browser", fastPath: "2/2 · 10.7s", capability: "6/11", reps: "1" },
   { harness: "Browser Use Pi", repo: "browser-use/browser-use-pi", url: "https://github.com/browser-use/browser-use-pi", fastPath: "7/10 · 53.5s", capability: "4/11", reps: "1", note: "Own-loop (Pi Mono + V8 REPL). Every task it passed, browser-relay also passed, so it extends neither frontier" },
   { harness: "BrowserSkill", repo: "Tencent/BrowserSkill", url: "https://github.com/Tencent/BrowserSkill", fastPath: "2/2 · 4.1s", capability: "2/11", reps: "1", note: "Fastest fast-path, weakest real work — the orderings invert" },
+  { harness: "adaptive-ui-runtime", repo: "Rajeev-SG/adaptive-ui-runtime", url: "https://github.com/Rajeev-SG/adaptive-ui-runtime", fastPath: "0/2 · 45.8s", capability: "0/22", reps: "1, 2", note: "Own-loop, non-default. Zero passes: its action vocabulary has no page-eval step, so it cannot set the finding every corpus task requires" },
 ]
 
 /** Per-task pass counts across all harnesses on the harvested corpus. */
@@ -100,4 +107,32 @@ export const corpusTasks: CorpusTask[] = [
   { task: "puma-uk-tag-inspection", capability: "tag inspection", passes: "8/10" },
   { task: "porsche-uk-tag-inspection", capability: "tag inspection", passes: "9/10" },
   { task: "rajeevg-seo-metadata-audit", capability: "SEO / structured data", passes: "9/10" },
+]
+
+export type JevFastPathRow = {
+  arm: string
+  pass: string
+  median: string
+  decision: string
+  note: string
+}
+
+/** Jev Ultrafast fast path — head-to-head from Rajeev-SG/jev-tests results/browser-fastpath. */
+export const jevFastPath = {
+  repoUrl: "https://github.com/Rajeev-SG/jev-tests",
+  evidenceDate: "2026-09-19",
+  pin: "browser-use/jev-ultrafast@452c1ad",
+  summary:
+    "On the same TodoMVC job with one loop, one bridge and one verifier, only the decision model changes. Over 5 runs per arm and transport (indicative, not a powered result), Jev finished every Browser Relay run while GLM managed one, and Jev decided about twice as fast per step.",
+  offline:
+    "Offline next-action replay (400 scored real-work decisions): Jev does not beat the always-inspect baseline (0.68 vs 0.86 raw), but at a 0.7 confidence gate it covers 63.3% of decisions at 96.9% held-out accuracy (95% CI 0.92-0.99). Use as a gate, not the sole router.",
+  caveat:
+    "Measured via classifier.dev (jev-1.13.0), not TypeSafe — this machine has no TypeSafe key.",
+} as const
+
+export const jevFastPathRows: JevFastPathRow[] = [
+  { arm: "Jev + Browser Relay", pass: "5/5", median: "13.1s", decision: "1218 ms", note: "5/5 vs GLM's 1/5 in the same 5 runs (n=5, indicative — not a powered reliability claim)" },
+  { arm: "GLM + Browser Relay", pass: "1/5", median: "13.4s", decision: "2453 ms", note: "Level on time; four of five runs failed: three stopped without applying the filter, one emitted an invalid action" },
+  { arm: "Jev + Playwriter", pass: "4/5", median: "16.1s", decision: "1350 ms", note: "Same 4/5 as GLM, ~40% lower median wall (n=5, indicative)" },
+  { arm: "GLM + Playwriter", pass: "4/5", median: "27.1s", decision: "2619 ms", note: "Same pass count, ~11s slower median wall (n=5, indicative)" },
 ]

@@ -16,6 +16,8 @@ import {
 import {
   capabilityRows,
   corpusTasks,
+  jevFastPath,
+  jevFastPathRows,
   latencyRows,
   microbench,
 } from "@/data/web-automation-microbench"
@@ -28,12 +30,12 @@ const dateFormatter = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: 
 export const metadata: Metadata = {
   title: "Web automation tool leaderboard",
   description:
-    "Head-to-head results for 34 browser automation tools on the same task: who finishes reliably, quickly, cheaply, and with the least AI overhead.",
+    "Head-to-head results for 35 browser automation tools on the same task: who finishes reliably, quickly, cheaply, and with the least AI overhead.",
   alternates: { canonical: "/solutions/web-automation-leaderboard" },
   openGraph: {
     title: `Web automation tool leaderboard • ${site.name}`,
     description:
-      "Head-to-head results for 34 browser automation tools racing the same job, plus a real-work capability ranking that reorders them.",
+      "Head-to-head results for 35 browser automation tools racing the same job, plus a real-work capability ranking that reorders them.",
     url: `${site.siteUrl}/solutions/web-automation-leaderboard`,
   },
 }
@@ -220,6 +222,44 @@ export default function WebAutomationLeaderboardPage() {
             </TableBody>
           </Table>
         </div>
+      </div>
+
+      <div className="space-y-4">
+        <div className="space-y-1">
+          <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">Jev Ultrafast — the classifier fast path</h2>
+          <p className="text-sm leading-7 text-muted-foreground">
+            {jevFastPath.summary} Numbers are produced and versioned in{" "}
+            <a className="font-medium underline underline-offset-4" href={jevFastPath.repoUrl} target="_blank" rel="noreferrer noopener">
+              Rajeev-SG/jev-tests
+            </a>{" "}
+            ({jevFastPath.pin}), not duplicated here. {jevFastPath.caveat}
+          </p>
+        </div>
+        <div className="overflow-x-auto rounded-xl border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Arm</TableHead>
+                <TableHead className="text-right">Pass</TableHead>
+                <TableHead className="text-right whitespace-nowrap">Median</TableHead>
+                <TableHead className="text-right whitespace-nowrap">Decision p50</TableHead>
+                <TableHead>Note</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {jevFastPathRows.map((row) => (
+                <TableRow key={row.arm}>
+                  <TableCell className="font-medium">{row.arm}</TableCell>
+                  <TableCell className="text-right"><StatusPill value={row.pass} /></TableCell>
+                  <TableCell className="text-right tabular-nums">{row.median}</TableCell>
+                  <TableCell className="text-right tabular-nums text-muted-foreground">{row.decision}</TableCell>
+                  <TableCell className="text-muted-foreground text-xs sm:text-sm">{row.note}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+        <p className="text-sm leading-7 text-muted-foreground">{jevFastPath.offline}</p>
       </div>
 
       <Card>
