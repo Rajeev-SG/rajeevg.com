@@ -1,26 +1,15 @@
 import { describe, expect, it } from "vitest"
 
 import {
+  ALL_COLUMN_IDS,
   DEFAULT_SORT_COLUMN,
   SUMMARY_COLUMNS,
   SUMMARY_LABEL,
+  assertColumnIds,
   detailColumnIds,
   isSummaryColumn,
   summaryColumnIds,
 } from "./table-summary"
-
-// The column ids the table actually defines (keep in sync with the component).
-const ALL_COLUMN_IDS = [
-  "name",
-  "vendor",
-  "platform",
-  "capability_type",
-  "control_mode",
-  "availability",
-  "evidence_basis",
-  "maturity",
-  "ui_api",
-]
 
 describe("capability table summary columns", () => {
   it("keeps the summary to about four readable columns", () => {
@@ -64,5 +53,16 @@ describe("capability table summary columns", () => {
     expect(isSummaryColumn("surface")).toBe(false)
     expect(summaryColumnIds(["surface", "name"])).toEqual(["name"])
     expect(detailColumnIds(["surface", "name"])).toEqual(["surface"])
+  })
+
+  it("the canonical list matches the table's real columns (drift guard)", () => {
+    // assertColumnIds throws if a table column id is added/renamed/removed
+    // without updating ALL_COLUMN_IDS. The component calls it at module load;
+    // here we prove the guard actually fires.
+    expect(() => assertColumnIds(ALL_COLUMN_IDS)).not.toThrow()
+    expect(() => assertColumnIds([...ALL_COLUMN_IDS, "new_col"])).toThrow(/drifted/)
+    expect(() =>
+      assertColumnIds(ALL_COLUMN_IDS.filter((id) => id !== "control_mode")),
+    ).toThrow(/drifted/)
   })
 })

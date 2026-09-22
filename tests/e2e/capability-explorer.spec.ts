@@ -153,3 +153,80 @@ test("the compare tool can select from the full corpus", async ({ page }) => {
   // 1 placeholder + every published capability; not an arbitrary slice.
   expect(optionCount).toBeGreaterThan(800)
 })
+
+test("the explorer keeps the summary to four columns and hides the rest in detail", async ({
+  page,
+}) => {
+  test.setTimeout(90_000)
+  await preparePage(page)
+  await page.getByRole("tab", { name: "Explorer" }).click()
+
+  // Exactly the four summary headers render (Capability / Surface / Control /
+  // Availability), not nine cramped columns (#173).
+  const header = page.locator('[data-testid="adpi-table-scroll"]').locator("xpath=preceding-sibling::div[1]")
+  await expect(header.getByText("Capability", { exact: true })).toBeVisible()
+  await expect(header.getByText("Surface", { exact: true })).toBeVisible()
+  await expect(header.getByText("Control", { exact: true })).toBeVisible()
+  await expect(header.getByText("Availability", { exact: true })).toBeVisible()
+  // The moved columns are NOT in the summary header row.
+  await expect(header.getByText("Maturity", { exact: true })).toHaveCount(0)
+
+  // They appear in the expanded detail, with the name wrapped (not truncated).
+  const firstName = page.locator('[data-testid="adpi-table-scroll"] [data-index] .break-words .font-medium').first()
+  const nameStyle = await firstName.evaluate((el) => getComputedStyle(el).whiteSpace)
+  expect(nameStyle).toBe("normal")
+
+  await page.getByRole("button", { name: "Expand row" }).first().click()
+  const detail = page.getByText("Capability detail").first()
+  await expect(detail).toBeVisible()
+  const panel = detail.locator("xpath=ancestor::div[contains(@class,'border-t')][1]")
+  for (const term of ["Type", "Basis", "Maturity", "UI / API / Bulk"]) {
+    await expect(panel.getByText(term, { exact: true })).toBeVisible()
+  }
+})
+
+test("filtering narrows the corpus and the sort control reorders rows", async ({ page }) => {
+  test.setTimeout(90_000)
+  await preparePage(page)
+  await page.getByRole("tab", { name: "Explorer" }).click()
+
+  const count = page.getByTestId("adpi-row-count")
+  await page.getByTestId("adpi-search").fill("attribution model")
+  const filtered = (await count.textContent()) || ""
+  const [, shown, total] = filtered.match(/(\d+) of (\d+) capabilities/) as RegExpMatchArray
+  expect(Number(shown)).toBeLessThan(Number(total))
+  expect(Number(shown)).toBeGreaterThan(0)
+
+  // The sort control offers both directions and actually reorders.
+  const sort = page.getByTestId("adpi-sort")
+  await expect(sort).toBeVisible()
+  await page.getByTestId("adpi-search").fill("attribution")
+  const firstAsc = await page
+    .locator('[data-testid="adpi-table-scroll"] [data-index] .break-words .font-medium')
+    .first()
+    .textContent()
+  await sort.selectOption("name:desc")
+  await expect(sort).toHaveValue("name:desc")
+  const firstDesc = await page
+    .locator('[data-testid="adpi-table-scroll"] [data-index] .break-words .font-medium')
+    .first()
+    .textContent()
+  expect(firstDesc).not.toBe(firstAsc)
+})
+
+test("the explorer has no horizontal page overflow at 390px", async ({ page }) => {
+  test.setTimeout(90_000)
+  await page.setViewportSize({ width: 390, height: 844 })
+  await preparePage(page)
+  await page.getByRole("tab", { name: "Explorer" }).click()
+  await expect(page.getByTestId("adpi-table-scroll")).toBeVisible()
+
+  const metrics = await page.evaluate(() => ({
+    scrollWidth: document.documentElement.scrollWidth,
+    clientWidth: document.documentElement.clientWidth,
+  }))
+  expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth + 1)
+
+  // The mobile sort control is present (the header row is hidden below sm).
+  await expect(page.getByTestId("adpi-sort")).toBeVisible()
+})

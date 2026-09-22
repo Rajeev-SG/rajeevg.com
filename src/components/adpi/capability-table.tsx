@@ -25,10 +25,11 @@ import {
 } from "@/lib/adpi/labels"
 import { Badge } from "@/components/ui/badge"
 import {
+  ALL_COLUMN_IDS,
   DEFAULT_SORT_COLUMN,
   SUMMARY_LABEL,
+  assertColumnIds,
   isSummaryColumn,
-  summaryColumnIds,
 } from "@/lib/adpi/table-summary"
 
 // The summary-vs-detail column split lives in @/lib/adpi/table-summary so the
@@ -56,7 +57,14 @@ function Flag({ value }: { value: boolean | undefined }) {
 export function CapabilityTable({ records }: { records: CapabilityRecord[] }) {
   const [sorting, setSorting] = React.useState<SortingState>([{ id: DEFAULT_SORT_COLUMN, desc: false }])
   const sortId = sorting[0]?.id ?? DEFAULT_SORT_COLUMN
-  const setSort = (id: string) => setSorting([{ id, desc: false }])
+  const sortDesc = sorting[0]?.desc ?? false
+  // The sort key encodes column + direction ("name:asc") so the mobile select
+  // and the sm+ header buttons share one semantics and cannot desync (#173 F3).
+  const sortKey = `${sortId}:${sortDesc ? "desc" : "asc"}`
+  const setSortKey = (key: string) => {
+    const [id, dir] = key.split(":")
+    setSorting([{ id, desc: dir === "desc" }])
+  }
   const [filter, setFilter] = React.useState("")
   const [vendor, setVendor] = React.useState("all")
   const [availability, setAvailability] = React.useState("all")
@@ -153,6 +161,11 @@ export function CapabilityTable({ records }: { records: CapabilityRecord[] }) {
     [expanded],
   )
 
+  // Drift guard: the component's real columns must match the canonical list
+  // the summary/detail mapping is built against. A rename that is not reflected
+  // in ALL_COLUMN_IDS throws here instead of silently blanking a summary cell.
+  assertColumnIds(columns.map((column) => String(column.id)))
+
   const table = useReactTable({
     data: rows,
     columns,
@@ -227,16 +240,19 @@ export function CapabilityTable({ records }: { records: CapabilityRecord[] }) {
             sortable header row is hidden (#173 review F3). */}
         <select
           id="adpi-sort"
-          value={sortId}
-          onChange={(event) => setSort(event.target.value)}
+          value={sortKey}
+          onChange={(event) => setSortKey(event.target.value)}
           className="h-9 rounded-md border bg-background px-2 text-sm"
           data-testid="adpi-sort"
         >
-          {(Object.keys(SUMMARY_LABEL) as (keyof typeof SUMMARY_LABEL)[]).map((id) => (
-            <option key={id} value={id}>
-              Sort: {SUMMARY_LABEL[id]}
-            </option>
-          ))}
+          {(Object.keys(SUMMARY_LABEL) as (keyof typeof SUMMARY_LABEL)[]).flatMap((id) => [
+            <option key={`${id}:asc`} value={`${id}:asc`}>
+              Sort: {SUMMARY_LABEL[id]} (A–Z)
+            </option>,
+            <option key={`${id}:desc`} value={`${id}:desc`}>
+              Sort: {SUMMARY_LABEL[id]} (Z–A)
+            </option>,
+          ])}
         </select>
         <span className="text-sm text-muted-foreground" data-testid="adpi-row-count">
           {rows.length} of {records.length} capabilities
