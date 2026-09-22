@@ -113,7 +113,61 @@ describe("loader fallback and safety", () => {
     const outcome = await getGuideIndexOutcome()
     expect(outcome.source).toBe("bundled")
     expect(outcome.index.release).toBeTruthy()
+    // The seed is a shape guarantee, not data: it must be honestly flagged as
+    // degraded while it carries no guides, so the UI never claims a
+    // last-known-good snapshot it does not have (#175 review #2).
+    expect(outcome.degraded).toBe(outcome.index.guides.length === 0)
     expect(warn).toHaveBeenCalled()
+  })
+
+  it("caches a failed read only briefly and recovers the live index on retry", async () => {
+    vi.resetModules()
+    const live = {
+      schema_version: 1,
+      release: "rel-live",
+      guides: [{ feature_id: "f.one", detail: "guides/rel-live/f.one.json" }],
+    }
+    const fetchSpy = vi
+      .fn()
+      .mockRejectedValueOnce(new Error("network down"))
+      .mockResolvedValueOnce({ ok: true, json: async () => live })
+    globalThis.fetch = fetchSpy as never
+    vi.spyOn(console, "warn").mockImplementation(() => {})
+    const { getGuideIndexOutcome, FAILURE_RETRY_MS } = await import("./guides")
+
+    // First read fails → degraded bundled seed, not a durable index.
+    const failed = await getGuideIndexOutcome()
+    expect(failed.source).toBe("bundled")
+    expect(failed.degraded).toBe(failed.index.guides.length === 0)
+
+    // A failed read must NOT be pinned for the full hour: the cache window is
+    // the short retry TTL, so after it elapses the loader re-attempts.
+    vi.spyOn(Date, "now").mockReturnValue(Date.now() + FAILURE_RETRY_MS + 1)
+    const recovered = await getGuideIndexOutcome()
+    expect(recovered.source).toBe("durable")
+    expect(recovered.degraded).toBe(false)
+    expect(recovered.index.release).toBe("rel-live")
+    expect(fetchSpy).toHaveBeenCalledTimes(2)
+  })
+
+  it("resolves a guided entry from the seed when it carries guides", async () => {
+    vi.resetModules()
+    vi.doMock("@/data/adpi/guides.json", () => ({
+      default: {
+        schema_version: 1,
+        release: "seed-rel",
+        guides: [{ feature_id: "f.seeded", detail: "guides/seed-rel/f.seeded.json" }],
+      },
+    }))
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error("network down")) as never
+    vi.spyOn(console, "warn").mockImplementation(() => {})
+    const { getGuideIndexOutcome, guideEntry } = await import("./guides")
+    const outcome = await getGuideIndexOutcome()
+    expect(outcome.source).toBe("bundled")
+    expect(outcome.degraded).toBe(false)
+    // The fallback must preserve something a user can actually open.
+    expect(guideEntry(outcome.index, "f.seeded")).not.toBeNull()
+    vi.doUnmock("@/data/adpi/guides.json")
   })
 
   it("never calls fetch for an unsafe detail pointer", async () => {

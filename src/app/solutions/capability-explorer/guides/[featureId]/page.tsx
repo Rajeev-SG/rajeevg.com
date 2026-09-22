@@ -77,16 +77,18 @@ export default async function FeatureGuidePage({
   params: Promise<{ featureId: string }>
 }) {
   const { featureId } = await params
-  const { index, source } = await getGuideIndexOutcome()
+  const { index, source, degraded } = await getGuideIndexOutcome()
   const entry = guideEntry(index, featureId)
   const detail = entry ? await getGuideDetail(entry.detail) : null
   if (!entry || !detail) {
     // Unguided features are an explicit, honest state, never a 404 or a blank
     // page (#116: "Keep unguided rows as 'Guide not yet available'").
     const title = entry?.name ?? featureId
-    const reason = entry
-      ? "The reviewed detail artifact could not be loaded; showing the last-known-good index entry."
-      : "No reviewed guide exists for this feature yet."
+    const reason = degraded
+      ? "The published guide index is unavailable and the bundled seed is empty until the pilot is published, so no reviewed guide can be shown yet."
+      : entry
+        ? "The reviewed detail artifact could not be loaded; showing the last-known-good index entry."
+        : "No reviewed guide exists for this feature yet."
     return (
       <section className="space-y-4" data-testid="adpi-guide-unavailable">
         <Link className="text-sm underline underline-offset-4" href="/solutions/capability-explorer">
@@ -117,7 +119,9 @@ export default async function FeatureGuidePage({
         <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{guide.name}</h1>
         {source === "bundled" ? (
           <p className="rounded-lg border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-sm text-amber-700 dark:text-amber-400">
-            Live guide index unavailable; showing the bundled last-known-good state.
+            {degraded
+              ? "Live guide index unavailable; this bundled entry comes from a seed that carries no reviewed guides yet."
+              : "Live guide index unavailable; showing the bundled last-known-good state."}
           </p>
         ) : null}
         <p className="text-sm text-muted-foreground">

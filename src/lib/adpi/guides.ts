@@ -88,30 +88,57 @@ export function orderedSections(sections: GuideSection[]): GuideSection[] {
   );
 }
 
-let indexCache: { at: number; index: GuideIndex | null; source: "durable" | "bundled" } = {
+const CACHE_MS = 60 * 60 * 1000;
+
+/** After a failed live read the bundled seed is served, but only cached for
+ *  this short window so the loader re-attempts the live index promptly instead
+ *  of pinning a degraded state for a full hour (#175 review #2:
+ *  failure-caches-seed-for-an-hour). */
+export const FAILURE_RETRY_MS = 60 * 1000;
+
+let indexCache: {
+  at: number;
+  index: GuideIndex | null;
+  source: "durable" | "bundled";
+  ttlMs: number;
+} = {
   at: 0,
   index: null,
   source: "bundled",
+  ttlMs: CACHE_MS,
 };
-const CACHE_MS = 60 * 60 * 1000;
 
 export interface GuideIndexOutcome {
   index: GuideIndex;
   /** "durable" when the live published index was used, else "bundled". */
   source: "durable" | "bundled";
+  /** True when a meaningless bundled fallback is being served: the seed exists
+   *  (so the route still renders) but carries no guides yet, so the UI must not
+   *  claim a last-known-good snapshot it does not have (#175 review #2:
+   *  bundled-seed-is-empty). */
+  degraded: boolean;
 }
 
 /**
- * Read the published guide index, falling back to the bundled last-known-good
- * seed. Never throws, and never returns null: on a cold render where the live
- * index is unreachable or malformed, the bundled seed is served (the guaranteed
- * render path), exactly like the dataset loader — so a fetch outage degrades
- * to "Guide not yet available" per feature rather than blanking the route.
+ * Read the published guide index, falling back to the bundled seed. Never
+ * throws, and never returns null: on a cold render where the live index is
+ * unreachable or malformed the bundled seed is served so the route still
+ * renders rather than blanking.
+ *
+ * The bundled seed is a *shape* guarantee, not a data one: until the pilot is
+ * published it carries zero guides, so the outcome reports `degraded: true` and
+ * the UI says guides are pending rather than claiming a last-known-good
+ * snapshot it does not have (#175 review #2: bundled-seed-is-empty). A failed
+ * live read is cached only briefly (`FAILURE_RETRY_MS`) so recovery is prompt.
  */
 export async function getGuideIndexOutcome(): Promise<GuideIndexOutcome> {
   const now = Date.now();
-  if (indexCache.index && now - indexCache.at < CACHE_MS) {
-    return { index: indexCache.index, source: indexCache.source };
+  if (indexCache.index && now - indexCache.at < indexCache.ttlMs) {
+    return {
+      index: indexCache.index,
+      source: indexCache.source,
+      degraded: indexCache.source === "bundled" && indexCache.index.guides.length === 0,
+    };
   }
   try {
     const res = await fetch(GUIDE_INDEX_URL, {
@@ -122,15 +149,19 @@ export async function getGuideIndexOutcome(): Promise<GuideIndexOutcome> {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const parsed: unknown = await res.json();
     if (!isPlausibleGuideIndex(parsed)) throw new Error("invalid guide index shape");
-    indexCache = { at: now, index: parsed, source: "durable" };
-    return { index: parsed, source: "durable" };
+    indexCache = { at: now, index: parsed, source: "durable", ttlMs: CACHE_MS };
+    return { index: parsed, source: "durable", degraded: false };
   } catch (error) {
     // Observable, bounded failure (#175 review): warn so a degraded state is
     // diagnosable, then serve the bundled last-known-good seed.
     console.warn(`adpi guide index unavailable (${String(error)}); using bundled seed`);
     const seed = seedGuideIndex();
-    indexCache = { at: now, index: seed, source: "bundled" };
-    return { index: seed, source: "bundled" };
+    indexCache = { at: now, index: seed, source: "bundled", ttlMs: FAILURE_RETRY_MS };
+    return {
+      index: seed,
+      source: "bundled",
+      degraded: seed.guides.length === 0,
+    };
   }
 }
 
