@@ -24,8 +24,24 @@ import {
   MATURITY_LABEL,
 } from "@/lib/adpi/labels"
 import { Badge } from "@/components/ui/badge"
+import {
+  ALL_COLUMN_IDS,
+  DEFAULT_SORT_COLUMN,
+  SUMMARY_LABEL,
+  assertColumnIds,
+  isSummaryColumn,
+} from "@/lib/adpi/table-summary"
 
-const ROW_HEIGHT = 44
+// The summary-vs-detail column split lives in @/lib/adpi/table-summary so the
+// mapping is unit-tested (#173): a column rename that breaks it fails a test.
+const SUMMARY_GRID = "grid grid-cols-1 gap-1 px-3 py-2 text-sm "
+  + "sm:grid-cols-[2.2fr_1.2fr_1fr_1fr] sm:items-center sm:gap-2"
+
+// A minimum row height that fits the stacked (mobile) or wrapped (desktop)
+// content, so the virtualiser's estimate never under-shoots a real row and
+// rows cannot overlap (#173 review F1). The virtualiser still MEASURES each
+// rendered row, so this is a floor, not a fixed height.
+const ROW_MIN_HEIGHT = 72
 
 function Flag({ value }: { value: boolean | undefined }) {
   if (value === undefined) return <span className="text-muted-foreground">?</span>
@@ -39,7 +55,16 @@ function Flag({ value }: { value: boolean | undefined }) {
  * provenance metadata (source id, evidence pointer, verification date).
  */
 export function CapabilityTable({ records }: { records: CapabilityRecord[] }) {
-  const [sorting, setSorting] = React.useState<SortingState>([{ id: "vendor", desc: false }])
+  const [sorting, setSorting] = React.useState<SortingState>([{ id: DEFAULT_SORT_COLUMN, desc: false }])
+  const sortId = sorting[0]?.id ?? DEFAULT_SORT_COLUMN
+  const sortDesc = sorting[0]?.desc ?? false
+  // The sort key encodes column + direction ("name:asc") so the mobile select
+  // and the sm+ header buttons share one semantics and cannot desync (#173 F3).
+  const sortKey = `${sortId}:${sortDesc ? "desc" : "asc"}`
+  const setSortKey = (key: string) => {
+    const [id, dir] = key.split(":")
+    setSorting([{ id, desc: dir === "desc" }])
+  }
   const [filter, setFilter] = React.useState("")
   const [vendor, setVendor] = React.useState("all")
   const [availability, setAvailability] = React.useState("all")
@@ -71,7 +96,7 @@ export function CapabilityTable({ records }: { records: CapabilityRecord[] }) {
         accessorKey: "name",
         header: "Capability",
         cell: ({ row }) => (
-          <div className="flex items-center gap-1">
+          <div className="flex items-start gap-1">
             <button
               type="button"
               aria-label={expanded[row.original.id] ? "Collapse row" : "Expand row"}
@@ -136,6 +161,11 @@ export function CapabilityTable({ records }: { records: CapabilityRecord[] }) {
     [expanded],
   )
 
+  // Drift guard: the component's real columns must match the canonical list
+  // the summary/detail mapping is built against. A rename that is not reflected
+  // in ALL_COLUMN_IDS throws here instead of silently blanking a summary cell.
+  assertColumnIds(columns.map((column) => String(column.id)))
+
   const table = useReactTable({
     data: rows,
     columns,
@@ -150,7 +180,7 @@ export function CapabilityTable({ records }: { records: CapabilityRecord[] }) {
   const virtualizer = useVirtualizer({
     count: modelRows.length,
     getScrollElement: () => scrollRef.current,
-    estimateSize: () => ROW_HEIGHT,
+    estimateSize: () => ROW_MIN_HEIGHT,
     overscan: 12,
     // Rows are variable height (an expanded row shows a detail panel), so the
     // virtualizer must measure each rendered row rather than trust the 44px
@@ -160,7 +190,7 @@ export function CapabilityTable({ records }: { records: CapabilityRecord[] }) {
   })
 
   return (
-    <section aria-label="Capability explorer" className="space-y-3">
+    <section aria-label="Capability explorer" className="min-w-0 space-y-3">
       <div className="flex flex-wrap items-center gap-2">
         <label className="sr-only" htmlFor="adpi-filter">
           Search capabilities
@@ -170,7 +200,7 @@ export function CapabilityTable({ records }: { records: CapabilityRecord[] }) {
           value={filter}
           onChange={(event) => setFilter(event.target.value)}
           placeholder="Search by name, vendor term, platform or id…"
-          className="h-9 w-full sm:w-80"
+          className="h-9 w-full min-w-0 sm:w-80"
           data-testid="adpi-search"
         />
         <label className="sr-only" htmlFor="adpi-vendor">
@@ -203,24 +233,47 @@ export function CapabilityTable({ records }: { records: CapabilityRecord[] }) {
           <option value="conditional">Conditional</option>
           <option value="unknown">Unknown</option>
         </select>
+        <label className="sr-only" htmlFor="adpi-sort">
+          Sort by
+        </label>
+        {/* Sort control available at every width, including mobile where the
+            sortable header row is hidden (#173 review F3). */}
+        <select
+          id="adpi-sort"
+          value={sortKey}
+          onChange={(event) => setSortKey(event.target.value)}
+          className="h-9 rounded-md border bg-background px-2 text-sm"
+          data-testid="adpi-sort"
+        >
+          {(Object.keys(SUMMARY_LABEL) as (keyof typeof SUMMARY_LABEL)[]).flatMap((id) => [
+            <option key={`${id}:asc`} value={`${id}:asc`}>
+              Sort: {SUMMARY_LABEL[id]} (A–Z)
+            </option>,
+            <option key={`${id}:desc`} value={`${id}:desc`}>
+              Sort: {SUMMARY_LABEL[id]} (Z–A)
+            </option>,
+          ])}
+        </select>
         <span className="text-sm text-muted-foreground" data-testid="adpi-row-count">
           {rows.length} of {records.length} capabilities
         </span>
       </div>
 
-      <div className="rounded-xl border">
-        <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1.4fr_1fr_1fr_0.9fr_1fr] gap-2 border-b bg-muted/40 px-3 py-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          {table.getHeaderGroups()[0].headers.map((header) => (
-            <button
-              key={header.id}
-              type="button"
-              className="flex items-center gap-1 text-left"
-              onClick={header.column.getToggleSortingHandler()}
-            >
-              {flexRender(header.column.columnDef.header, header.getContext())}
-              {header.column.getCanSort() ? <ArrowUpDown size={12} /> : null}
-            </button>
-          ))}
+      <div className="min-w-0 overflow-hidden rounded-xl border">
+        <div className="hidden border-b bg-muted/40 px-3 py-2 text-xs font-medium uppercase tracking-wide text-muted-foreground sm:grid sm:grid-cols-[2.2fr_1.2fr_1fr_1fr] sm:gap-2">
+          {table.getHeaderGroups()[0].headers
+            .filter((header) => isSummaryColumn(header.column.id))
+            .map((header) => (
+              <button
+                key={header.id}
+                type="button"
+                className="flex items-center gap-1 text-left"
+                onClick={header.column.getToggleSortingHandler()}
+              >
+                {flexRender(header.column.columnDef.header, header.getContext())}
+                {header.column.getCanSort() ? <ArrowUpDown size={12} /> : null}
+              </button>
+            ))}
         </div>
         <div ref={scrollRef} data-testid="adpi-table-scroll" className="max-h-[560px] overflow-auto">
           <div style={{ height: virtualizer.getTotalSize(), position: "relative" }}>
@@ -235,12 +288,18 @@ export function CapabilityTable({ records }: { records: CapabilityRecord[] }) {
                   className="absolute left-0 top-0 w-full border-b"
                   style={{ transform: `translateY(${virtualRow.start}px)` }}
                 >
-                  <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1.4fr_1fr_1fr_0.9fr_1fr] items-center gap-2 px-3 py-2 text-sm">
-                    {row.getVisibleCells().map((cell) => (
-                      <div key={cell.id} className="truncate">
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </div>
-                    ))}
+                  <div className={SUMMARY_GRID}>
+                    {row
+                      .getVisibleCells()
+                      .filter((cell) => isSummaryColumn(cell.column.id))
+                      .map((cell) => (
+                        <div key={cell.id} className="min-w-0 break-words">
+                          <span className="mr-1 text-xs text-muted-foreground sm:hidden">
+                            {SUMMARY_LABEL[cell.column.id as keyof typeof SUMMARY_LABEL]}:
+                          </span>
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </div>
+                      ))}
                   </div>
                   {isExpanded ? (
                     <div className="border-t bg-muted/20 px-6 py-3 text-xs">
@@ -251,9 +310,30 @@ export function CapabilityTable({ records }: { records: CapabilityRecord[] }) {
                       <p className="mt-2 break-all text-muted-foreground">
                         id: <code>{row.original.id}</code>
                       </p>
-                      <p className="mt-1">
-                        Verified: {row.original.last_verified_at ?? "unknown"} · Evidence basis:{" "}
-                        {EVIDENCE_BASIS_LABEL[row.original.evidence_basis]}
+                      <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-0.5 text-muted-foreground sm:grid-cols-4">
+                        <div>
+                          <dt className="font-medium text-foreground">Type</dt>
+                          <dd>{row.original.capability_type}</dd>
+                        </div>
+                        <div>
+                          <dt className="font-medium text-foreground">Basis</dt>
+                          <dd>{EVIDENCE_BASIS_LABEL[row.original.evidence_basis]}</dd>
+                        </div>
+                        <div>
+                          <dt className="font-medium text-foreground">Maturity</dt>
+                          <dd>{MATURITY_LABEL[row.original.maturity]}</dd>
+                        </div>
+                        <div>
+                          <dt className="font-medium text-foreground">UI / API / Bulk</dt>
+                          <dd>
+                            <Flag value={row.original.ui_available} /> /{" "}
+                            <Flag value={row.original.api_available} /> /{" "}
+                            <Flag value={row.original.bulk_available} />
+                          </dd>
+                        </div>
+                      </dl>
+                      <p className="mt-2">
+                        Verified: {row.original.last_verified_at ?? "unknown"}
                       </p>
                       <div className="mt-1 space-y-0.5">
                         {row.original.evidence.map((pointer) => (
