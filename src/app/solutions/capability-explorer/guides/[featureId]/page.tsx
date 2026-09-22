@@ -3,7 +3,7 @@ import Link from "next/link"
 
 import {
   SECTION_LABEL,
-  getDurableGuideIndex,
+  getGuideIndexOutcome,
   getGuideDetail,
   guideEntry,
   orderedSections,
@@ -45,15 +45,16 @@ function Citation({ refs }: { refs: GuideEvidenceRef[] }) {
 }
 
 function Claim({ claim }: { claim: GuideClaim }) {
-  const absent = claim.status === "not_documented" || claim.status === "not_applicable"
   return (
     <li className="text-sm leading-7">
       <span className="text-muted-foreground">[{STATUS_LABEL[claim.status]}]</span> {claim.text}
       <Citation refs={claim.evidence} />
       {claim.conditions && claim.conditions.length > 0 ? (
-        <span className="text-xs text-muted-foreground"> Conditions: {claim.conditions.join("; ")}</span>
+        <span className="text-xs text-muted-foreground">
+          {" "}
+          Conditions: {claim.conditions.join("; ")}
+        </span>
       ) : null}
-      {absent ? null : null}
     </li>
   )
 }
@@ -64,8 +65,8 @@ export async function generateMetadata({
   params: Promise<{ featureId: string }>
 }): Promise<Metadata> {
   const { featureId } = await params
-  const index = await getDurableGuideIndex()
-  const entry = index ? guideEntry(index, featureId) : null
+  const { index } = await getGuideIndexOutcome()
+  const entry = guideEntry(index, featureId)
   const title = entry ? `${entry.name} — feature guide` : "Feature guide"
   return { title, alternates: { canonical: `/solutions/capability-explorer/guides/${featureId}` } }
 }
@@ -76,8 +77,8 @@ export default async function FeatureGuidePage({
   params: Promise<{ featureId: string }>
 }) {
   const { featureId } = await params
-  const index = await getDurableGuideIndex()
-  const entry = index ? guideEntry(index, featureId) : null
+  const { index, source } = await getGuideIndexOutcome()
+  const entry = guideEntry(index, featureId)
   const detail = entry ? await getGuideDetail(entry.detail) : null
   if (!entry || !detail) {
     // Unguided features are an explicit, honest state, never a 404 or a blank
@@ -114,6 +115,11 @@ export default async function FeatureGuidePage({
           {guide.vendor} · {guide.platform}
         </p>
         <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{guide.name}</h1>
+        {source === "bundled" ? (
+          <p className="rounded-lg border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-sm text-amber-700 dark:text-amber-400">
+            Live guide index unavailable; showing the bundled last-known-good state.
+          </p>
+        ) : null}
         <p className="text-sm text-muted-foreground">
           Guide release {detail.release}
           {guide.source_checked_at ? ` · sources checked ${guide.source_checked_at.slice(0, 10)}` : ""}
