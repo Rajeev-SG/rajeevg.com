@@ -27,6 +27,23 @@ import { Badge } from "@/components/ui/badge"
 
 const ROW_HEIGHT = 44
 
+/**
+ * The ~4 summary columns shown in the dense row (#173). Everything else
+ * (type, basis, maturity, UI/API/Bulk) is secondary metadata that lives in
+ * the expanded detail, so the summary stays readable instead of a wall of
+ * nine cramped columns.
+ */
+const SUMMARY_COLUMNS = ["name", "platform", "control_mode", "availability"] as const
+const SUMMARY_GRID = "grid grid-cols-1 gap-1 px-3 py-2 text-sm "
+  + "sm:grid-cols-[2.2fr_1.2fr_1fr_1fr] sm:items-center sm:gap-2"
+
+const SUMMARY_LABEL: Record<(typeof SUMMARY_COLUMNS)[number], string> = {
+  name: "Capability",
+  platform: "Surface",
+  control_mode: "Control",
+  availability: "Availability",
+}
+
 function Flag({ value }: { value: boolean | undefined }) {
   if (value === undefined) return <span className="text-muted-foreground">?</span>
   return <span>{value ? "Yes" : "No"}</span>
@@ -71,7 +88,7 @@ export function CapabilityTable({ records }: { records: CapabilityRecord[] }) {
         accessorKey: "name",
         header: "Capability",
         cell: ({ row }) => (
-          <div className="flex items-center gap-1">
+          <div className="flex items-start gap-1">
             <button
               type="button"
               aria-label={expanded[row.original.id] ? "Collapse row" : "Expand row"}
@@ -160,7 +177,7 @@ export function CapabilityTable({ records }: { records: CapabilityRecord[] }) {
   })
 
   return (
-    <section aria-label="Capability explorer" className="space-y-3">
+    <section aria-label="Capability explorer" className="min-w-0 space-y-3">
       <div className="flex flex-wrap items-center gap-2">
         <label className="sr-only" htmlFor="adpi-filter">
           Search capabilities
@@ -170,7 +187,7 @@ export function CapabilityTable({ records }: { records: CapabilityRecord[] }) {
           value={filter}
           onChange={(event) => setFilter(event.target.value)}
           placeholder="Search by name, vendor term, platform or id…"
-          className="h-9 w-full sm:w-80"
+          className="h-9 w-full min-w-0 sm:w-80"
           data-testid="adpi-search"
         />
         <label className="sr-only" htmlFor="adpi-vendor">
@@ -208,19 +225,22 @@ export function CapabilityTable({ records }: { records: CapabilityRecord[] }) {
         </span>
       </div>
 
-      <div className="rounded-xl border">
-        <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1.4fr_1fr_1fr_0.9fr_1fr] gap-2 border-b bg-muted/40 px-3 py-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          {table.getHeaderGroups()[0].headers.map((header) => (
-            <button
-              key={header.id}
-              type="button"
-              className="flex items-center gap-1 text-left"
-              onClick={header.column.getToggleSortingHandler()}
-            >
-              {flexRender(header.column.columnDef.header, header.getContext())}
-              {header.column.getCanSort() ? <ArrowUpDown size={12} /> : null}
-            </button>
-          ))}
+      <div className="min-w-0 overflow-hidden rounded-xl border">
+        <div className="hidden border-b bg-muted/40 px-3 py-2 text-xs font-medium uppercase tracking-wide text-muted-foreground sm:grid sm:grid-cols-[2.2fr_1.2fr_1fr_1fr] sm:gap-2">
+          {table
+            .getHeaderGroups()[0]
+            .headers.filter((header) => SUMMARY_COLUMNS.includes(header.column.id as never))
+            .map((header) => (
+              <button
+                key={header.id}
+                type="button"
+                className="flex items-center gap-1 text-left"
+                onClick={header.column.getToggleSortingHandler()}
+              >
+                {flexRender(header.column.columnDef.header, header.getContext())}
+                {header.column.getCanSort() ? <ArrowUpDown size={12} /> : null}
+              </button>
+            ))}
         </div>
         <div ref={scrollRef} data-testid="adpi-table-scroll" className="max-h-[560px] overflow-auto">
           <div style={{ height: virtualizer.getTotalSize(), position: "relative" }}>
@@ -235,12 +255,20 @@ export function CapabilityTable({ records }: { records: CapabilityRecord[] }) {
                   className="absolute left-0 top-0 w-full border-b"
                   style={{ transform: `translateY(${virtualRow.start}px)` }}
                 >
-                  <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1.4fr_1fr_1fr_0.9fr_1fr] items-center gap-2 px-3 py-2 text-sm">
-                    {row.getVisibleCells().map((cell) => (
-                      <div key={cell.id} className="truncate">
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </div>
-                    ))}
+                  <div className={SUMMARY_GRID}>
+                    {row
+                      .getVisibleCells()
+                      .filter((cell) =>
+                        SUMMARY_COLUMNS.includes(cell.column.id as never),
+                      )
+                      .map((cell) => (
+                        <div key={cell.id} className="min-w-0 break-words">
+                          <span className="mr-1 text-xs text-muted-foreground sm:hidden">
+                            {SUMMARY_LABEL[cell.column.id as (typeof SUMMARY_COLUMNS)[number]]}:
+                          </span>
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </div>
+                      ))}
                   </div>
                   {isExpanded ? (
                     <div className="border-t bg-muted/20 px-6 py-3 text-xs">
@@ -251,9 +279,30 @@ export function CapabilityTable({ records }: { records: CapabilityRecord[] }) {
                       <p className="mt-2 break-all text-muted-foreground">
                         id: <code>{row.original.id}</code>
                       </p>
-                      <p className="mt-1">
-                        Verified: {row.original.last_verified_at ?? "unknown"} · Evidence basis:{" "}
-                        {EVIDENCE_BASIS_LABEL[row.original.evidence_basis]}
+                      <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-0.5 text-muted-foreground sm:grid-cols-4">
+                        <div>
+                          <dt className="font-medium text-foreground">Type</dt>
+                          <dd>{row.original.capability_type}</dd>
+                        </div>
+                        <div>
+                          <dt className="font-medium text-foreground">Basis</dt>
+                          <dd>{EVIDENCE_BASIS_LABEL[row.original.evidence_basis]}</dd>
+                        </div>
+                        <div>
+                          <dt className="font-medium text-foreground">Maturity</dt>
+                          <dd>{MATURITY_LABEL[row.original.maturity]}</dd>
+                        </div>
+                        <div>
+                          <dt className="font-medium text-foreground">UI / API / Bulk</dt>
+                          <dd>
+                            <Flag value={row.original.ui_available} /> /{" "}
+                            <Flag value={row.original.api_available} /> /{" "}
+                            <Flag value={row.original.bulk_available} />
+                          </dd>
+                        </div>
+                      </dl>
+                      <p className="mt-2">
+                        Verified: {row.original.last_verified_at ?? "unknown"}
                       </p>
                       <div className="mt-1 space-y-0.5">
                         {row.original.evidence.map((pointer) => (
