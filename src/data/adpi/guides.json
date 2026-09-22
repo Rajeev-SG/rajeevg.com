@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "release": "seed",
+  "status": "placeholder",
+  "generated_at": "2026-09-22T00:00:00+00:00",
+  "detail_dir": "guides/seed",
+  "guide_count": 0,
+  "note": "Placeholder seed published with the #175 UI. It carries no reviewed guides yet, so the loader reports it as degraded and the UI states that guides are pending rather than claiming a last-known-good snapshot. Replace with a verbatim snapshot of adpi-data guides.json (plus its guides/<release>/*.json details) once the #116 pilot is published.",
+  "guides": []
+}

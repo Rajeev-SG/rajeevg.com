@@ -13,6 +13,8 @@ import {
 import { useVirtualizer } from "@tanstack/react-virtual"
 import { ArrowUpDown, ChevronDown, ChevronRight } from "lucide-react"
 
+import Link from "next/link"
+
 import { Input } from "@/components/ui/input"
 import type { CapabilityRecord } from "@/lib/adpi/types"
 import {
@@ -304,6 +306,14 @@ export function CapabilityTable({ records }: { records: CapabilityRecord[] }) {
                   {isExpanded ? (
                     <div className="border-t bg-muted/20 px-6 py-3 text-xs">
                       <p className="font-medium">Capability detail</p>
+                      <p className="mt-1">
+                        <Link
+                          className="underline underline-offset-4"
+                          href={`/solutions/capability-explorer/guides/${row.original.id}`}
+                        >
+                          Open feature guide
+                        </Link>
+                      </p>
                       {row.original.description ? (
                         <p className="mt-1 text-muted-foreground">{row.original.description}</p>
                       ) : null}
