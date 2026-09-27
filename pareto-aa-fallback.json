@@ -1,15 +1,15 @@
 {
   "provenance": {
     "source": "Artificial Analysis API v2 /language/models/free + OpenRouter /api/v1/models",
-    "fetchedAt": "2026-09-26T19:54:19.915Z",
+    "fetchedAt": "2026-09-27T10:35:30.043Z",
     "aaStatus": "ok",
     "note": "Validated automatic snapshot. Empty or incomplete refreshes never replace this file."
   },
-  "generatedAt": "2026-09-26T19:54:21.191Z",
+  "generatedAt": "2026-09-27T10:35:31.433Z",
   "freshness": {
-    "aaFetchedAt": "2026-09-26T19:54:19.915Z",
+    "aaFetchedAt": "2026-09-27T10:35:30.043Z",
     "aaStatus": "ok",
-    "openrouterFetchedAt": "2026-09-26T19:54:20.982Z",
+    "openrouterFetchedAt": "2026-09-27T10:35:31.284Z",
     "openrouterStatus": "ok",
     "arenaFetchedAt": null,
     "arenaStatus": "pending",
@@ -83,8 +83,8 @@
         "codingIndex": 76.5,
         "agenticIndex": 50.7,
         "costPerTaskUsd": 8.746,
-        "throughputTokensPerSecond": 71.96,
-        "latencyTtfbSeconds": 153.3,
+        "throughputTokensPerSecond": 66.75,
+        "latencyTtfbSeconds": 96.96,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -111,8 +111,8 @@
         "codingIndex": 81.6,
         "agenticIndex": 57.9,
         "costPerTaskUsd": 7.6297,
-        "throughputTokensPerSecond": 67.46,
-        "latencyTtfbSeconds": 246,
+        "throughputTokensPerSecond": 68.5,
+        "latencyTtfbSeconds": 227.38,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -195,8 +195,8 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 47.13,
-        "latencyTtfbSeconds": 1.25,
+        "throughputTokensPerSecond": 45.78,
+        "latencyTtfbSeconds": 1.22,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -223,8 +223,8 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 39.07,
-        "latencyTtfbSeconds": 2.64,
+        "throughputTokensPerSecond": 38.36,
+        "latencyTtfbSeconds": 2.09,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -251,8 +251,8 @@
         "codingIndex": 73.6,
         "agenticIndex": 38.6,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 50.99,
-        "latencyTtfbSeconds": 17.09,
+        "throughputTokensPerSecond": 51.79,
+        "latencyTtfbSeconds": 15.69,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -279,8 +279,8 @@
         "codingIndex": 74.3,
         "agenticIndex": 41.9,
         "costPerTaskUsd": 4.081,
-        "throughputTokensPerSecond": 55.43,
-        "latencyTtfbSeconds": 9.98,
+        "throughputTokensPerSecond": 53.42,
+        "latencyTtfbSeconds": 11.69,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -307,8 +307,8 @@
         "codingIndex": 78,
         "agenticIndex": 56.5,
         "costPerTaskUsd": 5.8584,
-        "throughputTokensPerSecond": 59.09,
-        "latencyTtfbSeconds": 35.91,
+        "throughputTokensPerSecond": 60.17,
+        "latencyTtfbSeconds": 37.9,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -391,8 +391,8 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 44.81,
-        "latencyTtfbSeconds": 1.79,
+        "throughputTokensPerSecond": 43.86,
+        "latencyTtfbSeconds": 1.42,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -419,8 +419,8 @@
         "codingIndex": 71.5,
         "agenticIndex": 43.6,
         "costPerTaskUsd": 5.0912,
-        "throughputTokensPerSecond": 80.15,
-        "latencyTtfbSeconds": 167.81,
+        "throughputTokensPerSecond": 79.65,
+        "latencyTtfbSeconds": 169.94,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -503,7 +503,7 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 59.04,
+        "throughputTokensPerSecond": 59.87,
         "latencyTtfbSeconds": 1.81,
         "intelligenceIndexVersion": 4.3
       },
@@ -531,8 +531,8 @@
         "codingIndex": 27.8,
         "agenticIndex": 1,
         "costPerTaskUsd": 0,
-        "throughputTokensPerSecond": 159.87,
-        "latencyTtfbSeconds": 0.42,
+        "throughputTokensPerSecond": 191.05,
+        "latencyTtfbSeconds": 0.4,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -615,8 +615,8 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": 0.2652,
-        "throughputTokensPerSecond": 235.11,
-        "latencyTtfbSeconds": 1.03,
+        "throughputTokensPerSecond": 231.78,
+        "latencyTtfbSeconds": 1.15,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -749,14 +749,14 @@
         "codingIndex": 68.8,
         "agenticIndex": 41.3,
         "costPerTaskUsd": 0.674,
-        "throughputTokensPerSecond": 91.4,
-        "latencyTtfbSeconds": 1.67,
+        "throughputTokensPerSecond": 97.94,
+        "latencyTtfbSeconds": 1.69,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
         "modelId": "deepseek/deepseek-v4-pro-0813",
-        "inputPricePerMillion": 0.26399999999999996,
-        "outputPricePerMillion": 0.792,
+        "inputPricePerMillion": 0.24502000000000002,
+        "outputPricePerMillion": 3.5,
         "contextLength": 1048576,
         "createdAtUnix": 1786549364
       },
@@ -777,8 +777,8 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 205.05,
-        "latencyTtfbSeconds": 0.46,
+        "throughputTokensPerSecond": 207.93,
+        "latencyTtfbSeconds": 0.44,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -805,8 +805,8 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 296.12,
-        "latencyTtfbSeconds": 0.29,
+        "throughputTokensPerSecond": 283.64,
+        "latencyTtfbSeconds": 0.3,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -833,8 +833,8 @@
         "codingIndex": 33.3,
         "agenticIndex": 1.6,
         "costPerTaskUsd": 0.2317,
-        "throughputTokensPerSecond": 134.99,
-        "latencyTtfbSeconds": 20,
+        "throughputTokensPerSecond": 135.68,
+        "latencyTtfbSeconds": 19.12,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -861,7 +861,7 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 188.3,
+        "throughputTokensPerSecond": 204.61,
         "latencyTtfbSeconds": 0.97,
         "intelligenceIndexVersion": 4.3
       },
@@ -934,7 +934,7 @@
         "agenticIndex": 1.6,
         "costPerTaskUsd": 0.0394,
         "throughputTokensPerSecond": 335.44,
-        "latencyTtfbSeconds": 5.98,
+        "latencyTtfbSeconds": 6,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -961,8 +961,8 @@
         "codingIndex": 68.8,
         "agenticIndex": 8.2,
         "costPerTaskUsd": 0.6747,
-        "throughputTokensPerSecond": 119.92,
-        "latencyTtfbSeconds": 27.65,
+        "throughputTokensPerSecond": 119.29,
+        "latencyTtfbSeconds": 25.03,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -989,8 +989,8 @@
         "codingIndex": 70.1,
         "agenticIndex": 26,
         "costPerTaskUsd": 1.5625,
-        "throughputTokensPerSecond": 220.83,
-        "latencyTtfbSeconds": 20.98,
+        "throughputTokensPerSecond": 213.08,
+        "latencyTtfbSeconds": 23.83,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -1017,8 +1017,8 @@
         "codingIndex": 49.3,
         "agenticIndex": 14.3,
         "costPerTaskUsd": 0.1235,
-        "throughputTokensPerSecond": 344.35,
-        "latencyTtfbSeconds": 9.51,
+        "throughputTokensPerSecond": 348.61,
+        "latencyTtfbSeconds": 9.87,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -1045,8 +1045,8 @@
         "codingIndex": 69.2,
         "agenticIndex": 29,
         "costPerTaskUsd": 0.9288,
-        "throughputTokensPerSecond": 212.41,
-        "latencyTtfbSeconds": 17,
+        "throughputTokensPerSecond": 211.91,
+        "latencyTtfbSeconds": 19.42,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -1073,8 +1073,8 @@
         "codingIndex": 76.1,
         "agenticIndex": 35.2,
         "costPerTaskUsd": 0.9253,
-        "throughputTokensPerSecond": 338.47,
-        "latencyTtfbSeconds": 12.08,
+        "throughputTokensPerSecond": 332.88,
+        "latencyTtfbSeconds": 12.35,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -1101,8 +1101,8 @@
         "codingIndex": 76.3,
         "agenticIndex": 40.2,
         "costPerTaskUsd": 1.2428,
-        "throughputTokensPerSecond": 328.24,
-        "latencyTtfbSeconds": 23.47,
+        "throughputTokensPerSecond": 305.97,
+        "latencyTtfbSeconds": 27.05,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -1129,8 +1129,8 @@
         "codingIndex": 31.1,
         "agenticIndex": 1.6,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 772.34,
-        "latencyTtfbSeconds": 4.2,
+        "throughputTokensPerSecond": 820,
+        "latencyTtfbSeconds": 4.33,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -1157,8 +1157,8 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": 0.1167,
-        "throughputTokensPerSecond": 769.79,
-        "latencyTtfbSeconds": 3.08,
+        "throughputTokensPerSecond": 785.03,
+        "latencyTtfbSeconds": 3.1,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -1185,8 +1185,8 @@
         "codingIndex": 16.3,
         "agenticIndex": 0.6,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 114.55,
-        "latencyTtfbSeconds": 0.92,
+        "throughputTokensPerSecond": 112.15,
+        "latencyTtfbSeconds": 0.93,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -1213,8 +1213,8 @@
         "codingIndex": 8.2,
         "agenticIndex": 0.5,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 95.14,
-        "latencyTtfbSeconds": 0.85,
+        "throughputTokensPerSecond": 99.43,
+        "latencyTtfbSeconds": 0.84,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -1241,8 +1241,8 @@
         "codingIndex": 49,
         "agenticIndex": 8.5,
         "costPerTaskUsd": 0.0567,
-        "throughputTokensPerSecond": 109.92,
-        "latencyTtfbSeconds": 1.14,
+        "throughputTokensPerSecond": 114.27,
+        "latencyTtfbSeconds": 1.19,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -1297,8 +1297,8 @@
         "codingIndex": 72.2,
         "agenticIndex": 43.2,
         "costPerTaskUsd": 0.9747,
-        "throughputTokensPerSecond": 243.35,
-        "latencyTtfbSeconds": 11.88,
+        "throughputTokensPerSecond": 256.13,
+        "latencyTtfbSeconds": 12.49,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -1325,8 +1325,8 @@
         "codingIndex": 75.8,
         "agenticIndex": 55.5,
         "costPerTaskUsd": 1.6049,
-        "throughputTokensPerSecond": 218.15,
-        "latencyTtfbSeconds": 25.37,
+        "throughputTokensPerSecond": 213.98,
+        "latencyTtfbSeconds": 25.69,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -1353,7 +1353,7 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 37.87,
+        "throughputTokensPerSecond": 40.19,
         "latencyTtfbSeconds": 2.45,
         "intelligenceIndexVersion": 4.3
       },
@@ -1381,8 +1381,8 @@
         "codingIndex": 58.6,
         "agenticIndex": 29.5,
         "costPerTaskUsd": 0.5076,
-        "throughputTokensPerSecond": 178.97,
-        "latencyTtfbSeconds": 1.01,
+        "throughputTokensPerSecond": 179.16,
+        "latencyTtfbSeconds": 1.16,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -1409,14 +1409,14 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 100.44,
-        "latencyTtfbSeconds": 1.42,
+        "throughputTokensPerSecond": 99.33,
+        "latencyTtfbSeconds": 1.4,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
         "modelId": "minimax/minimax-m2",
-        "inputPricePerMillion": 0.3,
-        "outputPricePerMillion": 1.2,
+        "inputPricePerMillion": 0.255,
+        "outputPricePerMillion": 1.02,
         "contextLength": 204800,
         "createdAtUnix": 1761252093
       },
@@ -1437,7 +1437,7 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 93.42,
+        "throughputTokensPerSecond": 101.83,
         "latencyTtfbSeconds": 1.42,
         "intelligenceIndexVersion": 4.3
       },
@@ -1465,8 +1465,8 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 100.25,
-        "latencyTtfbSeconds": 1.41,
+        "throughputTokensPerSecond": 97.41,
+        "latencyTtfbSeconds": 1.46,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -1493,14 +1493,14 @@
         "codingIndex": 52.6,
         "agenticIndex": 15.3,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 62.55,
+        "throughputTokensPerSecond": 66.46,
         "latencyTtfbSeconds": 1.52,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
         "modelId": "minimax/minimax-m2.7",
-        "inputPricePerMillion": 0.3,
-        "outputPricePerMillion": 1.2,
+        "inputPricePerMillion": 0.21,
+        "outputPricePerMillion": 0.84,
         "contextLength": 204800,
         "createdAtUnix": 1773836697
       },
@@ -1661,8 +1661,8 @@
         "codingIndex": 46.9,
         "agenticIndex": 7,
         "costPerTaskUsd": 0.502,
-        "throughputTokensPerSecond": 154.6,
-        "latencyTtfbSeconds": 2.34,
+        "throughputTokensPerSecond": 155.78,
+        "latencyTtfbSeconds": 2.3,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -1745,7 +1745,7 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 50.37,
+        "throughputTokensPerSecond": 52.73,
         "latencyTtfbSeconds": 1.51,
         "intelligenceIndexVersion": 4.3
       },
@@ -1773,8 +1773,8 @@
         "codingIndex": 61.8,
         "agenticIndex": 20.5,
         "costPerTaskUsd": 0.7998,
-        "throughputTokensPerSecond": 54.89,
-        "latencyTtfbSeconds": 2.8,
+        "throughputTokensPerSecond": 57.57,
+        "latencyTtfbSeconds": 2.74,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -1829,8 +1829,8 @@
         "codingIndex": 76.2,
         "agenticIndex": 50,
         "costPerTaskUsd": 2.0001,
-        "throughputTokensPerSecond": 35.12,
-        "latencyTtfbSeconds": 4.18,
+        "throughputTokensPerSecond": 34.83,
+        "latencyTtfbSeconds": 4.68,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -1857,8 +1857,8 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 31.38,
-        "latencyTtfbSeconds": 2.08,
+        "throughputTokensPerSecond": 29.77,
+        "latencyTtfbSeconds": 2.1,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -1913,7 +1913,7 @@
         "codingIndex": 26.8,
         "agenticIndex": 3.5,
         "costPerTaskUsd": 0.1004,
-        "throughputTokensPerSecond": 279.56,
+        "throughputTokensPerSecond": 286.19,
         "latencyTtfbSeconds": 0.61,
         "intelligenceIndexVersion": 4.3
       },
@@ -1997,7 +1997,7 @@
         "codingIndex": 21.5,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 31.5,
+        "throughputTokensPerSecond": 32.06,
         "latencyTtfbSeconds": 3.38,
         "intelligenceIndexVersion": 4.3
       },
@@ -2025,7 +2025,7 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 158.92,
+        "throughputTokensPerSecond": 179.67,
         "latencyTtfbSeconds": 0.96,
         "intelligenceIndexVersion": 4.3
       },
@@ -2053,8 +2053,8 @@
         "codingIndex": 20.2,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 145.65,
-        "latencyTtfbSeconds": 0.84,
+        "throughputTokensPerSecond": 151.46,
+        "latencyTtfbSeconds": 0.79,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -2081,8 +2081,8 @@
         "codingIndex": 11.1,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 145.11,
-        "latencyTtfbSeconds": 0.79,
+        "throughputTokensPerSecond": 147.63,
+        "latencyTtfbSeconds": 0.8,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -2109,8 +2109,8 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 127.62,
-        "latencyTtfbSeconds": 1.02,
+        "throughputTokensPerSecond": 145.73,
+        "latencyTtfbSeconds": 1.04,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -2137,8 +2137,8 @@
         "codingIndex": 24.2,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 113.81,
-        "latencyTtfbSeconds": 1.16,
+        "throughputTokensPerSecond": 129.46,
+        "latencyTtfbSeconds": 1.1,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -2165,8 +2165,8 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 109.11,
-        "latencyTtfbSeconds": 1.13,
+        "throughputTokensPerSecond": 110.36,
+        "latencyTtfbSeconds": 1.11,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -2193,8 +2193,8 @@
         "codingIndex": 11.4,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 116.37,
-        "latencyTtfbSeconds": 0.88,
+        "throughputTokensPerSecond": 122.52,
+        "latencyTtfbSeconds": 0.86,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -2221,8 +2221,8 @@
         "codingIndex": 37.8,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 74.6,
-        "latencyTtfbSeconds": 85.14,
+        "throughputTokensPerSecond": 75.32,
+        "latencyTtfbSeconds": 81.43,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -2250,7 +2250,7 @@
         "agenticIndex": 6.8,
         "costPerTaskUsd": 0.0535,
         "throughputTokensPerSecond": 107.21,
-        "latencyTtfbSeconds": 105.69,
+        "latencyTtfbSeconds": 85.05,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -2277,8 +2277,8 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 168.94,
-        "latencyTtfbSeconds": 42.49,
+        "throughputTokensPerSecond": 169.93,
+        "latencyTtfbSeconds": 40.78,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -2333,8 +2333,8 @@
         "codingIndex": 49.4,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 119.41,
-        "latencyTtfbSeconds": 48.87,
+        "throughputTokensPerSecond": 131.76,
+        "latencyTtfbSeconds": 37.18,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -2417,8 +2417,8 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 74.92,
-        "latencyTtfbSeconds": 130.34,
+        "throughputTokensPerSecond": 78.66,
+        "latencyTtfbSeconds": 117.12,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -2473,7 +2473,7 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 118.89,
+        "throughputTokensPerSecond": 117.81,
         "latencyTtfbSeconds": 71.64,
         "intelligenceIndexVersion": 4.3
       },
@@ -2502,7 +2502,7 @@
         "agenticIndex": null,
         "costPerTaskUsd": null,
         "throughputTokensPerSecond": 139.92,
-        "latencyTtfbSeconds": 122.54,
+        "latencyTtfbSeconds": 120.17,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -2529,8 +2529,8 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 200.55,
-        "latencyTtfbSeconds": 7.57,
+        "throughputTokensPerSecond": 200.92,
+        "latencyTtfbSeconds": 6.39,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -2557,7 +2557,7 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 163.24,
+        "throughputTokensPerSecond": 169.92,
         "latencyTtfbSeconds": 3.06,
         "intelligenceIndexVersion": 4.3
       },
@@ -2613,8 +2613,8 @@
         "codingIndex": 74.9,
         "agenticIndex": 36.4,
         "costPerTaskUsd": 2.634,
-        "throughputTokensPerSecond": 107.39,
-        "latencyTtfbSeconds": 65.38,
+        "throughputTokensPerSecond": 108.23,
+        "latencyTtfbSeconds": 46.72,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -2669,8 +2669,8 @@
         "codingIndex": 71.4,
         "agenticIndex": 42.1,
         "costPerTaskUsd": 0.1783,
-        "throughputTokensPerSecond": 122.48,
-        "latencyTtfbSeconds": 156.17,
+        "throughputTokensPerSecond": 127.69,
+        "latencyTtfbSeconds": 120.83,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -2725,8 +2725,8 @@
         "codingIndex": 77.4,
         "agenticIndex": 50.2,
         "costPerTaskUsd": 1.9885,
-        "throughputTokensPerSecond": 93.73,
-        "latencyTtfbSeconds": 101.45,
+        "throughputTokensPerSecond": 96.39,
+        "latencyTtfbSeconds": 91.97,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -2781,8 +2781,8 @@
         "codingIndex": 76.7,
         "agenticIndex": 43.2,
         "costPerTaskUsd": 1.3987,
-        "throughputTokensPerSecond": 99.6,
-        "latencyTtfbSeconds": 162.69,
+        "throughputTokensPerSecond": 100.48,
+        "latencyTtfbSeconds": 144.69,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -2837,8 +2837,8 @@
         "codingIndex": 76.9,
         "agenticIndex": 51,
         "costPerTaskUsd": 3.2575,
-        "throughputTokensPerSecond": 63.23,
-        "latencyTtfbSeconds": 327.36,
+        "throughputTokensPerSecond": 63.34,
+        "latencyTtfbSeconds": 333.51,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": null,
@@ -2859,7 +2859,7 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": 0.0417,
-        "throughputTokensPerSecond": 145.24,
+        "throughputTokensPerSecond": 148.74,
         "latencyTtfbSeconds": 17.7,
         "intelligenceIndexVersion": 4.3
       },
@@ -2887,8 +2887,8 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": 0.1322,
-        "throughputTokensPerSecond": 81.48,
-        "latencyTtfbSeconds": 1.96,
+        "throughputTokensPerSecond": 82.35,
+        "latencyTtfbSeconds": 1.85,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -2915,7 +2915,7 @@
         "codingIndex": 21.2,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 200.37,
+        "throughputTokensPerSecond": 213.74,
         "latencyTtfbSeconds": 0.85,
         "intelligenceIndexVersion": 4.3
       },
@@ -2943,8 +2943,8 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 219.08,
-        "latencyTtfbSeconds": 1.02,
+        "throughputTokensPerSecond": 242.4,
+        "latencyTtfbSeconds": 0.99,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -3027,8 +3027,8 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 127.32,
-        "latencyTtfbSeconds": 5.8,
+        "throughputTokensPerSecond": 136.49,
+        "latencyTtfbSeconds": 5.62,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -3055,8 +3055,8 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 239.3,
-        "latencyTtfbSeconds": 4.84,
+        "throughputTokensPerSecond": 245.96,
+        "latencyTtfbSeconds": 4.58,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -3111,8 +3111,8 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 148.04,
-        "latencyTtfbSeconds": 31.85,
+        "throughputTokensPerSecond": 155.24,
+        "latencyTtfbSeconds": 30.59,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -3252,7 +3252,7 @@
         "agenticIndex": null,
         "costPerTaskUsd": null,
         "throughputTokensPerSecond": 90.69,
-        "latencyTtfbSeconds": 2.62,
+        "latencyTtfbSeconds": 2.58,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -3279,8 +3279,8 @@
         "codingIndex": 36.2,
         "agenticIndex": 0.9,
         "costPerTaskUsd": 0.5518,
-        "throughputTokensPerSecond": 125.52,
-        "latencyTtfbSeconds": 1.28,
+        "throughputTokensPerSecond": 130.98,
+        "latencyTtfbSeconds": 1.2,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -3307,8 +3307,8 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 55.75,
-        "latencyTtfbSeconds": 2.21,
+        "throughputTokensPerSecond": 56.03,
+        "latencyTtfbSeconds": 2.17,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -3363,8 +3363,8 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 177.43,
-        "latencyTtfbSeconds": 2.15,
+        "throughputTokensPerSecond": 180.42,
+        "latencyTtfbSeconds": 2.16,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -3391,7 +3391,7 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 51.51,
+        "throughputTokensPerSecond": 51.61,
         "latencyTtfbSeconds": 2.69,
         "intelligenceIndexVersion": 4.3
       },
@@ -3419,8 +3419,8 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 111.41,
-        "latencyTtfbSeconds": 2.15,
+        "throughputTokensPerSecond": 112.59,
+        "latencyTtfbSeconds": 2.19,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -3447,8 +3447,8 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 71.89,
-        "latencyTtfbSeconds": 2.55,
+        "throughputTokensPerSecond": 74.07,
+        "latencyTtfbSeconds": 2.56,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -3503,7 +3503,7 @@
         "codingIndex": 45.7,
         "agenticIndex": 7.6,
         "costPerTaskUsd": 0.3247,
-        "throughputTokensPerSecond": 132.13,
+        "throughputTokensPerSecond": 132.42,
         "latencyTtfbSeconds": 2.32,
         "intelligenceIndexVersion": 4.3
       },
@@ -3531,8 +3531,8 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 78.64,
-        "latencyTtfbSeconds": 5.59,
+        "throughputTokensPerSecond": 79.26,
+        "latencyTtfbSeconds": 5.61,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -3559,8 +3559,8 @@
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 142.99,
-        "latencyTtfbSeconds": 2.18,
+        "throughputTokensPerSecond": 147.49,
+        "latencyTtfbSeconds": 2.12,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -3587,8 +3587,8 @@
         "codingIndex": 48.2,
         "agenticIndex": 8.3,
         "costPerTaskUsd": 0.4746,
-        "throughputTokensPerSecond": 91.57,
-        "latencyTtfbSeconds": 2.2,
+        "throughputTokensPerSecond": 93.89,
+        "latencyTtfbSeconds": 2.22,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -3615,8 +3615,8 @@
         "codingIndex": 28.7,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 57.15,
-        "latencyTtfbSeconds": 1.62,
+        "throughputTokensPerSecond": 55.59,
+        "latencyTtfbSeconds": 1.94,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -3643,7 +3643,7 @@
         "codingIndex": 53.7,
         "agenticIndex": 18.5,
         "costPerTaskUsd": 0.6212,
-        "throughputTokensPerSecond": 58.9,
+        "throughputTokensPerSecond": 59.04,
         "latencyTtfbSeconds": 3.65,
         "intelligenceIndexVersion": 4.3
       },
@@ -3671,7 +3671,7 @@
         "codingIndex": 41.9,
         "agenticIndex": 13.1,
         "costPerTaskUsd": 0.4751,
-        "throughputTokensPerSecond": 127.86,
+        "throughputTokensPerSecond": 130.63,
         "latencyTtfbSeconds": 2.07,
         "intelligenceIndexVersion": 4.3
       },
@@ -3699,7 +3699,7 @@
         "codingIndex": 54.5,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 56.52,
+        "throughputTokensPerSecond": 56.28,
         "latencyTtfbSeconds": 2.03,
         "intelligenceIndexVersion": 4.3
       },
@@ -3727,8 +3727,8 @@
         "codingIndex": 55.9,
         "agenticIndex": 17.5,
         "costPerTaskUsd": 0.217,
-        "throughputTokensPerSecond": 71.88,
-        "latencyTtfbSeconds": 2.21,
+        "throughputTokensPerSecond": 74.67,
+        "latencyTtfbSeconds": 2.2,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -3755,8 +3755,8 @@
         "codingIndex": 71.9,
         "agenticIndex": 50.1,
         "costPerTaskUsd": 2.1559,
-        "throughputTokensPerSecond": 39.41,
-        "latencyTtfbSeconds": 2.68,
+        "throughputTokensPerSecond": 39.51,
+        "latencyTtfbSeconds": 2.9,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -3783,8 +3783,8 @@
         "codingIndex": 56.1,
         "agenticIndex": 44.4,
         "costPerTaskUsd": 1.1331,
-        "throughputTokensPerSecond": 51.42,
-        "latencyTtfbSeconds": 3.78,
+        "throughputTokensPerSecond": 54.1,
+        "latencyTtfbSeconds": 3.8,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -3868,7 +3868,7 @@
         "agenticIndex": 22.5,
         "costPerTaskUsd": 1.1473,
         "throughputTokensPerSecond": 208.36,
-        "latencyTtfbSeconds": 2.24,
+        "latencyTtfbSeconds": 2.25,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -3923,8 +3923,8 @@
         "codingIndex": 68.1,
         "agenticIndex": 45.8,
         "costPerTaskUsd": 1.0073,
-        "throughputTokensPerSecond": 44.56,
-        "latencyTtfbSeconds": 3.9,
+        "throughputTokensPerSecond": 46.17,
+        "latencyTtfbSeconds": 3.86,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -3979,8 +3979,8 @@
         "codingIndex": 76.2,
         "agenticIndex": 56,
         "costPerTaskUsd": 5.4085,
-        "throughputTokensPerSecond": 39.38,
-        "latencyTtfbSeconds": 2.97,
+        "throughputTokensPerSecond": 39.46,
+        "latencyTtfbSeconds": 2.92,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": null,
@@ -4001,14 +4001,14 @@
         "codingIndex": 58.8,
         "agenticIndex": 24.1,
         "costPerTaskUsd": 0.0743,
-        "throughputTokensPerSecond": 88.34,
-        "latencyTtfbSeconds": 3.14,
+        "throughputTokensPerSecond": 86.99,
+        "latencyTtfbSeconds": 3.18,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
         "modelId": "tencent/hy3",
-        "inputPricePerMillion": 0.0825,
-        "outputPricePerMillion": 0.33,
+        "inputPricePerMillion": 0.13199999999999998,
+        "outputPricePerMillion": 0.5279999999999999,
         "contextLength": 262144,
         "createdAtUnix": 1783344048
       },
@@ -4057,8 +4057,8 @@
         "codingIndex": 52.1,
         "agenticIndex": 22.5,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 180.36,
-        "latencyTtfbSeconds": 1.87,
+        "throughputTokensPerSecond": 193.58,
+        "latencyTtfbSeconds": 1.82,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -4113,8 +4113,8 @@
         "codingIndex": 52.7,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 91.96,
-        "latencyTtfbSeconds": 1.92,
+        "throughputTokensPerSecond": 92.95,
+        "latencyTtfbSeconds": 1.93,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -4185,8 +4185,8 @@
         "codingIndex": 42.2,
         "agenticIndex": 15.5,
         "costPerTaskUsd": 0.2054,
-        "throughputTokensPerSecond": 127.12,
-        "latencyTtfbSeconds": 25.88,
+        "throughputTokensPerSecond": 126.35,
+        "latencyTtfbSeconds": 27.11,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -4213,8 +4213,8 @@
         "codingIndex": 72.4,
         "agenticIndex": 41.2,
         "costPerTaskUsd": 1.0365,
-        "throughputTokensPerSecond": 59.45,
-        "latencyTtfbSeconds": 7.63,
+        "throughputTokensPerSecond": 62.55,
+        "latencyTtfbSeconds": 6.51,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -4241,8 +4241,8 @@
         "codingIndex": 76.8,
         "agenticIndex": 53,
         "costPerTaskUsd": 1.8589,
-        "throughputTokensPerSecond": 64.08,
-        "latencyTtfbSeconds": 37.95,
+        "throughputTokensPerSecond": 65.91,
+        "latencyTtfbSeconds": 32.06,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -4325,8 +4325,8 @@
         "codingIndex": 68.8,
         "agenticIndex": 38.4,
         "costPerTaskUsd": 1.4726,
-        "throughputTokensPerSecond": 83.08,
-        "latencyTtfbSeconds": 3.9,
+        "throughputTokensPerSecond": 90.04,
+        "latencyTtfbSeconds": 3.24,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
@@ -4353,14 +4353,14 @@
         "codingIndex": 74.8,
         "agenticIndex": 53.1,
         "costPerTaskUsd": 2.0056,
-        "throughputTokensPerSecond": 77.16,
-        "latencyTtfbSeconds": 2.87,
+        "throughputTokensPerSecond": 83.43,
+        "latencyTtfbSeconds": 2.74,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
         "modelId": "z-ai/glm-5.3",
-        "inputPricePerMillion": 0.3794,
-        "outputPricePerMillion": 1.1924,
+        "inputPricePerMillion": 1.4,
+        "outputPricePerMillion": 4.4,
         "contextLength": 1310720,
         "createdAtUnix": 1787086655
       },
@@ -4381,14 +4381,14 @@
         "codingIndex": 71.5,
         "agenticIndex": 50.9,
         "costPerTaskUsd": 0.2533,
-        "throughputTokensPerSecond": 47.68,
-        "latencyTtfbSeconds": 3.22,
+        "throughputTokensPerSecond": 52.54,
+        "latencyTtfbSeconds": 3.14,
         "intelligenceIndexVersion": 4.3
       },
       "openrouter": {
         "modelId": "z-ai/glm-5.3-flash",
-        "inputPricePerMillion": 0.04,
-        "outputPricePerMillion": 0.5,
+        "inputPricePerMillion": 0.045,
+        "outputPricePerMillion": 0.14,
         "contextLength": 1310720,
         "createdAtUnix": 1787752741
       },
