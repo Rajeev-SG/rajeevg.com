@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 800" role="img" aria-labelledby="title desc">
+  <title id="title">AI Discovery Intelligence</title>
+  <desc id="desc">Observation plane showing platform mechanics with evidence-backed fields, an explicit unknown gap and a sourced claim drill-down.</desc>
+  <defs>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dy="8" stdDeviation="10" flood-color="#152033" flood-opacity=".12"/></filter>
+    <style>.serif{font-family:Georgia,'Times New Roman',serif;fill:#172033}.sans{font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#566174}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;fill:#566174}</style>
+  </defs>
+  <rect width="1280" height="800" fill="#fbfaf5"/>
+  <text x="64" y="76" class="serif" font-size="38" font-weight="700">AI Discovery Intelligence</text>
+  <text x="64" y="112" class="sans" font-size="19">How consumer AI surfaces find, retrieve, cite and recommend brands — evidence first</text>
+
+  <rect x="64" y="150" width="1152" height="196" rx="16" fill="#fffef9" stroke="#d8d4c8" filter="url(#soft)"/>
+  <text x="92" y="192" class="sans" font-size="20" font-weight="600">ChatGPT — retrieval trigger</text>
+  <rect x="92" y="212" width="150" height="30" rx="15" fill="#e2e8f0" stroke="#b6c1d1"/>
+  <text x="167" y="232" text-anchor="middle" class="sans" font-size="13">Observed behaviour</text>
+  <rect x="252" y="212" width="136" height="30" rx="15" fill="#f3e2c0" stroke="#c98a2b"/>
+  <text x="320" y="232" text-anchor="middle" class="sans" font-size="14" font-weight="600">Interpretation</text>
+  <rect x="398" y="212" width="128" height="30" rx="15" fill="#ecece4" stroke="#cfd3c9"/>
+  <text x="462" y="232" text-anchor="middle" class="sans" font-size="13">Gap: unverified</text>
+  <text x="92" y="274" class="sans" font-size="13">CLAIM  OpenAI documents OAI-SearchBot separately from GPTBot; search eligibility is not training access</text>
+  <text x="92" y="302" class="sans" font-size="13">SOURCE  developers.openai.com/api/docs/bots   ·   CAPTURED 2026-09-19   ·   VERIFIED AGAINST CAPTURE</text>
+
+  <rect x="64" y="370" width="1152" height="378" rx="16" fill="#fffef9" stroke="#d8d4c8" filter="url(#soft)"/>
+  <g class="sans" font-size="12" font-weight="600">
+    <text x="92" y="406">SURFACE</text><text x="480" y="406">RETRIEVAL TRIGGER</text><text x="800" y="406">CITATION BEHAVIOUR</text><text x="1060" y="406">STATE</text>
+  </g>
+  <line x1="92" y1="418" x2="1188" y2="418" stroke="#d8d4c8"/>
+  <g class="sans" font-size="13">
+    <rect x="92" y="428" width="1096" height="34" rx="6" fill="#f4f2ea"/>
+    <text x="108" y="450" font-weight="600">ChatGPT</text><text x="480" y="450">Search fires on eligible queries</text><text x="800" y="450">Links cited sources in answers</text><text x="1060" y="450">Evidenced</text>
+    <text x="108" y="502" font-weight="600">Google AI Overviews</text><text x="480" y="502">Query fan-out (documented: may)</text><text x="800" y="502">Cites web results inline</text><text x="1060" y="502">Evidenced</text>
+    <rect x="92" y="532" width="1096" height="34" rx="6" fill="#f4f2ea"/>
+    <text x="108" y="554" font-weight="600">Perplexity</text><text x="480" y="554">Live retrieval default</text><text x="800" y="554">Inline citations on claims</text><text x="1060" y="554">Evidenced</text>
+    <text x="108" y="606" font-weight="600">Doubao</text><text x="480" y="606" font-style="italic">Unknown — not assessed</text><text x="800" y="606" font-style="italic">Unknown — not assessed</text><text x="1060" y="606">Gap</text>
+    <rect x="92" y="636" width="1096" height="34" rx="6" fill="#f4f2ea"/>
+    <text x="108" y="658" font-weight="600">NAVER AI Briefing</text><text x="480" y="658">Local + reservation data</text><text x="800" y="658">Commerce-aware answers</text><text x="1060" y="658">Evidenced</text>
+    <text x="108" y="710" font-weight="600">Qwen</text><text x="480" y="710" font-style="italic">Unknown — not assessed</text><text x="800" y="710" font-style="italic">Unknown — not assessed</text><text x="1060" y="710">Gap</text>
+  </g>
+  <line x1="92" y1="478" x2="1188" y2="478" stroke="#e7e3d8"/>
+  <line x1="92" y1="582" x2="1188" y2="582" stroke="#e7e3d8"/>
+  <line x1="92" y1="686" x2="1188" y2="686" stroke="#e7e3d8"/>
+</svg>

@@ -54,6 +54,11 @@ function isNegotiablePublicPath(request: NextRequest) {
     pathname.startsWith("/trpc/") ||
     pathname === "/dashboard" ||
     pathname.startsWith("/dashboard/") ||
+    // The AI discovery observation plane is proxied to its own deployment (see
+    // next.config.ts rewrites); it does not serve this site's markdown
+    // representation, so negotiation must not intercept it.
+    pathname === "/solutions/ai-discovery" ||
+    pathname.startsWith("/solutions/ai-discovery/") ||
     pathname.includes(".")
   ) {
     return false

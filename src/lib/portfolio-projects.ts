@@ -20,6 +20,28 @@ export type PortfolioProject = {
 
 export const currentSolutions: PortfolioProject[] = [
   {
+    slug: "ai-discovery",
+    title: "AI Discovery Intelligence",
+    category: "Martech & Measurement",
+    tagline:
+      "A source-backed view of how consumer AI surfaces find, retrieve, cite and recommend brands \u2014 and which marketing actions the evidence actually supports.",
+    summary:
+      "Thirty-five consumer AI surfaces \u2014 ChatGPT, Gemini, AI Overviews, Perplexity, Doubao, NAVER and the rest \u2014 tracked for the mechanics that decide brand visibility: retrieval triggers, source selection, citation behaviour, crawl and index controls, and commerce surfaces. Every displayed field is labelled by what it is: documented mechanism, observed behaviour, editorial interpretation or recommended experiment. Unknown stays unknown, and findings assigned to the wrong question are treated as a defect, not a nuance.",
+    howItWorks:
+      "A Dagster-driven acquisition lane captures configured sources into private snapshots; Instructor/Pydantic extraction over OpenRouter produces quote-verified claims with provenance flags that distinguish machine extraction from human review. A deterministic change-event lane and a reconciliation layer feed a FastAPI evidence API, which the Next.js observation plane reads for search, facets, comparison, evidence drill-down and an honest gaps list.",
+    imagePath: "/images/solutions/ai-discovery-intelligence.svg",
+    imageAlt:
+      "AI Discovery Intelligence observation plane showing a platform comparison with evidence-backed fields, an explicit unknown gap and a sourced claim drill-down.",
+    liveUrl: "/solutions/ai-discovery",
+    liveLabel: "Open the observation plane",
+    githubUrl: "https://github.com/Rajeev-SG/ai-discovery-intelligence",
+    lastUpdated: "2026-09-27",
+    tech: ["Next.js", "FastAPI", "PostgreSQL", "Dagster", "OpenRouter", "provenance"],
+    repoVisibility: "PUBLIC",
+    inclusionReason:
+      "Live evidence-backed product with an honest provenance model: extraction flags never claim human review, counts deduplicate before display, and unsupported recommendations are refused rather than published.",
+  },
+  {
     slug: "capability-explorer",
     title: "Ad Platform Capability Explorer",
     category: "Martech & Measurement",
@@ -528,6 +550,7 @@ export function getPortfolioProject(slug: string) {
 }
 
 const publicProjectOrder = [
+  "ai-discovery",
   "capability-explorer",
   "web-automation-microbenchmarks",
   "agent-benchmark-matrix",
