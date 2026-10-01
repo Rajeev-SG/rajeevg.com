@@ -53,6 +53,23 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Unmatched/new-model diagnostics summary
+        if: always()
+        run: |
+          if [ -f pareto-diagnostics.json ]; then
+            node -e '
+              const d = require("./pareto-diagnostics.json");
+              const byReason = {};
+              for (const x of d.diagnostics ?? []) byReason[x.reasonCode] = (byReason[x.reasonCode] ?? 0) + 1;
+              console.log("Unmatched/new-model diagnostics:", d.diagnosticCount, JSON.stringify(byReason));
+              for (const x of (d.diagnostics ?? []).filter((x) => x.reasonCode !== "variant_excluded").slice(0, 10)) {
+                console.log(`  [${x.source}] ${x.sourceId} — ${x.reasonCode}${x.org ? " (org: " + x.org + ")" : ""}`);
+              }
+            '
+          else
+            echo "No pareto-diagnostics.json produced by the refresh step."
+          fi
+
       - name: Refresh outcome summary
         if: always()
         run: |
