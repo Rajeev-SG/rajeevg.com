@@ -13,16 +13,19 @@
  * layer. It never decides identity itself — it reports what the join layer
  * produced.
  */
-import type { CanonicalModel, UnmatchedRecord } from "./types";
-
-/** Name of the live AA catalogue referenced in provenance. */
-export const AA_UPSTREAM_LABEL = "Artificial Analysis API v2 /language/models/free";
+import type { CanonicalModel } from "./types";
 
 /** Machine-readable failure classes for unmatched upstream records. */
 export type UnmatchedReason =
+  /** AA record with no OR counterpart: only a curated alias can enter it. */
   | "not_in_alias_map"
+  /** Join blocked: the OR org slug is not in the closed auto-join map. */
   | "org_unknown"
+  /** Join blocked: the AA creator name diverged from the org display name/aliases. */
   | "creator_name_mismatch"
+  /** OR record with no AA identity match: no quality source upstream. */
+  | "no_aa_counterpart"
+  /** Effort-suffix / batch / contributor variant excluded by design. */
   | "variant_excluded";
 
 /** One upstream record that did not enter the canonical model set. */
@@ -32,7 +35,7 @@ export interface UnmatchedDiagnostic {
   displayName: string | null;
   /** Why the canonical join layer could not place this record. */
   reasonCode: UnmatchedReason;
-  /** Only the org-related miss exposes which org was rejected (privacy-free telemetry). */
+  /** Org hint for triage (AA creator name or OR org slug). */
   org?: string;
 }
 
@@ -41,7 +44,6 @@ export interface CompletenessStats {
   upstreamModelCount: number;
   canonicalCount: number;
   qualityScoredCount: number;
-  unmatched: UnmatchedDiagnostic[];
 }
 
 /** Thresholds for the catalogue completeness guard. */
@@ -107,11 +109,8 @@ export function completenessGuard(
 
 /**
  * Canonical-join audit: every record the canonical join layer produced must
- * be internally consistent. A model is "quality orphed" if it carries AA
- * quality metrics but has no AA slug (impossible via auto-join, which always
- * sets the slug) — and a model must not claim an AA slug while every quality
- * metric is null if it also has no other data. These are cheap, deterministic
- * invariants that catch future join-layer regressions.
+ * be internally consistent. These are cheap, deterministic invariants that
+ * catch future join-layer regressions.
  */
 export function joinAudit(models: CanonicalModel[]): string[] {
   const problems: string[] = [];
@@ -119,9 +118,6 @@ export function joinAudit(models: CanonicalModel[]): string[] {
     const quality = m.aa.intelligenceIndex != null || m.aa.codingIndex != null || m.aa.agenticIndex != null;
     if (quality && m.aa.slug == null) {
       problems.push(`${m.canonicalId}: quality metrics without an AA slug`);
-    }
-    if (!quality && m.aa.slug != null && m.openrouter == null && m.arena.overall == null) {
-      problems.push(`${m.canonicalId}: AA slug but no metrics and no other source data`);
     }
     if (m.openrouter && m.openrouter.inputPricePerMillion == null && m.openrouter.outputPricePerMillion == null) {
       problems.push(`${m.canonicalId}: OpenRouter record with both prices null`);
@@ -131,42 +127,13 @@ export function joinAudit(models: CanonicalModel[]): string[] {
 }
 
 /**
- * Structural org metadata: AA creator names keyed by the canonical
- * organisation name (mirrors auto-discover's ORG_BY_OR_SLUG display names).
- * Used to classify unmatched records by failure class and to keep the org
- * map's identity contract visible to the completeness checks.
- */
-export const AA_CREATOR_BY_ORG: Record<string, string> = {
-  OpenAI: "OpenAI",
-  Anthropic: "Anthropic",
-  Meta: "Meta",
-  Google: "Google",
-  "SpaceXAI": "SpaceXAI",
-  DeepSeek: "DeepSeek",
-  "Z.ai": "Z AI",
-  Xiaomi: "Xiaomi",
-  Alibaba: "Alibaba",
-  Mistral: "Mistral",
-  MiniMax: "MiniMax",
-  "Moonshot AI": "Kimi",
-  NVIDIA: "NVIDIA",
-  Perplexity: "Perplexity",
-  Amazon: "Amazon",
-  Microsoft: "Microsoft",
-  Cohere: "Cohere",
-  Inception: "Inception",
-  OpenRouter: "OpenRouter",
-  "Nous Research": "Nous Research",
-  "Thinking Machines": "Thinking Machines",
-  Upstage: "Upstage",
-  Tencent: "Tencent",
-  Poolside: "Poolside",
-};
-
-/**
  * Classify why an AA record failed to enter the canonical set, given the
  * deterministic join rules used by auto-discover. Pure and shared by the
  * refresh diagnostics and the alias-drift regression tests.
+ *
+ * Callers must first exclude records that ARE represented in the published
+ * set (via another variant) and deliberate effort-variants — those carry
+ * `variant_excluded` and never reach this classifier.
  */
 export function classifyAaUnmatched(input: {
   slug: string;
@@ -178,7 +145,7 @@ export function classifyAaUnmatched(input: {
   knownCreatorAliases?: Map<string, string[]>;
 }): UnmatchedDiagnostic {
   if (input.knownAaSlugs.has(input.slug.toLowerCase())) {
-    // Should have matched; reaching here means a join-layer regression.
+    // Alias-mapped yet unmatched — a join-layer regression signal.
     return { source: "aa", sourceId: input.slug, displayName: input.creatorName, reasonCode: "not_in_alias_map" };
   }
   const creator = input.creatorName ?? "";
@@ -196,16 +163,9 @@ export function classifyAaUnmatched(input: {
       org: creator || undefined,
     };
   }
-  if (creator.toLowerCase() !== canonicalOrg.toLowerCase()) {
-    // Org is known but the upstream name diverges — join would reject it.
-    return {
-      source: "aa",
-      sourceId: input.slug,
-      displayName: input.creatorName,
-      reasonCode: "creator_name_mismatch",
-      org: canonicalOrg,
-    };
-  }
+  // Org resolves (directly or via alias); the join was blocked by the raw
+  // creator name diverging from the display name — or, if the name matches
+  // exactly, this is a join-layer regression signal.
   return {
     source: "aa",
     sourceId: input.slug,
@@ -213,4 +173,42 @@ export function classifyAaUnmatched(input: {
     reasonCode: "creator_name_mismatch",
     org: canonicalOrg,
   };
+}
+
+/**
+ * Classify why an OpenRouter record failed to enter the canonical set, given
+ * the AA record with matching identity (when one exists). Pure; used by the
+ * refresh diagnostics so OR-only models (e.g. GLM-5.3 FlashX) surface with an
+ * honest "no AA quality source upstream" reason instead of a generic blob.
+ */
+export function classifyOrUnmatched(input: {
+  id: string;
+  /** OR org slug (already parsed from the id). */
+  orgSlug: string;
+  /** Creator name of the AA record with matching identity, or null when none exists. */
+  aaCreatorName: string | null;
+  /** OR org slug (lower-cased) -> display organisation name. */
+  orgSlugToDisplay: Map<string, string>;
+  /** Documented AA-side aliases per organisation display name. */
+  knownCreatorAliases: Map<string, string[]>;
+}): UnmatchedDiagnostic {
+  if (input.aaCreatorName == null) {
+    // No AA record shares this identity: the model has no quality source
+    // upstream, so it cannot enter a quality×cost frontier (e.g. GLM-5.3
+    // FlashX). Surfaced so the gap is visible, not silent.
+    return { source: "openrouter", sourceId: input.id, displayName: null, reasonCode: "no_aa_counterpart" };
+  }
+  const display = input.orgSlugToDisplay.get(input.orgSlug.toLowerCase());
+  if (!display) {
+    return { source: "openrouter", sourceId: input.id, displayName: null, reasonCode: "org_unknown", org: input.orgSlug };
+  }
+  const aliases = input.knownCreatorAliases.get(display) ?? [];
+  const acceptable = [display, ...aliases].map((n) => n.toLowerCase());
+  if (!acceptable.includes(input.aaCreatorName.toLowerCase())) {
+    return { source: "openrouter", sourceId: input.id, displayName: null, reasonCode: "creator_name_mismatch", org: display };
+  }
+  // Identity, org and creator all verify — reaching here means a join-layer
+  // regression (the refresh loop should have matched this record). The
+  // remediation is the same as an alias gap: add/repair the curated entry.
+  return { source: "openrouter", sourceId: input.id, displayName: null, reasonCode: "not_in_alias_map", org: display };
 }

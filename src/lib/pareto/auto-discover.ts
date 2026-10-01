@@ -46,7 +46,7 @@ export function orIdentity(modelSlug: string): string {
 }
 
 /** Closed, case-insensitive OR org-slug -> display organisation map. */
-const ORG_BY_OR_SLUG: Record<string, string> = {
+export const ORG_BY_OR_SLUG: Record<string, string> = {
   "meta": "Meta",
   "meta-llama": "Meta",
   "openai": "OpenAI",
@@ -87,6 +87,8 @@ const ORG_BY_OR_SLUG: Record<string, string> = {
 const AA_CREATOR_ALIASES: Record<string, string[]> = {
   "xAI": ["SpaceXAI"],
 };
+
+export { AA_CREATOR_ALIASES };
 
 /**
  * Strips known OpenRouter variant segments; returns null for contributor or

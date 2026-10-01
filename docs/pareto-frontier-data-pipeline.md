@@ -130,15 +130,22 @@ Root causes fixed:
 2. AA renamed the xAI creator (`xAI` → `SpaceXAI`), which broke the exact
    creator-name equality for every future xAI model; the join now accepts
    documented creator aliases (`AA_CREATOR_ALIASES` in `auto-discover.ts`).
+3. An alias-matched AA-only canonical (alias entry without `openrouterId`,
+   e.g. GPT-6 Astra) silently lost its OpenRouter pricing because the join
+   loop skipped already-claimed canonical ids instead of merging; the
+   refresh now backfills pricing for such models.
 
 Structural safeguards added by gh-198:
 
 * **Unmatched/new-model queue**: every refresh publishes
   `pareto-diagnostics.json` next to the snapshot on `pareto-data` — every
   upstream record the join layer could not place, with a machine-readable
-  reason (`not_in_alias_map`, `org_unknown`, `creator_name_mismatch`,
-  `variant_excluded`). New upstream model ids are therefore always visible
-  even when they cannot join yet.
+  reason produced by the real classifiers in `completeness.ts`
+  (`not_in_alias_map`, `org_unknown`, `creator_name_mismatch`,
+  `no_aa_counterpart`, `variant_excluded`). New upstream model ids are
+  therefore always visible even when they cannot join yet, and OR-only
+  models (no AA quality source) are labelled as such instead of silently
+  vanishing.
 * **Completeness guard**: the refresh fails before publication when AA-quality
   coverage collapses (see `completenessGuard`).
 * **Publish never-shrink guard**: `publish-pareto-data.mjs` reads the currently

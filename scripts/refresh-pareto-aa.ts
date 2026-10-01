@@ -3,9 +3,9 @@ import { resolve } from "node:path";
 import { mapAaModels, fetchAaAllPages } from "../src/lib/pareto/artificial-analysis";
 import { fetchOpenRouterModels, mapOpenRouterModels } from "../src/lib/pareto/openrouter";
 import { canonicalEntries, resolveAaSlug } from "../src/lib/pareto/aliases";
-import { autoJoin, parseOrId } from "../src/lib/pareto/auto-discover";
+import { AA_CREATOR_ALIASES, ORG_BY_OR_SLUG, autoJoin, aaIdentity, orIdentity, parseOrId } from "../src/lib/pareto/auto-discover";
 import { mergeCanonicalModels } from "../src/lib/pareto/normalise";
-import { completenessGuard, joinAudit, DEFAULT_THRESHOLDS } from "../src/lib/pareto/completeness";
+import { classifyAaUnmatched, classifyOrUnmatched, completenessGuard, joinAudit, DEFAULT_THRESHOLDS } from "../src/lib/pareto/completeness";
 import type { UnmatchedDiagnostic } from "../src/lib/pareto/completeness";
 import type { CanonicalModel } from "../src/lib/pareto/types";
 
@@ -96,7 +96,28 @@ for (const [aaSlug, aaModel] of aaCandidates) {
       { slug: aaSlug, creatorName: aaModel.creatorName },
       { id: orId, name: orModel.name }
     );
-    if (!joined || aaMapped.matched.has(joined.canonicalId)) continue;
+    if (!joined) continue;
+    const existing = aaMapped.matched.get(joined.canonicalId);
+    if (existing) {
+      // gh-198: an alias-matched AA-only canonical (e.g. GPT-6 Astra, whose
+      // alias entry carries no openrouterId) still needs OR pricing. Merge
+      // instead of skipping, or the pricing is silently lost.
+      if (!existing.openrouter) {
+        const merged: Partial<CanonicalModel> = {
+          ...existing,
+          openrouter: {
+            modelId: orModel.id,
+            inputPricePerMillion: orModel.inputPerMillion,
+            outputPricePerMillion: orModel.outputPerMillion,
+            contextLength: orModel.contextLength,
+            createdAtUnix: orModel.createdAtUnix,
+          },
+        };
+        aaMapped.matched.set(joined.canonicalId, merged);
+        orMapped.matched.set(joined.canonicalId, merged);
+      }
+      break;
+    }
     const partial: Partial<CanonicalModel> = {
       canonicalId: joined.canonicalId,
       displayName: joined.displayName,
@@ -122,6 +143,41 @@ for (const [aaSlug, aaModel] of aaCandidates) {
     };
     aaMapped.matched.set(joined.canonicalId, partial);
     orMapped.matched.set(joined.canonicalId, partial);
+    break;
+  }
+}
+
+// ── Pricing backfill for alias-matched AA-only canonicals (gh-198) ──────
+// The auto-join loop above only sees AA records that are NOT in the alias
+// map. An alias entry without an openrouterId (e.g. GPT-6 Astra) therefore
+// never picked up OpenRouter pricing even when a deterministic join existed —
+// the same silent-drop class as the canary join misses. Backfill: for every
+// AA-backed canonical still missing OpenRouter data, attempt the exact join
+// against the OR catalogue.
+const aaModelBySlug = new Map(aaResult.models.map((m) => [m.slug, m]));
+for (const [canonicalId, partial] of [...aaMapped.matched]) {
+  if (partial.openrouter || orMapped.matched.has(canonicalId)) continue;
+  const slug = partial.aa?.slug;
+  const aaModel = slug ? aaModelBySlug.get(slug) : undefined;
+  if (!aaModel || aaModel.creatorName == null) continue;
+  for (const [orId, orModel] of orCandidates) {
+    const joined = autoJoin(
+      { slug: aaModel.slug, creatorName: aaModel.creatorName },
+      { id: orId, name: orModel.name }
+    );
+    if (!joined || joined.canonicalId !== canonicalId) continue;
+    const merged: Partial<CanonicalModel> = {
+      ...partial,
+      openrouter: {
+        modelId: orModel.id,
+        inputPricePerMillion: orModel.inputPerMillion,
+        outputPricePerMillion: orModel.outputPerMillion,
+        contextLength: orModel.contextLength,
+        createdAtUnix: orModel.createdAtUnix,
+      },
+    };
+    aaMapped.matched.set(canonicalId, merged);
+    orMapped.matched.set(canonicalId, merged);
     break;
   }
 }
@@ -173,30 +229,88 @@ if (auditProblems.length > 0) {
 
 // ── Unmatched/new-model diagnostics queue (gh-172) ──────────────────────
 // Every upstream record the join layer could not place, with a machine
-// readable reason code. Effort-variant suffixed slugs (-high/-low/…) are a
-// deliberate product of the variant-safety rule and are grouped, not
-// enumerated, so the queue stays small and readable.
+// readable reason code produced by the real classifiers in
+// src/lib/pareto/completeness.ts (classifyAaUnmatched / classifyOrUnmatched).
+// Records already represented in the published set through another variant,
+// and deliberate effort-variants, are classified variant_excluded.
 const diagnostics: UnmatchedDiagnostic[] = [];
+
+// Identity state derived from the FINAL published model set — the same state
+// the join layer produced, so diagnostics can never contradict the snapshot.
+const matchedAaSlugs = new Set(models.map((m) => m.aa.slug).filter((s): s is string => s != null));
+const matchedOrIds = new Set(models.map((m) => m.openrouter?.modelId).filter((s): s is string => s != null));
+const matchedOrTokens = new Set(
+  [...matchedOrIds]
+    .map((id) => parseOrId(id))
+    .filter((p): p is NonNullable<ReturnType<typeof parseOrId>> => p != null)
+    .map((p) => orIdentity(p.modelSlug))
+);
+const aaIdentityByToken = new Map<string, { slug: string; creatorName: string | null }>();
 for (const m of aaResult.models) {
-  if (aaMapped.matched.has(m.slug)) continue;
-  const isVariant = isEffortVariantSuffix(m.slug);
+  const token = aaIdentity(m.slug);
+  if (!aaIdentityByToken.has(token)) aaIdentityByToken.set(token, { slug: m.slug, creatorName: m.creatorName });
+}
+const orIdentityTokens = new Set(
+  orResult.models
+    .map((m) => parseOrId(m.id))
+    .filter((p): p is NonNullable<ReturnType<typeof parseOrId>> => p != null)
+    .map((p) => orIdentity(p.modelSlug))
+);
+const orgSlugToDisplay = new Map(Object.entries(ORG_BY_OR_SLUG).map(([slug, display]) => [slug.toLowerCase(), display]));
+const creatorAliases = new Map(Object.entries(AA_CREATOR_ALIASES));
+const knownOrgDisplays = new Set(orgSlugToDisplay.values());
+const aliasAaSlugs = new Set(canonicalEntries().filter((e) => e.aaSlug).map((e) => e.aaSlug.toLowerCase()));
+
+for (const m of aaResult.models) {
+  if (matchedAaSlugs.has(m.slug)) continue;
+  const token = aaIdentity(m.slug);
+  const displayName = m.creatorName ? `${m.name} (${m.creatorName})` : m.name;
+  if (matchedOrTokens.has(token) || isEffortVariantSuffix(m.slug)) {
+    // The model family is published through another variant, or this is a
+    // deliberate effort-tier record excluded by the variant-safety rule.
+    diagnostics.push({ source: "aa", sourceId: m.slug, displayName, reasonCode: "variant_excluded", org: m.creatorName ?? undefined });
+    continue;
+  }
+  if (!orIdentityTokens.has(token)) {
+    // No OpenRouter counterpart exists; only a curated alias can enter it.
+    diagnostics.push({ source: "aa", sourceId: m.slug, displayName, reasonCode: "not_in_alias_map", org: m.creatorName ?? undefined });
+    continue;
+  }
   diagnostics.push({
-    source: "aa",
-    sourceId: m.slug,
-    displayName: m.creatorName ? `${m.name} (${m.creatorName})` : m.name,
-    reasonCode: isVariant ? "variant_excluded" : "not_in_alias_map",
+    ...classifyAaUnmatched({
+      slug: m.slug,
+      creatorName: m.creatorName,
+      knownOrgDisplayNames: knownOrgDisplays,
+      knownAaSlugs: aliasAaSlugs,
+      knownCreatorAliases: creatorAliases,
+    }),
+    displayName,
     org: m.creatorName ?? undefined,
   });
 }
 for (const m of orResult.models) {
-  if (orMapped.matched.has(m.id)) continue;
+  if (matchedOrIds.has(m.id)) continue;
   const parsed = parseOrId(m.id);
+  if (!parsed) {
+    // Batch/contributor or malformed ids are excluded by design.
+    diagnostics.push({ source: "openrouter", sourceId: m.id, displayName: m.name, reasonCode: "variant_excluded", org: undefined });
+    continue;
+  }
+  if (matchedOrTokens.has(orIdentity(parsed.modelSlug))) {
+    // The model family is published through another variant.
+    diagnostics.push({ source: "openrouter", sourceId: m.id, displayName: m.name, reasonCode: "variant_excluded", org: parsed.orgSlug });
+    continue;
+  }
+  const aaMatch = aaIdentityByToken.get(orIdentity(parsed.modelSlug));
   diagnostics.push({
-    source: "openrouter",
-    sourceId: m.id,
+    ...classifyOrUnmatched({
+      id: m.id,
+      orgSlug: parsed.orgSlug,
+      aaCreatorName: aaMatch?.creatorName ?? null,
+      orgSlugToDisplay,
+      knownCreatorAliases: creatorAliases,
+    }),
     displayName: m.name,
-    reasonCode: "not_in_alias_map",
-    org: parsed?.orgSlug,
   });
 }
 
@@ -226,7 +340,7 @@ const snapshot = {
 // always-current queue of newly seen / unmatched upstream model ids.
 const unmatchedQueue = {
   generatedAt,
-  note: "Upstream records the canonical join layer could not place. Reason codes: not_in_alias_map (needs a curated alias or a supported org), org_unknown (new org), creator_name_mismatch (upstream renamed a creator), variant_excluded (effort-variant slug excluded by design).",
+  note: "Upstream records the canonical join layer could not place. Reason codes: not_in_alias_map (needs a curated alias; also the regression signal when identity fully verifies), org_unknown (new org), creator_name_mismatch (upstream renamed a creator), no_aa_counterpart (OpenRouter-only, no AA quality source), variant_excluded (effort-variant or batch/contributor record excluded by design).",
   sources: {
     aa: {
       upstreamRecords: aaResult.models.length,

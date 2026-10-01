@@ -12,6 +12,7 @@ import {
   completenessGuard,
   joinAudit,
   classifyAaUnmatched,
+  classifyOrUnmatched,
   DEFAULT_THRESHOLDS,
   type CompletenessStats,
 } from "../completeness";
@@ -45,7 +46,6 @@ describe("completeness guard (gh-172)", () => {
       upstreamModelCount: 687,
       canonicalCount: 400,
       qualityScoredCount: 400,
-      unmatched: [],
     };
     const result = completenessGuard(stats, { ...DEFAULT_THRESHOLDS, minAaCoverage: 0.5 });
     expect(result.ok).toBe(true);
@@ -59,7 +59,6 @@ describe("completeness guard (gh-172)", () => {
       upstreamModelCount: 687,
       canonicalCount: 159,
       qualityScoredCount: 134,
-      unmatched: [],
     };
     const result = completenessGuard(stats, { ...DEFAULT_THRESHOLDS, minAaCoverage: 0.5 });
     expect(result.ok).toBe(false);
@@ -71,7 +70,6 @@ describe("completeness guard (gh-172)", () => {
       upstreamModelCount: 30,
       canonicalCount: 3,
       qualityScoredCount: 3,
-      unmatched: [],
     };
     const result = completenessGuard(stats, DEFAULT_THRESHOLDS);
     expect(result.ok).toBe(false);
@@ -83,7 +81,6 @@ describe("completeness guard (gh-172)", () => {
       upstreamModelCount: 0,
       canonicalCount: 0,
       qualityScoredCount: 0,
-      unmatched: [],
     };
     const result = completenessGuard(stats, DEFAULT_THRESHOLDS);
     // No coverage finding; the absolute floor still applies.
@@ -185,6 +182,58 @@ describe("unmatched diagnostics classification (gh-172)", () => {
     });
     expect(d.reasonCode).toBe("creator_name_mismatch");
     expect(d.org).toBe("xAI");
+  });
+
+  it("classifies an OR record with no AA identity match as no_aa_counterpart", () => {
+    // Live case: GLM-5.3 FlashX / GLM-5.3 Prime are priced on OpenRouter but
+    // have no AA record at all — a legitimate exclusion from the quality×cost
+    // frontier that must still surface in diagnostics.
+    const d = classifyOrUnmatched({
+      id: "z-ai/glm-5.3-flashx",
+      orgSlug: "z-ai",
+      aaCreatorName: null,
+      orgSlugToDisplay: new Map([["z-ai", "Z.ai"], ["xiaomi", "Xiaomi"]]),
+      knownCreatorAliases: new Map(),
+    });
+    expect(d.reasonCode).toBe("no_aa_counterpart");
+  });
+
+  it("classifies an OR record whose AA counterpart org is unknown as org_unknown", () => {
+    const d = classifyOrUnmatched({
+      id: "neworg/new-model",
+      orgSlug: "neworg",
+      aaCreatorName: "New Org",
+      orgSlugToDisplay: new Map([["z-ai", "Z.ai"], ["xiaomi", "Xiaomi"]]),
+      knownCreatorAliases: new Map(),
+    });
+    expect(d.reasonCode).toBe("org_unknown");
+    expect(d.org).toBe("neworg");
+  });
+
+  it("classifies an OR record whose AA creator name matches no known name as creator_name_mismatch", () => {
+    const d = classifyOrUnmatched({
+      id: "x-ai/grok-4.7",
+      orgSlug: "x-ai",
+      aaCreatorName: "xAI Legacy Group",
+      orgSlugToDisplay: new Map([["x-ai", "xAI"]]),
+      knownCreatorAliases: new Map([["xAI", ["SpaceXAI"]]]),
+    });
+    expect(d.reasonCode).toBe("creator_name_mismatch");
+    expect(d.org).toBe("xAI");
+  });
+
+  it("classifies a fully-verifiable OR record that still failed as a regression signal", () => {
+    const d = classifyOrUnmatched({
+      id: "xiaomi/mimo-v2.6-pro",
+      orgSlug: "xiaomi",
+      aaCreatorName: "Xiaomi",
+      orgSlugToDisplay: new Map([["xiaomi", "Xiaomi"]]),
+      knownCreatorAliases: new Map(),
+    });
+    // Identity, org and creator all verify — an unmatched record here is a
+    // join-layer regression, remediable the same way as an alias gap.
+    expect(d.reasonCode).toBe("not_in_alias_map");
+    expect(d.org).toBe("Xiaomi");
   });
 
   it("classifies a documented creator alias as resolvable (not org_unknown)", () => {

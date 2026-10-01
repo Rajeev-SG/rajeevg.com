@@ -63,6 +63,24 @@ const OR_FIXTURE = {
       context_length: 500000,
       pricing: { prompt: "0.000002", completion: "0.000006" },
     },
+    {
+      // gh-198 pricing-merge regression: the alias entry openai-gpt-6-astra
+      // carries no openrouterId, so the AA-side alias match used to skip the
+      // join and silently lose this pricing.
+      id: "openai/gpt-6-astra",
+      name: "OpenAI: GPT-6 Astra",
+      created: 1788500000,
+      context_length: 400000,
+      pricing: { prompt: "0.00000125", completion: "0.00001" },
+    },
+    {
+      // OR-only model (no AA record): must surface as no_aa_counterpart.
+      id: "z-ai/glm-5.3-flashx",
+      name: "Z.ai: GLM-5.3 FlashX",
+      created: 1789744020,
+      context_length: 1000000,
+      pricing: { prompt: "0.00000037", completion: "0.00000148" },
+    },
   ],
 };
 
@@ -97,7 +115,7 @@ describe("refresh script end-to-end (gh-198)", () => {
     delete process.env.PARETO_MIN_AA_COVERAGE;
   });
 
-  it("auto-joins MiMo-V2.6 and Grok 4.7 into the snapshot and emits diagnostics", async () => {
+  it("auto-joins MiMo-V2.6 and Grok 4.7, merges alias-model pricing, and classifies OR-only records", async () => {
     vi.resetModules();
     const mod = await import("../../../../../scripts/refresh-pareto-aa");
     // The script's main() writes files relative to cwd; run it and then read
@@ -107,12 +125,28 @@ describe("refresh script end-to-end (gh-198)", () => {
     const { resolve } = await import("node:path");
     const snapshot = JSON.parse(await readFile(resolve(process.cwd(), "src/data/pareto-aa-fallback.json"), "utf8"));
     const diagnostics = JSON.parse(await readFile(resolve(process.cwd(), "pareto-diagnostics.json"), "utf8"));
-    const ids = snapshot.models.map((m: { canonicalId: string }) => m.canonicalId);
-    expect(ids).toContain("xiaomi-mimo-v2.6-pro");
-    expect(ids).toContain("x-ai-grok-4.7");
-    const mimo = snapshot.models.find((m: { canonicalId: string }) => m.canonicalId === "xiaomi-mimo-v2.6-pro");
+    const byId = new Map(snapshot.models.map((m: { canonicalId: string }) => [m.canonicalId, m]));
+    // The two live canary join misses are fixed.
+    const mimo = byId.get("xiaomi-mimo-v2.6-pro");
+    expect(mimo).toBeDefined();
     expect(mimo.aa.intelligenceIndex).toBe(46.32);
     expect(mimo.openrouter.inputPricePerMillion).toBeCloseTo(0.435, 5);
-    expect(diagnostics.diagnosticCount).toBeGreaterThanOrEqual(0);
+    expect(byId.get("x-ai-grok-4.7")).toBeDefined();
+    // gh-198 pricing merge: alias-matched GPT-6 Astra gains OR pricing.
+    const astra = byId.get("openai-gpt-6-astra");
+    expect(astra).toBeDefined();
+    expect(astra.openrouter.modelId).toBe("openai/gpt-6-astra");
+    expect(astra.openrouter.inputPricePerMillion).toBeCloseTo(1.25, 5);
+    // Diagnostics: the OR-only FlashX surfaces with its honest upstream reason.
+    const flashx = diagnostics.diagnostics.find(
+      (d: { sourceId: string }) => d.sourceId === "z-ai/glm-5.3-flashx"
+    );
+    expect(flashx).toBeDefined();
+    expect(flashx.reasonCode).toBe("no_aa_counterpart");
+    // Everything else in this fixture matched — no undifferentiated blob.
+    const unexplained = diagnostics.diagnostics.filter(
+      (d: { reasonCode: string }) => d.reasonCode === "not_in_alias_map"
+    );
+    expect(unexplained).toHaveLength(0);
   });
 });
