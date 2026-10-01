@@ -210,8 +210,11 @@ describe("refresh script end-to-end (gh-198)", () => {
     vi.resetModules();
     const mod = await import("../../../../../scripts/refresh-pareto-aa");
     await expect(mod.refreshMain()).rejects.toThrow(/creator_name_mismatch/);
-    // Nothing publishes on rejection: the artefacts must not exist.
+    // The snapshot never publishes on rejection (last-known-good preserved)…
     expect(existsSync(join(workDir, "src/data/pareto-aa-fallback.json"))).toBe(false);
-    expect(existsSync(join(workDir, "pareto-diagnostics.json"))).toBe(false);
+    // …but the triage trail is always written, even on rejection.
+    const diagnostics = JSON.parse(readFileSync(join(workDir, "pareto-diagnostics.json"), "utf8"));
+    const reasonOf = (id: string) => diagnostics.diagnostics.find((d: { sourceId: string }) => d.sourceId === id)?.reasonCode;
+    expect(reasonOf("x-ai/grok-4.8")).toBe("creator_name_mismatch");
   });
 });
