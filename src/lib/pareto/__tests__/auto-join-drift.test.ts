@@ -11,7 +11,7 @@
  * cases, using live-upstream identities verified on 2026-10-01.
  */
 import { describe, expect, it } from "vitest";
-import { autoJoin } from "../auto-discover";
+import { aaIdentity, autoJoin, orIdentity } from "../auto-discover";
 
 describe("auto-join org coverage (gh-198)", () => {
   it("joins Xiaomi MiMo-V2.6 Pro (org previously missing from the map)", () => {
@@ -83,5 +83,27 @@ describe("auto-join org coverage (gh-198)", () => {
       { slug: "grok-4-7", creatorName: "SpaceXAI" },
       { id: "x-ai/grok-4.7-contributor", name: "xAI: Grok 4.7 Contributor" }
     )).toBeNull();
+  });
+
+  it("identity-token keying contract: AA and OR tokens for the same model are directly comparable", () => {
+    // The refresh diagnostics key an AA identity map by aaIdentity(slug) and
+    // probe it with orIdentity(OR model-slug). Pin that the SAME function
+    // semantics hold across sides for the live canary shapes, including dots
+    // vs dashes, underscores and effort-suffix stripping.
+    const pairs: Array<[string, string]> = [
+      ["grok-4-7", "grok-4.7"],
+      ["mimo-v2-6-pro", "mimo-v2.6-pro"],
+      ["glm-5-3-flash", "glm-5.3-flash"],
+      ["gpt-6-1-sol", "gpt-6.1-sol"],
+      ["claude-opus-5-5", "claude-opus-5.5"],
+      ["deepseek-v4-1-flash", "deepseek-v4.1-flash"],
+      ["1-2-3-a10b", "1_2_3-a10b"],
+    ];
+    expect(pairs.length).toBeGreaterThan(0);
+    for (const [aaSlug, orSlug] of pairs) {
+      expect(aaIdentity(aaSlug), `aaIdentity(${aaSlug}) vs orIdentity(${orSlug})`).toBe(orIdentity(orSlug));
+    }
+    // And the effort-suffix strip applies in aaIdentity only:
+    expect(aaIdentity("grok-4-7-xhigh")).toBe(orIdentity("grok-4.7"));
   });
 });

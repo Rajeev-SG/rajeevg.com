@@ -76,6 +76,30 @@ describe("completeness guard (gh-172)", () => {
     expect(result.findings.map((f) => f.check)).toContain("aa_quality_floor");
   });
 
+  it("rejects when a KNOWN org's records fail creator verification (the Grok 4.7 signature)", () => {
+    const stats: CompletenessStats = {
+      upstreamModelCount: 100,
+      canonicalCount: 60,
+      qualityScoredCount: 60,
+      unmatchedByReason: { creator_name_mismatch: 2, variant_excluded: 40 },
+    };
+    const result = completenessGuard(stats, DEFAULT_THRESHOLDS);
+    expect(result.ok).toBe(false);
+    expect(result.findings.map((f) => f.check)).toContain("creator_name_mismatch");
+    expect(result.findings.find((f) => f.check === "creator_name_mismatch")?.observed).toBe(2);
+  });
+
+  it("does not gate on org_unknown (legitimate new orgs surface in diagnostics, not failures)", () => {
+    const stats: CompletenessStats = {
+      upstreamModelCount: 100,
+      canonicalCount: 60,
+      qualityScoredCount: 60,
+      unmatchedByReason: { org_unknown: 15, variant_excluded: 40 },
+    };
+    const result = completenessGuard(stats, DEFAULT_THRESHOLDS);
+    expect(result.ok).toBe(true);
+  });
+
   it("does not divide by zero when upstream returned nothing", () => {
     const stats: CompletenessStats = {
       upstreamModelCount: 0,
@@ -125,6 +149,53 @@ const problems = joinAudit(models);
     const problems = joinAudit(models);
     expect(problems).toHaveLength(1);
     expect(problems[0]).toContain("OpenRouter record with both prices null");
+  });
+
+  it("flags dead-weight records: AA slug but no quality, pricing or arena data", () => {
+    // The shape the alias/backfill merge paths could otherwise produce: a
+    // published record carrying an AA slug and nothing usable.
+    const models = [
+      canonicalModel("ghost-model", {
+        aa: {
+          slug: "ghost-model",
+          intelligenceIndex: null,
+          codingIndex: null,
+          agenticIndex: null,
+          costPerTaskUsd: null,
+          throughputTokensPerSecond: null,
+          latencyTtfbSeconds: null,
+          intelligenceIndexVersion: null,
+        },
+      }),
+    ];
+    const problems = joinAudit(models);
+    expect(problems).toHaveLength(1);
+    expect(problems[0]).toContain("no quality metrics and no other source data");
+  });
+
+  it("accepts an AA-slugged record with pricing but no quality yet (not dead weight)", () => {
+    const models = [
+      canonicalModel("early-price-model", {
+        aa: {
+          slug: "early-price-model",
+          intelligenceIndex: null,
+          codingIndex: null,
+          agenticIndex: null,
+          costPerTaskUsd: null,
+          throughputTokensPerSecond: null,
+          latencyTtfbSeconds: null,
+          intelligenceIndexVersion: null,
+        },
+        openrouter: {
+          modelId: "org/early-price-model",
+          inputPricePerMillion: 1,
+          outputPricePerMillion: 4,
+          contextLength: 100000,
+          createdAtUnix: null,
+        },
+      }),
+    ];
+    expect(joinAudit(models)).toEqual([]);
   });
 
   it("accepts clean models", () => {
@@ -208,6 +279,18 @@ describe("unmatched diagnostics classification (gh-172)", () => {
     });
     expect(d.reasonCode).toBe("org_unknown");
     expect(d.org).toBe("neworg");
+  });
+
+  it("classifies an OR record whose AA creator name matches no known name as creator_name_mismatch", () => {
+    const d = classifyOrUnmatched({
+      id: "x-ai/grok-4.7",
+      orgSlug: "x-ai",
+      aaCreatorName: "xAI Legacy Group",
+      orgSlugToDisplay: new Map([["x-ai", "xAI"]]),
+      knownCreatorAliases: new Map([["xAI", ["SpaceXAI"]]]),
+    });
+    expect(d.reasonCode).toBe("creator_name_mismatch");
+    expect(d.org).toBe("xAI");
   });
 
   it("classifies an OR record whose AA creator name matches no known name as creator_name_mismatch", () => {

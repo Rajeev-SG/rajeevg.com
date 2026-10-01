@@ -1,5 +1,5 @@
-import { writeFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { mkdir, writeFile } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
 import { mapAaModels, fetchAaAllPages } from "../src/lib/pareto/artificial-analysis";
 import { fetchOpenRouterModels, mapOpenRouterModels } from "../src/lib/pareto/openrouter";
 import { canonicalEntries, resolveAaSlug } from "../src/lib/pareto/aliases";
@@ -97,27 +97,10 @@ for (const [aaSlug, aaModel] of aaCandidates) {
       { id: orId, name: orModel.name }
     );
     if (!joined) continue;
-    const existing = aaMapped.matched.get(joined.canonicalId);
-    if (existing) {
-      // gh-198: an alias-matched AA-only canonical (e.g. GPT-6 Astra, whose
-      // alias entry carries no openrouterId) still needs OR pricing. Merge
-      // instead of skipping, or the pricing is silently lost.
-      if (!existing.openrouter) {
-        const merged: Partial<CanonicalModel> = {
-          ...existing,
-          openrouter: {
-            modelId: orModel.id,
-            inputPricePerMillion: orModel.inputPerMillion,
-            outputPricePerMillion: orModel.outputPerMillion,
-            contextLength: orModel.contextLength,
-            createdAtUnix: orModel.createdAtUnix,
-          },
-        };
-        aaMapped.matched.set(joined.canonicalId, merged);
-        orMapped.matched.set(joined.canonicalId, merged);
-      }
-      break;
-    }
+    // Canonical already claimed (e.g. by an explicit alias entry): skip here.
+    // OpenRouter pricing for such canonicals is handled by the single pricing
+    // backfill pass below (gh-198: one merge implementation, one winner rule).
+    if (aaMapped.matched.has(joined.canonicalId)) break;
     const partial: Partial<CanonicalModel> = {
       canonicalId: joined.canonicalId,
       displayName: joined.displayName,
@@ -195,38 +178,6 @@ const invalidMetric = models.find((model) =>
 );
 if (invalidMetric) throw new Error(`Refresh rejected: non-numeric metric for ${invalidMetric.canonicalId}`);
 
-// ── Completeness guard (gh-172) ─────────────────────────────────────────
-// Fails the refresh BEFORE publication when the AA-quality coverage of the
-// snapshot collapses relative to the upstream AA catalogue. Publication then
-// does not run, and the previous last-known-good durable snapshot survives.
-const aaQualityModels = models.filter(
-  (m) => m.aa.intelligenceIndex != null || m.aa.codingIndex != null || m.aa.agenticIndex != null
-);
-const guard = completenessGuard(
-  {
-    upstreamModelCount: aaResult.models.length,
-    canonicalCount: models.length,
-    qualityScoredCount: aaQualityModels.length,
-    unmatched: [],
-  },
-  {
-    // Environment-overridable for offline fixtures/tests; production runs use
-    // the defaults (50% coverage, ≥20 quality-scored models).
-    minAaCoverage: Number(process.env.PARETO_MIN_AA_COVERAGE ?? DEFAULT_THRESHOLDS.minAaCoverage),
-    minAaQualityCount: Number(process.env.PARETO_MIN_AA_QUALITY ?? DEFAULT_THRESHOLDS.minAaQualityCount),
-  }
-);
-if (!guard.ok) {
-  for (const f of guard.findings) console.error(`completeness-guard: ${f.check}: ${f.detail}`);
-  throw new Error(`Refresh rejected by completeness guard: ${guard.findings.map((f) => f.check).join(", ")}`);
-}
-
-// Canonical-join audit: invariants every joined model must satisfy.
-const auditProblems = joinAudit(models);
-if (auditProblems.length > 0) {
-  throw new Error(`Refresh rejected by join audit: ${auditProblems.slice(0, 5).join("; ")}`);
-}
-
 // ── Unmatched/new-model diagnostics queue (gh-172) ──────────────────────
 // Every upstream record the join layer could not place, with a machine
 // readable reason code produced by the real classifiers in
@@ -301,6 +252,11 @@ for (const m of orResult.models) {
     diagnostics.push({ source: "openrouter", sourceId: m.id, displayName: m.name, reasonCode: "variant_excluded", org: parsed.orgSlug });
     continue;
   }
+  // Cross-source lookup: the AA record whose identity token equals this OR
+  // record's model-slug token. Tokens are produced by the same identity
+  // functions on both sides (aaIdentity / orIdentity — both identityNormalise
+  // plus the reasoning-suffix strip), so equality here means "same model,
+  // opposite source". The keying contract is pinned in auto-join-drift.test.ts.
   const aaMatch = aaIdentityByToken.get(orIdentity(parsed.modelSlug));
   diagnostics.push({
     ...classifyOrUnmatched({
@@ -312,6 +268,54 @@ for (const m of orResult.models) {
     }),
     displayName: m.name,
   });
+}
+
+// ── Completeness guard (gh-172) ─────────────────────────────────────────
+// Fails the refresh BEFORE publication when (a) the AA-quality coverage of
+// the snapshot collapses relative to the upstream AA catalogue, or (b)
+// records from a KNOWN organisation were rejected by creator-name
+// verification (the silent-drop signature that removed Grok 4.7). A ceiling
+// of 0 is correct: with the alias table in place, no known-org record may
+// fail identity verification — such a record is exactly how an entire org's
+// catalogue used to vanish behind a green refresh. New unknown orgs are NOT
+// gated here (legitimate long-tail orgs appear constantly); they surface in
+// the diagnostics queue instead. Publication does not run on failure and the
+// previous last-known-good durable snapshot survives.
+const aaQualityModels = models.filter(
+  (m) => m.aa.intelligenceIndex != null || m.aa.codingIndex != null || m.aa.agenticIndex != null
+);
+const unmatchedByReason = diagnostics.reduce<Record<string, number>>((acc, d) => {
+  acc[d.reasonCode] = (acc[d.reasonCode] ?? 0) + 1;
+  return acc;
+}, {});
+const guard = completenessGuard(
+  {
+    upstreamModelCount: aaResult.models.length,
+    canonicalCount: models.length,
+    qualityScoredCount: aaQualityModels.length,
+    unmatchedByReason,
+  },
+  {
+    // Environment-overridable for offline fixtures/tests; production runs use
+    // the defaults (50% coverage, ≥20 quality-scored models, 0 creator mismatches).
+    minAaCoverage: Number(process.env.PARETO_MIN_AA_COVERAGE ?? DEFAULT_THRESHOLDS.minAaCoverage),
+    minAaQualityCount: Number(process.env.PARETO_MIN_AA_QUALITY ?? DEFAULT_THRESHOLDS.minAaQualityCount),
+    maxCreatorNameMismatches: Number(
+      process.env.PARETO_MAX_CREATOR_MISMATCHES ?? DEFAULT_THRESHOLDS.maxCreatorNameMismatches
+    ),
+  }
+);
+if (!guard.ok) {
+  for (const f of guard.findings) console.error(`completeness-guard: ${f.check}: ${f.detail}`);
+  throw new Error(`Refresh rejected by completeness guard: ${guard.findings.map((f) => f.check).join(", ")}`);
+}
+
+// Canonical-join audit: invariants every joined model must satisfy,
+// including "no dead-weight records" (AA slug but no quality, pricing or
+// arena data) — the shape the alias/backfill paths could otherwise produce.
+const auditProblems = joinAudit(models);
+if (auditProblems.length > 0) {
+  throw new Error(`Refresh rejected by join audit: ${auditProblems.slice(0, 5).join("; ")}`);
 }
 
 const generatedAt = new Date().toISOString();
@@ -357,16 +361,17 @@ const unmatchedQueue = {
 
 // Local copy stays as the repo's bundled last-known-good dataset (committed
 // rarely, on meaningful schema/model-set changes, not per refresh).
+const snapshotPath = resolve(process.cwd(), "src/data/pareto-aa-fallback.json");
+await mkdir(dirname(snapshotPath), { recursive: true });
 await writeFile(
-  resolve(process.cwd(), "src/data/pareto-aa-fallback.json"),
+  snapshotPath,
   `${JSON.stringify(snapshot, null, 2)}\n`,
   "utf8"
 );
 
 // Diagnostics artefact for the workflow summary/audit trail.
 await writeFile(
-  resolve(process.cwd(), "pareto-diagnostics.json"),
-  `${JSON.stringify(unmatchedQueue, null, 2)}\n`,
+  resolve(process.cwd(), "pareto-diagnostics.json"),  `${JSON.stringify(unmatchedQueue, null, 2)}\n`,
   "utf8"
 );
 
@@ -385,8 +390,10 @@ console.log(JSON.stringify({ delivered: false, delivery: "handled by the workflo
 // Telemetry only: records actual pages consumed per day. Not an enforcement
 // boundary — the hard cap is AA_MAX_PAGES_PER_RUN in fetchAaAllPages plus
 // the 2-run schedule. The file may undercount if a run fails before here.
+const quotaPath = resolve(process.cwd(), ".github/pareto-quota.json");
+await mkdir(dirname(quotaPath), { recursive: true });
 await writeFile(
-  resolve(process.cwd(), ".github/pareto-quota.json"),
+  quotaPath,
   `${JSON.stringify({ date: new Date().toISOString().slice(0, 10), aaRequestsUsed: pagesUsed, perRunPageCap: AA_MAX_PAGES_PER_RUN, note: "telemetry, not enforcement" }, null, 2)}\n`,
   "utf8"
 );

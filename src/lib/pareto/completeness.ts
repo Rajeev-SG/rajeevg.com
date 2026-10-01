@@ -44,6 +44,8 @@ export interface CompletenessStats {
   upstreamModelCount: number;
   canonicalCount: number;
   qualityScoredCount: number;
+  /** Count of unmatched upstream records by reason code, from the diagnostics queue. */
+  unmatchedByReason?: Partial<Record<UnmatchedReason, number>>;
 }
 
 /** Thresholds for the catalogue completeness guard. */
@@ -52,16 +54,24 @@ export interface CompletenessThresholds {
   minAaCoverage: number;
   /** Absolute minimum of AA-quality-scored canonical models (small-catalogue backstop). */
   minAaQualityCount: number;
+  /**
+   * Maximum tolerated creator_name_mismatch records from KNOWN organisations.
+   * Default 0: a known org's records failing identity verification is exactly
+   * how an entire org's catalogue silently vanished (Grok 4.7). Unknown orgs
+   * are not gated — legitimate long-tail orgs appear constantly.
+   */
+  maxCreatorNameMismatches: number;
 }
 
 export const DEFAULT_THRESHOLDS: CompletenessThresholds = {
   minAaCoverage: 0.5,
   minAaQualityCount: 20,
+  maxCreatorNameMismatches: 0,
 };
 
 /** Failure detail for the completeness guard. */
 export interface CompletenessFinding {
-  check: "aa_coverage" | "aa_quality_floor";
+  check: "aa_coverage" | "aa_quality_floor" | "creator_name_mismatch";
   detail: string;
   observed: number;
   threshold: number;
@@ -104,6 +114,19 @@ export function completenessGuard(
     });
   }
 
+  const mismatches = stats.unmatchedByReason?.creator_name_mismatch ?? 0;
+  if (mismatches > thresholds.maxCreatorNameMismatches) {
+    findings.push({
+      check: "creator_name_mismatch",
+      detail:
+        `${mismatches} upstream record(s) from known organisations failed creator-name ` +
+        `verification — this is the silent-drop signature that removed Grok 4.7; ` +
+        `extend the AA creator-alias table (AA_CREATOR_ALIASES) or the alias map`,
+      observed: mismatches,
+      threshold: thresholds.maxCreatorNameMismatches,
+    });
+  }
+
   return { ok: findings.length === 0, findings };
 }
 
@@ -118,6 +141,11 @@ export function joinAudit(models: CanonicalModel[]): string[] {
     const quality = m.aa.intelligenceIndex != null || m.aa.codingIndex != null || m.aa.agenticIndex != null;
     if (quality && m.aa.slug == null) {
       problems.push(`${m.canonicalId}: quality metrics without an AA slug`);
+    }
+    if (!quality && m.aa.slug != null && m.openrouter == null && m.arena.overall == null) {
+      // Dead-weight record: published with an AA slug but nothing usable —
+      // the shape the alias/backfill merge paths could otherwise produce.
+      problems.push(`${m.canonicalId}: AA slug but no quality metrics and no other source data`);
     }
     if (m.openrouter && m.openrouter.inputPricePerMillion == null && m.openrouter.outputPricePerMillion == null) {
       problems.push(`${m.canonicalId}: OpenRouter record with both prices null`);

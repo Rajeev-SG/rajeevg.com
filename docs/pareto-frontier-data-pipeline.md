@@ -91,12 +91,18 @@ change the publish target — no application code changes are required.
   diagnosis; it consumes the same quota, so use it deliberately.
 * **Validation gates**: a refresh with zero quality-scored models, non-finite
   metrics, or a failed schema check never replaces the durable snapshot.
-* **Completeness gates (gh-198)**: the refresh also aborts when AA-quality
+* **Completeness gates (gh-198)**: the refresh aborts when (a) AA-quality
   coverage of the snapshot collapses relative to the upstream catalogue
-  (`src/lib/pareto/completeness.ts`: ≥50% coverage, ≥20 scored models by
-  default), and the publish step refuses any snapshot whose quality-scored
-  count is lower than the one currently live on `pareto-data`. A successful
-  timestamp can therefore never mask a materially incomplete catalogue.
+  (`completeness.ts`: ≥50% coverage, ≥20 scored models by default), (b) any
+  record from a KNOWN organisation fails creator-name verification (the
+  silent-drop signature that removed Grok 4.7; ceiling 0), and the publish
+  step refuses any snapshot whose quality-scored count is lower than the one
+  currently live on `pareto-data`. New unknown orgs are deliberately NOT
+  gated (legitimate long-tail orgs appear constantly) — they surface in the
+  diagnostics queue. A successful timestamp can therefore never mask a
+  materially incomplete catalogue.
+* **CI**: `.github/workflows/pareto-tests.yml` runs the Pareto vitest suite
+  on every PR touching the pipeline, so guard/identity evidence is reviewable.
 * **Never-shrink guarantee**: the runtime falls back to the bundled snapshot on
   any durable-read failure, and `getDurableAaSnapshot()` retains its last good
   value rather than caching a failure.

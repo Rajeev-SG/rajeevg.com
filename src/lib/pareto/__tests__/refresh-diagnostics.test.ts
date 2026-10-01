@@ -1,12 +1,17 @@
 /**
- * Offline smoke test for scripts/refresh-pareto-aa.ts: verifies the full
- * refresh pipeline (fetch → map → auto-join → guard → diagnostics) runs and
- * produces the new diagnostics artefacts, using injected fetch fixtures.
+ * Offline smoke tests for scripts/refresh-pareto-aa.ts: verifies the full
+ * refresh pipeline (fetch → map → auto-join → backfill → guard → diagnostics)
+ * runs end-to-end with injected fetch fixtures, and that the real wiring —
+ * not hand-fed values — produces the classified reason codes.
  *
- * The AA upstream returns an artificially small catalogue in this fixture so
- * the test stays fast and quota-free.
+ * The script writes its artefacts relative to process.cwd(); every test runs
+ * inside its own temporary directory, so the checked-in bundled fallback
+ * (src/data/pareto-aa-fallback.json) is never touched.
  */
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
+import { mkdtempSync, rmSync, existsSync, readFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import type { AaResponse } from "../../lib/pareto/artificial-analysis";
 
 const AA_FIXTURE: AaResponse = {
@@ -44,6 +49,29 @@ const AA_FIXTURE: AaResponse = {
       evaluations: { artificial_analysis_intelligence_index: 52.7 },
       pricing: { price_1m_input_tokens: 1.25, price_1m_output_tokens: 10 },
     },
+    {
+      // AA counterpart for the unknown-org OR record: identity matches
+      // brand-new-org/mystery-model but the creator is not in any map.
+      id: "aa-mystery",
+      name: "Mystery Model (Max)",
+      slug: "mystery-model",
+      release_date: "2026-09-30",
+      model_creator: { name: "Brand New Org" },
+      evaluations: { artificial_analysis_intelligence_index: 40.0 },
+      pricing: { price_1m_input_tokens: 1, price_1m_output_tokens: 4 },
+    },
+    {
+      // AA counterpart for the OR creator-mismatch case: org slug "x-ai" is
+      // known (xAI) but the creator name matches neither "xAI" nor the
+      // documented "SpaceXAI" alias.
+      id: "aa-grok-4-8",
+      name: "Grok 4.8 (Xhigh)",
+      slug: "grok-4-8",
+      release_date: "2026-09-30",
+      model_creator: { name: "xAI Legacy Group" },
+      evaluations: { artificial_analysis_intelligence_index: 44.0 },
+      pricing: { price_1m_input_tokens: 2, price_1m_output_tokens: 6 },
+    },
   ],
 };
 
@@ -64,7 +92,7 @@ const OR_FIXTURE = {
       pricing: { prompt: "0.000002", completion: "0.000006" },
     },
     {
-      // gh-198 pricing-merge regression: the alias entry openai-gpt-6-astra
+      // gh-198 pricing-backfill regression: the alias entry openai-gpt-6-astra
       // carries no openrouterId, so the AA-side alias match used to skip the
       // join and silently lose this pricing.
       id: "openai/gpt-6-astra",
@@ -81,13 +109,37 @@ const OR_FIXTURE = {
       context_length: 1000000,
       pricing: { prompt: "0.00000037", completion: "0.00000148" },
     },
+    {
+      // OR record whose AA counterpart exists but whose org is unknown: must
+      // surface as org_unknown (the pre-fix Xiaomi shape, through real wiring).
+      id: "brand-new-org/mystery-model",
+      name: "Brand New Org: Mystery Model",
+      created: 1790700000,
+      context_length: 200000,
+      pricing: { prompt: "0.000001", completion: "0.000004" },
+    },
+    {
+      // OR record whose AA counterpart exists, org known, but the AA creator
+      // name matches neither the display name nor a documented alias: must
+      // surface as creator_name_mismatch through real wiring.
+      id: "x-ai/grok-4.8",
+      name: "xAI: Grok 4.8",
+      created: 1790800000,
+      context_length: 500000,
+      pricing: { prompt: "0.000002", completion: "0.000006" },
+    },
   ],
 };
 
+let workDir: string;
+const originalCwd = process.cwd();
+
 describe("refresh script end-to-end (gh-198)", () => {
   beforeEach(() => {
+    workDir = mkdtempSync(join(tmpdir(), "pareto-refresh-"));
+    process.chdir(workDir);
     process.env.ARTIFICIAL_ANALYSIS_API_KEY_PF = "test-key";
-    // Small fixture: relax the quality floor for this offline smoke test.
+    // Small fixture: relax the quality floor for these offline smoke tests.
     process.env.PARETO_MIN_AA_QUALITY = "1";
     process.env.PARETO_MIN_AA_COVERAGE = "0.3";
     vi.stubGlobal(
@@ -113,40 +165,53 @@ describe("refresh script end-to-end (gh-198)", () => {
     delete process.env.ARTIFICIAL_ANALYSIS_API_KEY_PF;
     delete process.env.PARETO_MIN_AA_QUALITY;
     delete process.env.PARETO_MIN_AA_COVERAGE;
+    delete process.env.PARETO_MAX_CREATOR_MISMATCHES;
+    process.chdir(originalCwd);
+    if (workDir) rmSync(workDir, { recursive: true, force: true });
   });
 
-  it("auto-joins MiMo-V2.6 and Grok 4.7, merges alias-model pricing, and classifies OR-only records", async () => {
+  it("auto-joins canaries, backfills alias-model pricing, and classifies every unmatched record", async () => {
+    // Tolerate the deliberate creator-mismatch fixture record so the
+    // classification paths can be observed without failing the guard.
+    process.env.PARETO_MAX_CREATOR_MISMATCHES = "99";
     vi.resetModules();
     const mod = await import("../../../../../scripts/refresh-pareto-aa");
-    // The script's main() writes files relative to cwd; run it and then read
-    // the artefacts back.
     await expect(mod.refreshMain()).resolves.toBeUndefined();
-    const { readFile } = await import("node:fs/promises");
-    const { resolve } = await import("node:path");
-    const snapshot = JSON.parse(await readFile(resolve(process.cwd(), "src/data/pareto-aa-fallback.json"), "utf8"));
-    const diagnostics = JSON.parse(await readFile(resolve(process.cwd(), "pareto-diagnostics.json"), "utf8"));
+    const snapshot = JSON.parse(readFileSync(join(workDir, "src/data/pareto-aa-fallback.json"), "utf8"));
+    const diagnostics = JSON.parse(readFileSync(join(workDir, "pareto-diagnostics.json"), "utf8"));
     const byId = new Map(snapshot.models.map((m: { canonicalId: string }) => [m.canonicalId, m]));
+
     // The two live canary join misses are fixed.
     const mimo = byId.get("xiaomi-mimo-v2.6-pro");
     expect(mimo).toBeDefined();
     expect(mimo.aa.intelligenceIndex).toBe(46.32);
     expect(mimo.openrouter.inputPricePerMillion).toBeCloseTo(0.435, 5);
     expect(byId.get("x-ai-grok-4.7")).toBeDefined();
-    // gh-198 pricing merge: alias-matched GPT-6 Astra gains OR pricing.
+
+    // gh-198 pricing backfill: alias-matched GPT-6 Astra gains OR pricing
+    // through the single backfill merge site.
     const astra = byId.get("openai-gpt-6-astra");
     expect(astra).toBeDefined();
     expect(astra.openrouter.modelId).toBe("openai/gpt-6-astra");
     expect(astra.openrouter.inputPricePerMillion).toBeCloseTo(1.25, 5);
-    // Diagnostics: the OR-only FlashX surfaces with its honest upstream reason.
-    const flashx = diagnostics.diagnostics.find(
-      (d: { sourceId: string }) => d.sourceId === "z-ai/glm-5.3-flashx"
-    );
-    expect(flashx).toBeDefined();
-    expect(flashx.reasonCode).toBe("no_aa_counterpart");
-    // Everything else in this fixture matched — no undifferentiated blob.
-    const unexplained = diagnostics.diagnostics.filter(
-      (d: { reasonCode: string }) => d.reasonCode === "not_in_alias_map"
-    );
-    expect(unexplained).toHaveLength(0);
+
+    // Diagnostics classification through the REAL wiring:
+    const reasonOf = (id: string) => diagnostics.diagnostics.find((d: { sourceId: string }) => d.sourceId === id)?.reasonCode;
+    expect(reasonOf("z-ai/glm-5.3-flashx")).toBe("no_aa_counterpart");
+    expect(reasonOf("brand-new-org/mystery-model")).toBe("org_unknown");
+    expect(reasonOf("x-ai/grok-4.8")).toBe("creator_name_mismatch");
+    // No undifferentiated blobs anywhere in the queue.
+    expect(diagnostics.diagnostics.filter((d: { reasonCode: string }) => d.reasonCode === "not_in_alias_map")).toHaveLength(0);
+  });
+
+  it("REJECTS the refresh when a known org's records fail creator verification (production defaults)", async () => {
+    // No threshold overrides: maxCreatorNameMismatches defaults to 0. The
+    // Grok-4.8 fixture record reproduces the Grok-4.7 silent-drop class.
+    vi.resetModules();
+    const mod = await import("../../../../../scripts/refresh-pareto-aa");
+    await expect(mod.refreshMain()).rejects.toThrow(/creator_name_mismatch/);
+    // Nothing publishes on rejection: the artefacts must not exist.
+    expect(existsSync(join(workDir, "src/data/pareto-aa-fallback.json"))).toBe(false);
+    expect(existsSync(join(workDir, "pareto-diagnostics.json"))).toBe(false);
   });
 });
