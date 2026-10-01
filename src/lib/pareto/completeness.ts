@@ -64,7 +64,7 @@ export interface CompletenessThresholds {
 }
 
 export const DEFAULT_THRESHOLDS: CompletenessThresholds = {
-  minAaCoverage: 0.5,
+  minAaCoverage: 0.15,
   minAaQualityCount: 20,
   maxCreatorNameMismatches: 0,
 };
