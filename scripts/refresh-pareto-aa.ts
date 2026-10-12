@@ -210,7 +210,7 @@ const orIdentityTokens = new Set(
 const orgSlugToDisplay = new Map(Object.entries(ORG_BY_OR_SLUG).map(([slug, display]) => [slug.toLowerCase(), display]));
 const creatorAliases = new Map(Object.entries(AA_CREATOR_ALIASES));
 const knownOrgDisplays = new Set(orgSlugToDisplay.values());
-const aliasAaSlugs = new Set(canonicalEntries().filter((e) => e.aaSlug).map((e) => e.aaSlug.toLowerCase()));
+const aliasAaSlugs = new Set(canonicalEntries().flatMap((e) => e.aaSlug ? [e.aaSlug.toLowerCase()] : []));
 
 for (const m of aaResult.models) {
   if (matchedAaSlugs.has(m.slug)) continue;
