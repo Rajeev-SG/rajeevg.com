@@ -20,6 +20,23 @@ export type PortfolioProject = {
 
 export const currentSolutions: PortfolioProject[] = [
   {
+    slug: "gog-marketing",
+    title: "gog-marketing",
+    category: "Martech & Measurement",
+    tagline: "Google marketing and analytics workflows without the cloud setup headache.",
+    summary: "Marketer-friendly access to Google Workspace and marketing tools, with centrally managed connections and controlled agent access.",
+    howItWorks: "Extends the standard gog engine with Google Analytics, Google Ads, Google Tag Manager, Search Console and BigQuery capabilities, plus an access and permissions interface.",
+    imagePath: "/images/solutions/gog-marketing.png",
+    imageAlt: "gog-marketing home interface showing connected accounts and controlled access to Google tools.",
+    liveUrl: "/solutions/gog-marketing",
+    liveLabel: "Explore gog-marketing",
+    githubUrl: "https://github.com/Rajeev-SG/gog-marketing",
+    lastUpdated: "2026-10-12",
+    tech: ["Google Workspace", "Marketing APIs", "Agent access"],
+    repoVisibility: "PUBLIC",
+    inclusionReason: "Public gog extension with marketing API capabilities and a marketer-friendly access interface.",
+  },
+  {
     slug: "ai-discovery",
     title: "AI Discovery Intelligence",
     category: "Martech & Measurement",
@@ -550,6 +567,7 @@ export function getPortfolioProject(slug: string) {
 }
 
 const publicProjectOrder = [
+  "gog-marketing",
   "ai-discovery",
   "capability-explorer",
   "web-automation-microbenchmarks",
