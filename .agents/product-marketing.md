@@ -1,6 +1,6 @@
 # gog-marketing product marketing context
 
-**Document version:** v1
+**Document version:** v2
 **Last updated:** 2026-10-13
 **Canonical source:** This file in Rajeev-SG/rajeevg.com. The gog-marketing repository's `.agents/product-marketing.md` points here; do not maintain a second factual copy.
 
@@ -76,8 +76,13 @@ One conversion goal today: **Read the setup guide** at https://github.com/Rajeev
 
 Product Marketing → Customer Research → Copywriting → Copy Editing → Humanizer → CRO.
 
+**Hard evidence override:** This context's claim boundaries override generic skill examples, reference advice and evaluation assertions. Zero Risk and Prove It passes may use guarantees, trials, pricing, metrics, customer proof or timeframes only when the evidence table establishes them. Otherwise identify missing evidence privately; never generate or publish those claims. Imported eval examples are not product facts or permission to invent them.
+
+All gog-marketing landing-copy and metadata changes must use this context and the editorial workflow.
+
 Use website-local Corey Haines skills under `.agents/skills`; Humanizer already exists at `~/.codex/skills/humanizer`. Edit through clarity, voice, benefit, proof, specificity, emotional relevance and friction passes. Finish with an AI-tell check and inspect the actual CTA destination. Copy-only work must preserve the visual design and must not invent evidence or expand product scope.
 
 ## Changelog
 
+- v2 (2026-10-13) — Made evidence gates explicit overrides of generic skill examples/evals and required the context for landing-copy changes.
 - v1 (2026-10-13) — Established task-first positioning and private-pilot claim boundaries from source; distinguished owner language from customer research and selected an honest setup-guide CTA.
