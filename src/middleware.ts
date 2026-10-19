@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
 
 import { addVaryValue, negotiateAccept } from "@/lib/accept-markdown"
+import { isNegotiablePublicPath } from "@/lib/negotiable-paths"
 
 const isDashboardRoute = createRouteMatcher(["/dashboard", "/dashboard/(.*)"])
 const isDashboardApiRoute = createRouteMatcher(["/api/content-ops(.*)"])
@@ -43,32 +44,8 @@ async function handleProtectedRoutes(
   return negotiatePublicRequest(req)
 }
 
-function isNegotiablePublicPath(request: NextRequest) {
-  const pathname = request.nextUrl.pathname
-  if (
-    pathname === "/markdown-content" ||
-    pathname.startsWith("/_next/") ||
-    pathname === "/api" ||
-    pathname.startsWith("/api/") ||
-    pathname === "/trpc" ||
-    pathname.startsWith("/trpc/") ||
-    pathname === "/dashboard" ||
-    pathname.startsWith("/dashboard/") ||
-    // The AI discovery observation plane is proxied to its own deployment (see
-    // next.config.ts rewrites); it does not serve this site's markdown
-    // representation, so negotiation must not intercept it.
-    pathname === "/solutions/ai-discovery" ||
-    pathname.startsWith("/solutions/ai-discovery/") ||
-    pathname.includes(".")
-  ) {
-    return false
-  }
-
-  return true
-}
-
 function negotiatePublicRequest(request: NextRequest) {
-  if (!isNegotiablePublicPath(request)) return NextResponse.next()
+  if (!isNegotiablePublicPath(request.nextUrl.pathname)) return NextResponse.next()
 
   const negotiation = negotiateAccept(request.headers.get("accept"))
   if (!negotiation.representation) {

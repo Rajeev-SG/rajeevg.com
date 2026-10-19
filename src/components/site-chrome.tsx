@@ -14,6 +14,7 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/s
 const publicNavigation = [
   { href: "/", label: "Home" },
   { href: "/solutions", label: "Solutions" },
+  { href: "/interfaces", label: "Interfaces" },
   { href: "/blog", label: "Writing" },
   { href: "/about", label: "About" },
 ]

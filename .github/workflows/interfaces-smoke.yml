@@ -1,0 +1,121 @@
+name: Interfaces smoke
+
+# Deploy-time proof that the Visual AI Lab is still reachable through
+# /interfaces after a production deploy. The failure modes this catches are
+# silent and user-facing: a broken SPA fallback on a deep link, an asset path
+# that no longer resolves under the proxy base, and a lab that stopped being
+# same-origin with this site (which would break the compare bench's clock
+# bootstrap).
+#
+# The proof runs against the immutable deployment URL of the commit that was
+# pushed, not against the production alias: a status can also be reported for
+# a preview, and the alias may still serve the previous build while the new
+# one is being verified. If the push produced no production deployment at all,
+# the workflow reports "skipped" instead of failing.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "next.config.ts"
+      - "vercel.json"
+      - "src/middleware.ts"
+      - "src/lib/negotiable-paths.ts"
+      - "src/lib/interfaces/lab-release.json"
+      - "src/lib/__tests__/interfaces-route.test.ts"
+      - "src/app/sitemap.ts"
+      - "src/components/site-chrome.tsx"
+      - "tests/e2e/interfaces-smoke.spec.ts"
+      - ".github/workflows/interfaces-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  checks: read
+
+concurrency:
+  group: interfaces-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  interfaces-smoke:
+    runs-on: [self-hosted, local-ci, macos-arm64, repo-rajeevg-com]
+    timeout-minutes: 30
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.32.1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check the route configuration
+        run: pnpm exec vitest run src/lib/__tests__/interfaces-route.test.ts
+
+      - name: Find the production deployment of this commit
+        id: deploy
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          deadline=$((SECONDS + 900))
+          deployment_id=""
+          while (( SECONDS < deadline )); do
+            deployment_id=$(curl -fsSL \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              "https://api.github.com/repos/$GITHUB_REPOSITORY/deployments?sha=$GITHUB_SHA&per_page=20" \
+              | python3 -c 'import json,sys; ds=json.load(sys.stdin); print(next((str(d["id"]) for d in ds if d.get("environment")=="Production"), ""))')
+            [[ -n "$deployment_id" ]] && break
+            sleep 15
+          done
+          if [[ -z "$deployment_id" ]]; then
+            echo "No production deployment for $GITHUB_SHA; nothing to prove."
+            echo "skipped=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          url=""
+          while (( SECONDS < deadline )); do
+            status=$(curl -fsSL \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              "https://api.github.com/repos/$GITHUB_REPOSITORY/deployments/$deployment_id/statuses" \
+              | python3 -c 'import json,sys; ss=json.load(sys.stdin); s=next((x for x in ss if x.get("state") in ("success","failure","error")), None); print("" if s is None else s.get("state","")+"|"+str(s.get("environment_url") or ""))')
+            case "$status" in
+              success\|*) url="${status#success|}"; break ;;
+              failure\|*|error\|*) echo "Vercel deployment failed" >&2; exit 1 ;;
+            esac
+            sleep 15
+          done
+          if [[ -z "$url" ]]; then
+            echo "The deployment for $GITHUB_SHA never reported a URL."
+            echo "skipped=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "Proving $url"
+          echo "deployment_url=$url" >> "$GITHUB_OUTPUT"
+
+      - name: Prove the lab through /interfaces
+        if: steps.deploy.outputs.skipped != 'true'
+        run: E2E_BASE_URL=${{ steps.deploy.outputs.deployment_url }} pnpm exec playwright test tests/e2e/interfaces-smoke.spec.ts
+
+      - name: Upload browser proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: interfaces-smoke-${{ github.sha }}
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 14

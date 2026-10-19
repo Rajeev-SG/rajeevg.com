@@ -22,6 +22,19 @@ const nextConfig: NextConfig = {
     const aiDiscoveryOrigin =
       process.env.AI_DISCOVERY_ORIGIN ??
       "https://ai-discovery-observation-plane-rajeevgills-projects.vercel.app"
+
+    // The Visual AI Lab is deployed as its own Vercel project and served under
+    // this site's /interfaces route, so the lab keeps its own origin and assets.
+    //
+    // The exact "/interfaces" rule exists because ":path*" does not match the
+    // bare prefix in every Next version, and the trailing-slash form is the one
+    // the sitemap and the nav link point at.
+    //
+    // Trust model: this proxy puts the lab's JavaScript on rajeevg.com's
+    // origin. The lab is a project owned by the same account, and it is served
+    // under this site's path with no cookies of its own, but its scripts run
+    // same-origin with this site's session. See docs/interfaces-lab.md for the
+    // blast radius and the guardrails.
     return {
       // beforeFiles: the whole subtree belongs to the origin app; this must win
       // over the host's own /solutions/[slug] route before filesystem matching.
@@ -34,6 +47,12 @@ const nextConfig: NextConfig = {
           source: "/solutions/ai-discovery/:path*",
           destination: `${aiDiscoveryOrigin}/solutions/ai-discovery/:path*`,
         },
+      ],
+      // afterFiles: the lab is a separate application with no routes of its own
+      // on this site, so it is proxied once the filesystem has been checked.
+      afterFiles: [
+        { source: "/interfaces", destination: "https://visual-ai-lab.vercel.app/" },
+        { source: "/interfaces/:path*", destination: "https://visual-ai-lab.vercel.app/:path*" },
       ],
     }
   },
