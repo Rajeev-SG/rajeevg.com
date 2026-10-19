@@ -34,7 +34,7 @@ const LOCAL_SNAPSHOT = resolve(
   process.env.PARETO_SNAPSHOT_SOURCE ?? "src/data/pareto-aa-fallback.json"
 );
 
-const API = `https://api.github.com/repos/${REPO}`;
+const API = `${process.env.GITHUB_API_BASE ?? "https://api.github.com"}/repos/${REPO}`;
 const HEADERS = {
   Accept: "application/vnd.github+json",
   Authorization: `Bearer ${TOKEN}`,
@@ -82,8 +82,50 @@ async function main() {
     fail(`refusing to publish (models=${models.length}, quality=${quality}, generatedAt=${parsed?.generatedAt})`);
   }
 
-  // 1. Ensure the data branch exists, branched from the tip of main.
+  // ── Never-shrink guard (gh-172) ────────────────────────────────────────
+  // Fetch the CURRENTLY published snapshot and refuse a materially smaller
+  // catalogue. A successful refresh timestamp must not be able to mask a
+  // catalogue that collapsed (missing upstream tier, broken pagination,
+  // identity/join regression). Publishing is aborted; the previous
+  // last-known-good data stays live.
   const branch = encodeURIComponent(DATA_BRANCH);
+  const shrinkGuardEnabled = process.env.PARETO_PUBLISH_SHRINK_GUARD !== "0";
+  if (shrinkGuardEnabled) {
+    const current = await gh(`/contents/${SNAPSHOT_PATH}?ref=${branch}`).catch((error) => {
+      console.error(`publish-pareto-data: shrink guard skipped (branch read failed: ${error?.message ?? error})`);
+      return { status: 404, ok: false, body: null };
+    });
+    if (current.ok && current.body?.content) {
+      try {
+        const previous = JSON.parse(Buffer.from(current.body.content, "base64").toString("utf8"));
+        const prevModels = Array.isArray(previous?.models) ? previous.models : [];
+        const prevQuality = prevModels.filter((m) => typeof m?.aa?.intelligenceIndex === "number").length;
+        const lost = prevModels
+          .filter((m) => typeof m?.aa?.intelligenceIndex === "number")
+          .map((m) => m.canonicalId)
+          .filter((id) => !models.some((n) => n.canonicalId === id));
+        // Completeness floor on absolute coverage (gh-198): a fresh snapshot
+        // with fewer quality-scored models than the branch already has is a
+        // shrink, even if some models were also added.
+        if (prevQuality > 0 && quality < prevQuality) {
+          fail(
+            `refusing to publish: AA-quality catalogue shrank from ${prevQuality} to ${quality} scored models ` +
+              `(${lost.length} previously-present models absent: ${lost.slice(0, 12).join(", ")}${lost.length > 12 ? ", …" : ""})`
+          );
+        }
+        if (lost.length > 0 && prevQuality > 0) {
+          console.log(
+            JSON.stringify({ shrinkGuard: "warn", lostPreviouslyPresent: lost.slice(0, 20), lostCount: lost.length })
+          );
+        }
+      } catch (error) {
+        // Unreadable previous snapshot must not block publication of a valid one.
+        console.error(`publish-pareto-data: shrink guard skipped (previous snapshot unreadable: ${error?.message ?? error})`);
+      }
+    }
+  }
+
+  // 1. Ensure the data branch exists, branched from the tip of main.
   const existingRef = await gh(`/git/ref/heads/${branch}`);
   if (existingRef.status === 404) {
     const baseRef = await gh(`/git/ref/heads/${encodeURIComponent(BASE_BRANCH)}`);
@@ -98,6 +140,7 @@ async function main() {
   } else if (!existingRef.ok) {
     fail(`cannot read branch ${DATA_BRANCH}`, JSON.stringify(existingRef.body));
   }
+  void existingRef;
 
   // 2. Upsert the snapshot file on that branch (needs the current blob sha).
   const existingFile = await gh(`/contents/${SNAPSHOT_PATH}?ref=${branch}`);
@@ -112,6 +155,33 @@ async function main() {
   });
   if (!put.ok) fail(`cannot write ${SNAPSHOT_PATH}`, JSON.stringify(put.body));
 
+  // 3. Publish the unmatched/new-model diagnostics next to the snapshot when
+  //    present. Best-effort: diagnostics delivery never fails a refresh.
+  //    The diagnostics file sits next to the snapshot source (same dir),
+  //    so both honour PARETO_SNAPSHOT_SOURCE's directory.
+  const DIAGNOSTICS_PATH = "pareto-diagnostics.json";
+  const diagnosticsSourceDir = process.env.PARETO_SNAPSHOT_SOURCE
+    ? resolve(process.cwd(), process.env.PARETO_SNAPSHOT_SOURCE, "..")
+    : process.cwd();
+  const diagnosticsRaw = await readFile(resolve(diagnosticsSourceDir, DIAGNOSTICS_PATH), "utf8").catch(() => null);
+  let diagnosticsPublished = false;
+  if (diagnosticsRaw) {
+    const existingDiagnostics = await gh(`/contents/${DIAGNOSTICS_PATH}?ref=${branch}`);
+    const diagnosticsPut = await gh(`/contents/${DIAGNOSTICS_PATH}`, {
+      method: "PUT",
+      body: JSON.stringify({
+        message: `data(pareto): publish unmatched/new-model diagnostics ${parsed.generatedAt}`,
+        content: Buffer.from(diagnosticsRaw, "utf8").toString("base64"),
+        branch: DATA_BRANCH,
+        ...(existingDiagnostics.ok && existingDiagnostics.body?.sha ? { sha: existingDiagnostics.body.sha } : {}),
+      }),
+    });
+    diagnosticsPublished = diagnosticsPut.ok;
+    if (!diagnosticsPut.ok) {
+      console.error(`publish-pareto-data: diagnostics publish failed (continuing): ${JSON.stringify(diagnosticsPut.body)}`);
+    }
+  }
+
   console.log(
     JSON.stringify({
       published: true,
@@ -121,6 +191,7 @@ async function main() {
       models: models.length,
       quality,
       generatedAt: parsed.generatedAt,
+      diagnosticsPublished,
       note: "Vercel ignores this branch (vercel.json git.deploymentEnabled), so no deployment is created.",
     })
   );

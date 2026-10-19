@@ -52,3 +52,4 @@ yarn-error.log*
 next-env.d.ts
 .playwright-mcp/
 output/cache/
+pareto-diagnostics.json

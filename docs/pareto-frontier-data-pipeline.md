@@ -87,11 +87,97 @@ change the publish target — no application code changes are required.
 
 * **AA quota**: ≤5 pages/run, 2 runs/day (≈10 requests/day of a 100/24h budget).
   A catalogue larger than the page cap aborts the refresh rather than silently
-  truncating it.
+  truncating it. The workflow also accepts `workflow_dispatch` for manual
+  diagnosis; it consumes the same quota, so use it deliberately.
 * **Validation gates**: a refresh with zero quality-scored models, non-finite
   metrics, or a failed schema check never replaces the durable snapshot.
+* **Completeness gates (gh-198)**: the refresh aborts when (a) AA-quality
+  coverage of the snapshot collapses relative to the upstream catalogue
+  (`completeness.ts`: ≥50% coverage, ≥20 scored models by default), (b) any
+  record from a KNOWN organisation fails creator-name verification (the
+  silent-drop signature that removed Grok 4.7; ceiling 0), and the publish
+  step refuses any snapshot whose quality-scored count is lower than the one
+  currently live on `pareto-data`. New unknown orgs are deliberately NOT
+  gated (legitimate long-tail orgs appear constantly) — they surface in the
+  diagnostics queue. A successful timestamp can therefore never mask a
+  materially incomplete catalogue.
+* **CI**: `.github/workflows/pareto-tests.yml` runs the Pareto vitest suite
+  on every PR touching the pipeline, so guard/identity evidence is reviewable.
 * **Never-shrink guarantee**: the runtime falls back to the bundled snapshot on
   any durable-read failure, and `getDurableAaSnapshot()` retains its last good
   value rather than caching a failure.
 * **Alias discipline**: model identity is resolved by an explicit alias map plus
   exact, deterministic auto-join. Never fuzzy, never LLM, never edit-distance.
+
+## Freshness vs completeness incident (gh-172 → gh-198)
+
+On 2026-10-01 the dashboard was provably fresh — the twice-daily refresh had
+run green 40 minutes earlier — yet three current frontier models were absent.
+The refresh log explained it immediately: `aaModels:687 → matchedQuality:66`
+(the explicit alias map covered ~10% of the AA catalogue) and
+`unmatchedAaCount:621` records silently dropped by the identity layer.
+
+Per-canary classification (all verified against live upstream data):
+
+| Canary | Upstream state (verified 2026-10-01) | Classification | Fixed by |
+|---|---|---|---|
+| GPT-6 Sol / GPT-6 Luna | AA scored (47.5 / 37.3), OR priced | present (auto-joined) | — |
+| Claude Opus 5.5 | AA scored (57.6), OR priced | present | — |
+| DeepSeek V4.1 Flash | AA scored (39.5), OR priced | present | — |
+| GLM-5.3 Flash | AA scored (41.8), OR priced | present (explicit alias) | — |
+| MiMo-V2.6 Pro / Flash | AA scored 46.3 / unevaluated; OR priced | **join miss**: `xiaomi` missing from the auto-join org map | org map + regression tests |
+| Grok 4.7 | AA scored (46.5); AA renamed its creator to "SpaceXAI" | **join miss**: creator-name equality broke | AA creator-alias table |
+| GLM-5.3 FlashX / Prime | OR priced; **AA has no record** | legitimate exclusion from the quality×cost frontier (no quality source); surfaced in the diagnostics queue | diagnostics |
+
+Root causes fixed:
+
+1. `ORG_BY_OR_SLUG` had no `xiaomi` entry, so Xiaomi models could never
+   auto-join even when both sources carried them.
+2. AA renamed the xAI creator (`xAI` → `SpaceXAI`), which broke the exact
+   creator-name equality for every future xAI model; the join now accepts
+   documented creator aliases (`AA_CREATOR_ALIASES` in `auto-discover.ts`).
+3. An alias-matched AA-only canonical (alias entry without `openrouterId`,
+   e.g. GPT-6 Astra) silently lost its OpenRouter pricing because the join
+   loop skipped already-claimed canonical ids instead of merging; the
+   refresh now backfills pricing for such models.
+
+Structural safeguards added by gh-198:
+
+* **Unmatched/new-model queue**: every refresh publishes
+  `pareto-diagnostics.json` next to the snapshot on `pareto-data` — every
+  upstream record the join layer could not place, with a machine-readable
+  reason produced by the real classifiers in `completeness.ts`
+  (`not_in_alias_map`, `org_unknown`, `creator_name_mismatch`,
+  `no_aa_counterpart`, `variant_excluded`). New upstream model ids are
+  therefore always visible even when they cannot join yet, and OR-only
+  models (no AA quality source) are labelled as such instead of silently
+  vanishing.
+* **Completeness guard**: the refresh fails before publication when AA-quality
+  coverage collapses (see `completenessGuard`).
+* **Publish never-shrink guard**: `publish-pareto-data.mjs` reads the currently
+  published snapshot and refuses a smaller quality-scored catalogue, so the
+  last-known-good durable snapshot survives a partial upstream.
+
+### Freshness SLA
+
+Measured end-to-end path: upstream change → next scheduled refresh (cron
+`17 5,17 * * *`, ≤12h) → AA+OR fetch and publish (<60s) → `raw.githubusercontent`
+CDN (`max-age=300`, ≤5min) → runtime durable read (`next: { revalidate: 3600 }`)
+→ page ISR (`revalidate = 3600`). **Worst case upstream-change → published
+dashboard ≈ 13–14h; typical ≈ 6h.** The refresh is quota-bound (2 runs/day);
+tightening the SLA means raising the schedule, not adding new infrastructure.
+
+### changedetection.io decision (not adopted, with evidence)
+
+The failure was not a trigger problem: the scheduled refresh ran successfully
+twice a day, on time, and still dropped 90% of the AA catalogue at the
+identity/join step. A tripwire would have detected "the AA models page
+changed" and triggered a refresh that would have produced the same incomplete
+snapshot. The structured APIs already provide everything the pipeline needs;
+the gap was identity resolution plus silent drops, which no trigger layer
+fixes. changedetection/RSS remains an optional accelerator if the SLA above is
+ever tightened below what the cron schedule delivers, and the existing
+intelligence-project deployment could be reused for that — but it is not
+added now, and no second corpus is created. The cheaper, more targeted
+signals (AA sitemap `lastmod`, OpenRouter `created` timestamps) are already
+consumable by the refresh itself if needed.

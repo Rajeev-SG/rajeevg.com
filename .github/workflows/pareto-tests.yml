@@ -1,0 +1,38 @@
+name: Pareto tests
+
+# Runs the Pareto pipeline test suite on every PR touching it, so quality
+# gates and reviewers always see current evidence for the refresh/publish
+# guards and the identity-join layer (gh-198).
+
+on:
+  pull_request:
+    paths:
+      - "src/lib/pareto/**"
+      - "scripts/refresh-pareto-aa.ts"
+      - "scripts/publish-pareto-data.mjs"
+      - ".github/workflows/pareto-tests.yml"
+  push:
+    branches: [main]
+    paths:
+      - "src/lib/pareto/**"
+      - "scripts/refresh-pareto-aa.ts"
+      - "scripts/publish-pareto-data.mjs"
+
+permissions:
+  contents: read
+
+jobs:
+  vitest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.32.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: npx vitest run src/lib/pareto --testTimeout=30000

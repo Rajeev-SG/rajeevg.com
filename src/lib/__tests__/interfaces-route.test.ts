@@ -17,12 +17,43 @@ const LAB_ORIGIN = "https://visual-ai-lab.vercel.app";
 
 type RewriteRule = { source: string; destination: string };
 
+function parseRewrite(value: unknown): RewriteRule | null {
+  if (typeof value !== "object" || value === null) return null;
+  if (!("source" in value) || !("destination" in value)) return null;
+  const source = value.source;
+  const destination = value.destination;
+  if (typeof source !== "string" || typeof destination !== "string") return null;
+  return { source, destination };
+}
+
+/** The rewrites may be a flat list or grouped by phase; read both shapes. */
+function parseRewrites(value: unknown): RewriteRule[] {
+  if (Array.isArray(value)) {
+    return value
+      .map(parseRewrite)
+      .filter((rule): rule is RewriteRule => rule !== null);
+  }
+  if (typeof value !== "object" || value === null) return [];
+  const rules: RewriteRule[] = [];
+  for (const phase of ["beforeFiles", "afterFiles", "fallback"] as const) {
+    if (!(phase in value)) continue;
+    const group = value[phase];
+    if (!Array.isArray(group)) continue;
+    for (const entry of group) {
+      const rule = parseRewrite(entry);
+      if (rule) rules.push(rule);
+    }
+  }
+  return rules;
+}
+
 async function readRewrites(): Promise<RewriteRule[]> {
   const rewrites = nextConfig.rewrites;
   if (typeof rewrites !== "function") {
     throw new Error("next.config.ts must declare rewrites as a function");
   }
-  return (await rewrites()) as RewriteRule[];
+  const result: unknown = await rewrites();
+  return parseRewrites(result);
 }
 
 describe("the /interfaces route", () => {

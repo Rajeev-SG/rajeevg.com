@@ -46,16 +46,22 @@ export function orIdentity(modelSlug: string): string {
 }
 
 /** Closed, case-insensitive OR org-slug -> display organisation map. */
-const ORG_BY_OR_SLUG: Record<string, string> = {
+export const ORG_BY_OR_SLUG: Record<string, string> = {
   "meta": "Meta",
   "meta-llama": "Meta",
   "openai": "OpenAI",
   "anthropic": "Anthropic",
   "google": "Google",
+  // AA renamed its xAI creator to "SpaceXAI" (verified 2026-10-01 against the
+  // live /models catalogue); the alias map's display name stays "xAI", so the
+  // creator comparison goes through the org-name alias table below.
   "x-ai": "xAI",
   "qwen": "Alibaba",
   "deepseek": "DeepSeek",
   "z-ai": "Z.ai",
+  // Xiaomi joined the frontier-org set with MiMo-V2.6 (Pro/Flash, released
+  // 2026-09-21); their OR org slug is "xiaomi", the AA creator name "Xiaomi".
+  "xiaomi": "Xiaomi",
   "moonshotai": "Moonshot AI",
   "mistralai": "Mistral",
   "cohere": "Cohere",
@@ -71,6 +77,18 @@ const ORG_BY_OR_SLUG: Record<string, string> = {
   "inception": "Inception",
   "openrouter": "OpenRouter",
 };
+
+/**
+ * Known aliases between an organisation's display name and the name AA
+ * actually puts in `model_creator.name`. AA renames creators occasionally
+ * (xAI -> SpaceXAI in 2026-09); this table keeps the deterministic join
+ * working without silently dropping the org's models.
+ */
+const AA_CREATOR_ALIASES: Record<string, string[]> = {
+  "xAI": ["SpaceXAI"],
+};
+
+export { AA_CREATOR_ALIASES };
 
 /**
  * Strips known OpenRouter variant segments; returns null for contributor or
@@ -109,7 +127,12 @@ export function autoJoin(
   if (aaIdentity(aa.slug) !== orIdentity(parsed.modelSlug)) return null;
   const org = ORG_BY_OR_SLUG[parsed.orgSlug.toLowerCase()];
   if (!org) return null;
-  if (!aa.creatorName || aa.creatorName.toLowerCase() !== org.toLowerCase()) return null;
+  // Creator verification accepts documented AA-side aliases of the display
+  // organisation name (e.g. AA currently names the xAI creator "SpaceXAI"),
+  // still exact case-insensitive — never fuzzy.
+  const creatorAliases = AA_CREATOR_ALIASES[org] ?? [];
+  const acceptableCreator = [org, ...creatorAliases].map((n) => n.toLowerCase());
+  if (!aa.creatorName || !acceptableCreator.includes(aa.creatorName.toLowerCase())) return null;
   return {
     canonicalId: `${parsed.orgSlug}-${parsed.modelSlug}`,
     displayName: or.name.replace(/^[^:]+:\s*/, ""),
