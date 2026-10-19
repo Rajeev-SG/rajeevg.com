@@ -1,0 +1,91 @@
+name: Interfaces smoke
+
+# Deploy-time proof that the Visual AI Lab is still reachable through
+# /interfaces after a production deploy. The failure modes this catches are
+# silent and user-facing: a broken SPA fallback on a deep link, an asset path
+# that no longer resolves under the proxy base, and a lab that stopped being
+# same-origin with this site (which would break the compare bench's clock
+# bootstrap).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "next.config.ts"
+      - "vercel.json"
+      - "src/middleware.ts"
+      - "tests/e2e/interfaces-smoke.spec.ts"
+      - ".github/workflows/interfaces-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  checks: read
+
+concurrency:
+  group: interfaces-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  interfaces-smoke:
+    runs-on: [self-hosted, local-ci, macos-arm64, repo-rajeevg-com]
+    timeout-minutes: 30
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.32.1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check the route configuration
+        run: pnpm exec vitest run src/lib/__tests__/interfaces-route.test.ts
+
+      - name: Wait for the Vercel production deployment
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          deadline=$((SECONDS + 900))
+          status="waiting"
+          while (( SECONDS < deadline )); do
+            # Vercel currently reports deployments through the legacy commit-status API.
+            # Keep a check-runs fallback so a future Vercel integration migration does not break CI.
+            commit_status=$(curl -fsSL \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              "https://api.github.com/repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/status")
+            check_runs=$(curl -fsSL \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              "https://api.github.com/repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/check-runs")
+            status=$(python3 -c 'import json,sys; st=json.loads(sys.argv[1]); cr=json.loads(sys.argv[2]); ss=[x for x in st.get("statuses",[]) if x.get("context","").lower()=="vercel" or "vercel" in x.get("context","").lower()]; xs=[x for x in cr.get("check_runs",[]) if x.get("app",{}).get("slug")=="vercel" or "vercel" in x.get("name","").lower()]; print("success" if any(x.get("state")=="success" for x in ss) or any(x.get("status")=="completed" and x.get("conclusion")=="success" for x in xs) else ("failed" if any(x.get("state") in ("failure","error") for x in ss) or any(x.get("status")=="completed" and x.get("conclusion") not in (None,"success","neutral","skipped") for x in xs) else "waiting"))' "$commit_status" "$check_runs")
+            [[ "$status" == "failed" ]] && { echo "Vercel deployment failed" >&2; exit 1; }
+            [[ "$status" == "success" ]] && break
+            sleep 15
+          done
+          [[ "$status" == "success" ]] || { echo "Timed out waiting for Vercel" >&2; exit 1; }
+
+      - name: Prove the lab through /interfaces
+        run: E2E_BASE_URL=https://rajeevg.com pnpm exec playwright test tests/e2e/interfaces-smoke.spec.ts
+
+      - name: Upload browser proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: interfaces-smoke-${{ github.sha }}
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 14
