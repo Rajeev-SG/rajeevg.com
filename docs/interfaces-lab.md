@@ -60,22 +60,49 @@ accidental, not adversarial:
 
 ### Guardrails
 
-1. **The origin is asserted, not assumed.** `tests/e2e/interfaces-smoke.spec.ts`
-   checks that `https://visual-ai-lab.vercel.app/interfaces/` still serves the
-   lab, and the `interfaces-smoke` workflow runs it after every production
-   deploy that touches the route.
-2. **A dedicated subdomain would shrink the blast radius.** Serving the lab
+1. **The origin is pinned by content, not by name.** The lab's build writes
+   `build-info.json` — a hash of the output records, the built outputs and the
+   posters, plus the number of outputs. The site pins the build it expects in
+   `src/lib/interfaces/lab-release.json`, and the smoke spec asserts that the
+   proxied marker and the origin's marker both equal that pin. A swapped
+   origin, a recreated project, or a stale lab deployment fails the check
+   instead of passing on a page title. The pin catches a wrong or replaced
+   origin; it does not catch an origin that is compromised and deliberately
+   serves the pinned bytes, and it does not make the lab's scripts safe — only
+   a dedicated origin would.
+2. **The proof runs against the deployment of the pushed commit.** The
+   `interfaces-smoke` workflow looks up the GitHub deployment for `$GITHUB_SHA`,
+   takes its immutable `environment_url`, and probes that URL. The production
+   alias is never probed for a commit that may not be live on it yet, and a
+   push that produced no production deployment is reported as skipped rather
+   than as a failure.
+3. **A dedicated subdomain would shrink the blast radius.** Serving the lab
    from `interfaces.rajeevg.com` (or a dedicated host) keeps it cross-origin
    and removes this site's session from the lab's reach entirely. The path
    proxy is the current shape because the route was requested as
    `rajeevg.com/interfaces`; the subdomain is the safer shape if the route is
    ever free to change.
-3. **No caching of proxied responses.** The site does not set
+4. **No caching of proxied responses.** The site does not set
    `x-vercel-enable-rewrite-caching` for `/interfaces`. The origin's
    `Cache-Control` is outside this site's control, and an unbounded rewrite
    cache would serve a stale lab after a lab redeploy with no staleness budget
    to point at. The cost is one extra origin round trip per request, which is
    the right trade for a route that changes when the lab changes.
+
+### Cache behaviour, audited
+
+Measured against the live origin and the proxy (2026-10-20), every lab
+response — the shell, a deep route, an experiment page and a poster — carries:
+
+```
+cache-control: public, max-age=0, must-revalidate
+```
+
+The proxy passes that through unchanged, so every hit is revalidated and the
+staleness budget is zero: a lab redeploy is visible on the next request. The
+smoke spec asserts `max-age=0` and `must-revalidate` on the shell, a deep
+route and the poster, and records `Age` and `x-vercel-cache` as annotations, so
+a change at the edge that widened the budget fails the run.
 
 ## Redeploying the lab
 
@@ -85,13 +112,26 @@ The lab is deployed from its own repository:
 cd ../visual-ai-lab
 node scripts/build-data.mjs
 node scripts/validate.mjs
-cd lab && VITE_BASE=/interfaces/ npx vite build
+cd lab && node scripts/build-info.mjs && VITE_BASE=/interfaces/ npx vite build
 vercel deploy --prod
 ```
 
 `VITE_BASE=/interfaces/` makes every asset, poster and frame resolve under
 `/interfaces/`. The lab's own project rewrites `/interfaces/:path*` to `/:path*`
 so it also serves correctly at its own origin.
+
+`scripts/build-info.mjs` writes the lab's build marker, which Vercel also runs
+before the build. When the lab's content changes, the marker changes, and the
+site has to be told which build it expects:
+
+```bash
+cd ../visual-ai-lab/lab && node scripts/build-info.mjs
+# lab build 747cf72c8d0057e6 (41 outputs)
+```
+
+Copy that build and output count into `src/lib/interfaces/lab-release.json` in
+this repository and merge it. Until that happens the smoke spec fails, which
+is the intended behaviour: the site refuses to serve a lab it has not pinned.
 
 ## Checking the route
 
@@ -101,4 +141,6 @@ E2E_BASE_URL=https://rajeevg.com pnpm exec playwright test tests/e2e/interfaces-
 
 The same spec runs automatically on the `interfaces-smoke` workflow after any
 production deploy that touches the route, the rewrite configuration, the
-middleware, or the spec itself.
+middleware, or the spec itself. The workflow probes the immutable deployment
+URL of the pushed commit, so the proof is about that commit and not about
+whatever the production alias happens to be serving.

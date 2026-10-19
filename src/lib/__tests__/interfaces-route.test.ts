@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import nextConfig from "../../../next.config";
+import labRelease from "@/lib/interfaces/lab-release.json";
 import { isNegotiablePublicPath } from "@/lib/negotiable-paths";
 
 // Guard the shape of the /interfaces route (the Visual AI Lab).
@@ -35,6 +36,22 @@ describe("the /interfaces route", () => {
       source: "/interfaces/:path*",
       destination: `${LAB_ORIGIN}/:path*`,
     });
+  });
+
+  it("pins the lab build the site expects to serve", async () => {
+    const rules = await readRewrites();
+    const destinations = rules
+      .filter((rule) => rule.source.startsWith("/interfaces"))
+      .map((rule) => new URL(rule.destination).origin);
+    expect(destinations.length).toBeGreaterThan(0);
+    // The rewrite and the pin must name the same origin: a pin for one origin
+    // next to a rewrite to another would make the deploy-time check prove
+    // nothing.
+    for (const destination of destinations) {
+      expect(destination).toBe(labRelease.origin);
+    }
+    expect(labRelease.build).toMatch(/^[0-9a-f]{16}$/);
+    expect(labRelease.outputs).toBeGreaterThan(0);
   });
 
   it("does not cache the proxied responses", () => {

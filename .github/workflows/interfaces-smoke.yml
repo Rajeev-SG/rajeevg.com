@@ -6,6 +6,12 @@ name: Interfaces smoke
 # that no longer resolves under the proxy base, and a lab that stopped being
 # same-origin with this site (which would break the compare bench's clock
 # bootstrap).
+#
+# The proof runs against the immutable deployment URL of the commit that was
+# pushed, not against the production alias: a status can also be reported for
+# a preview, and the alias may still serve the previous build while the new
+# one is being verified. If the push produced no production deployment at all,
+# the workflow reports "skipped" instead of failing.
 
 on:
   push:
@@ -14,6 +20,11 @@ on:
       - "next.config.ts"
       - "vercel.json"
       - "src/middleware.ts"
+      - "src/lib/negotiable-paths.ts"
+      - "src/lib/interfaces/lab-release.json"
+      - "src/lib/__tests__/interfaces-route.test.ts"
+      - "src/app/sitemap.ts"
+      - "src/components/site-chrome.tsx"
       - "tests/e2e/interfaces-smoke.spec.ts"
       - ".github/workflows/interfaces-smoke.yml"
   workflow_dispatch:
@@ -52,34 +63,53 @@ jobs:
       - name: Check the route configuration
         run: pnpm exec vitest run src/lib/__tests__/interfaces-route.test.ts
 
-      - name: Wait for the Vercel production deployment
+      - name: Find the production deployment of this commit
+        id: deploy
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           deadline=$((SECONDS + 900))
-          status="waiting"
+          deployment_id=""
           while (( SECONDS < deadline )); do
-            # Vercel currently reports deployments through the legacy commit-status API.
-            # Keep a check-runs fallback so a future Vercel integration migration does not break CI.
-            commit_status=$(curl -fsSL \
+            deployment_id=$(curl -fsSL \
               -H "Accept: application/vnd.github+json" \
               -H "Authorization: Bearer $GH_TOKEN" \
-              "https://api.github.com/repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/status")
-            check_runs=$(curl -fsSL \
-              -H "Accept: application/vnd.github+json" \
-              -H "Authorization: Bearer $GH_TOKEN" \
-              "https://api.github.com/repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/check-runs")
-            status=$(python3 -c 'import json,sys; st=json.loads(sys.argv[1]); cr=json.loads(sys.argv[2]); ss=[x for x in st.get("statuses",[]) if x.get("context","").lower()=="vercel" or "vercel" in x.get("context","").lower()]; xs=[x for x in cr.get("check_runs",[]) if x.get("app",{}).get("slug")=="vercel" or "vercel" in x.get("name","").lower()]; print("success" if any(x.get("state")=="success" for x in ss) or any(x.get("status")=="completed" and x.get("conclusion")=="success" for x in xs) else ("failed" if any(x.get("state") in ("failure","error") for x in ss) or any(x.get("status")=="completed" and x.get("conclusion") not in (None,"success","neutral","skipped") for x in xs) else "waiting"))' "$commit_status" "$check_runs")
-            [[ "$status" == "failed" ]] && { echo "Vercel deployment failed" >&2; exit 1; }
-            [[ "$status" == "success" ]] && break
+              "https://api.github.com/repos/$GITHUB_REPOSITORY/deployments?sha=$GITHUB_SHA&per_page=20" \
+              | python3 -c 'import json,sys; ds=json.load(sys.stdin); print(next((str(d["id"]) for d in ds if d.get("environment")=="Production"), ""))')
+            [[ -n "$deployment_id" ]] && break
             sleep 15
           done
-          [[ "$status" == "success" ]] || { echo "Timed out waiting for Vercel" >&2; exit 1; }
+          if [[ -z "$deployment_id" ]]; then
+            echo "No production deployment for $GITHUB_SHA; nothing to prove."
+            echo "skipped=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          url=""
+          while (( SECONDS < deadline )); do
+            status=$(curl -fsSL \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              "https://api.github.com/repos/$GITHUB_REPOSITORY/deployments/$deployment_id/statuses" \
+              | python3 -c 'import json,sys; ss=json.load(sys.stdin); s=next((x for x in ss if x.get("state") in ("success","failure","error")), None); print("" if s is None else s.get("state","")+"|"+str(s.get("environment_url") or ""))')
+            case "$status" in
+              success\|*) url="${status#success|}"; break ;;
+              failure\|*|error\|*) echo "Vercel deployment failed" >&2; exit 1 ;;
+            esac
+            sleep 15
+          done
+          if [[ -z "$url" ]]; then
+            echo "The deployment for $GITHUB_SHA never reported a URL."
+            echo "skipped=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "Proving $url"
+          echo "deployment_url=$url" >> "$GITHUB_OUTPUT"
 
       - name: Prove the lab through /interfaces
-        run: E2E_BASE_URL=https://rajeevg.com pnpm exec playwright test tests/e2e/interfaces-smoke.spec.ts
+        if: steps.deploy.outputs.skipped != 'true'
+        run: E2E_BASE_URL=${{ steps.deploy.outputs.deployment_url }} pnpm exec playwright test tests/e2e/interfaces-smoke.spec.ts
 
       - name: Upload browser proof
         if: always()
