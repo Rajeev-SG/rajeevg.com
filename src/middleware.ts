@@ -54,6 +54,8 @@ function isNegotiablePublicPath(request: NextRequest) {
     pathname.startsWith("/trpc/") ||
     pathname === "/dashboard" ||
     pathname.startsWith("/dashboard/") ||
+    pathname === "/interfaces" ||
+    pathname.startsWith("/interfaces/") ||
     pathname.includes(".")
   ) {
     return false

@@ -14,7 +14,11 @@ const nextConfig: NextConfig = {
   // `path.resolve` ({} shim) during page-data collection.
   serverExternalPackages: ["mermaid-isomorphic", "rehype-mermaid"],
   async rewrites() {
-    return []
+    return [
+      // The Visual AI Lab is deployed as its own Vercel project and served under
+      // this site's /interfaces route, so the lab keeps its own origin and assets.
+      { source: "/interfaces/:path*", destination: "https://visual-ai-lab.vercel.app/:path*" },
+    ]
   },
   outputFileTracingIncludes: {
     "/markdown-content": ["./content/posts/**/*.{md,mdx}"],
