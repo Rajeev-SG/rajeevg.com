@@ -91,13 +91,19 @@ test("the compare bench can inject its clock into every frame", async ({ page })
 });
 
 test("the alias is serving the commit under test", async ({ page }) => {
-  const sha = process.env.GITHUB_SHA;
-  test.skip(!sha, "no commit under test outside CI");
+  // The workflow derives the expected build hash from the pushed commit once
+  // and passes it in, so the wait loop and this assertion cannot disagree.
+  // Locally it falls back to the same derivation from GITHUB_SHA.
+  const expected =
+    process.env.EXPECTED_BUILD_HASH ??
+    (process.env.GITHUB_SHA
+      ? createHash("sha256").update(process.env.GITHUB_SHA).digest("hex").slice(0, 16)
+      : undefined);
+  test.skip(!expected, "no commit under test outside CI");
 
   const response = await page.request.get("/api/build-info");
   expect(response.ok(), "GET /api/build-info").toBeTruthy();
   const info = JSON.parse(await response.text()) as { build: string };
-  const expected = createHash("sha256").update(sha).digest("hex").slice(0, 16);
   expect(info.build, "the alias must serve the commit under test").toBe(expected);
 });
 

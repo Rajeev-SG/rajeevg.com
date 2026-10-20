@@ -14,7 +14,10 @@ const nextConfig: NextConfig = {
   // Which build is live, captured at build time. The deploy-time proof for the
   // /interfaces route has to show that the production alias is serving the
   // commit that was just pushed, and the runtime environment does not carry
-  // the commit. A hash of it is enough, and does not publish the commit.
+  // the commit. Vercel sets VERCEL_GIT_COMMIT_SHA to the commit that was
+  // pushed, so sha256 of that value is the build's identity: a deploy-time
+  // check that derives the same hash from the pushed commit proves the alias
+  // serves that commit. The hash is a fingerprint, not a secret.
   env: {
     SITE_BUILD_HASH: process.env.VERCEL_GIT_COMMIT_SHA
       ? createHash("sha256").update(process.env.VERCEL_GIT_COMMIT_SHA).digest("hex").slice(0, 16)
