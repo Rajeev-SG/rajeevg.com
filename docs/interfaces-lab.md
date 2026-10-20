@@ -70,12 +70,28 @@ accidental, not adversarial:
    origin; it does not catch an origin that is compromised and deliberately
    serves the pinned bytes, and it does not make the lab's scripts safe — only
    a dedicated origin would.
-2. **The proof runs against the deployment of the pushed commit.** The
-   `interfaces-smoke` workflow looks up the GitHub deployment for `$GITHUB_SHA`,
-   takes its immutable `environment_url`, and probes that URL. The production
-   alias is never probed for a commit that may not be live on it yet, and a
-   push that produced no production deployment is reported as skipped rather
-   than as a failure.
+2. **The proof runs against the commit that was pushed.** The
+   `interfaces-smoke` workflow looks up the GitHub deployment for the pushed
+   commit and waits for it to succeed, then waits until the production alias
+   reports that exact commit at `/api/build-info` — the site's build hash,
+   which is `sha256(VERCEL_GIT_COMMIT_SHA)[:16]`, and Vercel sets
+   `VERCEL_GIT_COMMIT_SHA` to the commit that was pushed. Only then does the
+   workflow run the spec against `https://rajeevg.com`, and it re-checks the
+   build hash afterwards, so a deploy that lands mid-proof fails the run.
+   The expected hash is derived once and passed to both the wait loop and the
+   spec, so the two cannot disagree.
+   - The alias is the target because Vercel's deployment URLs sit behind
+     deployment protection, and this site's Vercel scope is not administered
+     from CI, so the immutable URL cannot be probed. The commit identity is
+     what replaces that immutability.
+   - `/api/build-info` is an unauthenticated build-identity oracle. The
+     repository is public, so the commit it names is public information, and
+     the response carries nothing but a fingerprint of it. Restricting it to
+     CI would need a secret in the site's Vercel environment, which is not
+     administered from this repository.
+   - A push that produced no production deployment at all is reported as
+     skipped. A deployment that exists but never reaches the alias is a
+     failure, not a skip.
 3. **A dedicated subdomain would shrink the blast radius.** Serving the lab
    from `interfaces.rajeevg.com` (or a dedicated host) keeps it cross-origin
    and removes this site's session from the lab's reach entirely. The path
@@ -141,6 +157,11 @@ E2E_BASE_URL=https://rajeevg.com pnpm exec playwright test tests/e2e/interfaces-
 
 The same spec runs automatically on the `interfaces-smoke` workflow after any
 production deploy that touches the route, the rewrite configuration, the
-middleware, or the spec itself. The workflow probes the immutable deployment
-URL of the pushed commit, so the proof is about that commit and not about
-whatever the production alias happens to be serving.
+middleware, or the spec itself. The workflow waits for the production
+deployment of the pushed commit, then proves the route on `https://rajeevg.com`
+once that alias reports the same commit, so the proof is about that commit and
+not about whatever the alias happened to be serving a moment earlier.
+
+The commit-identity case runs when `EXPECTED_BUILD_HASH` is set (the workflow
+passes the hash it derived from the pushed commit) and falls back to
+`GITHUB_SHA`; without either it skips, so a local run needs no commit.
