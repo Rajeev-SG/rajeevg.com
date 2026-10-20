@@ -7,11 +7,12 @@ name: Interfaces smoke
 # same-origin with this site (which would break the compare bench's clock
 # bootstrap).
 #
-# The proof runs against the immutable deployment URL of the commit that was
-# pushed, not against the production alias: a status can also be reported for
-# a preview, and the alias may still serve the previous build while the new
-# one is being verified. If the push produced no production deployment at all,
-# the workflow reports "skipped" instead of failing.
+# The proof runs against the production alias, but only once that alias
+# reports the commit that was pushed: Vercel's deployment URLs sit behind
+# deployment protection and cannot be probed, so /api/build-info (a hash of
+# the deployed commit) is what ties the proof to the commit. If the push
+# produced no production deployment at all, the workflow reports "skipped"
+# instead of failing.
 
 on:
   push:
@@ -23,6 +24,7 @@ on:
       - "src/lib/negotiable-paths.ts"
       - "src/lib/interfaces/lab-release.json"
       - "src/lib/__tests__/interfaces-route.test.ts"
+      - "src/app/api/build-info/route.ts"
       - "src/app/sitemap.ts"
       - "src/components/site-chrome.tsx"
       - "tests/e2e/interfaces-smoke.spec.ts"
@@ -63,7 +65,7 @@ jobs:
       - name: Check the route configuration
         run: pnpm exec vitest run src/lib/__tests__/interfaces-route.test.ts
 
-      - name: Find the production deployment of this commit
+      - name: Wait for the production deployment of this commit
         id: deploy
         shell: bash
         env:
@@ -86,30 +88,40 @@ jobs:
             echo "skipped=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          url=""
           while (( SECONDS < deadline )); do
-            status=$(curl -fsSL \
+            state=$(curl -fsSL \
               -H "Accept: application/vnd.github+json" \
               -H "Authorization: Bearer $GH_TOKEN" \
               "https://api.github.com/repos/$GITHUB_REPOSITORY/deployments/$deployment_id/statuses" \
-              | python3 -c 'import json,sys; ss=json.load(sys.stdin); s=next((x for x in ss if x.get("state") in ("success","failure","error")), None); print("" if s is None else s.get("state","")+"|"+str(s.get("environment_url") or ""))')
-            case "$status" in
-              success\|*) url="${status#success|}"; break ;;
-              failure\|*|error\|*) echo "Vercel deployment failed" >&2; exit 1 ;;
+              | python3 -c 'import json,sys; ss=json.load(sys.stdin); s=next((x for x in ss if x.get("state") in ("success","failure","error")), None); print("" if s is None else s.get("state",""))')
+            case "$state" in
+              success) break ;;
+              failure|error) echo "Vercel deployment failed" >&2; exit 1 ;;
             esac
             sleep 15
           done
-          if [[ -z "$url" ]]; then
-            echo "The deployment for $GITHUB_SHA never reported a URL."
-            echo "skipped=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          echo "Proving $url"
-          echo "deployment_url=$url" >> "$GITHUB_OUTPUT"
+          [[ "$state" == "success" ]] || { echo "The deployment for $GITHUB_SHA never succeeded."; echo "skipped=true" >> "$GITHUB_OUTPUT"; exit 0; }
+
+          # The deployment URL itself is behind Vercel's deployment protection,
+          # so the proof runs against the production alias. The alias has to
+          # name this commit: /api/build-info returns a hash of the deployed
+          # commit, and the hash of $GITHUB_SHA is what the run expects.
+          expected=$(python3 -c 'import hashlib,sys; print(hashlib.sha256(sys.argv[1].encode()).hexdigest()[:16])' "$GITHUB_SHA")
+          while (( SECONDS < deadline )); do
+            now=$(curl -fsSL https://rajeevg.com/api/build-info | python3 -c 'import json,sys; print(json.load(sys.stdin).get("build",""))' || true)
+            if [[ "$now" == "$expected" ]]; then
+              echo "The alias is serving $GITHUB_SHA"
+              echo "live=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "The alias never started serving $GITHUB_SHA (saw ${now:-nothing})."
+          echo "skipped=true" >> "$GITHUB_OUTPUT"
 
       - name: Prove the lab through /interfaces
-        if: steps.deploy.outputs.skipped != 'true'
-        run: E2E_BASE_URL=${{ steps.deploy.outputs.deployment_url }} pnpm exec playwright test tests/e2e/interfaces-smoke.spec.ts
+        if: steps.deploy.outputs.live == 'true'
+        run: E2E_BASE_URL=https://rajeevg.com pnpm exec playwright test tests/e2e/interfaces-smoke.spec.ts
 
       - name: Upload browser proof
         if: always()

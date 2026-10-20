@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import type { NextConfig } from "next";
 
 // Start Velite alongside Next.js in dev only (build runs via npm script)
@@ -10,6 +11,15 @@ if (!process.env.VELITE_STARTED && isDev) {
 }
 
 const nextConfig: NextConfig = {
+  // Which build is live, captured at build time. The deploy-time proof for the
+  // /interfaces route has to show that the production alias is serving the
+  // commit that was just pushed, and the runtime environment does not carry
+  // the commit. A hash of it is enough, and does not publish the commit.
+  env: {
+    SITE_BUILD_HASH: process.env.VERCEL_GIT_COMMIT_SHA
+      ? createHash("sha256").update(process.env.VERCEL_GIT_COMMIT_SHA).digest("hex").slice(0, 16)
+      : "local",
+  },
   // mermaid-isomorphic must stay a real Node require: bundling it breaks
   // `path.resolve` ({} shim) during page-data collection.
   serverExternalPackages: ["mermaid-isomorphic", "rehype-mermaid"],

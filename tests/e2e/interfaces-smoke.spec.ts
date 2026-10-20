@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
@@ -87,6 +88,17 @@ test("the compare bench can inject its clock into every frame", async ({ page })
     .toBe(true);
 
   expect(requested.filter((url) => url.includes(ORIGIN_HOST))).toEqual([]);
+});
+
+test("the alias is serving the commit under test", async ({ page }) => {
+  const sha = process.env.GITHUB_SHA;
+  test.skip(!sha, "no commit under test outside CI");
+
+  const response = await page.request.get("/api/build-info");
+  expect(response.ok(), "GET /api/build-info").toBeTruthy();
+  const info = JSON.parse(await response.text()) as { build: string };
+  const expected = createHash("sha256").update(sha).digest("hex").slice(0, 16);
+  expect(info.build, "the alias must serve the commit under test").toBe(expected);
 });
 
 test("the served lab is the pinned build", async ({ page }) => {
