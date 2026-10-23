@@ -86,6 +86,9 @@ export const ORG_BY_OR_SLUG: Record<string, string> = {
  */
 const AA_CREATOR_ALIASES: Record<string, string[]> = {
   "xAI": ["SpaceXAI"],
+  "Z.ai": ["Z AI"],
+  "Moonshot AI": ["Kimi"],
+  "AI21": ["AI21 Labs"],
 };
 
 export { AA_CREATOR_ALIASES };

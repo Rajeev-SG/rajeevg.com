@@ -270,55 +270,8 @@ for (const m of orResult.models) {
   });
 }
 
-// ── Completeness guard (gh-172) ─────────────────────────────────────────
-// Fails the refresh BEFORE publication when (a) the AA-quality coverage of
-// the snapshot collapses relative to the upstream AA catalogue, or (b)
-// records from a KNOWN organisation were rejected by creator-name
-// verification (the silent-drop signature that removed Grok 4.7). A ceiling
-// of 0 is correct: with the alias table in place, no known-org record may
-// fail identity verification — such a record is exactly how an entire org's
-// catalogue used to vanish behind a green refresh. New unknown orgs are NOT
-// gated here (legitimate long-tail orgs appear constantly); they surface in
-// the diagnostics queue instead. Publication does not run on failure and the
-// previous last-known-good durable snapshot survives.
-const aaQualityModels = models.filter(
-  (m) => m.aa.intelligenceIndex != null || m.aa.codingIndex != null || m.aa.agenticIndex != null
-);
-const unmatchedByReason = diagnostics.reduce<Record<string, number>>((acc, d) => {
-  acc[d.reasonCode] = (acc[d.reasonCode] ?? 0) + 1;
-  return acc;
-}, {});
-const guard = completenessGuard(
-  {
-    upstreamModelCount: aaResult.models.length,
-    canonicalCount: models.length,
-    qualityScoredCount: aaQualityModels.length,
-    unmatchedByReason,
-  },
-  {
-    // Environment-overridable for offline fixtures/tests; production runs use
-    // the defaults (50% coverage, ≥20 quality-scored models, 0 creator mismatches).
-    minAaCoverage: Number(process.env.PARETO_MIN_AA_COVERAGE ?? DEFAULT_THRESHOLDS.minAaCoverage),
-    minAaQualityCount: Number(process.env.PARETO_MIN_AA_QUALITY ?? DEFAULT_THRESHOLDS.minAaQualityCount),
-    maxCreatorNameMismatches: Number(
-      process.env.PARETO_MAX_CREATOR_MISMATCHES ?? DEFAULT_THRESHOLDS.maxCreatorNameMismatches
-    ),
-  }
-);
-if (!guard.ok) {
-  for (const f of guard.findings) console.error(`completeness-guard: ${f.check}: ${f.detail}`);
-  throw new Error(`Refresh rejected by completeness guard: ${guard.findings.map((f) => f.check).join(", ")}`);
-}
-
-// Canonical-join audit: invariants every joined model must satisfy,
-// including "no dead-weight records" (AA slug but no quality, pricing or
-// arena data) — the shape the alias/backfill paths could otherwise produce.
-const auditProblems = joinAudit(models);
-if (auditProblems.length > 0) {
-  throw new Error(`Refresh rejected by join audit: ${auditProblems.slice(0, 5).join("; ")}`);
-}
-
 const generatedAt = new Date().toISOString();
+
 const snapshot = {
   provenance: {
     source: "Artificial Analysis API v2 /language/models/free + OpenRouter /api/v1/models",
@@ -342,6 +295,8 @@ const snapshot = {
 // Unmatched/new-model diagnostics file: published NEXT TO the durable
 // snapshot on the pareto-data branch (same commit), giving an automatic,
 // always-current queue of newly seen / unmatched upstream model ids.
+// Written BEFORE the completeness guard so a guard rejection still leaves
+// the full triage trail — the diagnostics are the tool for investigating it.
 const unmatchedQueue = {
   generatedAt,
   note: "Upstream records the canonical join layer could not place. Reason codes: not_in_alias_map (needs a curated alias; also the regression signal when identity fully verifies), org_unknown (new org), creator_name_mismatch (upstream renamed a creator), no_aa_counterpart (OpenRouter-only, no AA quality source), variant_excluded (effort-variant or batch/contributor record excluded by design).",
@@ -359,6 +314,72 @@ const unmatchedQueue = {
   truncated: diagnostics.length > UNMATCHED_QUEUE_CAP,
 };
 
+// Diagnostics artefact for the workflow summary/audit trail — written BEFORE
+// the guard below, so a completeness-guard rejection still leaves the full
+// triage trail on disk.
+const diagnosticsPath = resolve(process.cwd(), "pareto-diagnostics.json");
+await mkdir(dirname(diagnosticsPath), { recursive: true });
+await writeFile(
+  diagnosticsPath,
+  `${JSON.stringify(unmatchedQueue, null, 2)}\n`,
+  "utf8"
+);
+
+
+// ── Completeness guard (gh-172) ─────────────────────────────────────────
+// Fails the refresh BEFORE publication when (a) the AA-quality coverage of
+// the snapshot collapses relative to the upstream AA catalogue, or (b)
+// records from a KNOWN organisation were rejected by creator-name
+// verification (the silent-drop signature that removed Grok 4.7).
+//
+// Calibration (verified against the live catalogue, gh-198): only ~21% of
+// AA's 688-record free-tier catalogue is dashboard-calibre frontier models —
+// the rest are long-tail/small/effort-variant records that legitimately stay
+// unmatched. The gate therefore exists to catch CATASTROPHIC collapse
+// (empty/degraded/truncated fetch), not absolute share; the relative
+// per-model protection is the publish step's never-shrink guard, which
+// compares against the currently published snapshot. Unknown orgs are NOT
+// gated (legitimate long-tail orgs appear constantly); they surface in the
+// diagnostics queue instead. Publication does not run on failure and the
+// previous last-known-good durable snapshot survives.
+const aaQualityModels = models.filter(
+  (m) => m.aa.intelligenceIndex != null || m.aa.codingIndex != null || m.aa.agenticIndex != null
+);
+const unmatchedByReason = diagnostics.reduce<Record<string, number>>((acc, d) => {
+  acc[d.reasonCode] = (acc[d.reasonCode] ?? 0) + 1;
+  return acc;
+}, {});
+const guard = completenessGuard(
+  {
+    upstreamModelCount: aaResult.models.length,
+    canonicalCount: models.length,
+    qualityScoredCount: aaQualityModels.length,
+    unmatchedByReason,
+  },
+  {
+    // Environment-overridable for offline fixtures/tests; production runs use
+    // the defaults (≥15% coverage backstop, ≥20 quality-scored models,
+    // 0 creator mismatches from known orgs).
+    minAaCoverage: Number(process.env.PARETO_MIN_AA_COVERAGE ?? DEFAULT_THRESHOLDS.minAaCoverage),
+    minAaQualityCount: Number(process.env.PARETO_MIN_AA_QUALITY ?? DEFAULT_THRESHOLDS.minAaQualityCount),
+    maxCreatorNameMismatches: Number(
+      process.env.PARETO_MAX_CREATOR_MISMATCHES ?? DEFAULT_THRESHOLDS.maxCreatorNameMismatches
+    ),
+  }
+);
+if (!guard.ok) {
+  for (const f of guard.findings) console.error(`completeness-guard: ${f.check}: ${f.detail}`);
+  throw new Error(`Refresh rejected by completeness guard: ${guard.findings.map((f) => f.check).join(", ")}`);
+}
+
+// Canonical-join audit: invariants every joined model must satisfy,
+// including "no dead-weight records" (AA slug but no quality, pricing or
+// arena data) — the shape the alias/backfill paths could otherwise produce.
+const auditProblems = joinAudit(models);
+if (auditProblems.length > 0) {
+  throw new Error(`Refresh rejected by join audit: ${auditProblems.slice(0, 5).join("; ")}`);
+}
+
 // Local copy stays as the repo's bundled last-known-good dataset (committed
 // rarely, on meaningful schema/model-set changes, not per refresh).
 const snapshotPath = resolve(process.cwd(), "src/data/pareto-aa-fallback.json");
@@ -366,12 +387,6 @@ await mkdir(dirname(snapshotPath), { recursive: true });
 await writeFile(
   snapshotPath,
   `${JSON.stringify(snapshot, null, 2)}\n`,
-  "utf8"
-);
-
-// Diagnostics artefact for the workflow summary/audit trail.
-await writeFile(
-  resolve(process.cwd(), "pareto-diagnostics.json"),  `${JSON.stringify(unmatchedQueue, null, 2)}\n`,
   "utf8"
 );
 

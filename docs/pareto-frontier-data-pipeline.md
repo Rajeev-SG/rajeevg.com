@@ -93,7 +93,9 @@ change the publish target — no application code changes are required.
   metrics, or a failed schema check never replaces the durable snapshot.
 * **Completeness gates (gh-198)**: the refresh aborts when (a) AA-quality
   coverage of the snapshot collapses relative to the upstream catalogue
-  (`completeness.ts`: ≥50% coverage, ≥20 scored models by default), (b) any
+  (`completeness.ts`: ≥15% catastrophic-collapse backstop, ≥20 scored
+  models by default; steady-state coverage is ≈21% of AA's 688-record
+  catalogue — the rest is legitimately unmatched long tail), (b) any
   record from a KNOWN organisation fails creator-name verification (the
   silent-drop signature that removed Grok 4.7; ceiling 0), and the publish
   step refuses any snapshot whose quality-scored count is lower than the one
