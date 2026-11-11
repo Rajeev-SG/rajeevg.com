@@ -38,7 +38,7 @@ jobs:
     if: >-
       github.event_name != 'pull_request_target' ||
       (github.actor == 'Rajeev-SG' && github.event.pull_request.head.repo.full_name == github.repository)
-    runs-on: [self-hosted, local-ci, macos-arm64, repo-rajeevg-com]
+    runs-on: [self-hosted, Linux, ARM64, oracle]
     timeout-minutes: 35
     env:
       CI: "true"
@@ -74,6 +74,9 @@ jobs:
 
       - name: Install locked dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install chromium
 
       - name: Discover changed articles
         id: articles
