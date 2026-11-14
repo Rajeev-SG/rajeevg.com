@@ -79,8 +79,8 @@ jobs:
       - name: Install locked dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Install Playwright Chromium
-        run: pnpm exec playwright install chromium
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install chromium webkit
 
       - name: Discover changed articles
         id: articles

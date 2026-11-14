@@ -69,8 +69,8 @@ jobs:
       - name: Install locked dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Install Playwright Chromium
-        run: pnpm exec playwright install chromium
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install chromium webkit
 
       - name: Check the route configuration
         run: pnpm exec vitest run src/lib/__tests__/interfaces-route.test.ts
