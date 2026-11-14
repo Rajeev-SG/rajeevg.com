@@ -43,6 +43,8 @@ jobs:
     env:
       CI: "true"
       NEXT_TELEMETRY_DISABLED: "1"
+      # Oracle runs Ubuntu 26.04, which this Playwright version has no build for.
+      PLAYWRIGHT_HOST_PLATFORM_OVERRIDE: ubuntu24.04-arm64
 
     steps:
       - name: Resolve trusted ref
