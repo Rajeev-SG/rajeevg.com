@@ -1,15 +1,15 @@
 {
   "provenance": {
     "source": "Artificial Analysis API v2 /language/models/free + OpenRouter /api/v1/models",
-    "fetchedAt": "2026-09-30T21:26:27.128Z",
+    "fetchedAt": "2026-11-15T22:18:42.160Z",
     "aaStatus": "ok",
     "note": "Validated automatic snapshot. Empty or incomplete refreshes never replace this file."
   },
-  "generatedAt": "2026-09-30T21:26:29.575Z",
+  "generatedAt": "2026-11-15T22:18:43.139Z",
   "freshness": {
-    "aaFetchedAt": "2026-09-30T21:26:27.128Z",
+    "aaFetchedAt": "2026-11-15T22:18:42.160Z",
     "aaStatus": "ok",
-    "openrouterFetchedAt": "2026-09-30T21:26:29.376Z",
+    "openrouterFetchedAt": "2026-11-15T22:18:42.976Z",
     "openrouterStatus": "ok",
     "arenaFetchedAt": null,
     "arenaStatus": "pending",
@@ -79,13 +79,13 @@
       "releaseDate": "2026-06-09",
       "aa": {
         "slug": "claude-fable-5",
-        "intelligenceIndex": 49.6,
-        "codingIndex": 76.5,
-        "agenticIndex": 50.7,
-        "costPerTaskUsd": 8.746,
-        "throughputTokensPerSecond": 65.09,
-        "latencyTtfbSeconds": 105.65,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 66.15,
+        "latencyTtfbSeconds": 80.92,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "anthropic/claude-fable-5",
@@ -107,13 +107,13 @@
       "releaseDate": "2026-09-01",
       "aa": {
         "slug": "claude-fable-5-1",
-        "intelligenceIndex": 53.4,
-        "codingIndex": 81.6,
-        "agenticIndex": 57.9,
-        "costPerTaskUsd": 7.6297,
-        "throughputTokensPerSecond": 70.06,
-        "latencyTtfbSeconds": 271.29,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": 49.2,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 12.994,
+        "throughputTokensPerSecond": 69.58,
+        "latencyTtfbSeconds": 160.72,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "anthropic/claude-fable-5.1",
@@ -129,19 +129,47 @@
       }
     },
     {
+      "canonicalId": "anthropic-claude-fable-5.2",
+      "displayName": "Claude Fable 5.2",
+      "organisation": "Anthropic",
+      "releaseDate": "2026-11-09",
+      "aa": {
+        "slug": "claude-fable-5-2",
+        "intelligenceIndex": 64.6,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 26.5386,
+        "throughputTokensPerSecond": 93.39,
+        "latencyTtfbSeconds": 146.99,
+        "intelligenceIndexVersion": 5
+      },
+      "openrouter": {
+        "modelId": "anthropic/claude-fable-5.2",
+        "inputPricePerMillion": 8,
+        "outputPricePerMillion": 40,
+        "contextLength": 1000000,
+        "createdAtUnix": 1794253781
+      },
+      "arena": {
+        "overall": null,
+        "webdev": null,
+        "agent": null
+      }
+    },
+    {
       "canonicalId": "anthropic-claude-haiku-4.5",
       "displayName": "Claude Haiku 4.5",
       "organisation": "Anthropic",
       "releaseDate": "2025-10-15",
       "aa": {
         "slug": "claude-4-5-haiku",
-        "intelligenceIndex": 15.4,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 83.31,
-        "latencyTtfbSeconds": 0.63,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 90.29,
+        "latencyTtfbSeconds": 0.8,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "anthropic/claude-haiku-4.5",
@@ -157,19 +185,47 @@
       }
     },
     {
+      "canonicalId": "anthropic-claude-haiku-5.5",
+      "displayName": "Claude Haiku 5.5",
+      "organisation": "Anthropic",
+      "releaseDate": "2026-10-07",
+      "aa": {
+        "slug": "claude-haiku-5-5",
+        "intelligenceIndex": 36.5,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 0.411,
+        "throughputTokensPerSecond": 235.22,
+        "latencyTtfbSeconds": 313.69,
+        "intelligenceIndexVersion": 5
+      },
+      "openrouter": {
+        "modelId": "anthropic/claude-haiku-5.5",
+        "inputPricePerMillion": 0.09999999999999999,
+        "outputPricePerMillion": 0.5,
+        "contextLength": 1000000,
+        "createdAtUnix": 1791397883
+      },
+      "arena": {
+        "overall": null,
+        "webdev": null,
+        "agent": null
+      }
+    },
+    {
       "canonicalId": "anthropic-claude-opus-4.1",
       "displayName": "Claude Opus 4.1",
       "organisation": "Anthropic",
       "releaseDate": "2025-08-05",
       "aa": {
         "slug": "claude-4-1-opus",
-        "intelligenceIndex": 18.6,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
         "throughputTokensPerSecond": null,
         "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "anthropic/claude-opus-4.1",
@@ -191,13 +247,13 @@
       "releaseDate": "2025-11-24",
       "aa": {
         "slug": "claude-opus-4-5",
-        "intelligenceIndex": 23.7,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 46.56,
-        "latencyTtfbSeconds": 1.24,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 46.16,
+        "latencyTtfbSeconds": 1.37,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "anthropic/claude-opus-4.5",
@@ -219,13 +275,13 @@
       "releaseDate": "2026-02-05",
       "aa": {
         "slug": "claude-opus-4-6",
-        "intelligenceIndex": 26.4,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 37.32,
-        "latencyTtfbSeconds": 2.43,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 40.55,
+        "latencyTtfbSeconds": 1.78,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "anthropic/claude-opus-4.6",
@@ -247,13 +303,13 @@
       "releaseDate": "2026-04-16",
       "aa": {
         "slug": "claude-opus-4-7",
-        "intelligenceIndex": 40.7,
-        "codingIndex": 73.6,
-        "agenticIndex": 38.6,
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 47.13,
-        "latencyTtfbSeconds": 25.34,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 49.56,
+        "latencyTtfbSeconds": 23.95,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "anthropic/claude-opus-4.7",
@@ -275,13 +331,13 @@
       "releaseDate": "2026-05-28",
       "aa": {
         "slug": "claude-opus-4-8",
-        "intelligenceIndex": 41.8,
-        "codingIndex": 74.3,
-        "agenticIndex": 41.9,
-        "costPerTaskUsd": 4.081,
-        "throughputTokensPerSecond": 59.22,
-        "latencyTtfbSeconds": 63.91,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 59.7,
+        "latencyTtfbSeconds": 33.16,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "anthropic/claude-opus-4.8",
@@ -303,13 +359,13 @@
       "releaseDate": "2026-07-24",
       "aa": {
         "slug": "claude-opus-5",
-        "intelligenceIndex": 50.8,
-        "codingIndex": 78,
-        "agenticIndex": 56.5,
-        "costPerTaskUsd": 5.8584,
-        "throughputTokensPerSecond": 54.57,
-        "latencyTtfbSeconds": 59.34,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": 44.2,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 11.8215,
+        "throughputTokensPerSecond": 53.3,
+        "latencyTtfbSeconds": 44.59,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "anthropic/claude-opus-5",
@@ -331,13 +387,13 @@
       "releaseDate": "2026-09-22",
       "aa": {
         "slug": "claude-opus-5-5",
-        "intelligenceIndex": 57.6,
+        "intelligenceIndex": 59.1,
         "codingIndex": null,
         "agenticIndex": null,
-        "costPerTaskUsd": 5.982,
-        "throughputTokensPerSecond": 92.16,
-        "latencyTtfbSeconds": 702.55,
-        "intelligenceIndexVersion": 4.3
+        "costPerTaskUsd": 10.0364,
+        "throughputTokensPerSecond": 96.77,
+        "latencyTtfbSeconds": 596.09,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "anthropic/claude-opus-5.5",
@@ -359,13 +415,13 @@
       "releaseDate": "2024-10-22",
       "aa": {
         "slug": "claude-35-sonnet",
-        "intelligenceIndex": 7.9,
-        "codingIndex": 30.2,
+        "intelligenceIndex": null,
+        "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
         "throughputTokensPerSecond": null,
         "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "anthropic/claude-sonnet-4.5",
@@ -387,13 +443,13 @@
       "releaseDate": "2026-02-17",
       "aa": {
         "slug": "claude-sonnet-4-6",
-        "intelligenceIndex": 24.7,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 44.07,
-        "latencyTtfbSeconds": 1.41,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 44.3,
+        "latencyTtfbSeconds": 1.21,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "anthropic/claude-sonnet-4.6",
@@ -415,13 +471,13 @@
       "releaseDate": "2026-06-30",
       "aa": {
         "slug": "claude-sonnet-5",
-        "intelligenceIndex": 38.2,
-        "codingIndex": 71.5,
-        "agenticIndex": 43.6,
-        "costPerTaskUsd": 5.0912,
-        "throughputTokensPerSecond": 78.7,
-        "latencyTtfbSeconds": 192.5,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 85.37,
+        "latencyTtfbSeconds": 195.22,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "anthropic/claude-sonnet-5",
@@ -442,14 +498,14 @@
       "organisation": "Anthropic",
       "releaseDate": "2026-09-28",
       "aa": {
-        "slug": "claude-sonnet-5-5-medium",
-        "intelligenceIndex": 40.7,
+        "slug": "claude-sonnet-5-5",
+        "intelligenceIndex": 54.5,
         "codingIndex": null,
         "agenticIndex": null,
-        "costPerTaskUsd": 0.5862,
-        "throughputTokensPerSecond": 91.98,
-        "latencyTtfbSeconds": 1.34,
-        "intelligenceIndexVersion": 4.3
+        "costPerTaskUsd": 10.0206,
+        "throughputTokensPerSecond": 132.87,
+        "latencyTtfbSeconds": 459.15,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "anthropic/claude-sonnet-5.5",
@@ -457,34 +513,6 @@
         "outputPricePerMillion": 10,
         "contextLength": 1000000,
         "createdAtUnix": 1790618686
-      },
-      "arena": {
-        "overall": null,
-        "webdev": null,
-        "agent": null
-      }
-    },
-    {
-      "canonicalId": "bytedance-seed-2.0-code",
-      "displayName": "Seed 2.0 Code",
-      "organisation": "ByteDance Seed",
-      "releaseDate": null,
-      "aa": {
-        "slug": null,
-        "intelligenceIndex": null,
-        "codingIndex": null,
-        "agenticIndex": null,
-        "costPerTaskUsd": null,
-        "throughputTokensPerSecond": null,
-        "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": null
-      },
-      "openrouter": {
-        "modelId": "bytedance-seed/seed-2.0-code",
-        "inputPricePerMillion": 0.5,
-        "outputPricePerMillion": 3,
-        "contextLength": 262144,
-        "createdAtUnix": 1786550701
       },
       "arena": {
         "overall": null,
@@ -527,13 +555,13 @@
       "releaseDate": "2025-03-13",
       "aa": {
         "slug": "command-a",
-        "intelligenceIndex": 7,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 60.99,
-        "latencyTtfbSeconds": 1.72,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 66.52,
+        "latencyTtfbSeconds": 1.74,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "cohere/command-a",
@@ -555,13 +583,13 @@
       "releaseDate": "2026-05-20",
       "aa": {
         "slug": "command-a-plus",
-        "intelligenceIndex": 13.1,
-        "codingIndex": 27.8,
-        "agenticIndex": 1,
+        "intelligenceIndex": 6.2,
+        "codingIndex": null,
+        "agenticIndex": null,
         "costPerTaskUsd": 0,
-        "throughputTokensPerSecond": 214.63,
-        "latencyTtfbSeconds": 0.51,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 229.86,
+        "latencyTtfbSeconds": 0.46,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "cohere/command-a-plus",
@@ -583,20 +611,48 @@
       "releaseDate": "2025-09-22",
       "aa": {
         "slug": "deepseek-v3-1-terminus",
-        "intelligenceIndex": 13.9,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": null,
-        "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 99.46,
+        "latencyTtfbSeconds": 0.74,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "deepseek/deepseek-v3.1-terminus",
-        "inputPricePerMillion": 0.3,
+        "inputPricePerMillion": 0.27,
         "outputPricePerMillion": 1,
         "contextLength": 163840,
         "createdAtUnix": 1758548275
+      },
+      "arena": {
+        "overall": null,
+        "webdev": null,
+        "agent": null
+      }
+    },
+    {
+      "canonicalId": "deepseek-deepseek-v4-pro",
+      "displayName": "DeepSeek V4 Pro 0423",
+      "organisation": "DeepSeek",
+      "releaseDate": "2026-08-13",
+      "aa": {
+        "slug": "deepseek-v4-pro-high",
+        "intelligenceIndex": 20.8,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 0.8485,
+        "throughputTokensPerSecond": null,
+        "latencyTtfbSeconds": null,
+        "intelligenceIndexVersion": 5
+      },
+      "openrouter": {
+        "modelId": "deepseek/deepseek-v4-pro",
+        "inputPricePerMillion": 0.8999999999999999,
+        "outputPricePerMillion": 1.5,
+        "contextLength": 1048576,
+        "createdAtUnix": 1777000679
       },
       "arena": {
         "overall": null,
@@ -611,18 +667,18 @@
       "releaseDate": "2026-09-10",
       "aa": {
         "slug": "deepseek-v4-1-flash",
-        "intelligenceIndex": 39.5,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
-        "costPerTaskUsd": 0.2652,
-        "throughputTokensPerSecond": 210.54,
-        "latencyTtfbSeconds": 0.95,
-        "intelligenceIndexVersion": 4.3
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 238.93,
+        "latencyTtfbSeconds": 0.77,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "deepseek/deepseek-v4.1-flash",
-        "inputPricePerMillion": 0.019799999999999998,
-        "outputPricePerMillion": 0.396,
+        "inputPricePerMillion": 0.050699999999999995,
+        "outputPricePerMillion": 0.20279999999999998,
         "contextLength": 1048576,
         "createdAtUnix": 1789021285
       },
@@ -633,49 +689,27 @@
       }
     },
     {
-      "canonicalId": "deepseek-r1",
-      "displayName": "DeepSeek R1",
+      "canonicalId": "deepseek-deepseek-v4.1-flash-1017",
+      "displayName": "DeepSeek V4.1 Flash 1017",
       "organisation": "DeepSeek",
-      "releaseDate": "2025-05-28",
+      "releaseDate": "2026-10-17",
       "aa": {
-        "slug": "deepseek-r1",
-        "intelligenceIndex": 13.1,
+        "slug": "deepseek-v4-1-flash-1017",
+        "intelligenceIndex": 32.6,
         "codingIndex": null,
         "agenticIndex": null,
-        "costPerTaskUsd": null,
-        "throughputTokensPerSecond": null,
-        "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": 4.3
+        "costPerTaskUsd": 0.6021,
+        "throughputTokensPerSecond": 173.45,
+        "latencyTtfbSeconds": 0.97,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
-        "modelId": "deepseek/deepseek-r1",
-        "inputPricePerMillion": 0.7,
-        "outputPricePerMillion": 2.5,
-        "contextLength": 64000,
-        "createdAtUnix": 1737381095
+        "modelId": "deepseek/deepseek-v4.1-flash-1017",
+        "inputPricePerMillion": 0.02,
+        "outputPricePerMillion": 0.108,
+        "contextLength": 1048576,
+        "createdAtUnix": 1792225624
       },
-      "arena": {
-        "overall": null,
-        "webdev": null,
-        "agent": null
-      }
-    },
-    {
-      "canonicalId": "deepseek-v3.1",
-      "displayName": "DeepSeek V3.1",
-      "organisation": "DeepSeek",
-      "releaseDate": "2025-08-21",
-      "aa": {
-        "slug": "deepseek-v3-1",
-        "intelligenceIndex": 13.7,
-        "codingIndex": null,
-        "agenticIndex": null,
-        "costPerTaskUsd": null,
-        "throughputTokensPerSecond": null,
-        "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": 4.3
-      },
-      "openrouter": null,
       "arena": {
         "overall": null,
         "webdev": null,
@@ -689,18 +723,18 @@
       "releaseDate": "2025-12-01",
       "aa": {
         "slug": "deepseek-v3-2",
-        "intelligenceIndex": 16,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
         "throughputTokensPerSecond": null,
         "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "deepseek/deepseek-v3.2",
-        "inputPricePerMillion": 0.28,
-        "outputPricePerMillion": 0.42,
+        "inputPricePerMillion": 0.26,
+        "outputPricePerMillion": 0.38,
         "contextLength": 163840,
         "createdAtUnix": 1764594642
       },
@@ -717,18 +751,18 @@
       "releaseDate": "2026-07-31",
       "aa": {
         "slug": "deepseek-v4-flash",
-        "intelligenceIndex": 34.3,
-        "codingIndex": 69.1,
-        "agenticIndex": 41,
-        "costPerTaskUsd": 0.2196,
-        "throughputTokensPerSecond": 218.83,
-        "latencyTtfbSeconds": 1.04,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 153.76,
+        "latencyTtfbSeconds": 1.28,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "deepseek/deepseek-v4-flash-0731",
-        "inputPricePerMillion": 0.01,
-        "outputPricePerMillion": 1.28,
+        "inputPricePerMillion": 0.0434,
+        "outputPricePerMillion": 0.3,
         "contextLength": 1048576,
         "createdAtUnix": 1785478908
       },
@@ -745,18 +779,18 @@
       "releaseDate": "2026-08-13",
       "aa": {
         "slug": "deepseek-v4-pro",
-        "intelligenceIndex": 36,
-        "codingIndex": 68.8,
-        "agenticIndex": 41.3,
-        "costPerTaskUsd": 0.674,
-        "throughputTokensPerSecond": 81.03,
-        "latencyTtfbSeconds": 1.67,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": 23.1,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 1.7691,
+        "throughputTokensPerSecond": 95.12,
+        "latencyTtfbSeconds": 1.6,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "deepseek/deepseek-v4-pro-0813",
-        "inputPricePerMillion": 0.66,
-        "outputPricePerMillion": 1.9800000000000002,
+        "inputPricePerMillion": 0.111,
+        "outputPricePerMillion": 4.4399999999999995,
         "contextLength": 1048576,
         "createdAtUnix": 1786549364
       },
@@ -773,13 +807,13 @@
       "releaseDate": "2025-05-20",
       "aa": {
         "slug": "gemini-2-5-flash",
-        "intelligenceIndex": 9.9,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 188.86,
-        "latencyTtfbSeconds": 0.44,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 205.42,
+        "latencyTtfbSeconds": 0.36,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "google/gemini-2.5-flash",
@@ -801,13 +835,13 @@
       "releaseDate": "2025-06-17",
       "aa": {
         "slug": "gemini-2-5-flash-lite",
-        "intelligenceIndex": 6.7,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 287.06,
-        "latencyTtfbSeconds": 0.33,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 287.18,
+        "latencyTtfbSeconds": 0.32,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "google/gemini-2.5-flash-lite",
@@ -829,13 +863,13 @@
       "releaseDate": "2025-06-05",
       "aa": {
         "slug": "gemini-2-5-pro",
-        "intelligenceIndex": 16.1,
-        "codingIndex": 33.3,
-        "agenticIndex": 1.6,
-        "costPerTaskUsd": 0.2317,
-        "throughputTokensPerSecond": 120.45,
-        "latencyTtfbSeconds": 22.89,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 124.15,
+        "latencyTtfbSeconds": 21.12,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "google/gemini-2.5-pro",
@@ -844,50 +878,6 @@
         "contextLength": 1048576,
         "createdAtUnix": 1750169544
       },
-      "arena": {
-        "overall": null,
-        "webdev": null,
-        "agent": null
-      }
-    },
-    {
-      "canonicalId": "google-gemini-3-flash",
-      "displayName": "Gemini 3 Flash",
-      "organisation": "Google",
-      "releaseDate": "2025-12-17",
-      "aa": {
-        "slug": "gemini-3-flash",
-        "intelligenceIndex": 17.9,
-        "codingIndex": null,
-        "agenticIndex": null,
-        "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 176.46,
-        "latencyTtfbSeconds": 1.09,
-        "intelligenceIndexVersion": 4.3
-      },
-      "openrouter": null,
-      "arena": {
-        "overall": null,
-        "webdev": null,
-        "agent": null
-      }
-    },
-    {
-      "canonicalId": "google-gemini-3-pro",
-      "displayName": "Gemini 3 Pro",
-      "organisation": "Google",
-      "releaseDate": "2025-11-18",
-      "aa": {
-        "slug": "gemini-3-pro",
-        "intelligenceIndex": 28,
-        "codingIndex": null,
-        "agenticIndex": null,
-        "costPerTaskUsd": null,
-        "throughputTokensPerSecond": null,
-        "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": 4.3
-      },
-      "openrouter": null,
       "arena": {
         "overall": null,
         "webdev": null,
@@ -929,13 +919,13 @@
       "releaseDate": "2026-03-03",
       "aa": {
         "slug": "gemini-3-1-flash-lite-preview",
-        "intelligenceIndex": 15.6,
-        "codingIndex": 34.7,
-        "agenticIndex": 1.6,
-        "costPerTaskUsd": 0.0394,
-        "throughputTokensPerSecond": 249.76,
-        "latencyTtfbSeconds": 5.8,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": 6.2,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 0.1945,
+        "throughputTokensPerSecond": 327.38,
+        "latencyTtfbSeconds": 4.98,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "google/gemini-3.1-flash-lite-preview",
@@ -957,13 +947,13 @@
       "releaseDate": "2026-02-19",
       "aa": {
         "slug": "gemini-3-1-pro-preview",
-        "intelligenceIndex": 29.7,
-        "codingIndex": 68.8,
-        "agenticIndex": 8.2,
-        "costPerTaskUsd": 0.6747,
-        "throughputTokensPerSecond": 114.22,
-        "latencyTtfbSeconds": 27.92,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 146.94,
+        "latencyTtfbSeconds": 23.48,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "google/gemini-3.1-pro-preview",
@@ -985,13 +975,13 @@
       "releaseDate": "2026-05-19",
       "aa": {
         "slug": "gemini-3-5-flash",
-        "intelligenceIndex": 32.6,
-        "codingIndex": 70.1,
-        "agenticIndex": 26,
-        "costPerTaskUsd": 1.5625,
-        "throughputTokensPerSecond": 211.7,
-        "latencyTtfbSeconds": 17.4,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 203.12,
+        "latencyTtfbSeconds": 15.21,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "google/gemini-3.5-flash",
@@ -1013,13 +1003,13 @@
       "releaseDate": "2026-07-21",
       "aa": {
         "slug": "gemini-3-5-flash-lite",
-        "intelligenceIndex": 22.2,
-        "codingIndex": 49.3,
-        "agenticIndex": 14.3,
-        "costPerTaskUsd": 0.1235,
-        "throughputTokensPerSecond": 338.86,
-        "latencyTtfbSeconds": 9.44,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": 11.7,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 0.6929,
+        "throughputTokensPerSecond": 428.75,
+        "latencyTtfbSeconds": 6.57,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "google/gemini-3.5-flash-lite",
@@ -1041,13 +1031,13 @@
       "releaseDate": "2026-07-21",
       "aa": {
         "slug": "gemini-3-6-flash",
-        "intelligenceIndex": 34,
-        "codingIndex": 69.2,
-        "agenticIndex": 29,
-        "costPerTaskUsd": 0.9288,
-        "throughputTokensPerSecond": 185.12,
-        "latencyTtfbSeconds": 18.17,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 201.72,
+        "latencyTtfbSeconds": 14.85,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "google/gemini-3.6-flash",
@@ -1069,13 +1059,13 @@
       "releaseDate": "2026-08-13",
       "aa": {
         "slug": "gemini-3-7-flash",
-        "intelligenceIndex": 39.1,
-        "codingIndex": 76.1,
-        "agenticIndex": 35.2,
-        "costPerTaskUsd": 0.9253,
-        "throughputTokensPerSecond": 295.62,
-        "latencyTtfbSeconds": 13.5,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": null,
+        "latencyTtfbSeconds": null,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "google/gemini-3.7-flash",
@@ -1097,18 +1087,18 @@
       "releaseDate": "2026-09-02",
       "aa": {
         "slug": "gemini-3-8-flash",
-        "intelligenceIndex": 40.9,
-        "codingIndex": 76.3,
-        "agenticIndex": 40.2,
-        "costPerTaskUsd": 1.2428,
-        "throughputTokensPerSecond": 244.69,
-        "latencyTtfbSeconds": 21.76,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": 30.8,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 7.766,
+        "throughputTokensPerSecond": 126.78,
+        "latencyTtfbSeconds": 24.59,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "google/gemini-3.8-flash",
-        "inputPricePerMillion": 0.75,
-        "outputPricePerMillion": 3.75,
+        "inputPricePerMillion": 0.8250000000000001,
+        "outputPricePerMillion": 4.125,
         "contextLength": 1048576,
         "createdAtUnix": 1788362056
       },
@@ -1119,26 +1109,26 @@
       }
     },
     {
-      "canonicalId": "inception-mercury-2",
-      "displayName": "Mercury 2",
-      "organisation": "Inception",
-      "releaseDate": "2026-02-20",
+      "canonicalId": "google-gemini-4-argon",
+      "displayName": "Gemini 4 Argon",
+      "organisation": "Google",
+      "releaseDate": "2026-09-30",
       "aa": {
-        "slug": "mercury-2",
-        "intelligenceIndex": 13.8,
-        "codingIndex": 31.1,
-        "agenticIndex": 1.6,
-        "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 871.19,
-        "latencyTtfbSeconds": 4.54,
-        "intelligenceIndexVersion": 4.3
+        "slug": "gemini-4-argon",
+        "intelligenceIndex": 50.4,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 4.9733,
+        "throughputTokensPerSecond": 87.72,
+        "latencyTtfbSeconds": 49.93,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
-        "modelId": "inception/mercury-2",
-        "inputPricePerMillion": 0.25,
-        "outputPricePerMillion": 0.75,
-        "contextLength": 128000,
-        "createdAtUnix": 1772636275
+        "modelId": "google/gemini-4-argon",
+        "inputPricePerMillion": 2,
+        "outputPricePerMillion": 10,
+        "contextLength": 1048576,
+        "createdAtUnix": 1791907477
       },
       "arena": {
         "overall": null,
@@ -1147,26 +1137,54 @@
       }
     },
     {
-      "canonicalId": "inception-mercury-2.5",
-      "displayName": "Mercury 2.5",
-      "organisation": "Inception",
-      "releaseDate": "2026-09-08",
+      "canonicalId": "google-gemini-4-carbon",
+      "displayName": "Gemini 4 Carbon",
+      "organisation": "Google",
+      "releaseDate": "2026-10-28",
       "aa": {
-        "slug": "mercury-2-5",
-        "intelligenceIndex": 12.3,
+        "slug": "gemini-4-carbon",
+        "intelligenceIndex": 60,
         "codingIndex": null,
         "agenticIndex": null,
-        "costPerTaskUsd": 0.1167,
-        "throughputTokensPerSecond": 661.14,
-        "latencyTtfbSeconds": 3.45,
-        "intelligenceIndexVersion": 4.3
+        "costPerTaskUsd": 5.4848,
+        "throughputTokensPerSecond": 93.84,
+        "latencyTtfbSeconds": 116.41,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
-        "modelId": "inception/mercury-2.5",
-        "inputPricePerMillion": 0.04,
-        "outputPricePerMillion": 0.15,
-        "contextLength": 260000,
-        "createdAtUnix": 1788892137
+        "modelId": "google/gemini-4-carbon",
+        "inputPricePerMillion": 2,
+        "outputPricePerMillion": 10,
+        "contextLength": 1048576,
+        "createdAtUnix": 1794326871
+      },
+      "arena": {
+        "overall": null,
+        "webdev": null,
+        "agent": null
+      }
+    },
+    {
+      "canonicalId": "google-gemini-4-hydrogen",
+      "displayName": "Gemini 4 Hydrogen",
+      "organisation": "Google",
+      "releaseDate": "2026-11-12",
+      "aa": {
+        "slug": "gemini-4-hydrogen",
+        "intelligenceIndex": 53.9,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 3.1602,
+        "throughputTokensPerSecond": 245.42,
+        "latencyTtfbSeconds": 68.74,
+        "intelligenceIndexVersion": 5
+      },
+      "openrouter": {
+        "modelId": "google/gemini-4-hydrogen",
+        "inputPricePerMillion": 1.5,
+        "outputPricePerMillion": 7.5,
+        "contextLength": 1048576,
+        "createdAtUnix": 1794506460
       },
       "arena": {
         "overall": null,
@@ -1181,19 +1199,19 @@
       "releaseDate": "2025-04-05",
       "aa": {
         "slug": "llama-4-maverick",
-        "intelligenceIndex": 10,
-        "codingIndex": 16.3,
-        "agenticIndex": 0.6,
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 85.55,
-        "latencyTtfbSeconds": 0.95,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 80.89,
+        "latencyTtfbSeconds": 1.03,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "meta-llama/llama-4-maverick",
-        "inputPricePerMillion": 0.1875,
-        "outputPricePerMillion": 0.6525,
-        "contextLength": 1048576,
+        "inputPricePerMillion": 0.35,
+        "outputPricePerMillion": 1,
+        "contextLength": 524288,
         "createdAtUnix": 1743881822
       },
       "arena": {
@@ -1209,13 +1227,13 @@
       "releaseDate": "2025-04-05",
       "aa": {
         "slug": "llama-4-scout",
-        "intelligenceIndex": 8.1,
-        "codingIndex": 8.2,
-        "agenticIndex": 0.5,
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 128.78,
-        "latencyTtfbSeconds": 0.85,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 128.4,
+        "latencyTtfbSeconds": 0.78,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "meta-llama/llama-4-scout",
@@ -1231,24 +1249,52 @@
       }
     },
     {
+      "canonicalId": "meta-muse-ember",
+      "displayName": "Muse Ember",
+      "organisation": "Meta",
+      "releaseDate": "2026-11-09",
+      "aa": {
+        "slug": "muse-ember",
+        "intelligenceIndex": 36,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 0.1359,
+        "throughputTokensPerSecond": 669.72,
+        "latencyTtfbSeconds": 7.26,
+        "intelligenceIndexVersion": 5
+      },
+      "openrouter": {
+        "modelId": "meta/muse-ember",
+        "inputPricePerMillion": 0.09999999999999999,
+        "outputPricePerMillion": 0.5,
+        "contextLength": 1048576,
+        "createdAtUnix": 1794247648
+      },
+      "arena": {
+        "overall": null,
+        "webdev": null,
+        "agent": null
+      }
+    },
+    {
       "canonicalId": "meta-muse-glimmer-30b",
       "displayName": "Muse Glimmer 30B",
       "organisation": "Meta",
       "releaseDate": "2026-08-10",
       "aa": {
         "slug": "muse-glimmer",
-        "intelligenceIndex": 17.5,
-        "codingIndex": 49,
-        "agenticIndex": 8.5,
-        "costPerTaskUsd": 0.0567,
-        "throughputTokensPerSecond": 148.99,
-        "latencyTtfbSeconds": 1.42,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": 6.3,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 0.1782,
+        "throughputTokensPerSecond": 99.41,
+        "latencyTtfbSeconds": 0.85,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "meta/muse-glimmer-30b",
-        "inputPricePerMillion": 0.35,
-        "outputPricePerMillion": 1.5,
+        "inputPricePerMillion": 0.3,
+        "outputPricePerMillion": 1.2,
         "contextLength": 131072,
         "createdAtUnix": 1786302394
       },
@@ -1265,13 +1311,13 @@
       "releaseDate": "2026-07-09",
       "aa": {
         "slug": "muse-spark-1-1",
-        "intelligenceIndex": 33.7,
-        "codingIndex": 71.3,
-        "agenticIndex": 25.8,
-        "costPerTaskUsd": 1.3802,
-        "throughputTokensPerSecond": null,
-        "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 280.75,
+        "latencyTtfbSeconds": 13.34,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "meta/muse-spark-1.1",
@@ -1293,13 +1339,13 @@
       "releaseDate": "2026-08-05",
       "aa": {
         "slug": "muse-spark-1-2",
-        "intelligenceIndex": 39.6,
-        "codingIndex": 72.2,
-        "agenticIndex": 43.2,
-        "costPerTaskUsd": 0.9747,
-        "throughputTokensPerSecond": 240.06,
-        "latencyTtfbSeconds": 12.14,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 278.83,
+        "latencyTtfbSeconds": 11.84,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "meta/muse-spark-1.2",
@@ -1321,13 +1367,13 @@
       "releaseDate": "2026-09-02",
       "aa": {
         "slug": "muse-spark-1-3",
-        "intelligenceIndex": 48.1,
-        "codingIndex": 75.8,
-        "agenticIndex": 55.5,
-        "costPerTaskUsd": 1.6049,
-        "throughputTokensPerSecond": 184.38,
-        "latencyTtfbSeconds": 35.73,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": 36.6,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 2.3858,
+        "throughputTokensPerSecond": 139.04,
+        "latencyTtfbSeconds": 46.45,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "meta/muse-spark-1.3",
@@ -1343,19 +1389,75 @@
       }
     },
     {
+      "canonicalId": "meta-muse-spark-open",
+      "displayName": "Muse Spark Open",
+      "organisation": "Meta",
+      "releaseDate": "2026-10-15",
+      "aa": {
+        "slug": "muse-spark-open",
+        "intelligenceIndex": 24.9,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 2.0177,
+        "throughputTokensPerSecond": 220.63,
+        "latencyTtfbSeconds": 0.67,
+        "intelligenceIndexVersion": 5
+      },
+      "openrouter": {
+        "modelId": "meta/muse-spark-open",
+        "inputPricePerMillion": 1.25,
+        "outputPricePerMillion": 4.25,
+        "contextLength": 1048576,
+        "createdAtUnix": 1792087069
+      },
+      "arena": {
+        "overall": null,
+        "webdev": null,
+        "agent": null
+      }
+    },
+    {
+      "canonicalId": "meta-muse-wonder",
+      "displayName": "Muse Wonder",
+      "organisation": "Meta",
+      "releaseDate": "2026-10-12",
+      "aa": {
+        "slug": "muse-wonder",
+        "intelligenceIndex": 43.6,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 6.952,
+        "throughputTokensPerSecond": 150.51,
+        "latencyTtfbSeconds": 38.91,
+        "intelligenceIndexVersion": 5
+      },
+      "openrouter": {
+        "modelId": "meta/muse-wonder",
+        "inputPricePerMillion": 4,
+        "outputPricePerMillion": 20,
+        "contextLength": 1048576,
+        "createdAtUnix": 1791807945
+      },
+      "arena": {
+        "overall": null,
+        "webdev": null,
+        "agent": null
+      }
+    },
+    {
       "canonicalId": "microsoft-phi-4",
       "displayName": "Phi 4",
       "organisation": "Microsoft",
       "releaseDate": "2024-12-12",
       "aa": {
         "slug": "phi-4",
-        "intelligenceIndex": 5.9,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 39.82,
-        "latencyTtfbSeconds": 2.61,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 36.4,
+        "latencyTtfbSeconds": 2.56,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "microsoft/phi-4",
@@ -1377,13 +1479,13 @@
       "releaseDate": "2026-06-01",
       "aa": {
         "slug": "minimax-m3",
-        "intelligenceIndex": 29.2,
-        "codingIndex": 58.6,
-        "agenticIndex": 29.5,
-        "costPerTaskUsd": 0.5076,
-        "throughputTokensPerSecond": 98,
-        "latencyTtfbSeconds": 1.34,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": 18.9,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 1.2851,
+        "throughputTokensPerSecond": 124.02,
+        "latencyTtfbSeconds": 0.93,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "minimax/minimax-m3",
@@ -1399,81 +1501,25 @@
       }
     },
     {
-      "canonicalId": "minimax-minimax-m2",
-      "displayName": "MiniMax M2",
-      "organisation": "MiniMax",
-      "releaseDate": "2025-10-26",
-      "aa": {
-        "slug": "minimax-m2",
-        "intelligenceIndex": 18.6,
-        "codingIndex": null,
-        "agenticIndex": null,
-        "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 89.21,
-        "latencyTtfbSeconds": 1.53,
-        "intelligenceIndexVersion": 4.3
-      },
-      "openrouter": {
-        "modelId": "minimax/minimax-m2",
-        "inputPricePerMillion": 0.3,
-        "outputPricePerMillion": 1.2,
-        "contextLength": 204800,
-        "createdAtUnix": 1761252093
-      },
-      "arena": {
-        "overall": null,
-        "webdev": null,
-        "agent": null
-      }
-    },
-    {
-      "canonicalId": "minimax-minimax-m2.1",
-      "displayName": "MiniMax M2.1",
-      "organisation": "MiniMax",
-      "releaseDate": "2025-12-23",
-      "aa": {
-        "slug": "minimax-m2-1",
-        "intelligenceIndex": 20.9,
-        "codingIndex": null,
-        "agenticIndex": null,
-        "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 90.68,
-        "latencyTtfbSeconds": 1.49,
-        "intelligenceIndexVersion": 4.3
-      },
-      "openrouter": {
-        "modelId": "minimax/minimax-m2.1",
-        "inputPricePerMillion": 0.3,
-        "outputPricePerMillion": 1.2,
-        "contextLength": 204800,
-        "createdAtUnix": 1766454997
-      },
-      "arena": {
-        "overall": null,
-        "webdev": null,
-        "agent": null
-      }
-    },
-    {
       "canonicalId": "minimax-minimax-m2.5",
       "displayName": "MiniMax M2.5",
       "organisation": "MiniMax",
       "releaseDate": "2026-02-12",
       "aa": {
         "slug": "minimax-m2-5",
-        "intelligenceIndex": 22.8,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 85.61,
-        "latencyTtfbSeconds": 1.52,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 54.95,
+        "latencyTtfbSeconds": 1.83,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "minimax/minimax-m2.5",
         "inputPricePerMillion": 0.27,
-        "outputPricePerMillion": 1.08,
-        "contextLength": 204800,
+        "outputPricePerMillion": 0.95,
+        "contextLength": 198000,
         "createdAtUnix": 1770908502
       },
       "arena": {
@@ -1489,20 +1535,48 @@
       "releaseDate": "2026-03-18",
       "aa": {
         "slug": "minimax-m2-7",
-        "intelligenceIndex": 22.8,
-        "codingIndex": 52.6,
-        "agenticIndex": 15.3,
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 48.79,
-        "latencyTtfbSeconds": 1.62,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 48.05,
+        "latencyTtfbSeconds": 2.31,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "minimax/minimax-m2.7",
         "inputPricePerMillion": 0.21,
         "outputPricePerMillion": 0.84,
-        "contextLength": 204800,
+        "contextLength": 196608,
         "createdAtUnix": 1773836697
+      },
+      "arena": {
+        "overall": null,
+        "webdev": null,
+        "agent": null
+      }
+    },
+    {
+      "canonicalId": "minimax-minimax-m3.1-flash",
+      "displayName": "MiniMax M3.1 Flash",
+      "organisation": "MiniMax",
+      "releaseDate": "2026-10-19",
+      "aa": {
+        "slug": "minimax-m3-1-flash",
+        "intelligenceIndex": 29.1,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 0.491,
+        "throughputTokensPerSecond": 162.48,
+        "latencyTtfbSeconds": 1.06,
+        "intelligenceIndexVersion": 5
+      },
+      "openrouter": {
+        "modelId": "minimax/minimax-m3.1-flash",
+        "inputPricePerMillion": 0.075,
+        "outputPricePerMillion": 0.3,
+        "contextLength": 1048576,
+        "createdAtUnix": 1792379569
       },
       "arena": {
         "overall": null,
@@ -1573,13 +1647,13 @@
       "releaseDate": "2024-02-26",
       "aa": {
         "slug": "mistral-large",
-        "intelligenceIndex": 5.8,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
         "throughputTokensPerSecond": null,
         "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "mistralai/mistral-large",
@@ -1601,13 +1675,13 @@
       "releaseDate": "2024-07-24",
       "aa": {
         "slug": "mistral-large-2407",
-        "intelligenceIndex": 6.8,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
         "throughputTokensPerSecond": null,
         "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "mistralai/mistral-large-2407",
@@ -1629,13 +1703,13 @@
       "releaseDate": "2025-05-07",
       "aa": {
         "slug": "mistral-medium-3",
-        "intelligenceIndex": 9,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": null,
-        "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 46.42,
+        "latencyTtfbSeconds": 2.23,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "mistralai/mistral-medium-3",
@@ -1657,13 +1731,13 @@
       "releaseDate": "2026-04-29",
       "aa": {
         "slug": "mistral-medium-3-5",
-        "intelligenceIndex": 14.2,
-        "codingIndex": 46.9,
-        "agenticIndex": 7,
-        "costPerTaskUsd": 0.502,
-        "throughputTokensPerSecond": 165.9,
-        "latencyTtfbSeconds": 2.3,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": 4.6,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 1.0391,
+        "throughputTokensPerSecond": 173.11,
+        "latencyTtfbSeconds": 2.36,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "mistralai/mistral-medium-3-5",
@@ -1685,13 +1759,13 @@
       "releaseDate": "2025-08-12",
       "aa": {
         "slug": "mistral-medium-3-1",
-        "intelligenceIndex": 9.2,
-        "codingIndex": 20.5,
-        "agenticIndex": 1.9,
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
         "costPerTaskUsd": null,
         "throughputTokensPerSecond": null,
         "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "mistralai/mistral-medium-3.1",
@@ -1713,13 +1787,13 @@
       "releaseDate": "2025-02-17",
       "aa": {
         "slug": "mistral-saba",
-        "intelligenceIndex": 6.5,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
         "throughputTokensPerSecond": null,
         "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "mistralai/mistral-saba",
@@ -1741,13 +1815,13 @@
       "releaseDate": "2025-07-11",
       "aa": {
         "slug": "kimi-k2",
-        "intelligenceIndex": 12.7,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 52.55,
-        "latencyTtfbSeconds": 1.57,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 51.61,
+        "latencyTtfbSeconds": 1.95,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "moonshotai/kimi-k2",
@@ -1763,19 +1837,103 @@
       }
     },
     {
+      "canonicalId": "moonshotai-kimi-k2-0905",
+      "displayName": "Kimi K2 0905",
+      "organisation": "Moonshot AI",
+      "releaseDate": "2025-09-05",
+      "aa": {
+        "slug": "kimi-k2-0905",
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 51.88,
+        "latencyTtfbSeconds": 1.81,
+        "intelligenceIndexVersion": 5
+      },
+      "openrouter": {
+        "modelId": "moonshotai/kimi-k2-0905",
+        "inputPricePerMillion": 0.6,
+        "outputPricePerMillion": 2.5,
+        "contextLength": 262144,
+        "createdAtUnix": 1757021147
+      },
+      "arena": {
+        "overall": null,
+        "webdev": null,
+        "agent": null
+      }
+    },
+    {
+      "canonicalId": "moonshotai-kimi-k2-thinking",
+      "displayName": "Kimi K2 Thinking",
+      "organisation": "Moonshot AI",
+      "releaseDate": "2025-11-06",
+      "aa": {
+        "slug": "kimi-k2-thinking",
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 139.83,
+        "latencyTtfbSeconds": 1.46,
+        "intelligenceIndexVersion": 5
+      },
+      "openrouter": {
+        "modelId": "moonshotai/kimi-k2-thinking",
+        "inputPricePerMillion": 0.6,
+        "outputPricePerMillion": 2.5,
+        "contextLength": 262144,
+        "createdAtUnix": 1762440622
+      },
+      "arena": {
+        "overall": null,
+        "webdev": null,
+        "agent": null
+      }
+    },
+    {
+      "canonicalId": "moonshotai-kimi-k2.5",
+      "displayName": "Kimi K2.5",
+      "organisation": "Moonshot AI",
+      "releaseDate": "2026-01-27",
+      "aa": {
+        "slug": "kimi-k2-5",
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 53.9,
+        "latencyTtfbSeconds": 1.87,
+        "intelligenceIndexVersion": 5
+      },
+      "openrouter": {
+        "modelId": "moonshotai/kimi-k2.5",
+        "inputPricePerMillion": 0.5,
+        "outputPricePerMillion": 2.5,
+        "contextLength": 262144,
+        "createdAtUnix": 1769487076
+      },
+      "arena": {
+        "overall": null,
+        "webdev": null,
+        "agent": null
+      }
+    },
+    {
       "canonicalId": "moonshotai-kimi-k2.6",
       "displayName": "Kimi K2.6",
       "organisation": "Moonshot AI",
       "releaseDate": "2026-04-20",
       "aa": {
         "slug": "kimi-k2-6",
-        "intelligenceIndex": 27,
-        "codingIndex": 61.8,
-        "agenticIndex": 20.5,
-        "costPerTaskUsd": 0.7998,
-        "throughputTokensPerSecond": 69.61,
-        "latencyTtfbSeconds": 3.01,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 41.94,
+        "latencyTtfbSeconds": 2.85,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "moonshotai/kimi-k2.6",
@@ -1794,21 +1952,21 @@
       "canonicalId": "moonshotai-kimi-k2.7-code",
       "displayName": "Kimi K2.7 Code",
       "organisation": "Moonshot AI",
-      "releaseDate": null,
+      "releaseDate": "2026-06-12",
       "aa": {
-        "slug": null,
+        "slug": "kimi-k2-7-code",
         "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": null,
-        "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": null
+        "throughputTokensPerSecond": 60.62,
+        "latencyTtfbSeconds": 2.78,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "moonshotai/kimi-k2.7-code",
-        "inputPricePerMillion": 0.6712,
-        "outputPricePerMillion": 3.35,
+        "inputPricePerMillion": 0.6,
+        "outputPricePerMillion": 3.5,
         "contextLength": 262144,
         "createdAtUnix": 1781266361
       },
@@ -1825,18 +1983,18 @@
       "releaseDate": "2026-07-16",
       "aa": {
         "slug": "kimi-k3",
-        "intelligenceIndex": 43.6,
-        "codingIndex": 76.2,
-        "agenticIndex": 50,
-        "costPerTaskUsd": 2.0001,
-        "throughputTokensPerSecond": 33.85,
-        "latencyTtfbSeconds": 4.5,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 55.53,
+        "latencyTtfbSeconds": 3.75,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "moonshotai/kimi-k3",
-        "inputPricePerMillion": 3,
-        "outputPricePerMillion": 15,
+        "inputPricePerMillion": 0.192,
+        "outputPricePerMillion": 16,
         "contextLength": 1048576,
         "createdAtUnix": 1784215858
       },
@@ -1847,26 +2005,26 @@
       }
     },
     {
-      "canonicalId": "nousresearch-hermes-3-llama-3.1-70b",
-      "displayName": "Hermes 3 70B Instruct",
-      "organisation": "Nous Research",
-      "releaseDate": "2024-08-15",
+      "canonicalId": "moonshotai-kimi-k3.1-pro",
+      "displayName": "Kimi K3.1 Pro",
+      "organisation": "Moonshot AI",
+      "releaseDate": "2026-10-23",
       "aa": {
-        "slug": "hermes-3-llama-3-1-70b",
-        "intelligenceIndex": 6,
+        "slug": "kimi-k3-1-pro",
+        "intelligenceIndex": 46.5,
         "codingIndex": null,
         "agenticIndex": null,
-        "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 28.42,
-        "latencyTtfbSeconds": 2.38,
-        "intelligenceIndexVersion": 4.3
+        "costPerTaskUsd": 3.6812,
+        "throughputTokensPerSecond": 29.08,
+        "latencyTtfbSeconds": 2.17,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
-        "modelId": "nousresearch/hermes-3-llama-3.1-70b",
-        "inputPricePerMillion": 0.7,
-        "outputPricePerMillion": 0.7,
-        "contextLength": 131072,
-        "createdAtUnix": 1723939200
+        "modelId": "moonshotai/kimi-k3.1-pro",
+        "inputPricePerMillion": 2,
+        "outputPricePerMillion": 10,
+        "contextLength": 1048576,
+        "createdAtUnix": 1792778188
       },
       "arena": {
         "overall": null,
@@ -1909,20 +2067,48 @@
       "releaseDate": "2026-08-11",
       "aa": {
         "slug": "nemotron-3-5-lightning",
-        "intelligenceIndex": 12.9,
-        "codingIndex": 26.8,
-        "agenticIndex": 3.5,
-        "costPerTaskUsd": 0.1004,
-        "throughputTokensPerSecond": 302.31,
-        "latencyTtfbSeconds": 0.59,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": 5.5,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 0.3145,
+        "throughputTokensPerSecond": 289.54,
+        "latencyTtfbSeconds": 0.63,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "nvidia/nemotron-3.5-lightning",
-        "inputPricePerMillion": 0.06,
-        "outputPricePerMillion": 0.16,
+        "inputPricePerMillion": 0.07,
+        "outputPricePerMillion": 0.19999999999999998,
         "contextLength": 262144,
         "createdAtUnix": 1786452751
+      },
+      "arena": {
+        "overall": null,
+        "webdev": null,
+        "agent": null
+      }
+    },
+    {
+      "canonicalId": "nvidia-nemotron-3.5-super-vl",
+      "displayName": "Nemotron 3.5 Super VL",
+      "organisation": "NVIDIA",
+      "releaseDate": "2026-10-15",
+      "aa": {
+        "slug": "nemotron-3-5-super-vl",
+        "intelligenceIndex": 13.6,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 0.5575,
+        "throughputTokensPerSecond": 274.83,
+        "latencyTtfbSeconds": 0.95,
+        "intelligenceIndexVersion": 5
+      },
+      "openrouter": {
+        "modelId": "nvidia/nemotron-3.5-super-vl",
+        "inputPricePerMillion": 0.15,
+        "outputPricePerMillion": 0.5,
+        "contextLength": 1048576,
+        "createdAtUnix": 1792076662
       },
       "arena": {
         "overall": null,
@@ -1943,7 +2129,7 @@
         "costPerTaskUsd": null,
         "throughputTokensPerSecond": null,
         "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/gpt-3.5-turbo-0613",
@@ -1965,13 +2151,13 @@
       "releaseDate": "2023-03-14",
       "aa": {
         "slug": "gpt-4",
-        "intelligenceIndex": 6.7,
-        "codingIndex": 13.1,
+        "intelligenceIndex": null,
+        "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
         "throughputTokensPerSecond": null,
         "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/gpt-4",
@@ -1987,47 +2173,19 @@
       }
     },
     {
-      "canonicalId": "openai-gpt-4-turbo",
-      "displayName": "GPT-4 Turbo",
-      "organisation": "OpenAI",
-      "releaseDate": "2023-11-06",
-      "aa": {
-        "slug": "gpt-4-turbo",
-        "intelligenceIndex": 7,
-        "codingIndex": 21.5,
-        "agenticIndex": null,
-        "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 31.83,
-        "latencyTtfbSeconds": 3.49,
-        "intelligenceIndexVersion": 4.3
-      },
-      "openrouter": {
-        "modelId": "openai/gpt-4-turbo",
-        "inputPricePerMillion": 10,
-        "outputPricePerMillion": 30,
-        "contextLength": 128000,
-        "createdAtUnix": 1712620800
-      },
-      "arena": {
-        "overall": null,
-        "webdev": null,
-        "agent": null
-      }
-    },
-    {
       "canonicalId": "openai-gpt-4.1",
       "displayName": "GPT-4.1",
       "organisation": "OpenAI",
       "releaseDate": "2025-04-14",
       "aa": {
         "slug": "gpt-4-1",
-        "intelligenceIndex": 12.7,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 140.48,
-        "latencyTtfbSeconds": 0.88,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 182.57,
+        "latencyTtfbSeconds": 1.91,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/gpt-4.1",
@@ -2049,13 +2207,13 @@
       "releaseDate": "2025-04-14",
       "aa": {
         "slug": "gpt-4-1-mini",
-        "intelligenceIndex": 10.2,
-        "codingIndex": 20.2,
+        "intelligenceIndex": null,
+        "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 147.22,
-        "latencyTtfbSeconds": 0.74,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 149.89,
+        "latencyTtfbSeconds": 1.7,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/gpt-4.1-mini",
@@ -2077,13 +2235,13 @@
       "releaseDate": "2025-04-14",
       "aa": {
         "slug": "gpt-4-1-nano",
-        "intelligenceIndex": 7.8,
-        "codingIndex": 11.1,
+        "intelligenceIndex": null,
+        "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 137.89,
-        "latencyTtfbSeconds": 0.71,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 311.26,
+        "latencyTtfbSeconds": 1.2,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/gpt-4.1-nano",
@@ -2105,13 +2263,13 @@
       "releaseDate": "2024-11-20",
       "aa": {
         "slug": "gpt-4o",
-        "intelligenceIndex": 8.4,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 126.29,
-        "latencyTtfbSeconds": 1.05,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 197.09,
+        "latencyTtfbSeconds": 1.72,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/gpt-4o",
@@ -2133,13 +2291,13 @@
       "releaseDate": "2024-05-13",
       "aa": {
         "slug": "gpt-4o-2024-05-13",
-        "intelligenceIndex": 7.3,
-        "codingIndex": 24.2,
+        "intelligenceIndex": null,
+        "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 105.7,
-        "latencyTtfbSeconds": 1.05,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 162.65,
+        "latencyTtfbSeconds": 1.92,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/gpt-4o-2024-05-13",
@@ -2161,13 +2319,13 @@
       "releaseDate": "2024-08-06",
       "aa": {
         "slug": "gpt-4o-2024-08-06",
-        "intelligenceIndex": 7.7,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 101.2,
-        "latencyTtfbSeconds": 1.19,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 151.01,
+        "latencyTtfbSeconds": 1.91,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/gpt-4o-2024-08-06",
@@ -2189,13 +2347,13 @@
       "releaseDate": "2024-07-18",
       "aa": {
         "slug": "gpt-4o-mini",
-        "intelligenceIndex": 6.7,
-        "codingIndex": 11.4,
+        "intelligenceIndex": null,
+        "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 115.24,
-        "latencyTtfbSeconds": 0.81,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 55.81,
+        "latencyTtfbSeconds": 2.28,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/gpt-4o-mini",
@@ -2217,13 +2375,13 @@
       "releaseDate": "2025-08-07",
       "aa": {
         "slug": "gpt-5",
-        "intelligenceIndex": 23,
-        "codingIndex": 37.8,
+        "intelligenceIndex": null,
+        "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 78,
-        "latencyTtfbSeconds": 75.46,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 103.79,
+        "latencyTtfbSeconds": 73.22,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/gpt-5",
@@ -2245,13 +2403,13 @@
       "releaseDate": "2025-08-07",
       "aa": {
         "slug": "gpt-5-mini",
-        "intelligenceIndex": 16.8,
-        "codingIndex": 15.6,
-        "agenticIndex": 6.8,
-        "costPerTaskUsd": 0.0535,
-        "throughputTokensPerSecond": 115.79,
-        "latencyTtfbSeconds": 58.99,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 92.48,
+        "latencyTtfbSeconds": 71.11,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/gpt-5-mini",
@@ -2272,14 +2430,14 @@
       "organisation": "OpenAI",
       "releaseDate": "2025-08-07",
       "aa": {
-        "slug": "gpt-5-nano-medium",
-        "intelligenceIndex": 12.5,
+        "slug": "gpt-5-nano",
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 146.14,
-        "latencyTtfbSeconds": 49.11,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 178.91,
+        "latencyTtfbSeconds": 70.9,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/gpt-5-nano",
@@ -2329,13 +2487,13 @@
       "releaseDate": "2025-11-13",
       "aa": {
         "slug": "gpt-5-1",
-        "intelligenceIndex": 24.7,
-        "codingIndex": 49.4,
+        "intelligenceIndex": null,
+        "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 102.69,
-        "latencyTtfbSeconds": 38.42,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 94.86,
+        "latencyTtfbSeconds": 39.59,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/gpt-5.1",
@@ -2357,13 +2515,13 @@
       "releaseDate": "2025-11-13",
       "aa": {
         "slug": "gpt-5-1-codex",
-        "intelligenceIndex": 23.7,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": null,
-        "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 128.36,
+        "latencyTtfbSeconds": 8.64,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/gpt-5.1-codex",
@@ -2385,13 +2543,13 @@
       "releaseDate": "2025-11-13",
       "aa": {
         "slug": "gpt-5-1-codex-mini",
-        "intelligenceIndex": 20.4,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": null,
-        "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 175.66,
+        "latencyTtfbSeconds": 8.13,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/gpt-5.1-codex-mini",
@@ -2413,13 +2571,13 @@
       "releaseDate": "2025-12-11",
       "aa": {
         "slug": "gpt-5-2",
-        "intelligenceIndex": 30.4,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 69.78,
-        "latencyTtfbSeconds": 137.63,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 77.27,
+        "latencyTtfbSeconds": 118.2,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/gpt-5.2",
@@ -2441,13 +2599,13 @@
       "releaseDate": "2025-12-11",
       "aa": {
         "slug": "gpt-5-2-codex",
-        "intelligenceIndex": 28.5,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": null,
-        "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 125.08,
+        "latencyTtfbSeconds": 108.02,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/gpt-5.2-codex",
@@ -2469,13 +2627,13 @@
       "releaseDate": "2026-02-05",
       "aa": {
         "slug": "gpt-5-3-codex",
-        "intelligenceIndex": 32.5,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 89.37,
-        "latencyTtfbSeconds": 80.43,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 113.06,
+        "latencyTtfbSeconds": 59.18,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/gpt-5.3-codex",
@@ -2497,13 +2655,13 @@
       "releaseDate": "2026-03-05",
       "aa": {
         "slug": "gpt-5-4",
-        "intelligenceIndex": 39,
-        "codingIndex": 71.1,
+        "intelligenceIndex": null,
+        "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 97.47,
-        "latencyTtfbSeconds": 190.56,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 100.03,
+        "latencyTtfbSeconds": 167.45,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/gpt-5.4",
@@ -2524,14 +2682,14 @@
       "organisation": "OpenAI",
       "releaseDate": "2026-03-17",
       "aa": {
-        "slug": "gpt-5-4-mini-medium",
-        "intelligenceIndex": 19.7,
+        "slug": "gpt-5-4-mini",
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 191.08,
-        "latencyTtfbSeconds": 8.78,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 283.23,
+        "latencyTtfbSeconds": 116.11,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/gpt-5.4-mini",
@@ -2552,14 +2710,14 @@
       "organisation": "OpenAI",
       "releaseDate": "2026-03-17",
       "aa": {
-        "slug": "gpt-5-4-nano-medium",
-        "intelligenceIndex": 20,
+        "slug": "gpt-5-4-nano",
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 168.68,
-        "latencyTtfbSeconds": 5.74,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 172.06,
+        "latencyTtfbSeconds": 87.77,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/gpt-5.4-nano",
@@ -2587,7 +2745,7 @@
         "costPerTaskUsd": null,
         "throughputTokensPerSecond": null,
         "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/gpt-5.4-pro",
@@ -2609,13 +2767,13 @@
       "releaseDate": "2026-04-23",
       "aa": {
         "slug": "gpt-5-5",
-        "intelligenceIndex": 38.4,
-        "codingIndex": 74.9,
-        "agenticIndex": 36.4,
-        "costPerTaskUsd": 2.634,
-        "throughputTokensPerSecond": 93.1,
-        "latencyTtfbSeconds": 52.42,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 79,
+        "latencyTtfbSeconds": 38.41,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/gpt-5.5",
@@ -2643,7 +2801,7 @@
         "costPerTaskUsd": null,
         "throughputTokensPerSecond": null,
         "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/gpt-5.5-pro",
@@ -2665,13 +2823,13 @@
       "releaseDate": "2026-07-09",
       "aa": {
         "slug": "gpt-5-6-luna",
-        "intelligenceIndex": 37.3,
-        "codingIndex": 71.4,
-        "agenticIndex": 42.1,
-        "costPerTaskUsd": 0.1783,
-        "throughputTokensPerSecond": 115.61,
-        "latencyTtfbSeconds": 110.95,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": 23.8,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 0.3313,
+        "throughputTokensPerSecond": 126.92,
+        "latencyTtfbSeconds": 100.89,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/gpt-5.6-luna",
@@ -2721,18 +2879,18 @@
       "releaseDate": "2026-07-09",
       "aa": {
         "slug": "gpt-5-6-sol",
-        "intelligenceIndex": 47,
-        "codingIndex": 77.4,
-        "agenticIndex": 50.2,
-        "costPerTaskUsd": 1.9885,
-        "throughputTokensPerSecond": 80.92,
-        "latencyTtfbSeconds": 116.23,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 130.89,
+        "latencyTtfbSeconds": 72.1,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/gpt-5.6-sol",
-        "inputPricePerMillion": 2,
-        "outputPricePerMillion": 10,
+        "inputPricePerMillion": 4.4,
+        "outputPricePerMillion": 22,
         "contextLength": 1050000,
         "createdAtUnix": 1783590850
       },
@@ -2777,13 +2935,13 @@
       "releaseDate": "2026-07-09",
       "aa": {
         "slug": "gpt-5-6-terra",
-        "intelligenceIndex": 42.1,
-        "codingIndex": 76.7,
-        "agenticIndex": 43.2,
-        "costPerTaskUsd": 1.3987,
-        "throughputTokensPerSecond": 95.11,
-        "latencyTtfbSeconds": 185.47,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": 32.3,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 3.7349,
+        "throughputTokensPerSecond": 121.23,
+        "latencyTtfbSeconds": 153.35,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/gpt-5.6-terra",
@@ -2833,15 +2991,21 @@
       "releaseDate": "2026-09-03",
       "aa": {
         "slug": "gpt-6-astra",
-        "intelligenceIndex": 52.7,
-        "codingIndex": 76.9,
-        "agenticIndex": 51,
-        "costPerTaskUsd": 3.2575,
-        "throughputTokensPerSecond": 51.16,
-        "latencyTtfbSeconds": 320.21,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": 56.9,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 6.2447,
+        "throughputTokensPerSecond": 63.6,
+        "latencyTtfbSeconds": 292.67,
+        "intelligenceIndexVersion": 5
       },
-      "openrouter": null,
+      "openrouter": {
+        "modelId": "openai/gpt-6-astra",
+        "inputPricePerMillion": 10,
+        "outputPricePerMillion": 50,
+        "contextLength": 1050000,
+        "createdAtUnix": 1788552838
+      },
       "arena": {
         "overall": null,
         "webdev": null,
@@ -2854,14 +3018,14 @@
       "organisation": "OpenAI",
       "releaseDate": "2026-09-22",
       "aa": {
-        "slug": "gpt-6-luna-xhigh",
-        "intelligenceIndex": 33.9,
+        "slug": "gpt-6-luna",
+        "intelligenceIndex": 27.9,
         "codingIndex": null,
         "agenticIndex": null,
-        "costPerTaskUsd": 0.0421,
-        "throughputTokensPerSecond": 131.2,
-        "latencyTtfbSeconds": 21.88,
-        "intelligenceIndexVersion": 4.3
+        "costPerTaskUsd": 0.152,
+        "throughputTokensPerSecond": 124.2,
+        "latencyTtfbSeconds": 88.18,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/gpt-6-luna",
@@ -2882,14 +3046,14 @@
       "organisation": "OpenAI",
       "releaseDate": "2026-09-22",
       "aa": {
-        "slug": "gpt-6-sol-low",
-        "intelligenceIndex": 33.9,
+        "slug": "gpt-6-sol",
+        "intelligenceIndex": 44.2,
         "codingIndex": null,
         "agenticIndex": null,
-        "costPerTaskUsd": 0.1326,
-        "throughputTokensPerSecond": 60.51,
-        "latencyTtfbSeconds": 2.24,
-        "intelligenceIndexVersion": 4.3
+        "costPerTaskUsd": 2.4658,
+        "throughputTokensPerSecond": 153.11,
+        "latencyTtfbSeconds": 105.41,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/gpt-6-sol",
@@ -2910,14 +3074,14 @@
       "organisation": "OpenAI",
       "releaseDate": "2026-09-29",
       "aa": {
-        "slug": "gpt-6-1-sol-xhigh",
-        "intelligenceIndex": 51,
+        "slug": "gpt-6-1-sol",
+        "intelligenceIndex": 54.6,
         "codingIndex": null,
         "agenticIndex": null,
-        "costPerTaskUsd": 0.3929,
-        "throughputTokensPerSecond": 63.62,
-        "latencyTtfbSeconds": 108.31,
-        "intelligenceIndexVersion": 4.3
+        "costPerTaskUsd": 1.2721,
+        "throughputTokensPerSecond": 67.93,
+        "latencyTtfbSeconds": 265.98,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/gpt-6.1-sol",
@@ -2933,24 +3097,52 @@
       }
     },
     {
+      "canonicalId": "openai-gpt-6.1-terra",
+      "displayName": "GPT-6.1 Terra",
+      "organisation": "OpenAI",
+      "releaseDate": "2026-10-26",
+      "aa": {
+        "slug": "gpt-6-1-terra",
+        "intelligenceIndex": 51.3,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 0.9611,
+        "throughputTokensPerSecond": 95.74,
+        "latencyTtfbSeconds": 274.91,
+        "intelligenceIndexVersion": 5
+      },
+      "openrouter": {
+        "modelId": "openai/gpt-6.1-terra",
+        "inputPricePerMillion": 1,
+        "outputPricePerMillion": 5,
+        "contextLength": 1050000,
+        "createdAtUnix": 1793038409
+      },
+      "arena": {
+        "overall": null,
+        "webdev": null,
+        "agent": null
+      }
+    },
+    {
       "canonicalId": "openai-gpt-oss-120b",
       "displayName": "gpt-oss-120b",
       "organisation": "OpenAI",
       "releaseDate": "2025-08-05",
       "aa": {
-        "slug": "gpt-oss-120b-low",
-        "intelligenceIndex": 10.2,
-        "codingIndex": 21.2,
+        "slug": "gpt-oss-120b",
+        "intelligenceIndex": 3.8,
+        "codingIndex": null,
         "agenticIndex": null,
-        "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 176.3,
-        "latencyTtfbSeconds": 0.86,
-        "intelligenceIndexVersion": 4.3
+        "costPerTaskUsd": 0.3453,
+        "throughputTokensPerSecond": 228.37,
+        "latencyTtfbSeconds": 0.75,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/gpt-oss-120b",
-        "inputPricePerMillion": 0.037,
-        "outputPricePerMillion": 0.16999999999999998,
+        "inputPricePerMillion": 0.15,
+        "outputPricePerMillion": 0.6,
         "contextLength": 131072,
         "createdAtUnix": 1754414231
       },
@@ -2966,77 +3158,21 @@
       "organisation": "OpenAI",
       "releaseDate": "2025-08-05",
       "aa": {
-        "slug": "gpt-oss-20b-low",
-        "intelligenceIndex": 10,
+        "slug": "gpt-oss-20b",
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 196.92,
-        "latencyTtfbSeconds": 0.9,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 185.58,
+        "latencyTtfbSeconds": 0.73,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/gpt-oss-20b",
-        "inputPricePerMillion": 0.018,
-        "outputPricePerMillion": 0.09,
+        "inputPricePerMillion": 0.075,
+        "outputPricePerMillion": 0.3,
         "contextLength": 131072,
         "createdAtUnix": 1754414229
-      },
-      "arena": {
-        "overall": null,
-        "webdev": null,
-        "agent": null
-      }
-    },
-    {
-      "canonicalId": "openai-o1",
-      "displayName": "o1",
-      "organisation": "OpenAI",
-      "releaseDate": "2024-12-05",
-      "aa": {
-        "slug": "o1",
-        "intelligenceIndex": 15.2,
-        "codingIndex": 39.7,
-        "agenticIndex": null,
-        "costPerTaskUsd": null,
-        "throughputTokensPerSecond": null,
-        "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": 4.3
-      },
-      "openrouter": {
-        "modelId": "openai/o1",
-        "inputPricePerMillion": 15,
-        "outputPricePerMillion": 60,
-        "contextLength": 200000,
-        "createdAtUnix": 1734459999
-      },
-      "arena": {
-        "overall": null,
-        "webdev": null,
-        "agent": null
-      }
-    },
-    {
-      "canonicalId": "openai-o1-pro",
-      "displayName": "o1-pro",
-      "organisation": "OpenAI",
-      "releaseDate": "2025-03-19",
-      "aa": {
-        "slug": "o1-pro",
-        "intelligenceIndex": 12.4,
-        "codingIndex": null,
-        "agenticIndex": null,
-        "costPerTaskUsd": null,
-        "throughputTokensPerSecond": null,
-        "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": 4.3
-      },
-      "openrouter": {
-        "modelId": "openai/o1-pro",
-        "inputPricePerMillion": 150,
-        "outputPricePerMillion": 600,
-        "contextLength": 200000,
-        "createdAtUnix": 1742423211
       },
       "arena": {
         "overall": null,
@@ -3051,13 +3187,13 @@
       "releaseDate": "2025-04-16",
       "aa": {
         "slug": "o3",
-        "intelligenceIndex": 20.2,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 114.7,
-        "latencyTtfbSeconds": 6.53,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 164.2,
+        "latencyTtfbSeconds": 5.64,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/o3",
@@ -3073,47 +3209,19 @@
       }
     },
     {
-      "canonicalId": "openai-o3-mini",
-      "displayName": "OpenAI o3 Mini",
-      "organisation": "OpenAI",
-      "releaseDate": "2025-01-31",
-      "aa": {
-        "slug": "o3-mini",
-        "intelligenceIndex": 12.5,
-        "codingIndex": null,
-        "agenticIndex": null,
-        "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 188.75,
-        "latencyTtfbSeconds": 7.53,
-        "intelligenceIndexVersion": 4.3
-      },
-      "openrouter": {
-        "modelId": "openai/o3-mini",
-        "inputPricePerMillion": 1.1,
-        "outputPricePerMillion": 4.4,
-        "contextLength": 200000,
-        "createdAtUnix": 1738351721
-      },
-      "arena": {
-        "overall": null,
-        "webdev": null,
-        "agent": null
-      }
-    },
-    {
       "canonicalId": "openai-o3-pro",
       "displayName": "OpenAI o3 Pro",
       "organisation": "OpenAI",
       "releaseDate": "2025-06-10",
       "aa": {
         "slug": "o3-pro",
-        "intelligenceIndex": 21.9,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
         "throughputTokensPerSecond": null,
         "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "openai/o3-pro",
@@ -3129,47 +3237,19 @@
       }
     },
     {
-      "canonicalId": "openai-o4-mini",
-      "displayName": "OpenAI o4 Mini",
-      "organisation": "OpenAI",
-      "releaseDate": "2025-04-16",
-      "aa": {
-        "slug": "o4-mini",
-        "intelligenceIndex": 16.7,
-        "codingIndex": null,
-        "agenticIndex": null,
-        "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 138.9,
-        "latencyTtfbSeconds": 32.51,
-        "intelligenceIndexVersion": 4.3
-      },
-      "openrouter": {
-        "modelId": "openai/o4-mini",
-        "inputPricePerMillion": 1.1,
-        "outputPricePerMillion": 4.4,
-        "contextLength": 200000,
-        "createdAtUnix": 1744820942
-      },
-      "arena": {
-        "overall": null,
-        "webdev": null,
-        "agent": null
-      }
-    },
-    {
       "canonicalId": "perplexity-sonar",
       "displayName": "Sonar",
       "organisation": "Perplexity",
       "releaseDate": "2025-01-21",
       "aa": {
         "slug": "sonar",
-        "intelligenceIndex": 7.7,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
         "throughputTokensPerSecond": null,
         "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "perplexity/sonar",
@@ -3191,13 +3271,13 @@
       "releaseDate": "2025-01-21",
       "aa": {
         "slug": "sonar-pro",
-        "intelligenceIndex": 7.6,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
         "throughputTokensPerSecond": null,
         "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "perplexity/sonar-pro",
@@ -3219,13 +3299,13 @@
       "releaseDate": "2025-01-28",
       "aa": {
         "slug": "sonar-reasoning-pro",
-        "intelligenceIndex": 11.8,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
         "throughputTokensPerSecond": null,
         "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "perplexity/sonar-reasoning-pro",
@@ -3241,52 +3321,24 @@
       }
     },
     {
-      "canonicalId": "poolside-laguna-s-2.1",
-      "displayName": "Laguna S 2.1",
-      "organisation": "Poolside",
-      "releaseDate": null,
-      "aa": {
-        "slug": null,
-        "intelligenceIndex": null,
-        "codingIndex": null,
-        "agenticIndex": null,
-        "costPerTaskUsd": null,
-        "throughputTokensPerSecond": null,
-        "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": null
-      },
-      "openrouter": {
-        "modelId": "poolside/laguna-s-2.1",
-        "inputPricePerMillion": 0.09,
-        "outputPricePerMillion": 0.18,
-        "contextLength": 1048576,
-        "createdAtUnix": 1784652683
-      },
-      "arena": {
-        "overall": null,
-        "webdev": null,
-        "agent": null
-      }
-    },
-    {
       "canonicalId": "qwen-qwen3-coder-30b-a3b-instruct",
       "displayName": "Qwen3 Coder 30B A3B Instruct",
       "organisation": "Alibaba",
       "releaseDate": "2025-07-31",
       "aa": {
         "slug": "qwen3-coder-30b-a3b-instruct",
-        "intelligenceIndex": 9.6,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 78.94,
-        "latencyTtfbSeconds": 2.65,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 245.64,
+        "latencyTtfbSeconds": 1.07,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "qwen/qwen3-coder-30b-a3b-instruct",
-        "inputPricePerMillion": 0.07,
-        "outputPricePerMillion": 0.28,
+        "inputPricePerMillion": 0.15,
+        "outputPricePerMillion": 0.6,
         "contextLength": 262144,
         "createdAtUnix": 1753972379
       },
@@ -3303,13 +3355,13 @@
       "releaseDate": "2026-02-03",
       "aa": {
         "slug": "qwen3-coder-next",
-        "intelligenceIndex": 9.2,
-        "codingIndex": 36.2,
-        "agenticIndex": 0.9,
-        "costPerTaskUsd": 0.5518,
-        "throughputTokensPerSecond": 73.43,
-        "latencyTtfbSeconds": 1.52,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 80.09,
+        "latencyTtfbSeconds": 0.89,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "qwen/qwen3-coder-next",
@@ -3325,79 +3377,23 @@
       }
     },
     {
-      "canonicalId": "qwen-qwen3-max",
-      "displayName": "Qwen3 Max",
-      "organisation": "Alibaba",
-      "releaseDate": "2025-09-23",
-      "aa": {
-        "slug": "qwen3-max",
-        "intelligenceIndex": 15.6,
-        "codingIndex": null,
-        "agenticIndex": null,
-        "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 56.61,
-        "latencyTtfbSeconds": 2.19,
-        "intelligenceIndexVersion": 4.3
-      },
-      "openrouter": {
-        "modelId": "qwen/qwen3-max",
-        "inputPricePerMillion": 0.78,
-        "outputPricePerMillion": 3.9,
-        "contextLength": 262144,
-        "createdAtUnix": 1758662808
-      },
-      "arena": {
-        "overall": null,
-        "webdev": null,
-        "agent": null
-      }
-    },
-    {
-      "canonicalId": "qwen-qwen3-max-thinking",
-      "displayName": "Qwen3 Max Thinking",
-      "organisation": "Alibaba",
-      "releaseDate": "2026-01-26",
-      "aa": {
-        "slug": "qwen3-max-thinking",
-        "intelligenceIndex": 21.3,
-        "codingIndex": null,
-        "agenticIndex": null,
-        "costPerTaskUsd": null,
-        "throughputTokensPerSecond": null,
-        "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": 4.3
-      },
-      "openrouter": {
-        "modelId": "qwen/qwen3-max-thinking",
-        "inputPricePerMillion": 0.78,
-        "outputPricePerMillion": 3.9,
-        "contextLength": 262144,
-        "createdAtUnix": 1770671901
-      },
-      "arena": {
-        "overall": null,
-        "webdev": null,
-        "agent": null
-      }
-    },
-    {
       "canonicalId": "qwen-qwen3-next-80b-a3b-instruct",
       "displayName": "Qwen3 Next 80B A3B Instruct",
       "organisation": "Alibaba",
       "releaseDate": "2025-09-11",
       "aa": {
         "slug": "qwen3-next-80b-a3b-instruct",
-        "intelligenceIndex": 9.6,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 165.45,
-        "latencyTtfbSeconds": 2.19,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 161.75,
+        "latencyTtfbSeconds": 0.81,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "qwen/qwen3-next-80b-a3b-instruct",
-        "inputPricePerMillion": 0.09999999999999999,
+        "inputPricePerMillion": 0.09,
         "outputPricePerMillion": 1.1,
         "contextLength": 262144,
         "createdAtUnix": 1757612213
@@ -3415,13 +3411,13 @@
       "releaseDate": "2025-09-23",
       "aa": {
         "slug": "qwen3-vl-235b-a22b-instruct",
-        "intelligenceIndex": 9.9,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 51.92,
-        "latencyTtfbSeconds": 2.68,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 46.03,
+        "latencyTtfbSeconds": 1.21,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "qwen/qwen3-vl-235b-a22b-instruct",
@@ -3443,13 +3439,13 @@
       "releaseDate": "2025-10-03",
       "aa": {
         "slug": "qwen3-vl-30b-a3b-instruct",
-        "intelligenceIndex": 7.9,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 113.44,
-        "latencyTtfbSeconds": 2.17,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 45.65,
+        "latencyTtfbSeconds": 2.56,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "qwen/qwen3-vl-30b-a3b-instruct",
@@ -3465,52 +3461,24 @@
       }
     },
     {
-      "canonicalId": "qwen-qwen3-vl-32b-instruct",
-      "displayName": "Qwen3 VL 32B Instruct",
-      "organisation": "Alibaba",
-      "releaseDate": "2025-10-21",
-      "aa": {
-        "slug": "qwen3-vl-32b-instruct",
-        "intelligenceIndex": 8.4,
-        "codingIndex": null,
-        "agenticIndex": null,
-        "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 67.36,
-        "latencyTtfbSeconds": 2.65,
-        "intelligenceIndexVersion": 4.3
-      },
-      "openrouter": {
-        "modelId": "qwen/qwen3-vl-32b-instruct",
-        "inputPricePerMillion": 0.10400000000000001,
-        "outputPricePerMillion": 0.41600000000000004,
-        "contextLength": 131072,
-        "createdAtUnix": 1761231332
-      },
-      "arena": {
-        "overall": null,
-        "webdev": null,
-        "agent": null
-      }
-    },
-    {
       "canonicalId": "qwen-qwen3-vl-8b-instruct",
       "displayName": "Qwen3 VL 8B Instruct",
       "organisation": "Alibaba",
       "releaseDate": "2025-10-14",
       "aa": {
         "slug": "qwen3-vl-8b-instruct",
-        "intelligenceIndex": 7.3,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 117.66,
-        "latencyTtfbSeconds": 2.24,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": null,
+        "latencyTtfbSeconds": null,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "qwen/qwen3-vl-8b-instruct",
-        "inputPricePerMillion": 0.117,
-        "outputPricePerMillion": 0.45499999999999996,
+        "inputPricePerMillion": 0.25,
+        "outputPricePerMillion": 0.75,
         "contextLength": 262144,
         "createdAtUnix": 1760463308
       },
@@ -3527,13 +3495,13 @@
       "releaseDate": "2026-02-24",
       "aa": {
         "slug": "qwen3-5-122b-a10b",
-        "intelligenceIndex": 15.6,
-        "codingIndex": 45.7,
-        "agenticIndex": 7.6,
-        "costPerTaskUsd": 0.3247,
-        "throughputTokensPerSecond": 124.85,
-        "latencyTtfbSeconds": 2.44,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 129.46,
+        "latencyTtfbSeconds": 2.25,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "qwen/qwen3.5-122b-a10b",
@@ -3555,18 +3523,18 @@
       "releaseDate": "2026-02-24",
       "aa": {
         "slug": "qwen3-5-27b",
-        "intelligenceIndex": 22.9,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 75.44,
-        "latencyTtfbSeconds": 5.64,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 76.88,
+        "latencyTtfbSeconds": 5.59,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "qwen/qwen3.5-27b",
-        "inputPricePerMillion": 0.195,
-        "outputPricePerMillion": 1.56,
+        "inputPricePerMillion": 0.26,
+        "outputPricePerMillion": 2.6,
         "contextLength": 262144,
         "createdAtUnix": 1772053810
       },
@@ -3583,18 +3551,18 @@
       "releaseDate": "2026-02-24",
       "aa": {
         "slug": "qwen3-5-35b-a3b",
-        "intelligenceIndex": 19.3,
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 149.35,
-        "latencyTtfbSeconds": 2.09,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 158.73,
+        "latencyTtfbSeconds": 1.99,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "qwen/qwen3.5-35b-a3b",
-        "inputPricePerMillion": 0.1625,
-        "outputPricePerMillion": 1.3,
+        "inputPricePerMillion": 0.14,
+        "outputPricePerMillion": 1,
         "contextLength": 262144,
         "createdAtUnix": 1772053822
       },
@@ -3611,18 +3579,18 @@
       "releaseDate": "2026-02-16",
       "aa": {
         "slug": "qwen3-5-397b-a17b",
-        "intelligenceIndex": 18.4,
-        "codingIndex": 48.2,
-        "agenticIndex": 8.3,
-        "costPerTaskUsd": 0.4746,
-        "throughputTokensPerSecond": 89.02,
-        "latencyTtfbSeconds": 2.27,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 58.59,
+        "latencyTtfbSeconds": 2.07,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "qwen/qwen3.5-397b-a17b",
-        "inputPricePerMillion": 0.55,
-        "outputPricePerMillion": 3.5,
+        "inputPricePerMillion": 0.6,
+        "outputPricePerMillion": 3.5999999999999996,
         "contextLength": 262144,
         "createdAtUnix": 1771223018
       },
@@ -3639,18 +3607,18 @@
       "releaseDate": "2026-03-02",
       "aa": {
         "slug": "qwen3-5-9b",
-        "intelligenceIndex": 11.2,
-        "codingIndex": 28.7,
-        "agenticIndex": 1.2,
-        "costPerTaskUsd": 0.2126,
-        "throughputTokensPerSecond": 34.27,
-        "latencyTtfbSeconds": 2.44,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 57.99,
+        "latencyTtfbSeconds": 1.73,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "qwen/qwen3.5-9b",
-        "inputPricePerMillion": 0.09999999999999999,
-        "outputPricePerMillion": 0.15,
+        "inputPricePerMillion": 0.098,
+        "outputPricePerMillion": 0.144,
         "contextLength": 262144,
         "createdAtUnix": 1773152396
       },
@@ -3667,13 +3635,13 @@
       "releaseDate": "2026-04-22",
       "aa": {
         "slug": "qwen3-6-27b",
-        "intelligenceIndex": 21.4,
-        "codingIndex": 53.7,
-        "agenticIndex": 18.5,
-        "costPerTaskUsd": 0.6212,
-        "throughputTokensPerSecond": 56.35,
-        "latencyTtfbSeconds": 3.69,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 57.8,
+        "latencyTtfbSeconds": 3.51,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "qwen/qwen3.6-27b",
@@ -3695,18 +3663,18 @@
       "releaseDate": "2026-04-16",
       "aa": {
         "slug": "qwen3-6-35b-a3b",
-        "intelligenceIndex": 18.2,
-        "codingIndex": 41.9,
-        "agenticIndex": 13.1,
-        "costPerTaskUsd": 0.4751,
-        "throughputTokensPerSecond": 126.17,
-        "latencyTtfbSeconds": 2.1,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 123.04,
+        "latencyTtfbSeconds": 2,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "qwen/qwen3.6-35b-a3b",
-        "inputPricePerMillion": 0.15,
-        "outputPricePerMillion": 1,
+        "inputPricePerMillion": 0.09999999999999999,
+        "outputPricePerMillion": 0.8999999999999999,
         "contextLength": 262144,
         "createdAtUnix": 1777260255
       },
@@ -3723,13 +3691,13 @@
       "releaseDate": "2026-04-02",
       "aa": {
         "slug": "qwen3-6-plus",
-        "intelligenceIndex": 27,
-        "codingIndex": 54.5,
+        "intelligenceIndex": null,
+        "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 55.84,
-        "latencyTtfbSeconds": 2.12,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 55.83,
+        "latencyTtfbSeconds": 2.01,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "qwen/qwen3.6-plus",
@@ -3751,13 +3719,13 @@
       "releaseDate": "2026-06-01",
       "aa": {
         "slug": "qwen3-7-plus",
-        "intelligenceIndex": 25.2,
-        "codingIndex": 55.9,
-        "agenticIndex": 17.5,
-        "costPerTaskUsd": 0.217,
-        "throughputTokensPerSecond": 56.27,
-        "latencyTtfbSeconds": 2.17,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 58.39,
+        "latencyTtfbSeconds": 2.3,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "qwen/qwen3.7-plus",
@@ -3779,13 +3747,13 @@
       "releaseDate": "2026-08-12",
       "aa": {
         "slug": "qwen3-8-2-4t-a95b",
-        "intelligenceIndex": 39.9,
-        "codingIndex": 71.9,
-        "agenticIndex": 50.1,
-        "costPerTaskUsd": 2.1559,
-        "throughputTokensPerSecond": 39.62,
-        "latencyTtfbSeconds": 2.9,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 40.07,
+        "latencyTtfbSeconds": 2.79,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "qwen/qwen3.8-2.4t-a95b",
@@ -3807,48 +3775,20 @@
       "releaseDate": "2026-08-14",
       "aa": {
         "slug": "qwen3-8-27b-medium",
-        "intelligenceIndex": 27.6,
-        "codingIndex": 56.1,
-        "agenticIndex": 44.4,
-        "costPerTaskUsd": 1.1331,
-        "throughputTokensPerSecond": 49.74,
-        "latencyTtfbSeconds": 3.9,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": 17.5,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 2.16,
+        "throughputTokensPerSecond": 50.45,
+        "latencyTtfbSeconds": 3.76,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "qwen/qwen3.8-27b",
-        "inputPricePerMillion": 0.42,
-        "outputPricePerMillion": 3,
-        "contextLength": 1000000,
+        "inputPricePerMillion": 0.15,
+        "outputPricePerMillion": 1.875,
+        "contextLength": 1024000,
         "createdAtUnix": 1786722910
-      },
-      "arena": {
-        "overall": null,
-        "webdev": null,
-        "agent": null
-      }
-    },
-    {
-      "canonicalId": "qwen3-235b-a22b",
-      "displayName": "Qwen3 235B A22B",
-      "organisation": "Alibaba",
-      "releaseDate": null,
-      "aa": {
-        "slug": null,
-        "intelligenceIndex": null,
-        "codingIndex": null,
-        "agenticIndex": null,
-        "costPerTaskUsd": null,
-        "throughputTokensPerSecond": null,
-        "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": null
-      },
-      "openrouter": {
-        "modelId": "qwen/qwen3-235b-a22b",
-        "inputPricePerMillion": 0.45499999999999996,
-        "outputPricePerMillion": 1.8199999999999998,
-        "contextLength": 131072,
-        "createdAtUnix": 1745875757
       },
       "arena": {
         "overall": null,
@@ -3891,13 +3831,13 @@
       "releaseDate": "2026-05-19",
       "aa": {
         "slug": "qwen3-7-max",
-        "intelligenceIndex": 29.5,
-        "codingIndex": 66,
-        "agenticIndex": 22.5,
-        "costPerTaskUsd": 1.1473,
-        "throughputTokensPerSecond": 203.2,
-        "latencyTtfbSeconds": 2.23,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 204.41,
+        "latencyTtfbSeconds": 2.26,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "qwen/qwen3.7-max",
@@ -3947,19 +3887,19 @@
       "releaseDate": "2026-08-14",
       "aa": {
         "slug": "qwen3-8-27b",
-        "intelligenceIndex": 33.7,
-        "codingIndex": 68.1,
-        "agenticIndex": 45.8,
-        "costPerTaskUsd": 1.0073,
-        "throughputTokensPerSecond": 43.82,
-        "latencyTtfbSeconds": 3.92,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": 20.1,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 3.5295,
+        "throughputTokensPerSecond": 44.84,
+        "latencyTtfbSeconds": 3.82,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "qwen/qwen3.8-27b",
-        "inputPricePerMillion": 0.42,
-        "outputPricePerMillion": 3,
-        "contextLength": 1000000,
+        "inputPricePerMillion": 0.15,
+        "outputPricePerMillion": 1.875,
+        "contextLength": 1024000,
         "createdAtUnix": 1786722910
       },
       "arena": {
@@ -4003,13 +3943,13 @@
       "releaseDate": "2026-09-02",
       "aa": {
         "slug": "qwen3-8-max",
-        "intelligenceIndex": 45.4,
-        "codingIndex": 76.2,
-        "agenticIndex": 56,
-        "costPerTaskUsd": 5.4085,
-        "throughputTokensPerSecond": 39.27,
-        "latencyTtfbSeconds": 2.94,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": 33.7,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 10.0239,
+        "throughputTokensPerSecond": 39.91,
+        "latencyTtfbSeconds": 3.04,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": null,
       "arena": {
@@ -4025,13 +3965,13 @@
       "releaseDate": "2026-07-06",
       "aa": {
         "slug": "hy3",
-        "intelligenceIndex": 25.3,
-        "codingIndex": 58.8,
-        "agenticIndex": 24.1,
-        "costPerTaskUsd": 0.0718,
-        "throughputTokensPerSecond": 88.14,
-        "latencyTtfbSeconds": 3.05,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 74.12,
+        "latencyTtfbSeconds": 2.91,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "tencent/hy3",
@@ -4081,13 +4021,13 @@
       "releaseDate": "2026-07-15",
       "aa": {
         "slug": "inkling",
-        "intelligenceIndex": 25,
-        "codingIndex": 52.1,
-        "agenticIndex": 22.5,
-        "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 159.96,
-        "latencyTtfbSeconds": 1.86,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": 12.5,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 1.352,
+        "throughputTokensPerSecond": 180.49,
+        "latencyTtfbSeconds": 2.1,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "thinkingmachines/inkling",
@@ -4137,18 +4077,18 @@
       "releaseDate": "2026-08-06",
       "aa": {
         "slug": "solar-pro4",
-        "intelligenceIndex": 28.2,
-        "codingIndex": 52.7,
+        "intelligenceIndex": 14.2,
+        "codingIndex": null,
         "agenticIndex": null,
-        "costPerTaskUsd": null,
-        "throughputTokensPerSecond": 79.23,
-        "latencyTtfbSeconds": 2.06,
-        "intelligenceIndexVersion": 4.3
+        "costPerTaskUsd": 0.9557,
+        "throughputTokensPerSecond": 76.66,
+        "latencyTtfbSeconds": 1.94,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "upstage/solar-pro4",
-        "inputPricePerMillion": 0.09,
-        "outputPricePerMillion": 0.36,
+        "inputPricePerMillion": 0.15,
+        "outputPricePerMillion": 0.6,
         "contextLength": 524288,
         "createdAtUnix": 1786371636
       },
@@ -4159,21 +4099,27 @@
       }
     },
     {
-      "canonicalId": "xai-grok-4",
-      "displayName": "Grok 4",
+      "canonicalId": "x-ai-grok-4.20",
+      "displayName": "Grok 4.20",
       "organisation": "xAI",
-      "releaseDate": "2025-07-10",
+      "releaseDate": "2026-04-07",
       "aa": {
-        "slug": "grok-4",
-        "intelligenceIndex": 22.5,
+        "slug": "grok-4-20",
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": null,
-        "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 144.2,
+        "latencyTtfbSeconds": 14.7,
+        "intelligenceIndexVersion": 5
       },
-      "openrouter": null,
+      "openrouter": {
+        "modelId": "x-ai/grok-4.20",
+        "inputPricePerMillion": 1.25,
+        "outputPricePerMillion": 2.5,
+        "contextLength": 2000000,
+        "createdAtUnix": 1774979019
+      },
       "arena": {
         "overall": null,
         "webdev": null,
@@ -4181,21 +4127,83 @@
       }
     },
     {
-      "canonicalId": "xai-grok-4-fast",
-      "displayName": "Grok 4 Fast",
+      "canonicalId": "x-ai-grok-4.3",
+      "displayName": "Grok 4.3",
       "organisation": "xAI",
-      "releaseDate": "2025-09-19",
+      "releaseDate": "2026-04-30",
       "aa": {
-        "slug": "grok-4-fast",
-        "intelligenceIndex": 11.1,
+        "slug": "grok-4-3-medium",
+        "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
-        "throughputTokensPerSecond": null,
-        "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": 4.3
+        "throughputTokensPerSecond": 82.68,
+        "latencyTtfbSeconds": 17.66,
+        "intelligenceIndexVersion": 5
       },
-      "openrouter": null,
+      "openrouter": {
+        "modelId": "x-ai/grok-4.3",
+        "inputPricePerMillion": 1.25,
+        "outputPricePerMillion": 2.5,
+        "contextLength": 1000000,
+        "createdAtUnix": 1777591821
+      },
+      "arena": {
+        "overall": null,
+        "webdev": null,
+        "agent": null
+      }
+    },
+    {
+      "canonicalId": "x-ai-grok-4.6",
+      "displayName": "Grok 4.6",
+      "organisation": "xAI",
+      "releaseDate": "2026-08-12",
+      "aa": {
+        "slug": "grok-4-6-xhigh",
+        "intelligenceIndex": 31,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 4.6786,
+        "throughputTokensPerSecond": 79.25,
+        "latencyTtfbSeconds": 40.48,
+        "intelligenceIndexVersion": 5
+      },
+      "openrouter": {
+        "modelId": "x-ai/grok-4.6",
+        "inputPricePerMillion": 2,
+        "outputPricePerMillion": 6,
+        "contextLength": 500000,
+        "createdAtUnix": 1786548957
+      },
+      "arena": {
+        "overall": null,
+        "webdev": null,
+        "agent": null
+      }
+    },
+    {
+      "canonicalId": "x-ai-grok-4.7",
+      "displayName": "Grok 4.7",
+      "organisation": "xAI",
+      "releaseDate": "2026-09-21",
+      "aa": {
+        "slug": "grok-4-7",
+        "intelligenceIndex": 35.5,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 7.7715,
+        "throughputTokensPerSecond": 73.48,
+        "latencyTtfbSeconds": 69.97,
+        "intelligenceIndexVersion": 5
+      },
+      "openrouter": {
+        "modelId": "x-ai/grok-4.7",
+        "inputPricePerMillion": 2,
+        "outputPricePerMillion": 6,
+        "contextLength": 500000,
+        "createdAtUnix": 1790007541
+      },
       "arena": {
         "overall": null,
         "webdev": null,
@@ -4209,13 +4217,13 @@
       "releaseDate": "2026-04-30",
       "aa": {
         "slug": "grok-4-3",
-        "intelligenceIndex": 24.9,
-        "codingIndex": 42.2,
-        "agenticIndex": 15.5,
-        "costPerTaskUsd": 0.2054,
-        "throughputTokensPerSecond": 119.64,
-        "latencyTtfbSeconds": 27.88,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 91.55,
+        "latencyTtfbSeconds": 27.16,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "x-ai/grok-4.3",
@@ -4237,13 +4245,13 @@
       "releaseDate": "2026-07-08",
       "aa": {
         "slug": "grok-4-5",
-        "intelligenceIndex": 38.8,
-        "codingIndex": 72.4,
-        "agenticIndex": 41.2,
-        "costPerTaskUsd": 1.0365,
-        "throughputTokensPerSecond": 57.54,
-        "latencyTtfbSeconds": 10.66,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 55.47,
+        "latencyTtfbSeconds": 11.45,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "x-ai/grok-4.5",
@@ -4265,13 +4273,13 @@
       "releaseDate": "2026-08-12",
       "aa": {
         "slug": "grok-4-6",
-        "intelligenceIndex": 44.3,
-        "codingIndex": 76.8,
-        "agenticIndex": 53,
-        "costPerTaskUsd": 1.8589,
-        "throughputTokensPerSecond": 68.94,
-        "latencyTtfbSeconds": 35.9,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 77.25,
+        "latencyTtfbSeconds": 39.35,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "x-ai/grok-4.6",
@@ -4287,26 +4295,222 @@
       }
     },
     {
-      "canonicalId": "z-ai-glm-4.6",
-      "displayName": "GLM 4.6",
-      "organisation": "Z.ai",
-      "releaseDate": null,
+      "canonicalId": "xiaomi-mimo-v2.5-pro",
+      "displayName": "MiMo-V2.5-Pro",
+      "organisation": "Xiaomi",
+      "releaseDate": "2026-04-22",
       "aa": {
-        "slug": null,
+        "slug": "mimo-v2-5-pro",
         "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
         "throughputTokensPerSecond": null,
         "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": null
+        "intelligenceIndexVersion": 5
+      },
+      "openrouter": {
+        "modelId": "xiaomi/mimo-v2.5-pro",
+        "inputPricePerMillion": 0.435,
+        "outputPricePerMillion": 0.87,
+        "contextLength": 1024000,
+        "createdAtUnix": 1776874273
+      },
+      "arena": {
+        "overall": null,
+        "webdev": null,
+        "agent": null
+      }
+    },
+    {
+      "canonicalId": "xiaomi-mimo-v2.6-flash",
+      "displayName": "MiMo-V2.6-Flash",
+      "organisation": "Xiaomi",
+      "releaseDate": "2026-09-21",
+      "aa": {
+        "slug": "mimo-v2-6-flash",
+        "intelligenceIndex": 26.7,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 0.1285,
+        "throughputTokensPerSecond": 33.85,
+        "latencyTtfbSeconds": 3.07,
+        "intelligenceIndexVersion": 5
+      },
+      "openrouter": {
+        "modelId": "xiaomi/mimo-v2.6-flash",
+        "inputPricePerMillion": 0.14,
+        "outputPricePerMillion": 0.28,
+        "contextLength": 1050000,
+        "createdAtUnix": 1790021264
+      },
+      "arena": {
+        "overall": null,
+        "webdev": null,
+        "agent": null
+      }
+    },
+    {
+      "canonicalId": "xiaomi-mimo-v2.6-pro",
+      "displayName": "MiMo-V2.6-Pro",
+      "organisation": "Xiaomi",
+      "releaseDate": "2026-09-21",
+      "aa": {
+        "slug": "mimo-v2-6-pro",
+        "intelligenceIndex": 29.9,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 0.2572,
+        "throughputTokensPerSecond": 59.35,
+        "latencyTtfbSeconds": 3.28,
+        "intelligenceIndexVersion": 5
+      },
+      "openrouter": {
+        "modelId": "xiaomi/mimo-v2.6-pro",
+        "inputPricePerMillion": 0.435,
+        "outputPricePerMillion": 0.87,
+        "contextLength": 1050000,
+        "createdAtUnix": 1790021259
+      },
+      "arena": {
+        "overall": null,
+        "webdev": null,
+        "agent": null
+      }
+    },
+    {
+      "canonicalId": "z-ai-glm-4.5",
+      "displayName": "GLM 4.5",
+      "organisation": "Z.ai",
+      "releaseDate": "2025-07-28",
+      "aa": {
+        "slug": "glm-4.5",
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": null,
+        "latencyTtfbSeconds": null,
+        "intelligenceIndexVersion": 5
+      },
+      "openrouter": {
+        "modelId": "z-ai/glm-4.5",
+        "inputPricePerMillion": 0.6,
+        "outputPricePerMillion": 2.2,
+        "contextLength": 131072,
+        "createdAtUnix": 1753471347
+      },
+      "arena": {
+        "overall": null,
+        "webdev": null,
+        "agent": null
+      }
+    },
+    {
+      "canonicalId": "z-ai-glm-4.5-air",
+      "displayName": "GLM 4.5 Air",
+      "organisation": "Z.ai",
+      "releaseDate": "2025-07-28",
+      "aa": {
+        "slug": "glm-4-5-air",
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 81.13,
+        "latencyTtfbSeconds": 2.37,
+        "intelligenceIndexVersion": 5
+      },
+      "openrouter": {
+        "modelId": "z-ai/glm-4.5-air",
+        "inputPricePerMillion": 0.19999999999999998,
+        "outputPricePerMillion": 1.1,
+        "contextLength": 131072,
+        "createdAtUnix": 1753471258
+      },
+      "arena": {
+        "overall": null,
+        "webdev": null,
+        "agent": null
+      }
+    },
+    {
+      "canonicalId": "z-ai-glm-4.5v",
+      "displayName": "GLM 4.5V",
+      "organisation": "Z.ai",
+      "releaseDate": "2025-08-11",
+      "aa": {
+        "slug": "glm-4-5v",
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 50.14,
+        "latencyTtfbSeconds": 3.33,
+        "intelligenceIndexVersion": 5
+      },
+      "openrouter": {
+        "modelId": "z-ai/glm-4.5v",
+        "inputPricePerMillion": 0.6,
+        "outputPricePerMillion": 1.7999999999999998,
+        "contextLength": 65536,
+        "createdAtUnix": 1754922288
+      },
+      "arena": {
+        "overall": null,
+        "webdev": null,
+        "agent": null
+      }
+    },
+    {
+      "canonicalId": "z-ai-glm-4.6",
+      "displayName": "GLM 4.6",
+      "organisation": "Z.ai",
+      "releaseDate": "2025-09-30",
+      "aa": {
+        "slug": "glm-4-6",
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 39.26,
+        "latencyTtfbSeconds": 4.69,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "z-ai/glm-4.6",
-        "inputPricePerMillion": 0.43,
-        "outputPricePerMillion": 1.75,
+        "inputPricePerMillion": 0.5,
+        "outputPricePerMillion": 2,
         "contextLength": 204800,
         "createdAtUnix": 1759235576
+      },
+      "arena": {
+        "overall": null,
+        "webdev": null,
+        "agent": null
+      }
+    },
+    {
+      "canonicalId": "z-ai-glm-4.6v",
+      "displayName": "GLM 4.6V",
+      "organisation": "Z.ai",
+      "releaseDate": "2025-12-08",
+      "aa": {
+        "slug": "glm-4-6v",
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 82.55,
+        "latencyTtfbSeconds": 4.17,
+        "intelligenceIndexVersion": 5
+      },
+      "openrouter": {
+        "modelId": "z-ai/glm-4.6v",
+        "inputPricePerMillion": 0.3,
+        "outputPricePerMillion": 0.8999999999999999,
+        "contextLength": 131072,
+        "createdAtUnix": 1765207462
       },
       "arena": {
         "overall": null,
@@ -4318,23 +4522,135 @@
       "canonicalId": "z-ai-glm-4.7",
       "displayName": "GLM 4.7",
       "organisation": "Z.ai",
-      "releaseDate": null,
+      "releaseDate": "2025-12-22",
       "aa": {
-        "slug": null,
+        "slug": "glm-4-7",
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 48.7,
+        "latencyTtfbSeconds": 1.36,
+        "intelligenceIndexVersion": 5
+      },
+      "openrouter": {
+        "modelId": "z-ai/glm-4.7",
+        "inputPricePerMillion": 0.39999999999999997,
+        "outputPricePerMillion": 1.75,
+        "contextLength": 204800,
+        "createdAtUnix": 1766378014
+      },
+      "arena": {
+        "overall": null,
+        "webdev": null,
+        "agent": null
+      }
+    },
+    {
+      "canonicalId": "z-ai-glm-4.7-flash",
+      "displayName": "GLM 4.7 Flash",
+      "organisation": "Z.ai",
+      "releaseDate": "2026-01-19",
+      "aa": {
+        "slug": "glm-4-7-flash",
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 81.6,
+        "latencyTtfbSeconds": 1.07,
+        "intelligenceIndexVersion": 5
+      },
+      "openrouter": {
+        "modelId": "z-ai/glm-4.7-flash",
+        "inputPricePerMillion": 0.060500000000000005,
+        "outputPricePerMillion": 0.39999999999999997,
+        "contextLength": 200000,
+        "createdAtUnix": 1768833913
+      },
+      "arena": {
+        "overall": null,
+        "webdev": null,
+        "agent": null
+      }
+    },
+    {
+      "canonicalId": "z-ai-glm-5",
+      "displayName": "GLM 5",
+      "organisation": "Z.ai",
+      "releaseDate": "2026-02-11",
+      "aa": {
+        "slug": "glm-5",
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 69.29,
+        "latencyTtfbSeconds": 2.01,
+        "intelligenceIndexVersion": 5
+      },
+      "openrouter": {
+        "modelId": "z-ai/glm-5",
+        "inputPricePerMillion": 1,
+        "outputPricePerMillion": 3.1999999999999997,
+        "contextLength": 204800,
+        "createdAtUnix": 1770829182
+      },
+      "arena": {
+        "overall": null,
+        "webdev": null,
+        "agent": null
+      }
+    },
+    {
+      "canonicalId": "z-ai-glm-5-turbo",
+      "displayName": "GLM 5 Turbo",
+      "organisation": "Z.ai",
+      "releaseDate": "2026-03-15",
+      "aa": {
+        "slug": "glm-5-turbo",
         "intelligenceIndex": null,
         "codingIndex": null,
         "agenticIndex": null,
         "costPerTaskUsd": null,
         "throughputTokensPerSecond": null,
         "latencyTtfbSeconds": null,
-        "intelligenceIndexVersion": null
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
-        "modelId": "z-ai/glm-4.7",
-        "inputPricePerMillion": 0.6,
-        "outputPricePerMillion": 2.2,
+        "modelId": "z-ai/glm-5-turbo",
+        "inputPricePerMillion": 1.2,
+        "outputPricePerMillion": 4,
+        "contextLength": 202752,
+        "createdAtUnix": 1773583573
+      },
+      "arena": {
+        "overall": null,
+        "webdev": null,
+        "agent": null
+      }
+    },
+    {
+      "canonicalId": "z-ai-glm-5.1",
+      "displayName": "GLM 5.1",
+      "organisation": "Z.ai",
+      "releaseDate": "2026-04-07",
+      "aa": {
+        "slug": "glm-5-1",
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 99.19,
+        "latencyTtfbSeconds": 1.2,
+        "intelligenceIndexVersion": 5
+      },
+      "openrouter": {
+        "modelId": "z-ai/glm-5.1",
+        "inputPricePerMillion": 1.4,
+        "outputPricePerMillion": 4.4,
         "contextLength": 204800,
-        "createdAtUnix": 1766378014
+        "createdAtUnix": 1775578025
       },
       "arena": {
         "overall": null,
@@ -4349,18 +4665,18 @@
       "releaseDate": "2026-06-16",
       "aa": {
         "slug": "glm-5-2",
-        "intelligenceIndex": 33.7,
-        "codingIndex": 68.8,
-        "agenticIndex": 38.4,
-        "costPerTaskUsd": 1.4726,
-        "throughputTokensPerSecond": 85.88,
-        "latencyTtfbSeconds": 3.1,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": 72.01,
+        "latencyTtfbSeconds": 1.84,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "z-ai/glm-5.2",
-        "inputPricePerMillion": 0.624,
-        "outputPricePerMillion": 3.9899999999999998,
+        "inputPricePerMillion": 0.007,
+        "outputPricePerMillion": 6.8,
         "contextLength": 1048576,
         "createdAtUnix": 1781631930
       },
@@ -4377,18 +4693,18 @@
       "releaseDate": "2026-08-18",
       "aa": {
         "slug": "glm-5-3",
-        "intelligenceIndex": 44.8,
-        "codingIndex": 74.8,
-        "agenticIndex": 53.1,
-        "costPerTaskUsd": 2.0056,
-        "throughputTokensPerSecond": 64.84,
-        "latencyTtfbSeconds": 3.28,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": 31.7,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 5.0093,
+        "throughputTokensPerSecond": 102.75,
+        "latencyTtfbSeconds": 1.51,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "z-ai/glm-5.3",
-        "inputPricePerMillion": 1.4,
-        "outputPricePerMillion": 4.4,
+        "inputPricePerMillion": 0.08399999999999999,
+        "outputPricePerMillion": 3.5999999999999996,
         "contextLength": 1048576,
         "createdAtUnix": 1787086655
       },
@@ -4405,20 +4721,48 @@
       "releaseDate": "2026-08-26",
       "aa": {
         "slug": "glm-5-3-flash",
-        "intelligenceIndex": 41.8,
-        "codingIndex": 71.5,
-        "agenticIndex": 50.9,
-        "costPerTaskUsd": 0.2533,
-        "throughputTokensPerSecond": 44.8,
-        "latencyTtfbSeconds": 3.31,
-        "intelligenceIndexVersion": 4.3
+        "intelligenceIndex": 27.8,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": 0.5833,
+        "throughputTokensPerSecond": 61.12,
+        "latencyTtfbSeconds": 1.89,
+        "intelligenceIndexVersion": 5
       },
       "openrouter": {
         "modelId": "z-ai/glm-5.3-flash",
-        "inputPricePerMillion": 0.15,
-        "outputPricePerMillion": 0.5,
+        "inputPricePerMillion": 0.0399,
+        "outputPricePerMillion": 0.0784,
         "contextLength": 1048576,
         "createdAtUnix": 1787752741
+      },
+      "arena": {
+        "overall": null,
+        "webdev": null,
+        "agent": null
+      }
+    },
+    {
+      "canonicalId": "z-ai-glm-5v-turbo",
+      "displayName": "GLM 5V Turbo",
+      "organisation": "Z.ai",
+      "releaseDate": "2026-04-01",
+      "aa": {
+        "slug": "glm-5v-turbo",
+        "intelligenceIndex": null,
+        "codingIndex": null,
+        "agenticIndex": null,
+        "costPerTaskUsd": null,
+        "throughputTokensPerSecond": null,
+        "latencyTtfbSeconds": null,
+        "intelligenceIndexVersion": 5
+      },
+      "openrouter": {
+        "modelId": "z-ai/glm-5v-turbo",
+        "inputPricePerMillion": 1.2,
+        "outputPricePerMillion": 4,
+        "contextLength": 202752,
+        "createdAtUnix": 1775061458
       },
       "arena": {
         "overall": null,
