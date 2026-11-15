@@ -104,16 +104,41 @@ async function main() {
           .filter((m) => typeof m?.aa?.intelligenceIndex === "number")
           .map((m) => m.canonicalId)
           .filter((id) => !models.some((n) => n.canonicalId === id));
+        // Scores from different AA Intelligence Index versions are different
+        // scales with different coverage (v4.3 -> v5 in late October 2026
+        // re-scored only current models), so counts are only comparable within
+        // one version. On a version change the count comparison would compare
+        // two different metrics; the refresh-side completeness guard (coverage
+        // of upstream-scored models, absolute floor, join audit) still gates
+        // the new catalogue, and the reset is logged here.
+        const indexVersions = (list) =>
+          [...new Set(list.filter((m) => typeof m?.aa?.intelligenceIndex === "number").map((m) => String(m.aa.intelligenceIndexVersion ?? "")))];
+        const prevVersions = indexVersions(prevModels);
+        const newVersions = indexVersions(models);
+        const indexVersionChanged =
+          prevVersions.length === 1 && newVersions.length === 1 && prevVersions[0] !== "" && newVersions[0] !== "" &&
+          prevVersions[0] !== newVersions[0];
+        if (indexVersionChanged) {
+          console.log(
+            JSON.stringify({
+              shrinkGuard: "index_version_reset",
+              previousIndexVersion: prevVersions[0],
+              newIndexVersion: newVersions[0],
+              previousQuality: prevQuality,
+              quality,
+            })
+          );
+        }
         // Completeness floor on absolute coverage (gh-198): a fresh snapshot
         // with fewer quality-scored models than the branch already has is a
         // shrink, even if some models were also added.
-        if (prevQuality > 0 && quality < prevQuality) {
+        if (!indexVersionChanged && prevQuality > 0 && quality < prevQuality) {
           fail(
             `refusing to publish: AA-quality catalogue shrank from ${prevQuality} to ${quality} scored models ` +
               `(${lost.length} previously-present models absent: ${lost.slice(0, 12).join(", ")}${lost.length > 12 ? ", …" : ""})`
           );
         }
-        if (lost.length > 0 && prevQuality > 0) {
+        if (!indexVersionChanged && lost.length > 0 && prevQuality > 0) {
           console.log(
             JSON.stringify({ shrinkGuard: "warn", lostPreviouslyPresent: lost.slice(0, 20), lostCount: lost.length })
           );

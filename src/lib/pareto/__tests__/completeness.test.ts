@@ -44,6 +44,7 @@ describe("completeness guard (gh-172)", () => {
   it("accepts a healthy catalogue (coverage above threshold)", () => {
     const stats: CompletenessStats = {
       upstreamModelCount: 687,
+      upstreamScoredModelCount: 600,
       canonicalCount: 400,
       qualityScoredCount: 400,
     };
@@ -57,6 +58,7 @@ describe("completeness guard (gh-172)", () => {
     // 66 alias-matched → 134 quality-scored published models ≈ 19.5% coverage.
     const stats: CompletenessStats = {
       upstreamModelCount: 687,
+      upstreamScoredModelCount: 300,
       canonicalCount: 159,
       qualityScoredCount: 134,
     };
@@ -65,9 +67,20 @@ describe("completeness guard (gh-172)", () => {
     expect(result.findings.map((f) => f.check)).toContain("aa_coverage");
   });
 
+  it("measures coverage against upstream-SCORED model identities, not raw records (AA v5 shape)", () => {
+    // Live AA catalogue 2026-11-15: 741 records, but only 74 distinct model
+    // identities carry any index (effort tiers collapsed; legacy rows unscored).
+    const base = { upstreamModelCount: 741, upstreamScoredModelCount: 74, canonicalCount: 170 };
+    expect(completenessGuard({ ...base, qualityScoredCount: 46 }, DEFAULT_THRESHOLDS).ok).toBe(true);
+    const collapsed = completenessGuard({ ...base, qualityScoredCount: 30 }, DEFAULT_THRESHOLDS);
+    expect(collapsed.ok).toBe(false);
+    expect(collapsed.findings.find((f) => f.check === "aa_coverage")?.threshold).toBe(37);
+  });
+
   it("rejects an absolute collapse below the quality floor even when upstream is small", () => {
     const stats: CompletenessStats = {
       upstreamModelCount: 30,
+      upstreamScoredModelCount: 5,
       canonicalCount: 3,
       qualityScoredCount: 3,
     };
@@ -79,6 +92,7 @@ describe("completeness guard (gh-172)", () => {
   it("rejects when a KNOWN org's records fail creator verification (the Grok 4.7 signature)", () => {
     const stats: CompletenessStats = {
       upstreamModelCount: 100,
+      upstreamScoredModelCount: 80,
       canonicalCount: 60,
       qualityScoredCount: 60,
       unmatchedByReason: { creator_name_mismatch: 2, variant_excluded: 40 },
@@ -92,6 +106,7 @@ describe("completeness guard (gh-172)", () => {
   it("does not gate on org_unknown (legitimate new orgs surface in diagnostics, not failures)", () => {
     const stats: CompletenessStats = {
       upstreamModelCount: 100,
+      upstreamScoredModelCount: 80,
       canonicalCount: 60,
       qualityScoredCount: 60,
       unmatchedByReason: { org_unknown: 15, variant_excluded: 40 },
@@ -103,6 +118,7 @@ describe("completeness guard (gh-172)", () => {
   it("does not divide by zero when upstream returned nothing", () => {
     const stats: CompletenessStats = {
       upstreamModelCount: 0,
+      upstreamScoredModelCount: 0,
       canonicalCount: 0,
       qualityScoredCount: 0,
     };

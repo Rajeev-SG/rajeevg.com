@@ -50,6 +50,19 @@ describe("auto-join org coverage (gh-198)", () => {
     expect(joined!.organisation).toBe("xAI");
   });
 
+  it.each([
+    // Live AA creator names verified 2026-11-15 (13 records were dropped
+    // as creator_name_mismatch before these aliases existed).
+    { slug: "glm-5-1", creator: "Z AI", orId: "z-ai/glm-5.1", canonical: "z-ai-glm-5.1", org: "Z.ai" },
+    { slug: "kimi-k2-5", creator: "Kimi", orId: "moonshotai/kimi-k2.5", canonical: "moonshotai-kimi-k2.5", org: "Moonshot AI" },
+    { slug: "jamba-2-large", creator: "AI21 Labs", orId: "ai21/jamba-2-large", canonical: "ai21-jamba-2-large", org: "AI21" },
+  ])("joins $orId under the AA creator name $creator", ({ slug, creator, orId, canonical, org }) => {
+    const joined = autoJoin({ slug, creatorName: creator }, { id: orId, name: "x" });
+    expect(joined).not.toBeNull();
+    expect(joined!.canonicalId).toBe(canonical);
+    expect(joined!.organisation).toBe(org);
+  });
+
   it("joins xAI Grok 4.7 with the legacy creator name too", () => {
     const joined = autoJoin(
       { slug: "grok-4-7", creatorName: "xAI" },

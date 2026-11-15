@@ -41,7 +41,16 @@ export interface UnmatchedDiagnostic {
 
 /** Aggregate completeness counters for one refresh run. */
 export interface CompletenessStats {
+  /** Raw AA upstream record count (every effort tier is its own record). Reported, not gated. */
   upstreamModelCount: number;
+  /**
+   * Distinct AA upstream model identities that carry a quality metric
+   * (effort-tier records collapsed via aaIdentity). This is the coverage
+   * denominator: a model AA itself does not score can never reach the
+   * snapshot with a quality value, and a model published as five effort
+   * tiers is still one point on the frontier.
+   */
+  upstreamScoredModelCount: number;
   canonicalCount: number;
   qualityScoredCount: number;
   /** Count of unmatched upstream records by reason code, from the diagnostics queue. */
@@ -89,18 +98,18 @@ export function completenessGuard(
   thresholds: CompletenessThresholds = DEFAULT_THRESHOLDS
 ): { ok: boolean; findings: CompletenessFinding[] } {
   const findings: CompletenessFinding[] = [];
-  const { upstreamModelCount, qualityScoredCount } = stats;
+  const { upstreamScoredModelCount, qualityScoredCount } = stats;
 
-  if (upstreamModelCount > 0) {
-    const coverage = qualityScoredCount / upstreamModelCount;
+  if (upstreamScoredModelCount > 0) {
+    const coverage = qualityScoredCount / upstreamScoredModelCount;
     if (coverage < thresholds.minAaCoverage) {
       findings.push({
         check: "aa_coverage",
         detail:
-          `only ${qualityScoredCount}/${upstreamModelCount} AA upstream models ` +
-          `carried a non-null quality metric into the snapshot (${(coverage * 100).toFixed(1)}% coverage)`,
+          `only ${qualityScoredCount}/${upstreamScoredModelCount} quality-scored AA upstream models ` +
+          `carried their quality metric into the snapshot (${(coverage * 100).toFixed(1)}% coverage)`,
         observed: qualityScoredCount,
-        threshold: Math.ceil(thresholds.minAaCoverage * upstreamModelCount),
+        threshold: Math.ceil(thresholds.minAaCoverage * upstreamScoredModelCount),
       });
     }
   }

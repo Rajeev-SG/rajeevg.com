@@ -103,7 +103,7 @@ function startFakeServer(publishedContent: string | null, existingBranch: boolea
 }
 
 /** Build a snapshot JSON with `n` quality-scored models. */
-function snapshotWithQuality(n: number, generatedAt = new Date().toISOString()): string {
+function snapshotWithQuality(n: number, generatedAt = new Date().toISOString(), indexVersion: string | number = "v3"): string {
   const models = Array.from({ length: n }, (_, i) => ({
     canonicalId: `openai-model-${i}`,
     displayName: `Model ${i}`,
@@ -117,7 +117,7 @@ function snapshotWithQuality(n: number, generatedAt = new Date().toISOString()):
       costPerTaskUsd: null,
       throughputTokensPerSecond: null,
       latencyTtfbSeconds: null,
-      intelligenceIndexVersion: "v3",
+      intelligenceIndexVersion: indexVersion,
     },
     openrouter: null,
     arena: { overall: null, webdev: null, agent: null },
@@ -196,6 +196,27 @@ describe("publish never-shrink guard (gh-198)", () => {
     });
     expect(result.code).not.toBe(0);
     expect(result.stderr).toContain("shrank from 50 to 35");
+  }, 30000);
+
+  it("still REFUSES a shrink when previous and new share the same numeric index version", async () => {
+    const result = await runPublish({
+      publishedContent: snapshotWithQuality(50, undefined, 5),
+      localSnapshot: snapshotWithQuality(35, undefined, 5),
+    });
+    expect(result.code).not.toBe(0);
+    expect(result.stderr).toContain("shrank from 50 to 35");
+  }, 30000);
+
+  it("treats an AA Intelligence Index version change as a reset, not a shrink", async () => {
+    // AA moved v4.3 -> v5 in late October 2026 and re-scored only current
+    // models; v4.3 and v5 counts measure different scales.
+    const result = await runPublish({
+      publishedContent: snapshotWithQuality(134, undefined, 4.3),
+      localSnapshot: snapshotWithQuality(46, undefined, 5),
+    });
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('"shrinkGuard":"index_version_reset"');
+    expect(result.stdout).toContain('"published":true');
   }, 30000);
 
   it("publishes without a previous snapshot on a fresh branch (guard skipped)", async () => {
