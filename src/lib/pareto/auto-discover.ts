@@ -83,9 +83,17 @@ export const ORG_BY_OR_SLUG: Record<string, string> = {
  * actually puts in `model_creator.name`. AA renames creators occasionally
  * (xAI -> SpaceXAI in 2026-09); this table keeps the deterministic join
  * working without silently dropping the org's models.
+ *
+ * Verified 2026-11-15 against the live AA /language/models/free catalogue:
+ * Z.ai models are credited to "Z AI", Moonshot's Kimi models to "Kimi", and
+ * AI21's to "AI21 Labs". Without these, 13 known-org records (GLM 4.5-5.x,
+ * Kimi K2/K2.5/K3.1) failed creator verification and were silently dropped.
  */
 const AA_CREATOR_ALIASES: Record<string, string[]> = {
   "xAI": ["SpaceXAI"],
+  "Z.ai": ["Z AI"],
+  "Moonshot AI": ["Kimi"],
+  "AI21": ["AI21 Labs"],
 };
 
 export { AA_CREATOR_ALIASES };

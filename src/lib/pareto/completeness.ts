@@ -41,7 +41,16 @@ export interface UnmatchedDiagnostic {
 
 /** Aggregate completeness counters for one refresh run. */
 export interface CompletenessStats {
+  /** Raw AA upstream record count (every effort tier is its own record). Reported, not gated. */
   upstreamModelCount: number;
+  /**
+   * Distinct AA upstream model identities that carry a quality metric
+   * (effort-tier records collapsed via aaIdentity). This is the coverage
+   * denominator: a model AA itself does not score can never reach the
+   * snapshot with a quality value, and a model published as five effort
+   * tiers is still one point on the frontier.
+   */
+  upstreamScoredModelCount: number;
   canonicalCount: number;
   qualityScoredCount: number;
   /** Count of unmatched upstream records by reason code, from the diagnostics queue. */
@@ -55,6 +64,15 @@ export interface CompletenessThresholds {
   /** Absolute minimum of AA-quality-scored canonical models (small-catalogue backstop). */
   minAaQualityCount: number;
   /**
+   * Absolute minimum of distinct AA upstream model identities carrying a
+   * quality metric. The coverage ratio uses this count as its denominator, so
+   * without a floor a parser regression or upstream score removal would shrink
+   * numerator and denominator together and still pass. 74 identities were
+   * scored on 2026-11-15 (Intelligence Index v5); 50 leaves headroom for
+   * churn while rejecting a collapse.
+   */
+  minAaUpstreamScoredModels: number;
+  /**
    * Maximum tolerated creator_name_mismatch records from KNOWN organisations.
    * Default 0: a known org's records failing identity verification is exactly
    * how an entire org's catalogue silently vanished (Grok 4.7). Unknown orgs
@@ -66,12 +84,13 @@ export interface CompletenessThresholds {
 export const DEFAULT_THRESHOLDS: CompletenessThresholds = {
   minAaCoverage: 0.5,
   minAaQualityCount: 20,
+  minAaUpstreamScoredModels: 50,
   maxCreatorNameMismatches: 0,
 };
 
 /** Failure detail for the completeness guard. */
 export interface CompletenessFinding {
-  check: "aa_coverage" | "aa_quality_floor" | "creator_name_mismatch";
+  check: "aa_coverage" | "aa_quality_floor" | "aa_upstream_scored_floor" | "creator_name_mismatch";
   detail: string;
   observed: number;
   threshold: number;
@@ -89,20 +108,31 @@ export function completenessGuard(
   thresholds: CompletenessThresholds = DEFAULT_THRESHOLDS
 ): { ok: boolean; findings: CompletenessFinding[] } {
   const findings: CompletenessFinding[] = [];
-  const { upstreamModelCount, qualityScoredCount } = stats;
+  const { upstreamScoredModelCount, qualityScoredCount } = stats;
 
-  if (upstreamModelCount > 0) {
-    const coverage = qualityScoredCount / upstreamModelCount;
+  if (upstreamScoredModelCount > 0) {
+    const coverage = qualityScoredCount / upstreamScoredModelCount;
     if (coverage < thresholds.minAaCoverage) {
       findings.push({
         check: "aa_coverage",
         detail:
-          `only ${qualityScoredCount}/${upstreamModelCount} AA upstream models ` +
-          `carried a non-null quality metric into the snapshot (${(coverage * 100).toFixed(1)}% coverage)`,
+          `only ${qualityScoredCount}/${upstreamScoredModelCount} quality-scored AA upstream models ` +
+          `carried their quality metric into the snapshot (${(coverage * 100).toFixed(1)}% coverage)`,
         observed: qualityScoredCount,
-        threshold: Math.ceil(thresholds.minAaCoverage * upstreamModelCount),
+        threshold: Math.ceil(thresholds.minAaCoverage * upstreamScoredModelCount),
       });
     }
+  }
+
+  if (upstreamScoredModelCount < thresholds.minAaUpstreamScoredModels) {
+    findings.push({
+      check: "aa_upstream_scored_floor",
+      detail:
+        `only ${upstreamScoredModelCount} distinct AA upstream models carry a quality metric; ` +
+        `a collapse this size means a parser regression or upstream score removal, not a smaller catalogue`,
+      observed: upstreamScoredModelCount,
+      threshold: thresholds.minAaUpstreamScoredModels,
+    });
   }
 
   if (qualityScoredCount < thresholds.minAaQualityCount) {

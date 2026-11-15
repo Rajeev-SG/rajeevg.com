@@ -79,10 +79,28 @@ if (quotaRemaining != null && quotaRemaining <= 0) {
 }
 
 const astraMissingFromAa = !aaResult.models.some((m) => m.slug === "gpt-6-astra");
+// AA publishes most current models as several effort-tier records (plain,
+// -low, -medium, -high, -xhigh) that share one identity, and often scores only
+// some of them. The auto-join gives each canonical to the first AA record that
+// claims it, so order candidates deterministically: a record carrying a
+// quality metric first, then the plain (default) tier before suffixed tiers,
+// then upstream order. Without this a model could publish as an unscored tier
+// (e.g. gpt-6-sol-low) while AA scores its default tier. When AA scores only a
+// suffixed tier, that tier is the explicit fallback; the published record's
+// aa.slug names the tier the score came from (e.g. "claude-fable-5-2-medium").
+const hasAaQuality = (m: { intelligenceIndex: number | null; codingIndex: number | null; agenticIndex: number | null }) =>
+  m.intelligenceIndex != null || m.codingIndex != null || m.agenticIndex != null;
 const aaCandidates = new Map(
   aaResult.models
     .filter((model) => !resolveAaSlug(model.slug))
-    .map((model) => [model.slug, model])
+    .map((model, index) => ({ model, index }))
+    .sort(
+      (a, b) =>
+        Number(hasAaQuality(b.model)) - Number(hasAaQuality(a.model)) ||
+        Number(isEffortVariantSuffix(a.model.slug)) - Number(isEffortVariantSuffix(b.model.slug)) ||
+        a.index - b.index
+    )
+    .map(({ model }) => [model.slug, model])
 );
 const orCandidates = new Map(
   orResult.models
@@ -288,18 +306,30 @@ const unmatchedByReason = diagnostics.reduce<Record<string, number>>((acc, d) =>
   acc[d.reasonCode] = (acc[d.reasonCode] ?? 0) + 1;
   return acc;
 }, {});
+// Coverage denominator: distinct AA model identities that AA itself scores.
+// Since late October 2026 AA lists ~740 records of which only ~130 carry any
+// index (coding/agentic indexes are null catalogue-wide; legacy models are
+// listed unscored), and scored models appear as several effort tiers.
+const upstreamScoredModelCount = new Set(
+  aaResult.models.filter(hasAaQuality).map((m) => aaIdentity(m.slug))
+).size;
 const guard = completenessGuard(
   {
     upstreamModelCount: aaResult.models.length,
+    upstreamScoredModelCount,
     canonicalCount: models.length,
     qualityScoredCount: aaQualityModels.length,
     unmatchedByReason,
   },
   {
     // Environment-overridable for offline fixtures/tests; production runs use
-    // the defaults (50% coverage, ≥20 quality-scored models, 0 creator mismatches).
+    // the defaults (50% coverage, ≥20 quality-scored models, ≥50 upstream-scored
+    // model identities, 0 creator mismatches).
     minAaCoverage: Number(process.env.PARETO_MIN_AA_COVERAGE ?? DEFAULT_THRESHOLDS.minAaCoverage),
     minAaQualityCount: Number(process.env.PARETO_MIN_AA_QUALITY ?? DEFAULT_THRESHOLDS.minAaQualityCount),
+    minAaUpstreamScoredModels: Number(
+      process.env.PARETO_MIN_AA_UPSTREAM_SCORED ?? DEFAULT_THRESHOLDS.minAaUpstreamScoredModels
+    ),
     maxCreatorNameMismatches: Number(
       process.env.PARETO_MAX_CREATOR_MISMATCHES ?? DEFAULT_THRESHOLDS.maxCreatorNameMismatches
     ),
@@ -349,6 +379,7 @@ const unmatchedQueue = {
     aa: {
       upstreamRecords: aaResult.models.length,
       upstreamModelCount: aaResult.models.length,
+      upstreamScoredModelCount,
     },
     openrouter: {
       upstreamRecords: orResult.models.length,
