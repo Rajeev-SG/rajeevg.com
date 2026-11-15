@@ -72,6 +72,47 @@ const AA_FIXTURE: AaResponse = {
       evaluations: { artificial_analysis_intelligence_index: 44.0 },
       pricing: { price_1m_input_tokens: 2, price_1m_output_tokens: 6 },
     },
+    // Effort-tier join preference (2026-11-15, AA Intelligence Index v5).
+    // Suffixed tiers are listed FIRST so the test proves ordering, not luck.
+    // kimi-k8: plain and -high both scored -> the plain (default) tier wins.
+    // kimi-k9: plain unscored, only -low scored -> explicit scored fallback,
+    // and aa.slug records which tier the score came from.
+    {
+      id: "aa-kimi-k8-high",
+      name: "Kimi K8 (High)",
+      slug: "kimi-k8-high",
+      release_date: "2026-11-01",
+      model_creator: { name: "Kimi" },
+      evaluations: { artificial_analysis_intelligence_index: 35 },
+      pricing: { price_1m_input_tokens: 1, price_1m_output_tokens: 3 },
+    },
+    {
+      id: "aa-kimi-k8",
+      name: "Kimi K8",
+      slug: "kimi-k8",
+      release_date: "2026-11-01",
+      model_creator: { name: "Kimi" },
+      evaluations: { artificial_analysis_intelligence_index: 30 },
+      pricing: { price_1m_input_tokens: 1, price_1m_output_tokens: 3 },
+    },
+    {
+      id: "aa-kimi-k9-low",
+      name: "Kimi K9 (Low)",
+      slug: "kimi-k9-low",
+      release_date: "2026-11-01",
+      model_creator: { name: "Kimi" },
+      evaluations: { artificial_analysis_intelligence_index: 20 },
+      pricing: { price_1m_input_tokens: 1, price_1m_output_tokens: 3 },
+    },
+    {
+      id: "aa-kimi-k9",
+      name: "Kimi K9",
+      slug: "kimi-k9",
+      release_date: "2026-11-01",
+      model_creator: { name: "Kimi" },
+      evaluations: { artificial_analysis_intelligence_index: null },
+      pricing: { price_1m_input_tokens: 1, price_1m_output_tokens: 3 },
+    },
   ],
 };
 
@@ -100,6 +141,20 @@ const OR_FIXTURE = {
       created: 1788500000,
       context_length: 400000,
       pricing: { prompt: "0.00000125", completion: "0.00001" },
+    },
+    {
+      id: "moonshotai/kimi-k8",
+      name: "MoonshotAI: Kimi K8",
+      created: 1790900000,
+      context_length: 256000,
+      pricing: { prompt: "0.000001", completion: "0.000003" },
+    },
+    {
+      id: "moonshotai/kimi-k9",
+      name: "MoonshotAI: Kimi K9",
+      created: 1790900000,
+      context_length: 256000,
+      pricing: { prompt: "0.000001", completion: "0.000003" },
     },
     {
       // OR-only model (no AA record): must surface as no_aa_counterpart.
@@ -142,6 +197,7 @@ describe("refresh script end-to-end (gh-198)", () => {
     // Small fixture: relax the quality floor for these offline smoke tests.
     process.env.PARETO_MIN_AA_QUALITY = "1";
     process.env.PARETO_MIN_AA_COVERAGE = "0.3";
+    process.env.PARETO_MIN_AA_UPSTREAM_SCORED = "1";
     vi.stubGlobal(
       "fetch",
       vi.fn(async (url: string | URL) => {
@@ -165,6 +221,7 @@ describe("refresh script end-to-end (gh-198)", () => {
     delete process.env.ARTIFICIAL_ANALYSIS_API_KEY_PF;
     delete process.env.PARETO_MIN_AA_QUALITY;
     delete process.env.PARETO_MIN_AA_COVERAGE;
+    delete process.env.PARETO_MIN_AA_UPSTREAM_SCORED;
     delete process.env.PARETO_MAX_CREATOR_MISMATCHES;
     process.chdir(originalCwd);
     if (workDir) rmSync(workDir, { recursive: true, force: true });
@@ -194,6 +251,16 @@ describe("refresh script end-to-end (gh-198)", () => {
     expect(astra).toBeDefined();
     expect(astra.openrouter.modelId).toBe("openai/gpt-6-astra");
     expect(astra.openrouter.inputPricePerMillion).toBeCloseTo(1.25, 5);
+
+    // Effort-tier preference: default tier when it is scored, otherwise the
+    // scored tier, with the tier visible in aa.slug. "Kimi" also exercises
+    // the Moonshot AI creator alias through real wiring.
+    const k8 = byId.get("moonshotai-kimi-k8");
+    expect(k8.aa.slug).toBe("kimi-k8");
+    expect(k8.aa.intelligenceIndex).toBe(30);
+    const k9 = byId.get("moonshotai-kimi-k9");
+    expect(k9.aa.slug).toBe("kimi-k9-low");
+    expect(k9.aa.intelligenceIndex).toBe(20);
 
     // Diagnostics classification through the REAL wiring:
     const reasonOf = (id: string) => diagnostics.diagnostics.find((d: { sourceId: string }) => d.sourceId === id)?.reasonCode;

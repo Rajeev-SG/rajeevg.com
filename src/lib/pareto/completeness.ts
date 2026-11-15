@@ -64,6 +64,15 @@ export interface CompletenessThresholds {
   /** Absolute minimum of AA-quality-scored canonical models (small-catalogue backstop). */
   minAaQualityCount: number;
   /**
+   * Absolute minimum of distinct AA upstream model identities carrying a
+   * quality metric. The coverage ratio uses this count as its denominator, so
+   * without a floor a parser regression or upstream score removal would shrink
+   * numerator and denominator together and still pass. 74 identities were
+   * scored on 2026-11-15 (Intelligence Index v5); 50 leaves headroom for
+   * churn while rejecting a collapse.
+   */
+  minAaUpstreamScoredModels: number;
+  /**
    * Maximum tolerated creator_name_mismatch records from KNOWN organisations.
    * Default 0: a known org's records failing identity verification is exactly
    * how an entire org's catalogue silently vanished (Grok 4.7). Unknown orgs
@@ -75,12 +84,13 @@ export interface CompletenessThresholds {
 export const DEFAULT_THRESHOLDS: CompletenessThresholds = {
   minAaCoverage: 0.5,
   minAaQualityCount: 20,
+  minAaUpstreamScoredModels: 50,
   maxCreatorNameMismatches: 0,
 };
 
 /** Failure detail for the completeness guard. */
 export interface CompletenessFinding {
-  check: "aa_coverage" | "aa_quality_floor" | "creator_name_mismatch";
+  check: "aa_coverage" | "aa_quality_floor" | "aa_upstream_scored_floor" | "creator_name_mismatch";
   detail: string;
   observed: number;
   threshold: number;
@@ -112,6 +122,17 @@ export function completenessGuard(
         threshold: Math.ceil(thresholds.minAaCoverage * upstreamScoredModelCount),
       });
     }
+  }
+
+  if (upstreamScoredModelCount < thresholds.minAaUpstreamScoredModels) {
+    findings.push({
+      check: "aa_upstream_scored_floor",
+      detail:
+        `only ${upstreamScoredModelCount} distinct AA upstream models carry a quality metric; ` +
+        `a collapse this size means a parser regression or upstream score removal, not a smaller catalogue`,
+      observed: upstreamScoredModelCount,
+      threshold: thresholds.minAaUpstreamScoredModels,
+    });
   }
 
   if (qualityScoredCount < thresholds.minAaQualityCount) {

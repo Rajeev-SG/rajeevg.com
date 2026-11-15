@@ -216,6 +216,10 @@ describe("publish never-shrink guard (gh-198)", () => {
     });
     expect(result.code).toBe(0);
     expect(result.stdout).toContain('"shrinkGuard":"index_version_reset"');
+    // The reset is auditable from logs alone: previously-present models that
+    // are absent from the new snapshot are listed.
+    expect(result.stdout).toContain('"lostCount":88');
+    expect(result.stdout).toContain('"openai-model-133"');
     expect(result.stdout).toContain('"published":true');
   }, 30000);
 

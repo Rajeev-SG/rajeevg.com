@@ -126,6 +126,8 @@ async function main() {
               newIndexVersion: newVersions[0],
               previousQuality: prevQuality,
               quality,
+              lostPreviouslyPresent: lost.slice(0, 200),
+              lostCount: lost.length,
             })
           );
         }

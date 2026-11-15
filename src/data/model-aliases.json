@@ -1,6 +1,6 @@
 {
   "$comment": "Explicit alias map keyed by canonical internal ID. Each canonical model declares its source IDs. Only models appearing here participate in the canonical set; unknown source records go to UNMATCHED. Never auto-merge by fuzzy or edit-distance matching. IDs verified from live official responses 2026-09-02.",
-  "$retiredAaSlugs": "2026-11-15: aaSlug removed from deepseek-r1, deepseek-v3.1, google-gemini-3-flash, google-gemini-3-pro, openai-o3-mini, openai-o4-mini, xai-grok-4, xai-grok-4-fast. AA still lists these slugs but no longer scores them (every index null) and OpenRouter no longer lists them, so the alias produced dead-weight records the join audit rejects. Arena names are kept.",
+  "$retiredAaSlugs": "2026-11-15: aaSlug removed from deepseek-r1, deepseek-v3.1, google-gemini-3-flash, google-gemini-3-pro, openai-o3-mini, openai-o4-mini, xai-grok-4, xai-grok-4-fast, and openrouterId removed from deepseek-r1, openai-o3-mini, openai-o4-mini. AA still lists these slugs but no longer scores them (every index null), and OpenRouter no longer lists these ids, so the aliases produced dead-weight records the join audit rejects. Arena names are kept.",
   "amazon-nova-2-lite": {
     "displayName": "Nova 2 Lite",
     "organisation": "Amazon",
@@ -155,7 +155,6 @@
   "deepseek-r1": {
     "displayName": "DeepSeek R1",
     "organisation": "DeepSeek",
-    "openrouterId": "deepseek/deepseek-r1",
     "arenaNames": [
       "DeepSeek R1"
     ]
@@ -619,8 +618,7 @@
   },
   "openai-o3-mini": {
     "displayName": "OpenAI o3 Mini",
-    "organisation": "OpenAI",
-    "openrouterId": "openai/o3-mini"
+    "organisation": "OpenAI"
   },
   "openai-o3-pro": {
     "displayName": "OpenAI o3 Pro",
@@ -630,8 +628,7 @@
   },
   "openai-o4-mini": {
     "displayName": "OpenAI o4 Mini",
-    "organisation": "OpenAI",
-    "openrouterId": "openai/o4-mini"
+    "organisation": "OpenAI"
   },
   "poolside-laguna-s-2.1": {
     "displayName": "Laguna S 2.1",

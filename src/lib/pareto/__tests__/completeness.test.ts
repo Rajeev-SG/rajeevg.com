@@ -77,6 +77,19 @@ describe("completeness guard (gh-172)", () => {
     expect(collapsed.findings.find((f) => f.check === "aa_coverage")?.threshold).toBe(37);
   });
 
+  it("REJECTS a collapse of upstream scores even when coverage looks perfect", () => {
+    // Numerator and denominator come from the same AA response: if most
+    // indexes go null (parser regression, upstream removal), coverage stays
+    // ~100%. The absolute floor on scored identities catches it.
+    const result = completenessGuard(
+      { upstreamModelCount: 741, upstreamScoredModelCount: 25, canonicalCount: 170, qualityScoredCount: 25 },
+      DEFAULT_THRESHOLDS
+    );
+    expect(result.ok).toBe(false);
+    expect(result.findings.map((f) => f.check)).toContain("aa_upstream_scored_floor");
+    expect(result.findings.map((f) => f.check)).not.toContain("aa_coverage");
+  });
+
   it("rejects an absolute collapse below the quality floor even when upstream is small", () => {
     const stats: CompletenessStats = {
       upstreamModelCount: 30,
@@ -124,7 +137,7 @@ describe("completeness guard (gh-172)", () => {
     };
     const result = completenessGuard(stats, DEFAULT_THRESHOLDS);
     // No coverage finding; the absolute floor still applies.
-    expect(result.findings.map((f) => f.check)).toEqual(["aa_quality_floor"]);
+    expect(result.findings.map((f) => f.check)).toEqual(["aa_upstream_scored_floor", "aa_quality_floor"]);
   });
 });
 

@@ -85,7 +85,9 @@ const astraMissingFromAa = !aaResult.models.some((m) => m.slug === "gpt-6-astra"
 // claims it, so order candidates deterministically: a record carrying a
 // quality metric first, then the plain (default) tier before suffixed tiers,
 // then upstream order. Without this a model could publish as an unscored tier
-// (e.g. gpt-6-sol-low) while AA scores its default tier.
+// (e.g. gpt-6-sol-low) while AA scores its default tier. When AA scores only a
+// suffixed tier, that tier is the explicit fallback; the published record's
+// aa.slug names the tier the score came from (e.g. "claude-fable-5-2-medium").
 const hasAaQuality = (m: { intelligenceIndex: number | null; codingIndex: number | null; agenticIndex: number | null }) =>
   m.intelligenceIndex != null || m.codingIndex != null || m.agenticIndex != null;
 const aaCandidates = new Map(
@@ -321,9 +323,13 @@ const guard = completenessGuard(
   },
   {
     // Environment-overridable for offline fixtures/tests; production runs use
-    // the defaults (50% coverage, ≥20 quality-scored models, 0 creator mismatches).
+    // the defaults (50% coverage, ≥20 quality-scored models, ≥50 upstream-scored
+    // model identities, 0 creator mismatches).
     minAaCoverage: Number(process.env.PARETO_MIN_AA_COVERAGE ?? DEFAULT_THRESHOLDS.minAaCoverage),
     minAaQualityCount: Number(process.env.PARETO_MIN_AA_QUALITY ?? DEFAULT_THRESHOLDS.minAaQualityCount),
+    minAaUpstreamScoredModels: Number(
+      process.env.PARETO_MIN_AA_UPSTREAM_SCORED ?? DEFAULT_THRESHOLDS.minAaUpstreamScoredModels
+    ),
     maxCreatorNameMismatches: Number(
       process.env.PARETO_MAX_CREATOR_MISMATCHES ?? DEFAULT_THRESHOLDS.maxCreatorNameMismatches
     ),
