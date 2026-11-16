@@ -1,14 +1,14 @@
 {
-  "generatedAt": "2026-11-15T22:18:43.139Z",
+  "generatedAt": "2026-11-16T13:42:44.455Z",
   "note": "Upstream records the canonical join layer could not place. Reason codes: not_in_alias_map (needs a curated alias; also the regression signal when identity fully verifies), org_unknown (new org), creator_name_mismatch (upstream renamed a creator), no_aa_counterpart (OpenRouter-only, no AA quality source), variant_excluded (effort-variant or batch/contributor record excluded by design).",
   "sources": {
     "aa": {
-      "upstreamRecords": 741,
-      "upstreamModelCount": 741,
-      "upstreamScoredModelCount": 74
+      "upstreamRecords": 742,
+      "upstreamModelCount": 742,
+      "upstreamScoredModelCount": 75
     },
     "openrouter": {
-      "upstreamRecords": 467
+      "upstreamRecords": 468
     }
   },
   "diagnostics": [
