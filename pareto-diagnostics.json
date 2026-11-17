@@ -1,14 +1,14 @@
 {
-  "generatedAt": "2026-11-17T14:30:38.218Z",
+  "generatedAt": "2026-11-17T23:51:54.747Z",
   "note": "Upstream records the canonical join layer could not place. Reason codes: not_in_alias_map (needs a curated alias; also the regression signal when identity fully verifies), org_unknown (new org), creator_name_mismatch (upstream renamed a creator), no_aa_counterpart (OpenRouter-only, no AA quality source), variant_excluded (effort-variant or batch/contributor record excluded by design).",
   "sources": {
     "aa": {
-      "upstreamRecords": 742,
-      "upstreamModelCount": 742,
-      "upstreamScoredModelCount": 76
+      "upstreamRecords": 755,
+      "upstreamModelCount": 755,
+      "upstreamScoredModelCount": 81
     },
     "openrouter": {
-      "upstreamRecords": 470
+      "upstreamRecords": 478
     }
   },
   "diagnostics": [
@@ -651,6 +651,13 @@
     },
     {
       "source": "aa",
+      "sourceId": "gpt-6-2-sol-xhigh",
+      "displayName": "GPT-6.2 Sol (Xhigh) (OpenAI)",
+      "reasonCode": "variant_excluded",
+      "org": "OpenAI"
+    },
+    {
+      "source": "aa",
       "sourceId": "grok-2-1212",
       "displayName": "Grok 2 (Dec '24) (SpaceXAI)",
       "reasonCode": "not_in_alias_map",
@@ -683,6 +690,13 @@
       "displayName": "Gemini 1.0 Ultra (Google)",
       "reasonCode": "not_in_alias_map",
       "org": "Google"
+    },
+    {
+      "source": "aa",
+      "sourceId": "lfm3-vl-2b",
+      "displayName": "LFM3-VL-2B (Liquid AI)",
+      "reasonCode": "not_in_alias_map",
+      "org": "Liquid AI"
     },
     {
       "source": "aa",
@@ -1047,22 +1061,8 @@
       "displayName": "Solar Pro 2 (Preview) (Non-reasoning) (Upstage)",
       "reasonCode": "not_in_alias_map",
       "org": "Upstage"
-    },
-    {
-      "source": "aa",
-      "sourceId": "ling-3-0-flash-vl",
-      "displayName": "Ling-3.0-flash-VL (InclusionAI)",
-      "reasonCode": "org_unknown",
-      "org": "InclusionAI"
-    },
-    {
-      "source": "aa",
-      "sourceId": "minicpm-v4-6-1-3b",
-      "displayName": "MiniCPM-V 4.6 1.3B (OpenBMB)",
-      "reasonCode": "not_in_alias_map",
-      "org": "OpenBMB"
     }
   ],
-  "diagnosticCount": 892,
+  "diagnosticCount": 909,
   "truncated": true
 }
