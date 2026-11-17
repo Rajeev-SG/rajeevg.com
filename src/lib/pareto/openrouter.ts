@@ -59,7 +59,7 @@ export async function fetchOpenRouterModels(signal?: AbortSignal): Promise<OpenR
   const res = await fetch(OR_ENDPOINT, {
     headers: { Accept: "application/json" },
     signal,
-    // CDN-cached by OpenRouter; hourly server revalidate is safe and sufficient.
+    // CDN-cached by OpenRouter; daily server revalidate keeps Vercel CPU inside the Hobby cap.
     next: { revalidate: 86400 },
   });
   if (!res.ok) throw new Error(`OpenRouter API returned ${res.status}`);
