@@ -60,7 +60,7 @@ export async function fetchOpenRouterModels(signal?: AbortSignal): Promise<OpenR
     headers: { Accept: "application/json" },
     signal,
     // CDN-cached by OpenRouter; hourly server revalidate is safe and sufficient.
-    next: { revalidate: 3600 },
+    next: { revalidate: 86400 },
   });
   if (!res.ok) throw new Error(`OpenRouter API returned ${res.status}`);
   const json = (await res.json()) as OpenRouterResponse;

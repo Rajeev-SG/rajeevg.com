@@ -7,7 +7,7 @@ import { validateSnapshot } from "@/lib/agent-benchmarks/validation";
 import { summarise } from "@/lib/agent-benchmarks/aggregate";
 import { site } from "@/lib/site";
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 export const metadata: Metadata = {
   title: "Agent Benchmark Matrix",

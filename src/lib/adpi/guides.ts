@@ -143,7 +143,7 @@ export async function getGuideIndexOutcome(): Promise<GuideIndexOutcome> {
   try {
     const res = await fetch(GUIDE_INDEX_URL, {
       headers: { Accept: "application/json" },
-      next: { revalidate: 3600, tags: ["adpi-guides"] },
+      next: { revalidate: 86400, tags: ["adpi-guides"] },
       signal: AbortSignal.timeout(GUIDE_FETCH_TIMEOUT_MS),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -185,7 +185,7 @@ export async function getGuideDetail(detailPath: string): Promise<GuideDetail | 
   try {
     const res = await fetch(`${DATA_BASE}/${detailPath}?v=${GUIDE_SCHEMA_VERSION}`, {
       headers: { Accept: "application/json" },
-      next: { revalidate: 3600, tags: ["adpi-guides"] },
+      next: { revalidate: 86400, tags: ["adpi-guides"] },
       signal: AbortSignal.timeout(GUIDE_FETCH_TIMEOUT_MS),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);

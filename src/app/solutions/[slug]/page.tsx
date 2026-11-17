@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getPortfolioProject, portfolioProjects } from "@/lib/portfolio-projects"
 import { site } from "@/lib/site"
 
-export const revalidate = 3600
+export const revalidate = 86400
 export const dynamicParams = false
 
 const dateFormatter = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" })

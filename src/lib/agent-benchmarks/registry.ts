@@ -110,7 +110,7 @@ export async function getDurableBenchmarkSnapshot(): Promise<BenchmarkSnapshot |
   try {
     const res = await fetch(BENCHMARK_SNAPSHOT_URL, {
       headers: { Accept: "application/json" },
-      next: { revalidate: 3600, tags: ["agent-benchmark-snapshot"] },
+      next: { revalidate: 86400, tags: ["agent-benchmark-snapshot"] },
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const parsed: unknown = await res.json();

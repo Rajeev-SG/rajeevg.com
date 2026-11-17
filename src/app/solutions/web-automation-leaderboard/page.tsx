@@ -23,7 +23,7 @@ import {
 } from "@/data/web-automation-microbench"
 import { site } from "@/lib/site"
 
-export const revalidate = 3600
+export const revalidate = 86400
 
 const dateFormatter = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" })
 

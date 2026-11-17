@@ -16,8 +16,8 @@ import { mergeCanonicalModels } from "./normalise";
 let lastGoodSnapshot: ParetoSnapshot | null = null;
 let lastFetchAt = 0;
 const AA_REVALIDATE_S = 86400;
-const OR_REVALIDATE_S = 3600;
-const ARENA_REVALIDATE_S = 3600;
+const OR_REVALIDATE_S = 86400;
+const ARENA_REVALIDATE_S = 86400;
 
 export const REVALIDATE = {
   aa: AA_REVALIDATE_S,

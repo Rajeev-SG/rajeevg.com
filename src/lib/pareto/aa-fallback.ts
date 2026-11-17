@@ -77,7 +77,7 @@ export async function getDurableAaSnapshot(): Promise<AaFallbackSnapshot | null>
     const res = await fetch(PARETO_SNAPSHOT_URL, {
       headers: { Accept: "application/json" },
       // Data-cache the upstream read; the publisher refreshes twice daily.
-      next: { revalidate: 3600, tags: ["pareto-snapshot"] },
+      next: { revalidate: 86400, tags: ["pareto-snapshot"] },
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const parsed: unknown = await res.json();

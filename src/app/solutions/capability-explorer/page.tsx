@@ -9,7 +9,7 @@ import { getDurableHistory } from "@/lib/adpi/history"
 import { reviewedGolden } from "@/lib/adpi/reviewed"
 import { site } from "@/lib/site"
 
-export const revalidate = 3600
+export const revalidate = 86400
 
 export const metadata: Metadata = {
   title: "Ad Platform Capability Explorer",
