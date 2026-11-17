@@ -5,7 +5,7 @@ import { aaFallback, countAaQuality } from "@/lib/pareto/aa-fallback";
 import type { ParetoSnapshot } from "@/lib/pareto/types";
 import { site } from "@/lib/site";
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 export const metadata: Metadata = {
   title: "LLM Pareto Frontier",

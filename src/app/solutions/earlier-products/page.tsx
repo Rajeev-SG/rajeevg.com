@@ -20,7 +20,7 @@ const EARLIER_SLUGS = [
   { slug: "rajeevg-com", lesson: "This site itself is a living product; every article is a maintained asset." },
 ] as const
 
-export const revalidate = 3600
+export const revalidate = 86400
 
 export default function EarlierProductsPage() {
   const items = EARLIER_SLUGS

@@ -10,7 +10,12 @@ import {
 } from "@/lib/adpi/guides"
 import type { GuideClaim, GuideEvidenceRef, GuideStatus } from "@/lib/adpi/guide-types"
 
-export const revalidate = 3600
+export const revalidate = 86400
+
+// Render each guide on first request, then serve it from the ISR cache.
+export async function generateStaticParams() {
+  return []
+}
 
 const STATUS_LABEL: Record<GuideStatus, string> = {
   documented: "Documented",

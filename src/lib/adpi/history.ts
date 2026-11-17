@@ -81,7 +81,7 @@ export async function getDurableHistory(): Promise<AdpiHistory | null> {
   try {
     const res = await fetch(ADPI_HISTORY_URL, {
       headers: { Accept: "application/json" },
-      next: { revalidate: 3600, tags: ["adpi-history"] },
+      next: { revalidate: 86400, tags: ["adpi-history"] },
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const parsed: unknown = await res.json();

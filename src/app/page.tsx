@@ -10,7 +10,7 @@ import { getPostEffectiveDate } from "@/lib/posts"
 import { getSortedVisiblePostsLive, isLocalRuntimeOverlayEnabled } from "@/lib/server-posts"
 import { site } from "@/lib/site"
 
-export const revalidate = 3600
+export const revalidate = 86400
 
 const dateFormatter = new Intl.DateTimeFormat("en-GB", {
   day: "numeric",

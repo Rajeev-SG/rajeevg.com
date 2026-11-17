@@ -61,7 +61,7 @@ export async function getDurableDataset(): Promise<CapabilityDataset | null> {
   try {
     const res = await fetch(ADPI_DATASET_URL, {
       headers: { Accept: "application/json" },
-      next: { revalidate: 3600, tags: ["adpi-dataset"] },
+      next: { revalidate: 86400, tags: ["adpi-dataset"] },
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const parsed: unknown = await res.json();

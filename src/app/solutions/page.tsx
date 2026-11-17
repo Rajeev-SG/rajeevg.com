@@ -5,7 +5,7 @@ import { ProjectCard } from "@/components/project-card"
 import { getPortfolioProjects } from "@/lib/portfolio-projects"
 import { site } from "@/lib/site"
 
-export const revalidate = 3600
+export const revalidate = 86400
 
 const GROUPS = [
   { key: "AI & Agent Systems", blurb: "Systems that keep agents running, measured, and honest about cost." },
