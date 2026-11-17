@@ -12,14 +12,14 @@ type BrowseFeature = FeatureListing & { href: string }
 export function FeatureBrowse({ features, initialQuery }: { features: BrowseFeature[]; initialQuery: string }) {
   const [query, setQuery] = useState(initialQuery)
   const terms = query.toLowerCase().trim().split(/\s+/).filter(Boolean)
-  const matches = features.filter(({ id, name, vendor, platform, category, summary }) => {
-    const searchable = [id, name, vendor, platform, category, summary].join(" ").toLowerCase()
+  const matches = features.filter(({ name, vendor, platform, category, searchTerms, summary }) => {
+    const searchable = [name, vendor, platform, category, summary, ...searchTerms].join(" ").toLowerCase()
     return terms.every((term) => searchable.includes(term))
   })
   const platforms = new Map<string, Map<string, BrowseFeature[]>>()
   for (const feature of matches) {
     const categories = platforms.get(feature.vendor) ?? new Map<string, BrowseFeature[]>()
-    const category = feature.category ?? (feature.platform !== feature.vendor ? feature.platform : "General")
+    const category = feature.category
     const items = categories.get(category) ?? []
     items.push(feature)
     categories.set(category, items)
@@ -50,11 +50,7 @@ export function FeatureBrowse({ features, initialQuery }: { features: BrowseFeat
           {[...platforms].map(([platform, categories]) => (
             <section key={platform} className="min-w-0 rounded-xl border">
               <h3 className="rounded-t-xl border-b bg-muted/60 px-4 py-3 font-semibold">{platform}</h3>
-              {[...categories].sort(([a], [b]) => {
-                if (a === "Targeting") return -1
-                if (b === "Targeting") return 1
-                return a.localeCompare(b, "en")
-              }).map(([category, items]) => (
+              {[...categories].sort(([a], [b]) => a.localeCompare(b, "en")).map(([category, items]) => (
                 <div key={category} className="space-y-1 px-4 py-3 [&+&]:border-t">
                   <h4 className="text-xs font-medium text-muted-foreground">{category}</h4>
                   <ul>

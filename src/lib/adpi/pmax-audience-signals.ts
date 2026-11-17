@@ -10,7 +10,7 @@ export const pmaxAudienceSignals: FeatureGuide = {
   name: "Performance Max audience signals",
   vendor: "Google Ads",
   platform: "Performance Max",
-  category: "Targeting",
+  category: "Targeting and audiences",
   summary: {
     text: "Audience signals are optional suggestions you add to a Performance Max asset group to help Google’s AI find likely buyers faster. Performance Max can still show ads outside those audiences when it predicts someone is likely to convert.",
     sources: [google],

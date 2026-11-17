@@ -75,12 +75,17 @@ export interface Guide {
   verified_at?: string | null;
 }
 
+export type GuideControlMode = "control" | "signal" | "automatic";
+
 export interface GuideIndexEntry {
   feature_id: string;
   name: string;
   vendor: string;
   platform: string;
   summary: string;
+  category?: string;
+  search_terms?: string[];
+  control_mode?: GuideControlMode;
   availability?: string;
   coverage?: { substantive_count?: number; section_count?: number };
   detail: string;

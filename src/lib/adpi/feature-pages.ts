@@ -1,8 +1,6 @@
 import { getGuideDetail, getGuideIndexOutcome, guideEntry } from "./guides"
-import type { GuideClaim, GuideSection } from "./guide-types"
+import type { GuideClaim, GuideControlMode, GuideIndexEntry, GuideSection } from "./guide-types"
 import { pmaxAudienceSignals } from "./pmax-audience-signals"
-import { capabilitiesOf, getCapabilityDataset } from "./registry"
-import type { ControlMode } from "./types"
 
 export const explorerPath = "/solutions/capability-explorer"
 
@@ -15,7 +13,8 @@ export interface FeatureListing {
   name: string
   vendor: string
   platform: string
-  category?: string
+  category: string
+  searchTerms: string[]
   summary: string
 }
 
@@ -25,9 +24,9 @@ interface GuideItem {
   sources?: string[]
 }
 
-export interface FeatureGuide extends Omit<FeatureListing, "summary"> {
+export interface FeatureGuide extends Omit<FeatureListing, "summary" | "searchTerms"> {
   summary?: GuideItem
-  control?: ControlMode
+  control: GuideControlMode
   controlLabel?: string
   checkedAt?: string | null
   availability?: string
@@ -48,41 +47,22 @@ const relationshipLabels = {
   related_not_equivalent: "Related",
 }
 
-const categories: Record<string, string[]> = {
-  Targeting: [
-    "ga.broad-match", "ga.customer-match-api-upload", "ga.customer-match-eea-restriction",
-    "ga.pmax-negative-keywords", "ga.search-negative-keywords", "meta.lookalike-audiences",
-    "meta.shared-audience-usage-restrictions", "meta.teen-targeting-restrictions",
-    "meta.website-custom-audience", "pin.broad-match", "pin.negative-exact-match",
-    "pin.negative-keywords", "tt.keyword-quality-module", "tt.negative-keyword-broad-match",
-    "tt.search-broad-match", "tt.smart-plus-automatic-targeting",
-  ],
-  "Placements": [
-    "meta.advantage-plus-reels-placement", "meta.manual-reels-placement",
-    "pin.top-of-search-api-v5", "tt.automatic-search-placement-compatibility",
-  ],
-  "Delivery & bidding": [
-    "ga.attribution-affects-bidding", "ga.target-cpa-bidding", "meta.automatic-conversion-location",
-    "pin.performance-plus-automatic-ad-groups", "pin.performance-plus-learning-mode",
-    "tt.smart-plus-budget-increments",
-  ],
-  "Measurement & reporting": [
-    "ga.attribution-model-setting", "ga.enhanced-conversions-web", "meta.automatic-advanced-matching",
-    "meta.brand-suitability-delivery-reports", "meta.capi-pixel-customer-information",
-    "pin.conversions-api", "pin.limited-data-processing", "pin.performance-plus-expanded-reporting",
-    "pin.pinterest-tag", "tt.events-api-first-party-cookie", "tt.mmp-ad-level-reporting-unsupported",
-    "tt.search-ad-impression-counting", "tt.split-testing-experiment-manager",
-  ],
+function isReleaseGuide(entry: GuideIndexEntry): entry is GuideIndexEntry & {
+  category: string
+  control_mode: GuideControlMode
+} {
+  return typeof entry.category === "string" && entry.category.length > 0 &&
+    (entry.control_mode === "control" || entry.control_mode === "signal" ||
+      entry.control_mode === "automatic")
 }
 
-const categoryById = new Map(Object.entries(categories)
-  .flatMap(([category, ids]) => ids.map((id) => [id, category] as const)))
-
-// Some older guides include editorial notes alongside planner-facing copy.
-const internalLanguage = /\b(?:packets?|spans?|source[ _-]ids?|hash(?:es)?|fact versions?|evidence(?: basis)?|corpus|stage[- ]?1|pipeline)\b|\b[a-f\d]{12,64}\b|https?:\/\//i
+const internalLanguage = /\b(?:packets?|spans?|source[ _-]ids?|hash(?:es)?|fact versions?|corpus|stage[- ]?1|pipeline|the (?:available |supplied )?evidence)\b|\b[a-f\d]{12,64}\b|https?:\/\//i
 
 function plannerText(value?: string | null) {
-  return value && !internalLanguage.test(value) ? value.trim() : ""
+  return value?.trim()
+    .split(/(?<=[.!?])\s+/)
+    .filter((part) => !internalLanguage.test(part))
+    .join(" ") ?? ""
 }
 
 function sourceUrl(value: string): string | undefined {
@@ -99,19 +79,17 @@ function sourceLinks(claim: Pick<GuideClaim, "evidence">) {
 }
 
 function sectionItems(section?: GuideSection, includeConditions = true): GuideItem[] {
-  if (!section || section.status === "not_documented" || section.status === "conflicting") return []
+  if (!section || (section.status !== "documented" && section.status !== "inferred")) return []
 
-  const items = section.claims.flatMap((claim) => {
+  return section.claims.flatMap((claim) => {
     const text = plannerText(claim.text).replace(/^Use case:\s*/i, "")
-    if (!text || claim.status === "not_documented" || claim.status === "conflicting") return []
+    if (!text || (claim.status !== "documented" && claim.status !== "inferred")) return []
     const conditions = includeConditions ? (claim.conditions ?? []).map(plannerText).filter(Boolean) : []
     return [{
       text: conditions.length ? `${text} (${conditions.join(", ")})` : text,
       sources: sourceLinks(claim),
     }]
   })
-  const summary = plannerText(section.summary)
-  return items.length > 0 ? items : summary ? [{ text: summary }] : []
 }
 
 function sourceLabel(url: string) {
@@ -125,29 +103,23 @@ function sourceLabel(url: string) {
 
 export async function getFeatureListings(): Promise<FeatureListing[]> {
   const { index } = await getGuideIndexOutcome()
-  const featured = pmaxAudienceSignals
-  return [
-    {
-      id: featured.id, name: featured.name, vendor: featured.vendor, platform: featured.platform,
-      category: featured.category, summary: featured.summary?.text ?? "",
-    },
-    ...index.guides.filter((entry) => entry.feature_id !== featured.id).map((entry) => ({
-      id: entry.feature_id,
-      name: entry.name,
-      vendor: entry.vendor,
-      platform: entry.platform,
-      category: categoryById.get(entry.feature_id),
-      summary: plannerText(entry.summary),
-    })),
-  ]
+  return index.guides.filter(isReleaseGuide).map((entry) => ({
+    id: entry.feature_id,
+    name: entry.name,
+    vendor: entry.vendor,
+    platform: entry.platform,
+    category: entry.category,
+    searchTerms: Array.isArray(entry.search_terms) ? entry.search_terms : [],
+    summary: plannerText(entry.summary),
+  }))
 }
 
 export async function getFeatureGuide(id: string) {
-  if (id === pmaxAudienceSignals.id) return { name: pmaxAudienceSignals.name, page: pmaxAudienceSignals }
-  const { index, source } = await getGuideIndexOutcome()
+  const { index } = await getGuideIndexOutcome()
   const entry = guideEntry(index, id)
-  if (!entry) return {}
-  const detail = await getGuideDetail(entry.detail, source)
+  if (!entry || !isReleaseGuide(entry)) return {}
+  if (id === pmaxAudienceSignals.id) return { name: pmaxAudienceSignals.name, page: pmaxAudienceSignals }
+  const detail = await getGuideDetail(entry.detail)
   if (!detail || detail.guide.feature_id !== id) return { name: entry.name }
 
   const guide = detail.guide
@@ -155,19 +127,23 @@ export async function getFeatureGuide(id: string) {
   const definition = sectionItems(byKind.get("definition"), false).slice(0, 2)
   const summary = definition.length > 0
     ? { text: definition.map((item) => item.text).join(" "), sources: definition.flatMap((item) => item.sources ?? []) }
-    : { text: plannerText(entry.summary) }
+    : undefined
   const useCases = sectionItems(byKind.get("use_cases"))
   const isLimitation = (item: GuideItem) => /^(?:avoid|do not|don’t|don't)\b/i.test(item.text)
+  const comparedVendors = new Set<string>()
   const comparisons = (guide.relationships ?? []).flatMap((relationship) => {
     const name = plannerText(relationship.name)
-    if (!name || relationship.status === "not_documented" || relationship.status === "conflicting") return []
-    const text = [plannerText(relationship.difference), plannerText(relationship.context)].filter(Boolean).join(" ")
+    if (!name || (relationship.status !== "documented" && relationship.status !== "inferred")) return []
+    const text = plannerText(relationship.difference)
     const sources = sourceLinks(relationship)
+    if (!text || !sources.length || comparedVendors.has(relationship.vendor)) return []
+    comparedVendors.add(relationship.vendor)
+    const alternative = guideEntry(index, relationship.feature_id)
     return [{
       vendor: relationship.vendor,
       name,
-      href: guideEntry(index, relationship.feature_id) ? featurePath(relationship.feature_id) : sources[0],
-      match: relationshipLabels[relationship.kind] ?? "Not documented",
+      href: alternative && isReleaseGuide(alternative) ? featurePath(relationship.feature_id) : sources[0],
+      match: relationshipLabels[relationship.kind],
       details: { text, sources },
     }]
   })
@@ -185,31 +161,27 @@ export async function getFeatureGuide(id: string) {
     }
   }
 
-  const { dataset } = await getCapabilityDataset()
-  const ids = new Set(guide.capability_ids ?? [])
-  const modes = new Set(capabilitiesOf(dataset)
-    .filter((record) => ids.has(record.id))
-    .map((record) => record.control_mode))
-  const control = modes.size === 1 ? [...modes][0] : undefined
-
   const page: FeatureGuide = {
     id,
     name: entry.name,
     vendor: entry.vendor,
     platform: entry.platform,
-    category: categoryById.get(id),
+    category: entry.category,
     summary,
-    control,
+    control: entry.control_mode,
     checkedAt: guide.source_checked_at ?? entry.source_checked_at,
     facts: [
       { label: "Platform", value: entry.vendor },
       ...(entry.platform && entry.platform !== entry.vendor ? [{ label: "Product", value: entry.platform }] : []),
-      { label: "Control type", value: control ? "" : "Not documented" },
-    ].filter(({ value }) => value),
+      { label: "Category", value: entry.category },
+    ],
     inputs: sectionItems(byKind.get("mechanism")),
     useCases: useCases.filter((item) => !isLimitation(item)),
     limitations: useCases.filter(isLimitation),
-    steps: sectionItems(byKind.get("setup")),
+    steps: sectionItems(byKind.get("setup")).map((item) => ({
+      ...item,
+      text: item.text.replace(/^(?:step\s+)?\d+[.):]\s*/i, ""),
+    })),
     kpis: sectionItems(byKind.get("kpis")),
     comparisons,
     sources: [...urls].map((url) => ({ url, label: titles.get(url) || sourceLabel(url) })),
