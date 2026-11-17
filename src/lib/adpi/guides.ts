@@ -1,8 +1,7 @@
 /**
  * Feature-guide loaders for the Capability Explorer (#175, parent #116).
  *
- * Read the current publication first, then the archived release if a publish
- * omits guides. Preserve the bundled empty index for offline use.
+ * Read the current publication. Preserve the bundled empty index for offline use.
  */
 import seedGuides from "@/data/adpi/guides.json";
 import type { GuideDetail, GuideIndex, GuideIndexEntry, GuideSection, GuideSectionKind } from "./guide-types";
@@ -10,15 +9,11 @@ import type { GuideDetail, GuideIndex, GuideIndexEntry, GuideSection, GuideSecti
 /** Bumped on a guide-schema change so a stale cache is not served. */
 export const GUIDE_SCHEMA_VERSION = 1;
 
-const DEFAULT_DATA_BASE = "https://raw.githubusercontent.com/Rajeev-SG/adpi-data/main";
-const DATA_BASE = process.env.ADPI_DATA_BASE ?? DEFAULT_DATA_BASE;
+const DATA_BASE =
+  process.env.ADPI_DATA_BASE ?? "https://raw.githubusercontent.com/Rajeev-SG/adpi-data/main";
 
-// The public data branch is replaced on publish. Keep the last verified guide
-// release reachable when a later publish omits guides, without pinning main.
-const ARCHIVED_BASE =
-  "https://raw.githubusercontent.com/Rajeev-SG/adpi-data/57355dcee53c3d821403bea71c811e02f781e927";
-
-export const GUIDE_INDEX_URL = `${DATA_BASE}/guides.json?v=${GUIDE_SCHEMA_VERSION}`;
+// Give the catalogue its own cache key when it replaces the pilot index.
+export const GUIDE_INDEX_URL = `${DATA_BASE}/guides.json?v=${GUIDE_SCHEMA_VERSION}&catalogue=release`;
 
 /** Upper bound on any guide fetch, so a hung connection cannot stall a page
  *  render indefinitely (#175 review: no-fetch-timeout). */
@@ -113,7 +108,7 @@ let indexCache: {
 export interface GuideIndexOutcome {
   index: GuideIndex;
   /** "durable" when the live published index was used, else "bundled". */
-  source: "durable" | "archived" | "bundled";
+  source: "durable" | "bundled";
   /** True when a meaningless bundled fallback is being served: the seed exists
    *  (so the route still renders) but carries no guides yet, so the UI must not
    *  claim a last-known-good snapshot it does not have (#175 review #2:
@@ -143,20 +138,11 @@ export async function getGuideIndexOutcome(): Promise<GuideIndexOutcome> {
     };
   }
   try {
-    const options = {
+    const res = await fetch(GUIDE_INDEX_URL, {
       headers: { Accept: "application/json" },
       next: { revalidate: 86400, tags: ["adpi-guides"] },
       signal: AbortSignal.timeout(GUIDE_FETCH_TIMEOUT_MS),
-    };
-    const res = await fetch(GUIDE_INDEX_URL, options);
-    if (DATA_BASE === DEFAULT_DATA_BASE && (res.status === 404 || res.status === 410)) {
-      const archived = await fetch(`${ARCHIVED_BASE}/guides.json`, options);
-      if (!archived.ok) throw new Error(`archive HTTP ${archived.status}`);
-      const index: unknown = await archived.json();
-      if (!isPlausibleGuideIndex(index)) throw new Error("invalid archived guide index");
-      indexCache = { at: now, index, source: "archived", ttlMs: FAILURE_RETRY_MS };
-      return { index, source: "archived", degraded: false };
-    }
+    });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const parsed: unknown = await res.json();
     if (!isPlausibleGuideIndex(parsed)) throw new Error("invalid guide index shape");
@@ -188,17 +174,13 @@ export async function getGuideIndex(): Promise<GuideIndex> {
  * a traversal/absolute URL cannot make the render server request an arbitrary
  * address (#175 review: detail-path-ssrf).
  */
-export async function getGuideDetail(
-  detailPath: string,
-  source?: GuideIndexOutcome["source"],
-): Promise<GuideDetail | null> {
+export async function getGuideDetail(detailPath: string): Promise<GuideDetail | null> {
   if (!isSafeDetailPointer(detailPath)) {
     console.warn(`adpi guide detail pointer rejected as unsafe: ${String(detailPath)}`);
     return null;
   }
   try {
-    const base = source === "archived" ? ARCHIVED_BASE : DATA_BASE;
-    const res = await fetch(`${base}/${detailPath}?v=${GUIDE_SCHEMA_VERSION}`, {
+    const res = await fetch(`${DATA_BASE}/${detailPath}?v=${GUIDE_SCHEMA_VERSION}`, {
       headers: { Accept: "application/json" },
       next: { revalidate: 86400, tags: ["adpi-guides"] },
       signal: AbortSignal.timeout(GUIDE_FETCH_TIMEOUT_MS),

@@ -26,7 +26,7 @@ export function FeatureGuide({ guide }: { guide: Guide }) {
   }
 
   function Items({ items, numbered = false }: { items: Guide["inputs"]; numbered?: boolean }) {
-    if (items.length === 0) return <p className="text-muted-foreground">Not documented</p>
+    if (items.length === 0) return null
     const List = numbered ? "ol" : "ul"
     return (
       <List className={`space-y-2 pl-5 leading-relaxed ${numbered ? "list-decimal" : "list-disc"}`}>
@@ -123,9 +123,9 @@ export function FeatureGuide({ guide }: { guide: Guide }) {
         <Cards items={guide.kpis} muted />
       </section>
 
-      <section className="space-y-3" aria-labelledby="other-platforms">
-        <h2 id="other-platforms" className={headingStyle}>On other platforms</h2>
-        {guide.comparisons.length > 0 ? (
+      {guide.comparisons.length > 0 && (
+        <section className="space-y-3" aria-labelledby="other-platforms">
+          <h2 id="other-platforms" className={headingStyle}>On other platforms</h2>
           <div className="overflow-x-auto rounded-xl border" role="region" aria-label="Platform comparisons" tabIndex={0}>
             <table aria-labelledby="other-platforms" className="w-full min-w-[36rem] text-sm [&_td]:p-3 [&_td]:align-top [&_td]:whitespace-normal [&_th]:px-3">
               <TableHeader className="bg-muted/60">
@@ -142,14 +142,14 @@ export function FeatureGuide({ guide }: { guide: Guide }) {
                     <TableCell className="font-medium">{vendor}</TableCell>
                     <TableCell>{href ? <Link href={href} className={linkStyle}>{name}</Link> : name}</TableCell>
                     <TableCell>{match}</TableCell>
-                    <TableCell>{details?.text || "Not documented"}<References urls={details?.sources} /></TableCell>
+                    <TableCell>{details?.text}<References urls={details?.sources} /></TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </table>
           </div>
-        ) : <p className="text-muted-foreground">Not documented</p>}
-      </section>
+        </section>
+      )}
 
       <footer className="space-y-2 border-t pt-5 text-sm">
         <h2 className="font-semibold">Sources</h2>
