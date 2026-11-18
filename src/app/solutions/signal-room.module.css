@@ -266,6 +266,13 @@
   letter-spacing: -.045em;
 }
 
+.timelineControls {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 7px;
+}
+
 .clock {
   display: flex;
   align-items: center;
@@ -309,7 +316,7 @@
   display: grid;
   flex: 1;
   grid-template-columns: 30px minmax(0, 1fr);
-  margin-right: 5px;
+  margin-right: 18px;
 }
 
 .yLabels {
@@ -400,22 +407,16 @@
   box-shadow: 0 0 0 4px #ffe0b530;
 }
 
-.transport {
-  display: grid;
-  grid-template-columns: 44px minmax(0, 1fr);
-  align-items: start;
-  gap: 10px;
-  margin-top: 9px;
-}
-
 .play {
   justify-content: center;
+  width: 44px;
   min-height: 44px;
   color: #f6c5a0;
 }
 
 .scrubber {
   min-width: 0;
+  margin-inline: 24px 12px;
 }
 
 .scrubber input {
@@ -428,11 +429,17 @@
 }
 
 .timeLabels {
-  display: flex;
-  justify-content: space-between;
-  gap: 4px;
+  grid-column: 2;
+  position: relative;
+  height: 17px;
+  margin-top: 6px;
   color: var(--quiet);
   font-size: 11px;
+}
+
+.timeLabels span {
+  position: absolute;
+  transform: translateX(-50%);
 }
 
 .evidence {

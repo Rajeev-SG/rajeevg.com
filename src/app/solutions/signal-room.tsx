@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { ArrowDown, ArrowRight, Check, ChevronRight, Crosshair, Pause, Play, RotateCcw } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { ArrowDown, ArrowRight, Check, ChevronRight, Crosshair, Pause, Play, RotateCcw, SkipBack, SkipForward } from "lucide-react"
 import { cases, causes, signals, times } from "./signal-room-cases"
 import styles from "./signal-room.module.css"
 
@@ -12,6 +12,7 @@ const plotHeight = 168
 const traceColors = ["#c2b5a6", "#8cc5b4", "#ffaf69"]
 const drawOrder = [0, 1, 2] as const
 const referenceLines = [110, 100, 80, 60, 50]
+const timeTicks = [0, 2, 4, 6, 8]
 
 function x(frame: number) {
   return 6 + (frame / lastFrame) * (plotWidth - 12)
@@ -30,6 +31,8 @@ export default function SignalRoom() {
   const [caseIndex, setCaseIndex] = useState(0)
   const [frame, setFrame] = useState(lastFrame)
   const [playing, setPlaying] = useState(false)
+  const [reducedMotion, setReducedMotion] = useState(false)
+  const consoleRef = useRef<HTMLDivElement>(null)
   const [signal, setSignal] = useState(2)
   const [answer, setAnswer] = useState<number | null>(null)
   const [solved, setSolved] = useState<number[]>([])
@@ -37,6 +40,25 @@ export default function SignalRoom() {
   const correct = answer === incident.cause
   const incidentFrame = times.indexOf(incident.time)
   const hasIncidentStarted = frame >= incidentFrame
+  const atEnd = frame === lastFrame
+  const replayLabel = reducedMotion
+    ? atEnd ? "Jump to timeline start" : "Jump to timeline end"
+    : playing ? "Pause timeline replay" : "Play timeline replay"
+  const ReplayIcon = reducedMotion
+    ? atEnd ? SkipBack : SkipForward
+    : playing ? Pause : atEnd ? RotateCcw : Play
+
+  useEffect(() => {
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)")
+    const syncPreference = () => {
+      setReducedMotion(query.matches)
+      if (query.matches) setPlaying(false)
+    }
+
+    syncPreference()
+    query.addEventListener("change", syncPreference)
+    return () => query.removeEventListener("change", syncPreference)
+  }, [])
 
   useEffect(() => {
     if (!playing) return
@@ -64,12 +86,12 @@ export default function SignalRoom() {
       return
     }
 
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setFrame(frame === lastFrame ? firstFrame : lastFrame)
+    if (reducedMotion) {
+      setFrame(atEnd ? firstFrame : lastFrame)
       return
     }
 
-    if (frame === lastFrame) setFrame(firstFrame)
+    if (atEnd) setFrame(firstFrame)
     setPlaying(true)
   }
 
@@ -92,10 +114,10 @@ export default function SignalRoom() {
             Open the case <ArrowDown size={16} aria-hidden="true" />
           </a>
         </div>
-        <p className={styles.heroCaption}>Three simulated incidents<span aria-hidden="true"> / </span><span className={styles.heroCaptionSecond}>One identical drop</span></p>
+        <p className={styles.heroCaption}>Three simulated incidents<span aria-hidden="true"> / </span><span>One identical drop</span></p>
       </div>
 
-      <div id="signal-room-investigate" className={styles.console} tabIndex={-1}>
+      <div ref={consoleRef} id="signal-room-investigate" className={styles.console} tabIndex={-1}>
         <div className={styles.caseBar}>
           <div className={styles.caseBarHeading}>
             <span className={styles.eyebrow}>Case files</span>
@@ -121,7 +143,12 @@ export default function SignalRoom() {
                 <p className={styles.eyebrow}>Incident timeline</p>
                 <h3>Follow the signal</h3>
               </div>
-              <div className={styles.clock}><span aria-hidden="true" />{times[frame]}</div>
+              <div className={styles.timelineControls}>
+                <div className={styles.clock}><span aria-hidden="true" />{times[frame]}</div>
+                <button className={styles.play} type="button" onClick={toggleReplay} aria-label={replayLabel} title={replayLabel}>
+                  <ReplayIcon size={16} aria-hidden="true" />
+                </button>
+              </div>
             </div>
 
             <p className={styles.chartLabel}>
@@ -167,28 +194,22 @@ export default function SignalRoom() {
                   />
                 ))}
               </div>
+              <div className={styles.timeLabels} aria-hidden="true">
+                {timeTicks.map((index) => (
+                  <span key={index} style={{ left: `${x(index) / plotWidth * 100}%` }}>{times[index]}</span>
+                ))}
+              </div>
             </div>
 
-            <div className={styles.transport}>
-              <button
-                className={styles.play} type="button" onClick={toggleReplay}
-                aria-label={playing ? "Pause timeline replay" : "Play timeline replay"}
-              >
-                {playing ? <Pause size={16} fill="currentColor" aria-hidden="true" /> : frame === lastFrame ? <RotateCcw size={16} aria-hidden="true" /> : <Play size={15} fill="currentColor" aria-hidden="true" />}
-              </button>
-              <div className={styles.scrubber}>
-                <input
-                  aria-label="Incident time" aria-valuetext={times[frame]} type="range"
-                  min={firstFrame} max={lastFrame} value={frame}
-                  onChange={(event) => {
-                    setPlaying(false)
-                    setFrame(Number(event.target.value))
-                  }}
-                />
-                <div className={styles.timeLabels} aria-hidden="true">
-                  <span>08:00</span><span>09:00</span><span>10:00</span><span>11:00</span><span>12:00</span>
-                </div>
-              </div>
+            <div className={styles.scrubber}>
+              <input
+                aria-label="Incident time" aria-valuetext={times[frame]} type="range"
+                min={firstFrame} max={lastFrame} value={frame}
+                onChange={(event) => {
+                  setPlaying(false)
+                  setFrame(Number(event.target.value))
+                }}
+              />
             </div>
           </div>
 
@@ -236,7 +257,8 @@ export default function SignalRoom() {
           {correct && caseIndex < cases.length - 1 && (
             <button className={styles.next} type="button" onClick={() => {
               chooseCase(caseIndex + 1)
-              document.getElementById("signal-room-investigate")?.focus()
+              consoleRef.current?.focus({ preventScroll: true })
+              consoleRef.current?.scrollIntoView({ block: "start" })
             }}>
               Next case <ArrowRight size={16} aria-hidden="true" />
             </button>
