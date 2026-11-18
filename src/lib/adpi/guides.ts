@@ -85,25 +85,10 @@ export function orderedSections(sections: GuideSection[]): GuideSection[] {
   );
 }
 
-const CACHE_MS = 60 * 60 * 1000;
-
-/** After a failed live read the bundled seed is served, but only cached for
- *  this short window so the loader re-attempts the live index promptly instead
- *  of pinning a degraded state for a full hour (#175 review #2:
- *  failure-caches-seed-for-an-hour). */
+/** Retry a failed live read after a short cooldown. */
 export const FAILURE_RETRY_MS = 60 * 1000;
 
-let indexCache: {
-  at: number;
-  index: GuideIndex | null;
-  source: GuideIndexOutcome["source"];
-  ttlMs: number;
-} = {
-  at: 0,
-  index: null,
-  source: "bundled",
-  ttlMs: CACHE_MS,
-};
+let lastFailureAt: number | undefined;
 
 export interface GuideIndexOutcome {
   index: GuideIndex;
@@ -129,37 +114,33 @@ export interface GuideIndexOutcome {
  * live read is cached only briefly (`FAILURE_RETRY_MS`) so recovery is prompt.
  */
 export async function getGuideIndexOutcome(): Promise<GuideIndexOutcome> {
-  const now = Date.now();
-  if (indexCache.index && now - indexCache.at < indexCache.ttlMs) {
-    return {
-      index: indexCache.index,
-      source: indexCache.source,
-      degraded: indexCache.source === "bundled" && indexCache.index.guides.length === 0,
-    };
+  if (lastFailureAt !== undefined && Date.now() - lastFailureAt < FAILURE_RETRY_MS) {
+    return bundledGuideIndexOutcome();
   }
   try {
     const res = await fetch(GUIDE_INDEX_URL, {
       headers: { Accept: "application/json" },
-      next: { revalidate: 86400, tags: ["adpi-guides"] },
+      // The index is a mutable pointer to immutable release files.
+      cache: "no-store",
       signal: AbortSignal.timeout(GUIDE_FETCH_TIMEOUT_MS),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const parsed: unknown = await res.json();
     if (!isPlausibleGuideIndex(parsed)) throw new Error("invalid guide index shape");
-    indexCache = { at: now, index: parsed, source: "durable", ttlMs: CACHE_MS };
+    lastFailureAt = undefined;
     return { index: parsed, source: "durable", degraded: false };
   } catch (error) {
     // Observable, bounded failure (#175 review): warn so a degraded state is
     // diagnosable, then serve the bundled last-known-good seed.
     console.warn(`adpi guide index unavailable (${String(error)}); using bundled seed`);
-    const seed = seedGuideIndex();
-    indexCache = { at: now, index: seed, source: "bundled", ttlMs: FAILURE_RETRY_MS };
-    return {
-      index: seed,
-      source: "bundled",
-      degraded: seed.guides.length === 0,
-    };
+    lastFailureAt = Date.now();
+    return bundledGuideIndexOutcome();
   }
+}
+
+function bundledGuideIndexOutcome(): GuideIndexOutcome {
+  const index = seedGuideIndex();
+  return { index, source: "bundled", degraded: index.guides.length === 0 };
 }
 
 /** The effective guide index (live when available, else the bundled seed). */

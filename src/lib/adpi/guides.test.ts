@@ -120,6 +120,32 @@ describe("loader fallback and safety", () => {
     expect(warn).toHaveBeenCalled()
   })
 
+  it("reads a new release on the next request after a successful fetch", async () => {
+    vi.resetModules()
+    const fetchSpy = vi.fn()
+    for (const release of ["rel-old", "rel-new"]) {
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          schema_version: 1,
+          release,
+          guides: [{ feature_id: "f.one", detail: `guides/${release}/f.one.json` }],
+        }),
+      })
+    }
+    globalThis.fetch = fetchSpy as never
+    const { getGuideIndexOutcome, GUIDE_INDEX_URL } = await import("./guides")
+
+    expect((await getGuideIndexOutcome()).index.release).toBe("rel-old")
+    expect((await getGuideIndexOutcome()).index.release).toBe("rel-new")
+    expect(fetchSpy).toHaveBeenCalledTimes(2)
+    for (const [url, options] of fetchSpy.mock.calls) {
+      expect(url).toBe(GUIDE_INDEX_URL)
+      expect(options.cache).toBe("no-store")
+      expect(options.next).toBeUndefined()
+    }
+  })
+
   it("caches a failed read only briefly and recovers the live index on retry", async () => {
     vi.resetModules()
     const live = {

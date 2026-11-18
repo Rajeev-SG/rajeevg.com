@@ -1,18 +1,16 @@
 import { cache } from "react"
 import type { Metadata } from "next"
 import Link from "next/link"
+import { connection } from "next/server"
 
 import { FeatureGuide } from "@/components/adpi/feature-guide"
 import { explorerPath, featurePath, getFeatureGuide } from "@/lib/adpi/feature-pages"
 
-export const revalidate = 86400
-
-// Render each guide on its first request.
-export function generateStaticParams() {
-  return []
-}
-
-const loadFeature = cache(getFeatureGuide)
+const loadFeature = cache(async (featureId: string) => {
+  // A brief index fetch failure must not cache the missing guide page.
+  await connection()
+  return getFeatureGuide(featureId)
+})
 
 type Props = { params: Promise<{ featureId: string }> }
 
