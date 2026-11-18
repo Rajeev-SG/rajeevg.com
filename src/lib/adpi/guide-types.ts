@@ -25,6 +25,10 @@ export interface GuideEvidenceRef {
   source_id: string;
   source_url: string;
   locator?: string | null;
+  // The page's own name, published by the guide export, so a citation
+  // reads as "Meta Business Help Centre — About Lookalike Audiences".
+  source_site?: string | null;
+  source_title?: string | null;
 }
 
 export interface GuideClaim {
