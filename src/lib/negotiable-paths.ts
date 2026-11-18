@@ -26,6 +26,9 @@ export function isNegotiablePublicPath(pathname: string): boolean {
     // representation, so negotiation must not intercept it.
     pathname === "/solutions/ai-discovery" ||
     pathname.startsWith("/solutions/ai-discovery/") ||
+    // Paid Media Decoded is proxied to its own static deployment too.
+    pathname === "/solutions/decoded" ||
+    pathname.startsWith("/solutions/decoded/") ||
     pathname === "/interfaces" ||
     pathname.startsWith("/interfaces/") ||
     pathname.includes(".")

@@ -36,6 +36,9 @@ const nextConfig: NextConfig = {
       process.env.AI_DISCOVERY_ORIGIN ??
       "https://ai-discovery-observation-plane-rajeevgills-projects.vercel.app"
 
+    // Paid Media Decoded origin; override with DECODED_ORIGIN for local development.
+    const decodedOrigin = process.env.DECODED_ORIGIN ?? "https://paid-media-decoded.vercel.app"
+
     // The Visual AI Lab is deployed as its own Vercel project and served under
     // this site's /interfaces route, so the lab keeps its own origin and assets.
     //
@@ -52,6 +55,12 @@ const nextConfig: NextConfig = {
       // beforeFiles: the whole subtree belongs to the origin app; this must win
       // over the host's own /solutions/[slug] route before filesystem matching.
       beforeFiles: [
+        // Paid Media Decoded is a static Astro site deployed as its own Vercel
+        // project (repo: paid-media-decoded, built with PMD_BASE=/solutions/decoded
+        // so every asset and link carries this prefix). The prefix is stripped on
+        // the way to the origin, which serves flat clean-URL pages.
+        { source: "/solutions/decoded", destination: `${decodedOrigin}/` },
+        { source: "/solutions/decoded/:path*", destination: `${decodedOrigin}/:path*` },
         {
           source: "/solutions/ai-discovery",
           destination: `${aiDiscoveryOrigin}/solutions/ai-discovery`,
