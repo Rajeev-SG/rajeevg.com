@@ -186,7 +186,7 @@ export const diagrams: Diagram[] = [
       { features: [], cells: ["Manual placements", "You pick from eligible placements", "Meta delivers within your selection"] },
     ],
     sources: [
-      { label: "About Advantage+ placements", url: "https://www.facebook.com/business/help/437348354643456" },
+      { label: "About Advantage+ placements", url: "https://www.facebook.com/business/help/965529646866485" },
     ],
   },
   {

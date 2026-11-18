@@ -41,26 +41,27 @@ function DiagramPanel({ diagram, featureId }: { diagram: Diagram; featureId: str
           const selected = features.includes(featureId)
           return (
             <li key={cells.join("|")} className="border-b border-black/15 py-4 last:border-b-0 last:pb-0 dark:border-white/20">
-              <dl className={`grid gap-x-6 gap-y-2 sm:grid-cols-[1fr_1.25fr_1.2fr] sm:gap-x-8 ${flow ? "grid-cols-[1fr_1.2fr]" : ""}`}>
+              <dl className={`grid gap-x-6 sm:grid-cols-[1fr_1.25fr_1.2fr] sm:gap-x-8 sm:gap-y-2 ${flow ? "grid-cols-[1fr_1.2fr] gap-y-8" : "gap-y-2"}`}>
                 {cells.map((cell, index) => (
-                  <div key={columns[index]} className={`relative min-w-0 ${flow && index === 0 ? "col-span-2 sm:col-span-1" : ""}`}>
-                    <div className={`${flow && index === 0 ? "sm:h-full" : "h-full"} ${flow ? "rounded-md border border-black/15 bg-white/70 p-3 dark:border-white/15 dark:bg-black/20" : ""}
-                      ${selected && index === 0 ? "border-l-2 border-l-[#a94028] pl-2.5 dark:border-l-[#ff997c]" : ""}
-                      ${scope && index === 1 ? "rounded-sm border border-dashed border-black/25 px-2.5 py-1.5 dark:border-white/25" : ""}`}>
-                      <dt className="mb-0.5 font-mono text-[0.68rem] font-semibold uppercase tracking-wide opacity-75 sm:sr-only">{columns[index]}</dt>
-                      <dd className={`text-sm leading-snug ${index === 0 ? "font-semibold" : ""} ${index === 2 && selected ? "font-semibold text-[#8e321d] dark:text-[#ffb099]" : ""}`}>
-                        {cell}
-                        {index === 2 && outputImage && (
-                          <Image src={`${imageDirectory}/${outputImage}`} width={160} height={120} alt="" unoptimized className="mt-2 h-auto w-24 rounded" />
-                        )}
-                      </dd>
-                    </div>
-                    {flow && index < 2 && (
-                      <>
-                        <ArrowRight aria-hidden="true" className={`absolute top-1/2 size-4 -translate-y-1/2 opacity-55 sm:-right-6 sm:block ${index === 0 ? "hidden" : "-right-5"}`} />
-                        {index === 0 && <ArrowDown aria-hidden="true" className="mx-auto mt-2 size-4 opacity-55 sm:hidden" />}
-                      </>
-                    )}
+                  <div key={columns[index]} className={`relative min-w-0
+                    ${flow ? "rounded-md border border-black/15 bg-white/70 p-3 dark:border-white/15 dark:bg-black/20" : ""}
+                    ${flow && index === 0 ? "col-span-2 sm:col-span-1" : ""}
+                    ${selected && index === 0 ? "border-l-2 border-l-[#a94028] pl-2.5 dark:border-l-[#ff997c]" : ""}
+                    ${scope && index === 1 ? "rounded-sm border border-dashed border-black/25 px-2.5 py-1.5 dark:border-white/25" : ""}`}>
+                    <dt className="mb-0.5 font-mono text-[0.68rem] font-semibold uppercase tracking-wide opacity-75 sm:sr-only">{columns[index]}</dt>
+                    <dd className={`text-sm leading-snug ${index === 0 ? "font-semibold" : ""} ${index === 2 && selected ? "font-semibold text-[#8e321d] dark:text-[#ffb099]" : ""}`}>
+                      {cell}
+                      {selected && index === 0 && <span className="sr-only"> (Covered in this guide)</span>}
+                      {index === 2 && outputImage && (
+                        <Image src={`${imageDirectory}/${outputImage}`} width={358} height={480} alt="" unoptimized className="mt-2 h-auto w-24 rounded" />
+                      )}
+                      {flow && index < 2 && (
+                        <>
+                          <ArrowRight aria-hidden="true" className={`absolute top-1/2 size-4 -translate-y-1/2 opacity-55 sm:-right-6 sm:block ${index === 0 ? "hidden" : "-right-5"}`} />
+                          {index === 0 && <ArrowDown aria-hidden="true" className="absolute -bottom-6 left-1/2 size-4 -translate-x-1/2 opacity-55 sm:hidden" />}
+                        </>
+                      )}
+                    </dd>
                   </div>
                 ))}
               </dl>
