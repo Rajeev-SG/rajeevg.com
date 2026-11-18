@@ -1,14 +1,14 @@
 {
-  "generatedAt": "2026-11-18T14:05:56.039Z",
+  "generatedAt": "2026-11-18T23:24:40.130Z",
   "note": "Upstream records the canonical join layer could not place. Reason codes: not_in_alias_map (needs a curated alias; also the regression signal when identity fully verifies), org_unknown (new org), creator_name_mismatch (upstream renamed a creator), no_aa_counterpart (OpenRouter-only, no AA quality source), variant_excluded (effort-variant or batch/contributor record excluded by design).",
   "sources": {
     "aa": {
-      "upstreamRecords": 759,
-      "upstreamModelCount": 759,
-      "upstreamScoredModelCount": 87
+      "upstreamRecords": 763,
+      "upstreamModelCount": 763,
+      "upstreamScoredModelCount": 88
     },
     "openrouter": {
-      "upstreamRecords": 478
+      "upstreamRecords": 480
     }
   },
   "diagnostics": [
@@ -221,6 +221,13 @@
       "displayName": "Devstral 2 (Mistral)",
       "reasonCode": "not_in_alias_map",
       "org": "Mistral"
+    },
+    {
+      "source": "aa",
+      "sourceId": "gemini-4-neon-low",
+      "displayName": "Gemini 4 Neon (Low) (Google)",
+      "reasonCode": "variant_excluded",
+      "org": "Google"
     },
     {
       "source": "aa",
@@ -700,6 +707,13 @@
     },
     {
       "source": "aa",
+      "sourceId": "gemini-4-neon-medium",
+      "displayName": "Gemini 4 Neon (Medium) (Google)",
+      "reasonCode": "variant_excluded",
+      "org": "Google"
+    },
+    {
+      "source": "aa",
       "sourceId": "qwen3-1.7b-instruct",
       "displayName": "Qwen3 1.7B (Non-reasoning) (Alibaba)",
       "reasonCode": "not_in_alias_map",
@@ -1047,22 +1061,8 @@
       "displayName": "Gemini 1.5 Flash (Sep '24) (Google)",
       "reasonCode": "not_in_alias_map",
       "org": "Google"
-    },
-    {
-      "source": "aa",
-      "sourceId": "claude-haiku-5-5-low",
-      "displayName": "Claude Haiku 5.5 (Low) (Anthropic)",
-      "reasonCode": "variant_excluded",
-      "org": "Anthropic"
-    },
-    {
-      "source": "aa",
-      "sourceId": "solar-pro-2-preview",
-      "displayName": "Solar Pro 2 (Preview) (Non-reasoning) (Upstage)",
-      "reasonCode": "not_in_alias_map",
-      "org": "Upstage"
     }
   ],
-  "diagnosticCount": 913,
+  "diagnosticCount": 917,
   "truncated": true
 }
