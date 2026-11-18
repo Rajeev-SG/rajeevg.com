@@ -78,6 +78,24 @@ function sourceLinks(claim: Pick<GuideClaim, "evidence">) {
   return (claim.evidence ?? []).flatMap(({ source_url }) => sourceUrl(source_url) ?? [])
 }
 
+// The page's own name, published on every citation by the guide export
+// A label is "Site — Page title", the form the sources list uses.
+function evidenceTitles(guide: { sections: GuideSection[]; relationships: { evidence?: GuideClaim["evidence"] }[] }) {
+  const labels = new Map<string, string>()
+  const refs = [
+    ...guide.sections.flatMap((section) => section.claims.flatMap((claim) => claim.evidence ?? [])),
+    ...guide.relationships.flatMap((relationship) => relationship.evidence ?? []),
+  ]
+  for (const ref of refs) {
+    const url = sourceUrl(ref.source_url)
+    const title = ref.source_title?.trim()
+    if (!url || !title) continue
+    const site = ref.source_site?.trim()
+    labels.set(url, site ? `${site} — ${title}` : title)
+  }
+  return labels
+}
+
 function sectionItems(section?: GuideSection, includeConditions = true): GuideItem[] {
   if (!section || (section.status !== "documented" && section.status !== "inferred")) return []
 
@@ -93,11 +111,17 @@ function sectionItems(section?: GuideSection, includeConditions = true): GuideIt
 }
 
 function sourceLabel(url: string) {
+  // Last resort only: a citation should arrive with its own page title.
+  // Naming the platform here ("Pinterest documentation") hid the page name, so
+  // an untitled citation now shows the site it came from instead.
   const host = new URL(url).hostname.replace(/^www\./, "")
-  if (host === "support.google.com" || host === "developers.google.com") return "Google Ads documentation"
-  if (host.endsWith(".facebook.com") || host === "facebook.com") return "Meta documentation"
-  if (host === "ads.tiktok.com" || host === "business-api.tiktok.com") return "TikTok Ads documentation"
-  if (host.endsWith(".pinterest.com") || host === "pinterest.com") return "Pinterest documentation"
+  if (host === "support.google.com") return "Google Ads Help"
+  if (host === "developers.google.com") return "Google Ads API"
+  if (host === "facebook.com") return "Meta Business Help Centre"
+  if (host === "developers.facebook.com") return "Meta for Developers"
+  if (host === "ads.tiktok.com") return "TikTok Ads Help Center"
+  if (host === "business-api.tiktok.com") return "TikTok API for Business"
+  if (host.endsWith("pinterest.com")) return "Pinterest Help Centre"
   return host
 }
 
@@ -160,6 +184,11 @@ export async function getFeatureGuide(id: string) {
       titles.set(links[0], title)
     }
   }
+  // The citation's own page title wins over a label parsed out of the sources
+  // prose: it is the name the vendor publishes, and it is on every citation.
+  const citationLabels = evidenceTitles(guide)
+  const labelFor = (url: string) =>
+    citationLabels.get(url) || titles.get(url) || sourceLabel(url)
 
   const page: FeatureGuide = {
     id,
@@ -184,7 +213,7 @@ export async function getFeatureGuide(id: string) {
     })),
     kpis: sectionItems(byKind.get("kpis")),
     comparisons,
-    sources: [...urls].map((url) => ({ url, label: titles.get(url) || sourceLabel(url) })),
+    sources: [...urls].map((url) => ({ url, label: labelFor(url) })),
   }
   return { name: page.name, page }
 }
