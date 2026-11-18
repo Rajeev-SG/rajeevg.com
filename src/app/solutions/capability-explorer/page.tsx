@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 
 import { FeatureBrowse } from "@/components/adpi/feature-browse"
+import { VisualGallery } from "@/components/adpi/visual-gallery"
 import { explorerPath, featurePath, getFeatureListings } from "@/lib/adpi/feature-pages"
 
 const description = "Find ad platform features, see how to set them up and compare what they do."
@@ -29,6 +30,7 @@ export default async function CapabilityExplorerPage({
         key={query}
         features={features.map((feature) => ({ ...feature, href: featurePath(feature.id) }))}
         initialQuery={query}
+        gallery={<VisualGallery features={features} />}
       />
     </section>
   )

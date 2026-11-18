@@ -1,6 +1,9 @@
 import Link from "next/link"
 import { Search } from "lucide-react"
 
+import { FeatureVisual } from "@/components/adpi/feature-visual"
+import { diagrams } from "@/lib/adpi/visual-diagrams"
+import { examples } from "@/lib/adpi/visual-examples"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -12,6 +15,7 @@ const headingStyle = "text-xl font-semibold tracking-tight sm:text-2xl"
 
 export function FeatureGuide({ guide }: { guide: Guide }) {
   const sourceNumbers = new Map(guide.sources.map(({ url }, index) => [url, index + 1]))
+  const visual = examples[guide.id] ?? diagrams.find((diagram) => diagram.rows.some((row) => row.features.includes(guide.id)))
   const checkedAt = guide.checkedAt ? new Date(guide.checkedAt) : null
 
   function References({ urls }: { urls?: string[] }) {
@@ -87,6 +91,8 @@ export function FeatureGuide({ guide }: { guide: Guide }) {
           </span>
         </div>
       </header>
+
+      {visual && <FeatureVisual visual={visual} featureId={guide.id} />}
 
       <dl aria-label="Quick facts" className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border bg-border sm:grid-cols-[repeat(auto-fit,minmax(9rem,1fr))]">
         {guide.facts.map(({ label, value }) => (
