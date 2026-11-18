@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, type ReactNode } from "react"
 import Link from "next/link"
 import { Search } from "lucide-react"
 
@@ -9,7 +9,11 @@ import type { FeatureListing } from "@/lib/adpi/feature-pages"
 
 type BrowseFeature = FeatureListing & { href: string }
 
-export function FeatureBrowse({ features, initialQuery }: { features: BrowseFeature[]; initialQuery: string }) {
+export function FeatureBrowse({ features, initialQuery, gallery }: {
+  features: BrowseFeature[]
+  initialQuery: string
+  gallery: ReactNode
+}) {
   const [query, setQuery] = useState(initialQuery)
   const terms = query.toLowerCase().trim().split(/\s+/).filter(Boolean)
   const matches = features.filter(({ name, vendor, platform, category, searchTerms, summary }) => {
@@ -39,6 +43,8 @@ export function FeatureBrowse({ features, initialQuery }: { features: BrowseFeat
           onChange={(event) => setQuery(event.target.value)}
         />
       </div>
+
+      {terms.length === 0 && gallery}
 
       <section aria-labelledby="browse-features" className="space-y-4">
         <h2 id="browse-features" className="text-xl font-semibold tracking-tight sm:text-2xl">
