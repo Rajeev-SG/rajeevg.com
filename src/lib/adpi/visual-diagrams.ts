@@ -177,15 +177,28 @@ export const diagrams: Diagram[] = [
     ],
   },
   {
+    kind: "flow",
+    title: "Who picks the placement?",
+    description: "Your choice changes who selects the placements. With Advantage+ placements, Meta can optimise delivery across the placements the ad is eligible for.",
+    columns: ["Ad set choice", "Who selects", "Delivery"],
+    rows: [
+      { features: ["meta.advantage-plus-placements"], cells: ["Advantage+ placements", "Meta picks from eligible placements", "Meta can shift delivery across placements"] },
+      { features: [], cells: ["Manual placements", "You pick from eligible placements", "Meta delivers within your selection"] },
+    ],
+    sources: [
+      { label: "About Advantage+ placements", url: "https://www.facebook.com/business/help/437348354643456" },
+    ],
+  },
+  {
     kind: "scope",
     title: "Four places an ad can appear on Meta",
     description: "These are delivery surfaces. The same campaign may be eligible for several, depending on its setup and creative.",
     columns: ["Placement", "Surrounding experience", "Where the ad appears"],
     rows: [
-      { features: ["meta.facebook-feed-placement", "meta.advantage-plus-placements"], cells: ["Facebook Feed", "The Facebook home stream", "Within the post feed"] },
-      { features: ["meta.instagram-feed-placement", "meta.advantage-plus-placements"], cells: ["Instagram Feed", "The Instagram home stream", "Among photos and videos"] },
-      { features: ["meta.instagram-reels-placement", "meta.advantage-plus-placements"], cells: ["Instagram Reels", "The vertically scrolling Reels viewer", "Between Reels"] },
-      { features: ["meta.instagram-stories-placement", "meta.advantage-plus-placements"], cells: ["Instagram Stories", "The full-screen Stories viewer", "Between Stories"] },
+      { features: ["meta.facebook-feed-placement"], cells: ["Facebook Feed", "The Facebook home stream", "Within the post feed"] },
+      { features: ["meta.instagram-feed-placement"], cells: ["Instagram Feed", "The Instagram home stream", "Among photos and videos"] },
+      { features: ["meta.instagram-reels-placement"], cells: ["Instagram Reels", "The vertically scrolling Reels viewer", "Between Reels"] },
+      { features: ["meta.instagram-stories-placement"], cells: ["Instagram Stories", "The full-screen Stories viewer", "Between Stories"] },
     ],
     sources: [
       { label: "Image ad specifications", url: "https://www.facebook.com/business/ads-guide/update/image" },
@@ -317,16 +330,28 @@ export const diagrams: Diagram[] = [
     columns: ["Ad group or campaign input", "What TikTok can decide", "Effect"],
     rows: [
       { features: ["tt.automatic-placement"], cells: ["Automatic placement", "Select eligible inventory", "Delivery can move among compatible placements"] },
-      { features: ["tt.pangle-placement"], cells: ["Pangle eligibility", "Select inventory under the campaign’s placement settings", "Eligible partner-app inventory can receive delivery"] },
-      { features: ["tt.smart-plus-audience-suggestions", "tt.interest-targeting"], cells: ["Suggested interests or audiences", "Find likely responders and expand beyond suggestions as applicable", "Suggestions guide the search for an audience"] },
+      { features: ["tt.pangle-placement"], cells: ["Smart+ Web in a Pangle market", "TikTok can select Pangle with automatic placement", "Delivery can reach eligible partner apps"] },
+      { features: ["tt.smart-plus-audience-suggestions"], cells: ["Suggested interests or audiences", "Find likely responders and expand beyond suggestions as applicable", "Suggestions guide the search for an audience"] },
       { features: ["tt.smart-plus-traffic-campaigns"], cells: ["Traffic objective and destination", "Optimise toward the selected traffic goal", "Delivery works toward traffic to the destination"] },
     ],
     sources: [
       { label: "About upgrades to Smart+", url: "https://ads.tiktok.com/resources/help/article/about-updates-to-smart-plus?lang=en" },
       { label: "About Smart+ Web Campaigns", url: "https://ads.tiktok.com/resources/help/article/about-smart-plus-web-campaigns?lang=en" },
       { label: "Upgraded Smart+ targeting", url: "https://ads.tiktok.com/resources/help/article/about-targeting-for-your-upgraded-smart-experience" },
-      { label: "Ad targeting", url: "https://ads.tiktok.com/resources/help/article/ad-targeting?lang=en" },
       { label: "About Smart+ Traffic Campaigns", url: "https://ads.tiktok.com/resources/help/article/about-smart-plus-traffic-campaigns?lang=en" },
+    ],
+  },
+  {
+    kind: "scope",
+    title: "Interest selection and expansion",
+    description: "Advanced Targeting Interests apply an eligibility rule by default. Smart Targeting can expand that audience when TikTok predicts limited delivery.",
+    columns: ["Setting", "Selection", "Effect on delivery"],
+    rows: [
+      { features: ["tt.interest-targeting"], cells: ["Select an interest", "Advanced Targeting in the ad group", "Deliver to people with higher engagement in that interest"] },
+      { features: [], cells: ["Enable Smart Targeting", "TikTok evaluates delivery opportunities", "TikTok can expand beyond selected interests"] },
+    ],
+    sources: [
+      { label: "TikTok ad targeting", url: "https://ads.tiktok.com/resources/help/article/ad-targeting?lang=en" },
     ],
   },
   {

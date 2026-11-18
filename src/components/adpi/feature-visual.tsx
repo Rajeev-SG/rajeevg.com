@@ -3,6 +3,8 @@ import { ArrowDown, ArrowRight, ArrowUpRight } from "lucide-react"
 
 import type { Diagram, Example, FeatureVisual as Visual } from "@/lib/adpi/feature-visuals"
 
+const imageDirectory = "/images/capability-explorer"
+
 export const exampleKind = {
   library: "Public ad library",
   campaign: "Published campaign",
@@ -13,7 +15,7 @@ export function ExampleImage({ example, compact = false }: { example: Example; c
   return (
     <div className={`relative overflow-hidden bg-[#ecebe7] dark:bg-neutral-900 ${compact ? "h-36 sm:h-52" : "h-80 rounded-t-xl sm:h-[29rem]"}`}>
       <Image
-        src={`/images/capability-explorer/${example.image}`}
+        src={`${imageDirectory}/${example.image}`}
         alt={example.alt}
         fill
         className="object-contain p-2.5 sm:p-4"
@@ -49,7 +51,7 @@ function DiagramPanel({ diagram, featureId }: { diagram: Diagram; featureId: str
                       <dd className={`text-sm leading-snug ${index === 0 ? "font-semibold" : ""} ${index === 2 && selected ? "font-semibold text-[#8e321d] dark:text-[#ffb099]" : ""}`}>
                         {cell}
                         {index === 2 && outputImage && (
-                          <Image src={`/images/capability-explorer/${outputImage}`} width={160} height={120} alt="" unoptimized className="mt-2 h-auto w-24 rounded" />
+                          <Image src={`${imageDirectory}/${outputImage}`} width={160} height={120} alt="" unoptimized className="mt-2 h-auto w-24 rounded" />
                         )}
                       </dd>
                     </div>
@@ -91,6 +93,13 @@ export function FeatureVisual({ visual, featureId }: { visual: Visual; featureId
           <p className="max-w-[65ch] text-muted-foreground">{visual.description}</p>
           {visual.note && <p className="max-w-[65ch] text-muted-foreground">{visual.note}</p>}
           <ul className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+            {!diagram && (
+              <li>
+                <a href={`${imageDirectory}/${visual.image}`} className="inline-flex min-h-7 items-center font-medium underline decoration-current/35 underline-offset-4 hover:decoration-current">
+                  View full-size image
+                </a>
+              </li>
+            )}
             {sources.map(({ url, label }) => (
               <li key={url}>
                 <a href={url} className="inline-flex min-h-7 items-center gap-1 font-medium underline decoration-current/35 underline-offset-4 hover:decoration-current">

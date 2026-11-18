@@ -96,14 +96,13 @@ export const examples: Partial<Record<string, Example>> = {
     checkedAt,
   },
   "tt.carousel-ads": {
-    kind: "documentation",
-    title: "A swipeable handbag catalogue",
-    description: "TikTok’s official example shows the card count, swipeable image and shopping button. The preview illustrates a catalogue carousel in the feed.",
+    kind: "campaign",
+    title: "Rabanne’s fragrance carousel in Search",
+    description: "Two frames of Rabanne’s sponsored carousel for “perfume for her” show different creative cards in the same search result. TikTok’s case study includes the full sequence.",
     image: "tiktok-carousel.webp",
-    alt: "TikTok in-feed carousel with a blue crossbody handbag, six page indicators and a Shop now button.",
-    source: { label: "TikTok Ads Help · Carousel preview", url: "https://ads.us.tiktok.com/resources/help/article/carousel-ads?lang=en" },
+    alt: "Two TikTok search results screens with Rabanne’s sponsored Million Gold for Her carousel showing different product images.",
+    source: { label: "TikTok for Business · Rabanne case study", url: "https://ads.tiktok.com/business/en-US/inspiration/rabanne-search-ads-carousel-image-ads" },
     checkedAt,
-    note: "The guide covers carousel creative in a Search Ads Campaign. Placement can change how the format appears.",
   },
   "tt.instant-form": {
     kind: "documentation",
@@ -122,7 +121,7 @@ export const examples: Partial<Record<string, Example>> = {
     alt: "Two TikTok creator posts with engagement overlays against a green background.",
     source: { label: "TikTok for Business · Kleinanzeigen case study", url: "https://ads.tiktok.com/business/en/inspiration/ad-awards-kleinanzeigen-case-study-1?redirected=1" },
     checkedAt,
-    note: "This example is from the TikTok feed. The guide also covers Spark Ads in TikTok search.",
+    note: "The example shows the format in the TikTok feed. This guide focuses on Spark Ads in search.",
   },
 }
 
@@ -130,7 +129,7 @@ export const featuredExampleIds = [
   "ga.responsive-search-ads",
   "meta.video-ads",
   "pin.collage-ads",
-  "tt.spark-ads",
+  "tt.carousel-ads",
 ]
 
 export const libraryExamples: Example[] = [

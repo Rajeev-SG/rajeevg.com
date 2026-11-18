@@ -15,7 +15,8 @@ const headingStyle = "text-xl font-semibold tracking-tight sm:text-2xl"
 
 export function FeatureGuide({ guide }: { guide: Guide }) {
   const sourceNumbers = new Map(guide.sources.map(({ url }, index) => [url, index + 1]))
-  const visual = examples[guide.id] ?? diagrams.find((diagram) => diagram.rows.some((row) => row.features.includes(guide.id)))
+  const example = Object.hasOwn(examples, guide.id) ? examples[guide.id] : undefined
+  const visual = example ?? diagrams.find((diagram) => diagram.rows.some((row) => row.features.includes(guide.id)))
   const checkedAt = guide.checkedAt ? new Date(guide.checkedAt) : null
 
   function References({ urls }: { urls?: string[] }) {
