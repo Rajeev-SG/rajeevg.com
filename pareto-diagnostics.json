@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-19T14:28:49.889Z",
+  "generatedAt": "2026-11-19T23:36:16.177Z",
   "note": "Upstream records the canonical join layer could not place. Reason codes: not_in_alias_map (needs a curated alias; also the regression signal when identity fully verifies), org_unknown (new org), creator_name_mismatch (upstream renamed a creator), no_aa_counterpart (OpenRouter-only, no AA quality source), variant_excluded (effort-variant or batch/contributor record excluded by design).",
   "sources": {
     "aa": {
