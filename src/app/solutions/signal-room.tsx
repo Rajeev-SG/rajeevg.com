@@ -108,7 +108,7 @@ export default function SignalRoom() {
         <div className={styles.heroArt} aria-hidden="true" />
         <div className={styles.heroContent}>
           <div className={styles.kicker}><Crosshair size={17} aria-hidden="true" /> Interactive case lab</div>
-          <h2 id="signal-room-title" className={styles.title}>Signal Room<span>.</span></h2>
+          <h1 id="signal-room-title" className={styles.title}>Signal Room<span>.</span></h1>
           <p className={styles.premise}>Conversions fell 38%.<br />Can you find out why?</p>
           <a className={styles.launch} href="#signal-room-investigate">
             Open the case <ArrowDown size={16} aria-hidden="true" />

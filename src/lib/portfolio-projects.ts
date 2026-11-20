@@ -20,6 +20,22 @@ export type PortfolioProject = {
 
 export const currentSolutions: PortfolioProject[] = [
   {
+    slug: "signal-room",
+    title: "Signal Room",
+    category: "Martech & Measurement",
+    tagline: "Three campaigns show the same 38% drop in reported conversions. Can you work out why?",
+    summary: "An interactive investigation into three simulated paid-media incidents.",
+    howItWorks: "Replay each timeline, compare ad clicks, store orders and reported conversions, then choose a diagnosis.",
+    imagePath: "/images/solutions/signal-room.webp",
+    imageAlt: "An amber beam of light refracting through three optical glass panes.",
+    liveUrl: "/solutions/signal-room",
+    liveLabel: "Open Signal Room",
+    lastUpdated: "2026-11-20",
+    tech: ["Next.js", "React", "TypeScript"],
+    repoVisibility: "PUBLIC",
+    inclusionReason: "Playable demonstration of diagnosing paid-media measurement and performance problems.",
+  },
+  {
     slug: "gog-marketing",
     title: "gog-marketing",
     category: "Martech & Measurement",
@@ -567,6 +583,7 @@ export function getPortfolioProject(slug: string) {
 }
 
 const publicProjectOrder = [
+  "signal-room",
   "gog-marketing",
   "ai-discovery",
   "capability-explorer",
