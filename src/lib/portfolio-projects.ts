@@ -97,6 +97,24 @@ export const currentSolutions: PortfolioProject[] = [
       "Public pipeline and dataset with a reviewed semantic slice, deterministic quality gates and a live explorer; qualified answers are evidenced, not asserted.",
   },
   {
+    slug: "agentic-media",
+    title: "Agentic Media",
+    category: "AI & Agent Systems",
+    tagline: "Twenty-nine finished short-form videos from five agent-built experiments, judged on the finished film.",
+    summary:
+      "A wall of every vertical video produced by the agentic media experiments: fourteen programmatic animation engines on one brief, six free pipelines on the same script, a series rebuilt from saved techniques, three narrated explainers, and autonomous brand pipelines. Each film is shown with the poster, preview and master that were actually rendered, next to the engine, render time, narration stack and agent skill that produced it.",
+    howItWorks:
+      "A shared brief goes to each engine, an agent records the render time and inspects frames, and the finished film is re-rendered until it holds up. Posters, previews, contact sheets and H.264 masters are published from the production folders to an asset Worker, so the page shows the delivered film rather than a screenshot of a tool.",
+    imagePath: "/images/solutions/agentic-media.jpg",
+    imageAlt: "Contact sheet of frames from the twenty-nine agentic media films, showing animated explainers, hand-built canvas reels and generative brand shorts.",
+    liveUrl: "/solutions/agentic-media",
+    liveLabel: "Open the wall",
+    lastUpdated: "2026-11-20",
+    tech: ["TypeScript", "Motion Canvas", "Three.js", "HyperFrames", "Remotion", "FFmpeg", "Kokoro"],
+    repoVisibility: "PRIVATE",
+    inclusionReason: "Public wall of finished films, each with its engine, render time and production stack kept alongside it.",
+  },
+  {
     slug: "web-automation-microbenchmarks",
     title: "Web Automation Microbench",
     category: "AI & Agent Systems",
@@ -587,6 +605,7 @@ const publicProjectOrder = [
   "gog-marketing",
   "ai-discovery",
   "capability-explorer",
+  "agentic-media",
   "web-automation-microbenchmarks",
   "agent-benchmark-matrix",
   "llm-pareto-frontier",
