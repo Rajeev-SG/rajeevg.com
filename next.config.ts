@@ -26,6 +26,20 @@ const nextConfig: NextConfig = {
   // mermaid-isomorphic must stay a real Node require: bundling it breaks
   // `path.resolve` ({} shim) during page-data collection.
   serverExternalPackages: ["mermaid-isomorphic", "rehype-mermaid"],
+  async redirects() {
+    // Feature guides and AI search surface guides now live on Paid Media Decoded,
+    // built from the same public datasets (see Rajeev-SG/paid-media-decoded,
+    // src/lib/intel.ts). The interactive explorer and the observation plane stay here.
+    // Only the 20 published surfaces redirect; unpublished ones keep their pages.
+    const pmd = "https://paidmediadecoded.com"
+    return [
+      { source: "/solutions/capability-explorer/guides/ga.:feature", destination: `${pmd}/features/google-ads-:feature/`, permanent: true },
+      { source: "/solutions/capability-explorer/guides/meta.:feature", destination: `${pmd}/features/meta-:feature/`, permanent: true },
+      { source: "/solutions/capability-explorer/guides/pin.:feature", destination: `${pmd}/features/pinterest-:feature/`, permanent: true },
+      { source: "/solutions/capability-explorer/guides/tt.:feature", destination: `${pmd}/features/tiktok-:feature/`, permanent: true },
+      ...['amazon-rufus', 'baidu-ai-search', 'bing-copilot-search', 'brave-answer-with-ai', 'brave-leo', 'chatgpt', 'claude', 'deepseek-chat', 'doubao', 'google-ai-search', 'google-gemini', 'grok', 'kimi', 'meta-ai', 'microsoft-copilot', 'naver-ai', 'perplexity', 'qwen-consumer', 'tencent-yuanbao', 'yandex-ai-search'].map(slug => ({ source: `/solutions/ai-discovery/surfaces/${slug}`, destination: `${pmd}/ai-search/${slug}/`, permanent: true })),
+    ]
+  },
   async rewrites() {
     // The AI discovery observation plane is its own deployment (repo:
     // Rajeev-SG/ai-discovery-intelligence, web/ root, built with
