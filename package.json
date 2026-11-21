@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "review": "next lint && velite --clean && next build",
     "dev": "next dev --turbopack",
     "build": "velite --clean && next build",
     "start": "next start",
