@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-11-22T13:24:15.314Z",
+  "generatedAt": "2026-11-22T22:29:20.277Z",
   "note": "Upstream records the canonical join layer could not place. Reason codes: not_in_alias_map (needs a curated alias; also the regression signal when identity fully verifies), org_unknown (new org), creator_name_mismatch (upstream renamed a creator), no_aa_counterpart (OpenRouter-only, no AA quality source), variant_excluded (effort-variant or batch/contributor record excluded by design).",
   "sources": {
     "aa": {
-      "upstreamRecords": 764,
-      "upstreamModelCount": 764,
+      "upstreamRecords": 765,
+      "upstreamModelCount": 765,
       "upstreamScoredModelCount": 90
     },
     "openrouter": {
@@ -826,6 +826,13 @@
     },
     {
       "source": "aa",
+      "sourceId": "lingsante-3-1-flash",
+      "displayName": "LingSante-3.1-flash (InclusionAI)",
+      "reasonCode": "not_in_alias_map",
+      "org": "InclusionAI"
+    },
+    {
+      "source": "aa",
       "sourceId": "k2-horizon-3-7b",
       "displayName": "K2 Horizon 3.7B (Institute of Foundation Models)",
       "reasonCode": "not_in_alias_map",
@@ -1054,15 +1061,8 @@
       "displayName": "Qwen Chat 72B (Alibaba)",
       "reasonCode": "not_in_alias_map",
       "org": "Alibaba"
-    },
-    {
-      "source": "aa",
-      "sourceId": "gemini-1-5-flash",
-      "displayName": "Gemini 1.5 Flash (Sep '24) (Google)",
-      "reasonCode": "not_in_alias_map",
-      "org": "Google"
     }
   ],
-  "diagnosticCount": 914,
+  "diagnosticCount": 915,
   "truncated": true
 }
