@@ -12,7 +12,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/about",
     "/solutions",
     "/solutions/earlier-products",
-    "/price-of-money",
     "/interfaces",
     "/blog",
     "/ai",

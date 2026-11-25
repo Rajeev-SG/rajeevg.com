@@ -69,14 +69,19 @@ const nextConfig: NextConfig = {
           source: "/solutions/ai-discovery/:path*",
           destination: `${aiDiscoveryOrigin}/solutions/ai-discovery/:path*`,
         },
+        // The Price of Money is a single-file, dependency-free explainer in
+        // public/. It is served at its canonical solutions URL, and the
+        // beforeFiles rule is what keeps the host's own /solutions/[slug]
+        // route from shadowing it: the slug is deliberately not generated
+        // (see generateStaticParams), so without this the path would 404.
+        {
+          source: "/solutions/price-of-money",
+          destination: "/price-of-money.html",
+        },
       ],
       // afterFiles: the lab is a separate application with no routes of its own
       // on this site, so it is proxied once the filesystem has been checked.
       afterFiles: [
-        // /price-of-money is a single-file, dependency-free explainer served
-        // straight from public/. Rewritten so the canonical link is the clean
-        // path rather than the .html one; there is no app route at this path.
-        { source: "/price-of-money", destination: "/price-of-money.html" },
         { source: "/interfaces", destination: "https://visual-ai-lab.vercel.app/" },
         { source: "/interfaces/:path*", destination: "https://visual-ai-lab.vercel.app/:path*" },
       ],

@@ -443,14 +443,13 @@ export const currentSolutions: PortfolioProject[] = [
     imagePath: "/images/solutions/price-of-money.png",
     imageAlt:
       "The Price of Money explainer showing the six-link chain from Bank Rate to house price, with the values at each link and a plain-English sentence underneath.",
-    liveUrl: "https://rajeevg.com/price-of-money",
+    liveUrl: "/solutions/price-of-money",
     liveLabel: "Open the explainer",
     lastUpdated: "2026-11-25",
     tech: ["Vanilla JS", "Canvas", "Monte Carlo", "Bank of England data", "No build step"],
     repoVisibility: "PRIVATE",
     inclusionReason:
       "A working analytical tool rather than a demonstration: every default is a dated public figure, the calibration is reproducible, the model's limits are stated on the page, and the assumptions a reader changes are the same ones the published forecasters disagree about.",
-    editableAsset: { label: "See how the model works", href: "/price-of-money#method" },
   },
 ]
 

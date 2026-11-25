@@ -1778,6 +1778,24 @@ input[type="range"][data-bipolar="true"]::-moz-range-track {
   font-size: clamp(1.4rem, 2.4vw, 1.95rem);
 }
 
+/* exit link, only rendered when served from the host site */
+.back-link {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--header-dim);
+  text-decoration: none;
+  white-space: nowrap;
+  margin-right: 2px;
+  transition: color 0.15s;
+}
+.back-link:hover { color: var(--header-ink); }
+
+@media (max-width: 620px) {
+  .back-link span { display: none; }
+}
+
 </style>
 </head>
 <body>
@@ -4415,6 +4433,20 @@ function applyTheme(name) {
   try { localStorage.setItem('pom-theme-v2', name); } catch (e) { /* private mode */ }
 }
 
+// When this page is served from rajeevg.com under /solutions/, give the
+// reader a way back to the site. The standalone file has no host chrome,
+// so the link only appears on that path.
+function initHostChrome() {
+  if (!/\/solutions\//.test(location.pathname)) return;
+  const bar = document.querySelector('.topbar');
+  if (!bar) return;
+  const back = document.createElement('a');
+  back.className = 'back-link';
+  back.href = '/solutions';
+  back.innerHTML = '\u2190 <span>Solutions</span>';
+  bar.insertBefore(back, bar.firstChild);
+}
+
 function initTheme() {
   let saved = null;
   try { saved = localStorage.getItem('pom-theme-v2'); } catch (e) { /* ignore */ }
@@ -4435,6 +4467,7 @@ document.addEventListener('DOMContentLoaded', () => {
   refresh();
   renderCompare();
   initTheme();
+  initHostChrome();
 
   // nav active state
   const links = $$('.topnav a');
