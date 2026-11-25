@@ -1,0 +1,4455 @@
+<!doctype html>
+<html lang="en-GB" data-theme="swiss">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Price of Money — a UK house price and mortgage simulator</title>
+<meta name="description" content="An interactive explainer of how Bank Rate, swap rates and mortgage pricing set UK house prices — with a configurable forecast that defaults to the November 2026 private-sector forecasts.">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#FAF8F4">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23FAF8F4'/%3E%3Crect x='11' y='11' width='10' height='10' fill='%23C0392B' transform='rotate(45 16 16)'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ==================================================================
+   The Price of Money — design system.
+
+   Colours, display type and chrome all come from tokens, so the whole
+   page can be re-skinned by swapping one data-theme attribute.
+   Five themes ship: paper, broadsheet, terminal, salmon, swiss.
+   ================================================================== */
+
+:root {
+  /* ---- paper (the original) ---- */
+  --paper:      #FAF8F4;
+  --paper-2:    #F3EFE7;
+  --card:       #FFFDF8;
+  --ink:        #14120F;
+  --ink-2:      #4E4942;
+  --ink-3:      #6E685F;
+  --rule:       #DCD5C8;
+  --rule-2:     #EAE4D9;
+  --accent:     #C0392B;
+  --accent-dim: rgba(192, 57, 43, 0.10);
+  --blue:       #1B4B5A;
+  --gold:       #A87A2A;
+  --green:      #2F6B4F;
+  --violet:     #6B5B7A;
+  --neutral:    #9A9184;
+
+  --series-1:   #B07A55;
+  --series-2:   #7A8B5A;
+  --series-3:   #8A6E9E;
+  --series-4:   #5E7C96;
+  --series-5:   #A87A2A;
+
+  --font-display: "Fraunces", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --display-weight: 300;
+  --display-tracking: -0.028em;
+
+  --header-bg:     #FAF8F4;
+  --header-ink:    #14120F;
+  --header-dim:    #6E685F;
+  --header-border: 1px solid #DCD5C8;
+
+  --grid-line: rgba(20, 18, 15, 0.035);
+  --glow: radial-gradient(120% 100% at 50% 0%, rgba(168, 122, 42, 0.055), transparent 70%);
+
+  --serif: "Fraunces", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  --gutter: 32px;
+  --maxw: 1260px;
+  --hair: 1px solid var(--rule);
+  color-scheme: light;
+}
+
+/* ---- broadsheet: cream, navy ink, crimson. Solid ink chrome. ---- */
+[data-theme="broadsheet"] {
+  --paper:      #F3EFE6;
+  --paper-2:    #E9E2D3;
+  --card:       #F9F6EF;
+  --ink:        #16202E;
+  --ink-2:      #3B4759;
+  --ink-3:      #6B7280;
+  --rule:       #C9BFAC;
+  --rule-2:     #DFD7C6;
+  --accent:     #B8112D;
+  --accent-dim: rgba(184, 17, 45, 0.10);
+  --blue:       #1F3A5F;
+  --gold:       #9C6B14;
+  --green:      #2C5F45;
+  --violet:     #64507A;
+  --neutral:    #93897A;
+
+  --series-1:   #8C5A3C;
+  --series-2:   #5F6F3E;
+  --series-3:   #7A5C86;
+  --series-4:   #3E5F7A;
+  --series-5:   #B8112D;
+
+  --font-display: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --display-weight: 500;
+  --display-tracking: -0.022em;
+
+  --header-bg:     #16202E;
+  --header-ink:    #F3EFE6;
+  --header-dim:    rgba(243, 239, 230, 0.62);
+  --header-border: 1px solid #16202E;
+
+  --grid-line: rgba(22, 32, 46, 0.05);
+  --glow: radial-gradient(120% 100% at 50% 0%, rgba(184, 17, 45, 0.05), transparent 70%);
+  --serif: "Newsreader", "Iowan Old Style", Georgia, serif;
+}
+
+/* ---- terminal: near-black, amber, monospaced display ---- */
+[data-theme="terminal"] {
+  --paper:      #0B0D0E;
+  --paper-2:    #14181A;
+  --card:       #121517;
+  --ink:        #E9E5DC;
+  --ink-2:      #A9A49A;
+  --ink-3:      #7C776D;
+  --rule:       #2C3134;
+  --rule-2:     #1E2225;
+  --accent:     #E8A33D;
+  --accent-dim: rgba(232, 163, 61, 0.14);
+  --blue:       #5FA8C7;
+  --gold:       #C9A227;
+  --green:      #4FBF8B;
+  --violet:     #9B8FB0;
+  --neutral:    #6E6A62;
+
+  --series-1:   #C98B4B;
+  --series-2:   #7FA05C;
+  --series-3:   #A98BC0;
+  --series-4:   #5F92B8;
+  --series-5:   #E8A33D;
+
+  --font-display: "JetBrains Mono", ui-monospace, monospace;
+  --display-weight: 700;
+  --display-tracking: -0.045em;
+
+  --header-bg:     #060708;
+  --header-ink:    #E9E5DC;
+  --header-dim:    #7C776D;
+  --header-border: 1px solid #2C3134;
+
+  --grid-line: rgba(233, 229, 220, 0.045);
+  --glow: radial-gradient(120% 100% at 50% 0%, rgba(232, 163, 61, 0.07), transparent 70%);
+  color-scheme: dark;
+}
+
+/* ---- salmon: financial-press pink, claret, deep teal ---- */
+[data-theme="salmon"] {
+  --paper:      #FFF1E5;
+  --paper-2:    #FBE3D0;
+  --card:       #FFF8F1;
+  --ink:        #0F2A3F;
+  --ink-2:      #3D5A6E;
+  --ink-3:      #6D8496;
+  --rule:       #E0C2AC;
+  --rule-2:     #F0DAC9;
+  --accent:     #990F3D;
+  --accent-dim: rgba(153, 15, 61, 0.10);
+  --blue:       #0D7680;
+  --gold:       #9E7A2E;
+  --green:      #2E6B4F;
+  --violet:     #6A5570;
+  --neutral:    #A18978;
+
+  --series-1:   #9E5B2E;
+  --series-2:   #6B7A3E;
+  --series-3:   #8A5F82;
+  --series-4:   #2E6E8E;
+  --series-5:   #990F3D;
+
+  --font-display: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --display-weight: 400;
+  --display-tracking: -0.024em;
+
+  --header-bg:     #FFF1E5;
+  --header-ink:    #0F2A3F;
+  --header-dim:    #6D8496;
+  --header-border: 1px solid #E0C2AC;
+
+  --grid-line: rgba(15, 42, 63, 0.045);
+  --glow: radial-gradient(120% 100% at 50% 0%, rgba(153, 15, 61, 0.04), transparent 70%);
+  --serif: "Newsreader", "Iowan Old Style", Georgia, serif;
+}
+
+/* ---- swiss: white, black, one signal orange, sans display ---- */
+[data-theme="swiss"] {
+  --paper:      #FFFFFF;
+  --paper-2:    #F1F1F1;
+  --card:       #FFFFFF;
+  --ink:        #0A0A0A;
+  --ink-2:      #3A3A3A;
+  --ink-3:      #6B6B6B;
+  --rule:       #0A0A0A;
+  --rule-2:     #E2E2E2;
+  --accent:     #FF3B00;
+  --accent-dim: rgba(255, 59, 0, 0.10);
+  --blue:       #101010;
+  --gold:       #6B6B6B;
+  --green:      #1F5C3F;
+  --violet:     #555555;
+  --neutral:    #8C8C8C;
+
+  --series-1:   #6E6E6E;
+  --series-2:   #9A9A9A;
+  --series-3:   #B6B6B6;
+  --series-4:   #4A4A4A;
+  --series-5:   #FF3B00;
+
+  --font-display: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --display-weight: 600;
+  --display-tracking: -0.042em;
+
+  --header-bg:     #FFFFFF;
+  --header-ink:    #0A0A0A;
+  --header-dim:    #6B6B6B;
+  --header-border: 2px solid #0A0A0A;
+
+  --grid-line: rgba(10, 10, 10, 0.06);
+  --glow: none;
+  --hair: 1px solid #0A0A0A;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.55;
+  font-feature-settings: "kern" 1, "liga" 1;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* faint paper warmth at the top of the page */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 640px;
+  background: var(--glow);
+  pointer-events: none;
+  z-index: 0;
+}
+
+main, .topbar, .foot { position: relative; z-index: 1; }
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  margin: 0;
+}
+p { margin: 0; }
+a { color: inherit; }
+
+.num, .mono, .ticker dd, .result-value, .mini-value, .stat-value,
+.data-table td, .data-table th, input[type="number"], output {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0);
+  white-space: nowrap; border: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ─────────────────────────────── top bar ─────────────────────────────── */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  height: 56px;
+  /* sit on the same vertical rule as the page content: the container is
+     centred at --maxw, so the chrome has to inset by the same amount */
+  padding-left: max(var(--gutter), calc((100% - var(--maxw)) / 2 + var(--gutter)));
+  padding-right: max(var(--gutter), calc((100% - var(--maxw)) / 2 + var(--gutter)));
+  border-bottom: var(--header-border);
+  background: var(--header-bg);
+  color: var(--header-ink);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--header-ink);
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: 16px;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.brand-mark {
+  width: 9px; height: 9px;
+  background: var(--accent);
+  display: block;
+  transform: rotate(45deg);
+}
+
+.topnav {
+  display: flex;
+  gap: 20px;
+  font-size: 11.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--header-dim);
+  font-family: var(--mono);
+}
+
+.topnav a {
+  text-decoration: none;
+  padding: 2px 0;
+  border-bottom: 1px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+.topnav a:hover { color: var(--header-ink); border-bottom-color: var(--header-ink); }
+
+.topbar-meta {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.02em;
+  color: var(--header-dim);
+  white-space: nowrap;
+}
+
+.dot-live {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 3px rgba(47, 107, 79, 0.14);
+}
+
+/* ─────────────────────────────── hero ─────────────────────────────── */
+
+.hero {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: clamp(56px, 9vw, 104px) var(--gutter) clamp(40px, 6vw, 64px);
+}
+
+.kicker {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: clamp(24px, 4vw, 40px);
+}
+
+.hero h1 {
+  font-size: clamp(1.95rem, 4.05vw, 3.55rem);
+  line-height: 1.04;
+  letter-spacing: var(--display-tracking);
+  max-width: none;
+  font-weight: var(--display-weight);
+}
+.hero h1 em {
+  font-style: italic;
+  color: var(--accent);
+  font-weight: inherit;
+}
+
+.hero-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  gap: clamp(24px, 4vw, 56px);
+  margin-top: clamp(28px, 4vw, 44px);
+  max-width: 980px;
+}
+
+.standfirst {
+  font-size: clamp(15px, 1.35vw, 17.5px);
+  line-height: 1.62;
+  color: var(--ink-2);
+  max-width: 60ch;
+}
+.standfirst--sub { font-size: 14.5px; color: var(--ink-3); line-height: 1.6; }
+.standfirst strong { color: var(--ink); font-weight: 500; }
+
+/* ticker */
+.ticker {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin: clamp(34px, 4.6vw, 58px) 0 0;
+  border-top: var(--hair);
+  border-bottom: var(--hair);
+}
+
+.ticker-cell {
+  padding: 18px 18px 20px 0;
+  border-right: var(--hair);
+  min-width: 0;
+}
+.ticker-cell:last-child { border-right: 0; }
+.ticker-cell:not(:first-child) { padding-left: 18px; }
+
+.ticker dt {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 8px;
+}
+
+.ticker dd {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  font-size: clamp(19px, 2vw, 25px);
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.ticker .unit { font-size: 0.62em; color: var(--ink-3); }
+
+.ticker-note {
+  display: block;
+  margin-top: 9px;
+  font-size: 10.5px;
+  color: var(--ink-3);
+  font-family: var(--mono);
+  letter-spacing: 0.01em;
+}
+.ticker-note.up { color: var(--accent); }
+
+/* ─────────────────────────────── sections ─────────────────────────────── */
+
+.section {
+  scroll-margin-top: 68px;
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: clamp(56px, 8vw, 96px) var(--gutter);
+  border-top: var(--hair);
+}
+
+.section-head {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: clamp(16px, 3vw, 40px);
+  align-items: start;
+  margin-bottom: clamp(28px, 4vw, 44px);
+}
+
+.section-no {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 0.06em;
+  padding-top: 0.55em;
+}
+
+.section-head h2 {
+  font-size: clamp(1.6rem, 2.9vw, 2.35rem);
+  line-height: 1.08;
+  letter-spacing: var(--display-tracking);
+  font-weight: var(--display-weight);
+}
+
+.lede {
+  font-size: 15px;
+  line-height: 1.62;
+  color: var(--ink-2);
+  max-width: 54ch;
+}
+
+/* ─────────────────────────────── chain ─────────────────────────────── */
+
+.chain-panel {
+  border: var(--hair);
+  background: var(--card);
+  padding: clamp(16px, 2vw, 24px);
+}
+
+.chain-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 20px 28px;
+  padding-bottom: 18px;
+  margin-bottom: 22px;
+  border-bottom: 1px solid var(--rule-2);
+}
+
+.chain-toolbar-main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.shock-control { display: flex; gap: 4px; }
+
+.btn-ghost {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.01em;
+  color: var(--ink-2);
+  background: transparent;
+  border: 1px solid var(--rule);
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: 1px;
+  transition: background 0.14s, color 0.14s, border-color 0.14s;
+}
+.btn-ghost:hover { background: var(--paper-2); color: var(--ink); }
+.btn-ghost.is-active {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+
+.slider-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 220px;
+}
+
+.slider-wrap output {
+  font-size: 11.5px;
+  color: var(--accent);
+  min-width: 62px;
+  text-align: right;
+}
+
+/* ─── the diagram ─── */
+
+.chain-grid {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr) 58px minmax(0, 1fr) 58px minmax(0, 1fr) 58px
+    minmax(0, 1fr) 58px minmax(0, 1fr) 58px minmax(0, 1fr);
+  align-items: stretch;
+  padding: 6px 0 4px;
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 26px 26px;
+  background-position: center;
+}
+
+.node {
+  position: relative;
+  min-width: 0;
+  padding: 12px 12px 13px;
+  background: var(--card);
+  border: 1px solid var(--rule);
+  transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+}
+.node.is-first { border-left: 2px solid var(--accent); }
+.node.is-last  { border-left: 2px solid var(--blue); }
+
+.node.is-changed {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+.node-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.node-idx {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--ink-3);
+  letter-spacing: 0.04em;
+}
+
+.node-tag {
+  font-family: var(--mono);
+  font-size: 8.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.node-name {
+  font-size: 11.5px;
+  line-height: 1.25;
+  color: var(--ink-2);
+  letter-spacing: 0.01em;
+  min-height: 2.5em;
+}
+
+.node-value {
+  display: flex;
+  align-items: baseline;
+  gap: 1px;
+  margin-top: 8px;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(17px, 1.65vw, 21px);
+  letter-spacing: -0.035em;
+  line-height: 1;
+  color: var(--ink);
+}
+.node-value .unit { font-size: 0.6em; color: var(--ink-3); letter-spacing: 0; }
+
+.node-delta {
+  margin-top: 7px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.01em;
+  color: var(--ink-3);
+  min-height: 1.4em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.node-delta.neg { color: var(--accent); }
+.node-delta.pos { color: var(--green); }
+
+.node-sub {
+  margin-top: 3px;
+  font-size: 9.5px;
+  line-height: 1.35;
+  color: var(--ink-3);
+  min-height: 2.6em;
+}
+
+/* connectors */
+.connector {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.connector .pipe {
+  position: absolute;
+  left: 4px; right: 4px;
+  top: 50%;
+  height: 1px;
+  background: var(--rule);
+  overflow: hidden;
+}
+
+.connector .pipe::after {
+  content: "";
+  position: absolute;
+  top: -1px; left: 0;
+  width: 60%; height: 3px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0.9;
+  animation: sweep var(--dur, 2.6s) linear infinite;
+}
+
+@keyframes sweep {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(170%); }
+}
+
+.connector .pass {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + 7px);
+  transform: translateX(-50%);
+  z-index: 1;
+  font-family: var(--mono);
+  font-size: 7.5px;
+  letter-spacing: 0.02em;
+  color: var(--ink-3);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .connector .pipe::after { animation: none; opacity: 0.55; }
+}
+
+.chain-caption {
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule-2);
+  font-size: 12px;
+  line-height: 1.58;
+  color: var(--ink-3);
+  max-width: 92ch;
+}
+
+.ctl-label {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+/* ─────────────────────────────── lab layout ─────────────────────────────── */
+
+.lab {
+  display: grid;
+  grid-template-columns: 316px minmax(0, 1fr);
+  gap: clamp(24px, 3.4vw, 48px);
+  align-items: start;
+}
+
+.panel {
+  border: var(--hair);
+  background: var(--card);
+  padding: 18px 18px 20px;
+}
+
+.controls {
+  position: sticky;
+  top: 76px;
+  max-height: 820px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  overscroll-behavior: contain;
+}
+.controls::-webkit-scrollbar { width: 6px; }
+.controls::-webkit-scrollbar-thumb { background: var(--rule); }
+.controls::-webkit-scrollbar-track { background: transparent; }
+
+/* Below about 900px of window height the panel is taller than the space
+   left under the top bar, so let it scroll with the page instead of
+   pinning it and hiding its own controls. */
+@media (max-height: 900px) {
+  .controls { position: static; max-height: none; overflow: visible; }
+}
+
+.panel-head {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--rule-2);
+}
+
+.panel-divider {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding: 13px 0 10px;
+  margin: 4px 0 12px;
+  border-top: 1px solid var(--rule-2);
+}
+
+.field { display: block; margin-bottom: 14px; }
+
+.field-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--ink-2);
+  margin-bottom: 7px;
+  letter-spacing: 0.005em;
+}
+.field-label b {
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: 11.5px;
+  color: var(--accent);
+  letter-spacing: -0.01em;
+}
+
+.field-hint {
+  display: block;
+  margin-top: 5px;
+  font-size: 10.5px;
+  line-height: 1.4;
+  color: var(--ink-3);
+}
+
+.field-input {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  padding: 0 9px;
+  border-radius: 1px;
+  transition: border-color 0.15s;
+}
+.field-input:focus-within { border-color: var(--ink-2); }
+.field-input .prefix {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-3);
+  padding-right: 3px;
+}
+
+input[type="number"] {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 8px 0;
+  font-size: 13.5px;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  outline: none;
+  -moz-appearance: textfield;
+}
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+.select-wrap { position: relative; display: block; }
+.select-wrap::after {
+  content: "\25BE";
+  position: absolute;
+  right: 9px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  line-height: 1;
+  color: var(--ink-3);
+  pointer-events: none;
+}
+select {
+  width: 100%;
+  padding: 8px 26px 8px 9px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  font-family: var(--sans);
+  font-size: 12.5px;
+  color: var(--ink);
+  border-radius: 1px;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+select:focus { border-color: var(--ink-2); outline: none; }
+select option { background: var(--paper); color: var(--ink); }
+
+/* range inputs */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 16px;
+  background: transparent;
+  cursor: ew-resize;
+  margin: 0;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 2px;
+  background: linear-gradient(90deg,
+    var(--accent) 0 var(--fill, 0%),
+    var(--rule) var(--fill, 0%) 100%);
+}
+input[type="range"]::-moz-range-track {
+  height: 2px;
+  background: linear-gradient(90deg,
+    var(--accent) 0 var(--fill, 0%),
+    var(--rule) var(--fill, 0%) 100%);
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 11px; height: 11px;
+  margin-top: -4.5px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--card);
+  box-shadow: 0 0 0 1px var(--accent);
+  transition: transform 0.12s;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 11px; height: 11px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--card);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+input[type="range"]:active::-webkit-slider-thumb { transform: scale(1.2); }
+
+.field--choice { border: 0; padding: 0; margin: 0 0 6px; }
+
+.segmented {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid var(--rule);
+  border-radius: 1px;
+  overflow: hidden;
+}
+.segmented button {
+  font-family: var(--sans);
+  font-size: 11px;
+  padding: 7px 2px;
+  border: 0;
+  border-right: 1px solid var(--rule);
+  background: var(--paper);
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: background 0.14s, color 0.14s;
+}
+.segmented button:last-child { border-right: 0; }
+.segmented button[aria-checked="true"] {
+  background: var(--ink);
+  color: var(--paper);
+}
+.segmented button:hover:not([aria-checked="true"]) { background: var(--paper-2); color: var(--ink); }
+
+.panel-actions { margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--rule-2); }
+.panel-actions .btn-ghost { width: 100%; padding: 9px; }
+
+/* ─────────────────────────────── outputs ─────────────────────────────── */
+
+.lab-out { min-width: 0; }
+
+.stat-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border: var(--hair);
+  background: var(--card);
+  margin-bottom: 26px;
+}
+
+.stat {
+  padding: 14px 16px 16px;
+  border-right: var(--hair);
+  min-width: 0;
+}
+.stat:last-child { border-right: 0; }
+
+.stat-label {
+  display: block;
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 9px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stat-value {
+  display: block;
+  font-size: clamp(17px, 1.9vw, 23px);
+  letter-spacing: -0.035em;
+  line-height: 1;
+  color: var(--ink);
+}
+.stat-value .unit { font-size: 0.58em; color: var(--ink-3); }
+
+.stat-sub {
+  display: block;
+  margin-top: 7px;
+  font-size: 10.5px;
+  color: var(--ink-3);
+  line-height: 1.35;
+}
+.stat-sub.warn { color: var(--accent); }
+
+/* chart blocks */
+.chart-block { margin: 0 0 26px; }
+
+.chart-block figcaption {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--rule-2);
+}
+
+.fig-label {
+  font-size: 11px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.fig-sub { font-size: 11.5px; color: var(--ink-3); }
+
+canvas {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+}
+
+.chart-block--tall canvas { height: auto; }
+
+.legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  font-size: 10.5px;
+  color: var(--ink-3);
+  font-family: var(--mono);
+}
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 14px; height: 2px; display: block; }
+.legend i.sw { height: 8px; width: 8px; border-radius: 0; }
+
+/* cost ledger */
+.cost-ledger {
+  border: var(--hair);
+  background: var(--card);
+  padding: 4px 18px;
+}
+.ledger-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--rule-2);
+  font-size: 12.5px;
+}
+.ledger-row:last-child { border-bottom: 0; }
+.ledger-row dt, .ledger-row .k { color: var(--ink-2); }
+.ledger-row .v {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.ledger-row.total {
+  border-top: 1px solid var(--rule);
+  border-bottom: 0;
+  font-weight: 500;
+  padding-top: 13px;
+}
+.ledger-row.total .k { color: var(--ink); }
+.ledger-row.total .v { color: var(--accent); font-size: 14px; }
+.ledger-note { font-size: 10.5px; color: var(--ink-3); padding: 2px 0 12px; line-height: 1.45; }
+
+/* result head */
+.result-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding-bottom: 20px;
+  margin-bottom: 22px;
+  border-bottom: var(--hair);
+}
+
+.result-label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 10px;
+}
+
+.result-value {
+  display: block;
+  font-size: clamp(2.3rem, 4.6vw, 3.5rem);
+  line-height: 0.94;
+  letter-spacing: -0.045em;
+  color: var(--ink);
+}
+
+.result-sub {
+  display: block;
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+.result-side {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  gap: 26px;
+  padding-bottom: 4px;
+}
+
+.mini-label {
+  display: block;
+  font-size: 9.5px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 7px;
+  white-space: nowrap;
+}
+.mini-value {
+  display: block;
+  font-size: 15px;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+}
+
+/* band cards */
+.band-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--rule);
+  border: var(--hair);
+  margin-bottom: 26px;
+}
+.band-card {
+  background: var(--card);
+  padding: 14px 16px 15px;
+}
+.band-card .k {
+  display: block;
+  font-size: 9.5px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 8px;
+}
+.band-card .v {
+  font-family: var(--mono);
+  font-size: clamp(15px, 1.7vw, 19px);
+  letter-spacing: -0.03em;
+  display: block;
+}
+.band-card .n { display: block; margin-top: 6px; font-size: 10.5px; color: var(--ink-3); }
+
+/* sale block */
+.sale-block {
+  border: var(--hair);
+  background: var(--card);
+  padding: 20px;
+  margin-top: 4px;
+}
+.sale-head { padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid var(--rule-2); }
+.sale-head h3 { font-size: 1.15rem; margin-bottom: 6px; letter-spacing: -0.01em; }
+.sale-head h3 span { font-family: var(--mono); font-size: 0.95em; }
+.sale-head p { font-size: 12.5px; color: var(--ink-3); line-height: 1.55; max-width: 70ch; }
+
+.sale-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+.sale-cell .k {
+  display: block;
+  font-size: 9.5px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 7px;
+}
+.sale-cell .v {
+  display: block;
+  font-family: var(--mono);
+  font-size: 15px;
+  letter-spacing: -0.025em;
+}
+.sale-cell .v.pos { color: var(--green); }
+.sale-cell .v.neg { color: var(--accent); }
+.sale-cell .n { display: block; margin-top: 5px; font-size: 10.5px; color: var(--ink-3); }
+
+/* ─────────────────────────────── compare ─────────────────────────────── */
+
+.compare-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: clamp(24px, 3.4vw, 44px);
+  align-items: start;
+}
+
+.table-wrap { overflow-x: auto; }
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+}
+.data-table caption { text-align: left; }
+
+.data-table th, .data-table td {
+  padding: 9px 8px;
+  text-align: right;
+  border-bottom: 1px solid var(--rule-2);
+  white-space: nowrap;
+}
+.data-table th:first-child, .data-table td:first-child {
+  text-align: left;
+  white-space: normal;
+}
+.data-table thead th {
+  font-family: var(--sans);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--ink-3);
+  border-bottom: 1px solid var(--rule);
+}
+.data-table tbody th {
+  font-weight: 400;
+  color: var(--ink-2);
+}
+.data-table tbody tr:last-child td,
+.data-table tbody tr:last-child th { border-bottom: 0; }
+.data-table .pos { color: var(--green); }
+.data-table .neg { color: var(--accent); }
+.data-table .muted { color: var(--ink-3); }
+.data-table--compact { font-size: 11px; }
+
+.sens-block {
+  margin-top: clamp(36px, 5vw, 56px);
+  padding-top: clamp(28px, 4vw, 40px);
+  border-top: var(--hair);
+}
+.sens-head { margin-bottom: 18px; max-width: 70ch; }
+.sens-head h3 { font-size: 1.2rem; margin-bottom: 6px; }
+.sens-head p { font-size: 12.5px; color: var(--ink-3); line-height: 1.55; }
+.sens-head span { font-family: var(--mono); color: var(--ink-2); }
+
+/* ─────────────────────────────── method ─────────────────────────────── */
+
+.section--method { border-top: var(--hair); }
+
+.method-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(28px, 4vw, 60px);
+}
+
+.method-col h3 {
+  font-size: 1.05rem;
+  margin: 0 0 12px;
+  letter-spacing: -0.005em;
+}
+.method-col h3:not(:first-child) { margin-top: 30px; }
+
+.method-col p {
+  font-size: 13.5px;
+  line-height: 1.68;
+  color: var(--ink-2);
+  margin-bottom: 12px;
+  max-width: 62ch;
+}
+.method-col p strong { color: var(--ink); font-weight: 600; }
+
+.eq {
+  border-left: 2px solid var(--rule);
+  padding: 4px 0 4px 16px;
+  margin: 16px 0 18px;
+}
+.eq-line {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  word-break: break-word;
+}
+.eq-note {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  color: var(--ink-3);
+  margin: 0 0 8px;
+}
+.eq-note:last-child { margin-bottom: 0; }
+.eq sup { font-size: 0.75em; }
+
+.limits { margin: 0; padding: 0; list-style: none; }
+.limits li {
+  position: relative;
+  padding-left: 16px;
+  margin-bottom: 11px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+.limits li::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0.62em;
+  width: 5px; height: 1px;
+  background: var(--accent);
+}
+.limits strong { color: var(--ink); font-weight: 600; }
+
+.sources {
+  margin-top: clamp(40px, 5vw, 64px);
+  padding-top: clamp(28px, 3vw, 36px);
+  border-top: var(--hair);
+}
+.sources h3 {
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-family: var(--mono);
+  margin-bottom: 16px;
+}
+.source-list {
+  margin: 0 0 22px;
+  padding-left: 1.4em;
+  columns: 2;
+  column-gap: 40px;
+  font-size: 11.5px;
+  line-height: 1.62;
+  color: var(--ink-3);
+}
+.source-list li { margin-bottom: 9px; break-inside: avoid; }
+.source-list em { font-style: italic; color: var(--ink-2); }
+
+.disclaimer {
+  font-size: 11.5px;
+  line-height: 1.65;
+  color: var(--ink-3);
+  max-width: 78ch;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule-2);
+}
+
+/* ─────────────────────────────── footer ─────────────────────────────── */
+
+.foot {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 26px var(--gutter) 60px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--ink-3);
+  border-top: var(--hair);
+}
+.foot-dot { color: var(--rule); }
+
+/* ─────────────────────────────── responsive ─────────────────────────────── */
+
+@media (max-width: 1080px) {
+  .section-head {
+    grid-template-columns: 40px minmax(0, 1fr);
+  }
+  .section-head .head-copy { grid-column: 2; }
+  .compare-grid { grid-template-columns: 1fr; }
+  .method-grid { grid-template-columns: 1fr; }
+  .source-list { columns: 1; }
+}
+
+/* the lab holds two columns down to small tablets */
+@media (max-width: 940px) {
+  .lab { grid-template-columns: 1fr; }
+  .controls { position: static; }
+  .lab-out { margin-top: 4px; }
+}
+
+@media (max-width: 900px) {
+  :root { --gutter: 22px; }
+
+  .topnav { display: none; }
+
+  .hero-body { grid-template-columns: 1fr; }
+
+  .ticker { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ticker-cell:nth-child(2n) { border-right: 0; }
+  .ticker-cell:nth-child(n+3) { border-top: var(--hair); }
+  .ticker-cell:nth-child(odd) { padding-left: 0; }
+
+  /* chain stacks into two columns of nodes with a vertical flow */
+  .chain-grid {
+    grid-template-columns: 1fr;
+    background-size: 22px 22px;
+  }
+  .connector { height: 26px; }
+  .connector .pipe {
+    left: 50%; right: auto;
+    top: 2px; bottom: 2px;
+    width: 1px; height: auto;
+  }
+  .connector .pipe::after {
+    width: 3px; height: 55%;
+    left: -1px; top: 0;
+    background: linear-gradient(180deg, transparent, var(--accent), transparent);
+    animation-name: sweep-v;
+  }
+  @keyframes sweep-v {
+    from { transform: translateY(-100%); }
+    to   { transform: translateY(280%); }
+  }
+  .connector .pass {
+    transform: none;
+    position: absolute;
+    left: calc(50% + 12px);
+    top: 50%;
+    translate: 0 -50%;
+    background: transparent;
+  }
+
+  .stat-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stat:nth-child(2n) { border-right: 0; }
+  .stat:nth-child(n+3) { border-top: var(--hair); }
+
+  .sale-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .band-cards { grid-template-columns: 1fr; }
+  .result-side { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+}
+
+@media (max-width: 560px) {
+  .hero h1 { max-width: none; }
+  .shock-control { flex-wrap: wrap; }
+  .result-head { flex-direction: column; align-items: flex-start; }
+  .result-side { width: 100%; }
+  .sale-grid { grid-template-columns: 1fr; }
+  .node-name { min-height: 0; }
+  .node-sub { min-height: 0; }
+  .cost-ledger { padding: 4px 14px; }
+  .foot { flex-direction: column; gap: 4px; }
+}
+
+/* print */
+@media print {
+  .topbar, .chart-block, .chain-panel { break-inside: avoid; }
+  body::before { display: none; }
+}
+
+/* ─── bipolar slider fill (deviation from baseline) ─── */
+input[type="range"][data-bipolar="true"]::-webkit-slider-runnable-track {
+  background: linear-gradient(90deg,
+    var(--rule) 0 var(--a, 0%),
+    var(--accent) var(--a, 0%) var(--b, 0%),
+    var(--rule) var(--b, 0%) 100%);
+}
+input[type="range"][data-bipolar="true"]::-moz-range-track {
+  background: linear-gradient(90deg,
+    var(--rule) 0 var(--a, 0%),
+    var(--accent) var(--a, 0%) var(--b, 0%),
+    var(--rule) var(--b, 0%) 100%);
+}
+
+/* ─── explicit canvas heights ─── */
+#rateCurve      { height: 200px; }
+#fan            { height: 330px; }
+#decomp         { height: 220px; }
+#compareChart   { height: 320px; }
+#tornado        { height: 210px; }
+
+@media (max-width: 900px) {
+  #fan          { height: 280px; }
+  #compareChart { height: 260px; }
+  #decomp       { height: 200px; }
+}
+
+.table-note {
+  margin-top: 12px;
+  font-size: 10.5px;
+  line-height: 1.55;
+  color: var(--ink-3);
+}
+
+.sale-foot {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--rule-2);
+  font-size: 10.5px;
+  line-height: 1.6;
+  color: var(--ink-3);
+  max-width: 78ch;
+}
+
+/* ledger middle notes */
+.ledger-row .k .note {
+  color: var(--ink-3);
+  font-family: var(--sans);
+  font-size: 10.5px;
+  font-style: normal;
+  margin-left: 7px;
+  letter-spacing: 0;
+}
+
+.result-value { line-height: 1.04; padding-top: 2px; }
+
+/* text-mode money inputs */
+.field-input input {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 8px 0;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 13.5px;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  outline: none;
+}
+
+.chain-foot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule-2);
+}
+.chain-foot .chain-caption { margin-top: 0; padding-top: 0; border-top: 0; flex: 1; min-width: 260px; }
+.chain-foot .btn-ghost { white-space: nowrap; flex: none; }
+
+.fig-note {
+  margin-top: 10px;
+  padding-top: 9px;
+  border-top: 1px solid var(--rule-2);
+  font-size: 10.5px;
+  line-height: 1.6;
+  color: var(--ink-3);
+  max-width: 82ch;
+}
+
+/* ==================================================================
+   Plain-English layer: the on-ramp for a reader who does not know
+   what a swap rate is. Everything technical stays; it just comes second.
+   ================================================================== */
+
+.plain-tag {
+  display: block;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 9px;
+}
+
+.plain {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: clamp(1.0rem, 1.45vw, 1.18rem);
+  line-height: 1.5;
+  color: var(--ink);
+  letter-spacing: -0.005em;
+  max-width: 44ch;
+}
+
+.section-head .head-copy { min-width: 0; }
+.section-head .lede { font-size: 13.5px; color: var(--ink-3); margin-top: 14px; max-width: 52ch; }
+.panel-divider.is-first { border-top: 0; padding-top: 0; margin-top: 0; }
+
+/* start here */
+.start-here {
+  background: var(--paper-2);
+  border-top: var(--hair);
+  border-bottom: var(--hair);
+}
+
+.start-here-inner {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 26px var(--gutter) 30px;
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 24px 36px;
+  align-items: start;
+}
+
+.start-here h2 {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 400;
+  padding-top: 4px;
+}
+
+.start-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 26px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.start-steps li {
+  position: relative;
+  padding-left: 26px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+.start-steps li::before {
+  counter-increment: step;
+  content: counter(step);
+  position: absolute;
+  left: 0; top: 0;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--accent);
+  line-height: 1.7;
+}
+.start-steps b { color: var(--ink); font-weight: 600; }
+
+/* plain summary under a result */
+.plain-summary {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--ink-2);
+  max-width: 66ch;
+  margin: 0 0 24px;
+}
+.plain-summary strong { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* detail switch in a chart caption */
+.fig-toggle {
+  margin-left: auto;
+  display: flex;
+  gap: 4px;
+}
+.fig-toggle .btn-ghost { padding: 3px 8px; font-size: 10px; }
+
+/* glossary */
+.glossary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 40px;
+  margin: 0;
+}
+.glossary > div {
+  border-top: 1px solid var(--rule-2);
+  padding: 12px 0 14px;
+}
+.glossary dt {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 5px;
+  letter-spacing: 0.005em;
+}
+.glossary dd {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.58;
+  color: var(--ink-2);
+  max-width: 52ch;
+}
+
+@media (max-width: 900px) {
+  .start-here-inner { grid-template-columns: 1fr; gap: 14px; }
+  .start-steps { grid-template-columns: 1fr; gap: 14px; }
+  .glossary { grid-template-columns: 1fr; }
+  .section-head .lede { margin-top: 10px; }
+}
+
+#chainNarration { margin: 22px 0 6px; font-size: 14.5px; }
+
+/* On a phone, give the copy the full width: the number sits above the
+   heading instead of stealing a column. */
+@media (max-width: 620px) {
+  .section-head {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .section-head .section-no { padding-top: 0; margin-bottom: 6px; }
+  .section-head h2 { margin-bottom: 10px; }
+  .section-head .head-copy { grid-column: 1; }
+  .plain { max-width: none; }
+  .section-head .lede { max-width: none; }
+}
+
+/* ─────────────────────────── theme picker ─────────────────────────── */
+
+.theme-pick {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+}
+
+.theme-pick-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--header-dim);
+  margin-right: 5px;
+}
+
+.theme-pick button {
+  width: 15px; height: 15px;
+  padding: 0; border: 0;
+  background: none;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  border-radius: 0;
+}
+
+.theme-pick button i {
+  display: block;
+  width: 13px; height: 13px;
+  border: 1px solid rgba(128, 128, 128, 0.5);
+  transition: transform 0.12s;
+}
+
+.theme-pick button:hover i { transform: scale(1.15); }
+
+.theme-pick button i { opacity: 0.62; }
+
+.theme-pick button:hover i,
+.theme-pick button[aria-pressed="true"] i { opacity: 1; }
+
+.theme-pick button[aria-pressed="true"] {
+  outline: 1.5px solid var(--header-ink);
+  outline-offset: 1px;
+}
+
+.theme-pick button[data-theme-set="paper"] i      { background: linear-gradient(135deg, #FAF8F4 0 58%, #C0392B 58%); }
+.theme-pick button[data-theme-set="broadsheet"] i { background: linear-gradient(135deg, #F3EFE6 0 58%, #16202E 58%); }
+.theme-pick button[data-theme-set="terminal"] i   { background: linear-gradient(135deg, #0B0D0E 0 58%, #E8A33D 58%); }
+.theme-pick button[data-theme-set="salmon"] i     { background: linear-gradient(135deg, #FFF1E5 0 58%, #990F3D 58%); }
+.theme-pick button[data-theme-set="swiss"] i      { background: linear-gradient(135deg, #FFFFFF 0 58%, #FF3B00 58%); }
+
+@media (max-width: 720px) {
+  .theme-pick-label { display: none; }
+  .theme-pick { gap: 4px; }
+  .theme-pick button { width: 16px; height: 16px; }
+  .theme-pick button i { width: 11px; height: 11px; }
+}
+
+/* On a phone the brand leaves no room for theme picker, date and country
+   all at once; the hero already says which country this is. */
+@media (max-width: 620px) {
+  .topbar-meta { display: none; }
+  .brand { font-size: 15px; }
+}
+
+/* themes that flip the display face need the italic headline to follow */
+[data-theme="swiss"] .hero h1 em,
+[data-theme="terminal"] .hero h1 em { font-style: normal; }
+
+/* Monospaced and sans display faces run wider than the serifs, so the
+   same clamp would blow the line length. Scale the display down. */
+[data-theme="terminal"] .hero h1 {
+  font-size: clamp(1.5rem, 3.1vw, 2.6rem);
+  line-height: 1.14;
+}
+[data-theme="terminal"] .section-head h2 {
+  font-size: clamp(1.15rem, 1.85vw, 1.5rem);
+  line-height: 1.2;
+}
+[data-theme="terminal"] .plain {
+  font-size: clamp(0.95rem, 1.25vw, 1.05rem);
+  line-height: 1.55;
+}
+[data-theme="swiss"] .hero h1 {
+  font-size: clamp(1.75rem, 3.5vw, 3.0rem);
+  line-height: 1.05;
+}
+[data-theme="swiss"] .section-head h2 {
+  font-size: clamp(1.4rem, 2.4vw, 1.95rem);
+}
+
+</style>
+</head>
+<body>
+
+<!-- ─────────────────────────────  top bar  ───────────────────────────── -->
+<header class="topbar" id="top">
+  <a class="brand" href="#top">
+    <span class="brand-mark" aria-hidden="true"></span>
+    <span class="brand-text">The Price of Money</span>
+  </a>
+  <nav class="topnav" aria-label="Sections">
+    <a href="#chain">Chain</a>
+    <a href="#mortgage">Mortgage</a>
+    <a href="#forecast">Forecast</a>
+    <a href="#compare">Divergence</a>
+    <a href="#words">Words</a>
+    <a href="#method">Method</a>
+  </nav>
+  <div class="theme-pick" role="group" aria-label="Colour theme">
+    <span class="theme-pick-label">Theme</span>
+    <button type="button" data-theme-set="paper" title="Paper" aria-label="Paper theme" aria-pressed="false"><i></i></button>
+    <button type="button" data-theme-set="broadsheet" title="Broadsheet" aria-label="Broadsheet theme" aria-pressed="false"><i></i></button>
+    <button type="button" data-theme-set="terminal" title="Terminal" aria-label="Terminal theme" aria-pressed="false"><i></i></button>
+    <button type="button" data-theme-set="salmon" title="Salmon" aria-label="Salmon theme" aria-pressed="false"><i></i></button>
+    <button type="button" data-theme-set="swiss" title="Swiss" aria-label="Swiss theme" aria-pressed="false"><i></i></button>
+  </div>
+  <div class="topbar-meta">
+    <span class="dot-live" aria-hidden="true"></span>
+    <span class="meta-country">UK</span><span class="meta-date"> · <time datetime="2026-11-20">20 Nov 2026</time></span>
+  </div>
+</header>
+
+<main>
+
+<!-- ─────────────────────────────  hero  ───────────────────────────── -->
+<section class="hero">
+  <p class="kicker">Monetary economics · United Kingdom</p>
+  <h1>House prices are not set by houses.<br>
+      <em>They are set by the price of money.</em></h1>
+  <div class="hero-body">
+    <p class="standfirst">
+      The Bank of England raised Bank Rate to <strong>4.00%</strong> on 5 November — the first
+      increase in more than three years. That one number decides what lenders pay to borrow,
+      what they charge you, and therefore what a buyer can afford. Move it yourself below and
+      watch each link respond.
+    </p>
+    <p class="standfirst standfirst--sub">
+      Then put in a property you care about. The starting assumptions are the four most
+      recent private-sector forecasts for the UK — and for 2027 alone they range from
+      <strong>−1.5%</strong> to <strong>+2.4%</strong>.
+    </p>
+  </div>
+
+  <dl class="ticker" id="ticker">
+    <div class="ticker-cell">
+      <dt>Bank Rate</dt>
+      <dd><span class="num">4.00</span><span class="unit">%</span></dd>
+      <span class="ticker-note up">+25bp on 5 Nov</span>
+    </div>
+    <div class="ticker-cell">
+      <dt>CPI inflation</dt>
+      <dd><span class="num">3.6</span><span class="unit">%</span></dd>
+      <span class="ticker-note">Oct 2026 · target 2%</span>
+    </div>
+    <div class="ticker-cell">
+      <dt>5-year swap</dt>
+      <dd><span class="num">4.72</span><span class="unit">%</span></dd>
+      <span class="ticker-note">where fixed rates are priced</span>
+    </div>
+    <div class="ticker-cell">
+      <dt>Avg 5-year fix</dt>
+      <dd><span class="num">5.88</span><span class="unit">%</span></dd>
+      <span class="ticker-note">Moneyfacts, 20 Nov</span>
+    </div>
+    <div class="ticker-cell">
+      <dt>UK average price</dt>
+      <dd><span class="num">£273,000</span></dd>
+      <span class="ticker-note">+1.2% on the year</span>
+    </div>
+  </dl>
+</section>
+
+<aside class="start-here" aria-label="How to use this page">
+  <div class="start-here-inner">
+    <h2>Start here</h2>
+    <ol class="start-steps">
+      <li><b>Move the rate slider in section 1.</b> It is the whole argument in one control:
+        when money costs more, buyers can pay less, and prices take years to catch up.</li>
+      <li><b>Put in a real property in section 3.</b> Every number is editable — the price,
+        the region, the assumptions behind the forecast.</li>
+      <li><b>Nothing here is a prediction.</b> Each section says what it can and cannot tell
+        you. Where it cannot, it says so plainly.</li>
+    </ol>
+  </div>
+</aside>
+
+<!-- ─────────────────────────────  01 chain  ───────────────────────────── -->
+<section class="section" id="chain">
+  <header class="section-head">
+    <span class="section-no">01</span>
+    <h2>The chain</h2>
+    <div class="head-copy">
+      <p class="plain">
+        <span class="plain-tag">In plain English</span>
+        When borrowing gets more expensive, buyers can pay less for the same house — and
+        prices follow, slowly.
+      </p>
+      <p class="lede">
+        Six links run from the Bank of England's decision to the price of a home. The first
+        three are arithmetic and happen within days. The last three depend on how people
+        behave, which is why economists disagree.
+      </p>
+    </div>
+  </header>
+
+  <div class="chain-panel">
+    <div class="chain-toolbar">
+      <div class="chain-toolbar-main">
+        <span class="ctl-label">Move Bank Rate</span>
+        <div class="shock-control">
+          <button class="btn-ghost" data-shock="-100">−100bp</button>
+          <button class="btn-ghost" data-shock="-25">−25bp</button>
+          <button class="btn-ghost is-active" data-shock="0">Hold</button>
+          <button class="btn-ghost" data-shock="25">+25bp</button>
+          <button class="btn-ghost" data-shock="100">+100bp</button>
+        </div>
+      </div>
+      <label class="slider-wrap">
+        <input type="range" id="shock" min="-200" max="300" step="5" value="0"
+               aria-label="Change in Bank Rate, in basis points">
+        <output id="shockOut" class="mono">0 bp</output>
+      </label>
+    </div>
+
+    <div class="chain-grid" id="chainGrid">
+      <!-- nodes injected by app.js -->
+    </div>
+
+    <p class="plain-summary" id="chainNarration" aria-live="polite"></p>
+
+    <div class="chain-foot">
+      <p class="chain-caption">
+        This assumes the market reads a rate move as lasting, so the five-year swap moves with Bank
+        Rate. A move expected to be reversed barely shifts fixed rates at all — which is why your
+        mortgage can ignore a hike entirely.
+      </p>
+      <button class="btn-ghost" id="carryForecast">
+        Carry this into the forecast <span aria-hidden="true">↓</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────  02 mortgage  ───────────────────────────── -->
+<section class="section" id="mortgage">
+  <header class="section-head">
+    <span class="section-no">02</span>
+    <h2>The monthly payment</h2>
+    <div class="head-copy">
+      <p class="plain">
+        <span class="plain-tag">In plain English</span>
+        A mortgage is a fixed monthly bill that slowly buys you the house. The rate decides
+        how much of that bill is the house and how much is the bank.
+      </p>
+      <p class="lede">
+        Three things set the payment: how much you borrow, over how long, and at what rate.
+        Only the rate is set by the economy — and it is the one that moves.
+      </p>
+    </div>
+  </header>
+
+  <div class="lab">
+    <aside class="panel controls" aria-label="Mortgage inputs">
+      <div class="panel-head">Your purchase</div>
+
+      <label class="field">
+        <span class="field-label">Property price</span>
+        <span class="field-input">
+          <span class="prefix">£</span>
+          <input type="text" id="mPrice" value="273,000" inputmode="numeric" autocomplete="off">
+        </span>
+      </label>
+
+      <label class="field">
+        <span class="field-label">Deposit <b id="mDepPctOut">25%</b></span>
+        <input type="range" id="mDepPct" min="5" max="60" step="1" value="25">
+      </label>
+
+      <label class="field">
+        <span class="field-label">Mortgage rate <b id="mRateOut">5.88%</b></span>
+        <input type="range" id="mRate" min="2" max="9" step="0.01" value="5.88">
+      </label>
+
+      <label class="field">
+        <span class="field-label">Term <b id="mTermOut">25 years</b></span>
+        <input type="range" id="mTerm" min="5" max="40" step="1" value="25">
+      </label>
+
+      <label class="field">
+        <span class="field-label">Household income (gross)</span>
+        <span class="field-input">
+          <span class="prefix">£</span>
+          <input type="text" id="mIncome" value="55,000" inputmode="numeric" autocomplete="off">
+        </span>
+      </label>
+
+      <fieldset class="field field--choice">
+        <legend class="field-label">Buyer</legend>
+        <div class="segmented" role="radiogroup" aria-label="Buyer type">
+          <button type="button" role="radio" aria-checked="true" data-buyer="ftb">First-time</button>
+          <button type="button" role="radio" aria-checked="false" data-buyer="mover">Moving</button>
+          <button type="button" role="radio" aria-checked="false" data-buyer="additional">Additional</button>
+        </div>
+      </fieldset>
+    </aside>
+
+    <div class="lab-out">
+      <div class="stat-strip" id="mStats"><!-- injected --></div>
+      <p class="plain-summary" id="mSummary"></p>
+
+      <figure class="chart-block">
+        <figcaption>
+          <span class="fig-label">Payment against rate</span>
+          <span class="fig-sub">Monthly repayment on your loan, at rates from 2% to 9%</span>
+        </figcaption>
+        <canvas id="rateCurve" height="210" role="img"
+                aria-label="Curve showing how the monthly mortgage payment rises as the interest rate goes from 2% to 9%"></canvas>
+      </figure>
+
+      <div class="cost-ledger" id="costLedger"><!-- injected --></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────  03 forecast  ───────────────────────────── -->
+<section class="section" id="forecast">
+  <header class="section-head">
+    <span class="section-no">03</span>
+    <h2>What it might be worth</h2>
+    <div class="head-copy">
+      <p class="plain">
+        <span class="plain-tag">In plain English</span>
+        Nobody knows what a house will be worth. What you can do is be honest about your
+        assumptions — and see what they imply.
+      </p>
+      <p class="lede">
+        Start from a published forecast, then change the assumptions and watch the answer move.
+        The shaded range is what happens when you admit that none of it is certain.
+      </p>
+    </div>
+  </header>
+
+  <div class="lab">
+    <aside class="panel controls" aria-label="Forecast assumptions">
+      <div class="panel-head">Your forecast</div>
+
+      <div class="panel-divider is-first">1 · Pick a forecast</div>
+
+      <label class="field">
+        <span class="field-label">Published forecast</span>
+        <span class="select-wrap"><select id="fBaseline">
+          <option value="consensus">Consensus — average of four</option>
+          <option value="savills">Savills · 4 Nov 2026</option>
+          <option value="jll">JLL · 19 Nov 2026</option>
+          <option value="hamptons">Hamptons · 6 Nov 2026</option>
+          <option value="obr">OBR · 28 Oct 2026</option>
+          <option value="model">Structural model only</option>
+        </select></span>
+      </label>
+
+      <label class="field">
+        <span class="field-label">Region</span>
+        <span class="select-wrap"><select id="fRegion"></select></span>
+      </label>
+
+      <label class="field">
+        <span class="field-label">Value today</span>
+        <span class="field-input">
+          <span class="prefix">£</span>
+          <input type="text" id="fValue" value="273,000" inputmode="numeric" autocomplete="off">
+        </span>
+      </label>
+
+      <label class="field">
+        <span class="field-label">Horizon <b id="fHorizonOut">5 years</b></span>
+        <input type="range" id="fHorizon" min="1" max="15" step="1" value="5">
+      </label>
+
+      <div class="panel-divider">2 · Change the assumptions</div>
+
+      <label class="field">
+        <span class="field-label">Mortgage rate <b id="fRateOut">0 bp</b></span>
+        <input type="range" id="fRate" min="-200" max="300" step="5" value="0">
+        <span class="field-hint">Shift against the baseline's own rate path</span>
+      </label>
+
+      <label class="field">
+        <span class="field-label">Earnings growth <b id="fEarnOut">0 pp</b></span>
+        <input type="range" id="fEarn" min="-2" max="3" step="0.1" value="0">
+        <span class="field-hint">Added to the baseline path, per year</span>
+      </label>
+
+      <label class="field">
+        <span class="field-label">Credit conditions <b id="fCreditOut">0 pp</b></span>
+        <input type="range" id="fCredit" min="-2" max="1.5" step="0.1" value="0">
+        <span class="field-hint">Lending appetite, loan-to-value caps, transaction friction</span>
+      </label>
+
+      <label class="field">
+        <span class="field-label">Housing supply <b id="fSupplyOut">0 pp</b></span>
+        <input type="range" id="fSupply" min="-1" max="1.5" step="0.1" value="0">
+        <span class="field-hint">Extra completions against household formation</span>
+      </label>
+
+      <div class="panel-actions">
+        <button class="btn-ghost" id="fReset">Reset to published</button>
+      </div>
+    </aside>
+
+    <div class="lab-out">
+      <div class="result-head">
+        <div class="result-main">
+          <span class="result-label" id="fResultLabel">Value in 2031</span>
+          <span class="result-value" id="fResultValue">£0</span>
+          <span class="result-sub" id="fResultSub">—</span>
+        </div>
+        <div class="result-side">
+          <div class="mini-stat">
+            <span class="mini-label">In today's money</span>
+            <span class="mini-value" id="fReal">—</span>
+          </div>
+          <div class="mini-stat">
+            <span class="mini-label">Annual growth</span>
+            <span class="mini-value" id="fCagr">—</span>
+          </div>
+          <div class="mini-stat">
+            <span class="mini-label">Chance of a fall</span>
+            <span class="mini-value" id="fProb">—</span>
+          </div>
+        </div>
+      </div>
+
+      <p class="plain-summary" id="fSummary"></p>
+
+      <figure class="chart-block chart-block--tall">
+        <figcaption>
+          <span class="fig-label">Projected value</span>
+          <span class="fig-sub">Nominal, with a simulated 10–90% range</span>
+        </figcaption>
+        <canvas id="fan" height="330" role="img"
+                aria-label="Fan chart of projected property value with a 10th to 90th percentile range"></canvas>
+        <div class="legend" id="fanLegend"></div>
+        <p class="fig-note">
+          <b>How to read it.</b> The solid red line is the middle guess. The darker band is
+          where half of 1,400 simulated futures landed, the lighter band eight in ten. The
+          dashed line is the same money after inflation — a smaller number, because £1 in
+          ten years' time buys less than £1 today.
+        </p>
+      </figure>
+
+      <div class="band-cards" id="bandCards"><!-- injected --></div>
+
+      <figure class="chart-block">
+        <figcaption>
+          <span class="fig-label">What is doing the work</span>
+          <span class="fig-sub">Contribution to each year's growth, percentage points</span>
+          <div class="fig-toggle" role="group" aria-label="Chart detail">
+            <button type="button" class="btn-ghost is-active" data-decomp="simple">Simpler</button>
+            <button type="button" class="btn-ghost" data-decomp="detail">More detail</button>
+          </div>
+        </figcaption>
+        <canvas id="decomp" height="230" role="img"
+                aria-label="Stacked bar chart decomposing annual house price growth into earnings, rates, valuation, credit and supply"></canvas>
+        <div class="legend legend--wrap" id="decompLegend"></div>
+        <p class="fig-note" id="decompNote">
+          <b>How to read it.</b> Blue is good news for prices: wages rising means buyers can pay
+          more. Gold is prices catching up to — or falling back towards — what incomes can
+          actually support. Red is this year's move in mortgage rates. The short black line
+          across each bar marks the year's total.
+        </p>
+      </figure>
+
+      <div class="sale-block">
+        <div class="sale-head">
+          <h3>If you sold in <span id="saleYearLabel">2031</span></h3>
+          <p>Because a paper gain is not a return. Stamp duty is paid on the way in, fees on the way out,
+             and the mortgage is settled with nominal pounds.</p>
+        </div>
+        <div class="sale-grid" id="saleGrid"><!-- injected --></div>
+        <p class="sale-foot">The return on cash counts the deposit, stamp duty and fees against net proceeds.
+          It ignores the monthly payments, which buy the right to live there rather than an asset — the
+          conventional view of a home as both. Net proceeds are nominal, so subtract the inflation path
+          to get the real figure.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────  04 divergence  ───────────────────────────── -->
+<section class="section" id="compare">
+  <header class="section-head">
+    <span class="section-no">04</span>
+    <h2>Why the forecasts disagree</h2>
+    <div class="head-copy">
+      <p class="plain">
+        <span class="plain-tag">In plain English</span>
+        Four professional forecasters, the same data, and answers four percentage points
+        apart for the very next year. Almost all of that gap is one argument about interest rates.
+      </p>
+      <p class="lede">
+        Published within three weeks of each other. Read across a row to follow one
+        forecaster's path; read down a column to see how much they disagree about a year.
+      </p>
+    </div>
+  </header>
+
+  <div class="compare-grid">
+    <figure class="chart-block chart-block--tall">
+      <figcaption>
+        <span class="fig-label">Five paths, one starting point</span>
+        <span class="fig-sub">Indexed to today's value · published years only</span>
+      </figcaption>
+      <canvas id="compareChart" height="320" role="img"
+              aria-label="Line chart comparing the published house price forecasts of Savills, JLL, Hamptons and the OBR"></canvas>
+      <p class="fig-note">
+        <b>How to read it.</b> Every line starts at today's £273,000 average. The further a line
+        sits from the others, the more that forecaster disagrees. Hamptons and the OBR stop early
+        because they do not publish beyond those years.
+      </p>
+    </figure>
+
+    <div class="table-wrap">
+      <table class="data-table" id="compareTable">
+        <caption class="sr-only">Published UK house price forecasts, per cent per year</caption>
+      </table>
+      <p class="table-note" id="compareNote"></p>
+    </div>
+  </div>
+
+  <div class="sens-block">
+    <div class="sens-head">
+      <h3>What moves the answer most</h3>
+      <p>
+        Each bar is the effect by <span id="sensYear">2031</span> of moving one assumption from
+        its optimistic to its pessimistic case, holding everything else still.
+      </p>
+    </div>
+    <canvas id="tornado" height="240" role="img"
+            aria-label="Tornado chart ranking assumptions by their effect on the forecast"></canvas>
+    <p class="fig-note">
+      <b>How to read it.</b> Each bar is one assumption pushed to its pessimistic end (red) and
+      its optimistic end (green). The number on the right is the total swing. Credit conditions
+      look largest partly because their range is wider — the labels show the range used, not
+      just the width of the bar.
+    </p>
+  </div>
+</section>
+
+<!-- ─────────────────────────────  05 words  ───────────────────────────── -->
+<section class="section" id="words">
+  <header class="section-head">
+    <span class="section-no">05</span>
+    <h2>The words</h2>
+    <div class="head-copy">
+      <p class="plain">
+        <span class="plain-tag">In plain English</span>
+        Eleven terms do most of the work on this page. None of them is difficult once it is
+        said out loud.
+      </p>
+    </div>
+  </header>
+
+  <dl class="glossary">
+    <div>
+      <dt>Bank Rate</dt>
+      <dd>The interest rate the Bank of England pays banks to park money with it. It is the
+        lever for everything else, but it works slowly and indirectly.</dd>
+    </div>
+    <div>
+      <dt>Swap rate</dt>
+      <dd>What banks pay to borrow at a fixed rate for a set number of years. Your fixed
+        mortgage is priced from this, not from Bank Rate — which is why fixed rates can move
+        when Bank Rate does not.</dd>
+    </div>
+    <div>
+      <dt>Fixed rate</dt>
+      <dd>A mortgage whose interest rate is locked for a period, usually two or five years.
+        After that you remortgage onto whatever rates are by then.</dd>
+    </div>
+    <div>
+      <dt>Loan-to-value (LTV)</dt>
+      <dd>The share of the property you borrow. A 75% LTV loan on a £200,000 flat is £150,000,
+        with a £50,000 deposit.</dd>
+    </div>
+    <div>
+      <dt>Income multiple</dt>
+      <dd>How many times your salary a lender will let you borrow. Most UK lending is capped at
+        4.5 times, which is why incomes matter as much as interest rates.</dd>
+    </div>
+    <div>
+      <dt>Stamp duty (SDLT)</dt>
+      <dd>A tax on buying property in England and Northern Ireland, charged in slices and paid
+        on completion. First-time buyers pay nothing below £300,000 — but lose the relief
+        entirely at £500,001.</dd>
+    </div>
+    <div>
+      <dt>Nominal and real</dt>
+      <dd>Nominal is the number on the price tag. Real is that number after inflation — what
+        the money actually buys. A price that rises 15% while prices generally rise 12% has
+        really risen about 3%.</dd>
+    </div>
+    <div>
+      <dt>Valuation gap</dt>
+      <dd>How far house prices sit above or below what today's incomes and interest rates
+        suggest they should be. The model expects the gap to close over roughly six years.</dd>
+    </div>
+    <div>
+      <dt>Buying power</dt>
+      <dd>The most a household can borrow, and therefore the most it can pay. It falls when
+        rates rise, even if nothing about the house or the buyer changes.</dd>
+    </div>
+    <div>
+      <dt>Percentile (10th, 90th)</dt>
+      <dd>If you ran the next five years a hundred times, the 10th percentile is the result you
+        would beat ninety times out of a hundred. It is a way of describing a range without
+        pretending to know the answer.</dd>
+    </div>
+    <div>
+      <dt>Monte Carlo</dt>
+      <dd>Running the same model thousands of times, each with slightly different assumptions,
+        to see how wide the range of plausible answers is.</dd>
+    </div>
+  </dl>
+</section>
+
+<!-- ─────────────────────────────  06 method  ───────────────────────────── -->
+<section class="section section--method" id="method">
+  <header class="section-head">
+    <span class="section-no">06</span>
+    <h2>Method and limits</h2>
+    <div class="head-copy">
+      <p class="plain">
+        <span class="plain-tag">In plain English</span>
+        Prices are anchored to what a household can pay each month. Everything else is a
+        variation on that one idea.
+      </p>
+    </div>
+  </header>
+
+  <div class="method-grid">
+    <div class="method-col">
+      <h3>The model</h3>
+      <p>House prices are anchored to what a household can pay, and what a household can pay is
+        a function of income and the interest rate:</p>
+      <div class="eq">
+        <div class="eq-line">A(r) = r / (1 − (1+r)<sup>−n</sup>)</div>
+        <div class="eq-note">annuity factor, 25 years</div>
+        <div class="eq-line">PTI*(r) = 6.00 × (A(5.88%) / A(r))<sup>1.10</sup></div>
+        <div class="eq-note">equilibrium price-to-earnings at rate r</div>
+        <div class="eq-line">g<sub>t</sub> = y<sub>t</sub> − 0.12 · ln(PTI<sub>t−1</sub>/PTI*(r<sub>t−1</sub>)) + 0.132 · ln(A<sub>t−1</sub>/A<sub>t</sub>) + credit − supply</div>
+        <div class="eq-note">annual nominal growth</div>
+      </div>
+      <p>
+        The two coefficients carry the argument. The <strong>1.10</strong> sets how much a change in
+        rates moves the equilibrium: it works out at roughly <strong>10.5% of value per percentage
+        point</strong> of mortgage rate in the long run, at today's rate level. The <strong>0.12</strong>
+        sets how fast prices get there — a half-life of about six years, because housing adjusts
+        through transactions, not through a screen.
+      </p>
+      <p>
+        They were fitted to the four November 2026 forecasts simultaneously, not chosen.
+        Root-mean-square error is <strong>0.83 percentage points per year</strong>. The fit is
+        worst for Savills, which is the most bearish on 2027 and which the model cannot explain
+        from its own rate and earnings assumptions.
+      </p>
+    </div>
+
+    <div class="method-col">
+      <h3>Calibration</h3>
+      <table class="data-table data-table--compact" id="calibTable">
+        <caption class="sr-only">Model fit against each published forecast</caption>
+      </table>
+      <h3>What it does not know</h3>
+      <ul class="limits">
+        <li><strong>Regional detail.</strong> The model is national. Regional paths are the national
+          path shifted by the five-year regional spread Savills publishes, which is a crude
+          approximation of very different local markets.</li>
+        <li><strong>Tax.</strong> Stamp duty is modelled at purchase because it is a real cash cost.
+          Council tax, the £2m surcharge from 2028 and the 2027 rental-income changes are not.</li>
+        <li><strong>Supply.</strong> Planning reform, and the 1.5 million homes target, are not in
+          here as anything other than a dial you set yourself.</li>
+        <li><strong>Nobody's forecast.</strong> The fan is not a prediction interval in the
+          statistical sense. It is the spread you get when rate, earnings, credit and an
+          unexplained residual all wobble at roughly the amplitude they have historically.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="sources">
+    <h3>Sources</h3>
+    <ol class="source-list">
+      <li>Bank of England, <em>Monetary Policy Summary and minutes</em>, 5 November 2026 — Bank Rate 4.00%, 8–1 vote, CPI 3.5% rising to around 5% by mid-2027.</li>
+      <li>ONS, <em>Consumer price inflation</em>, October 2026 — CPI 3.6%. And <em>Private rent and house prices, UK</em>, 18 November 2026 — UK HPI £272,642, +1.2%.</li>
+      <li>Moneyfacts <em>rate watch</em>, 20 November 2026 — average 2-year fix 5.95%, 5-year fix 5.88%, average SVR 7.13%.</li>
+      <li>Bank of England OIS curve via Mortgage Compare, 19 November 2026 — 2-year swap 4.75%, 5-year 4.72%, 10-year 4.84%.</li>
+      <li>Savills, <em>UK housing market recovery expected to be delayed until 2028</em>, 4 November 2026 — price path, rate, earnings and inflation assumptions.</li>
+      <li>JLL, <em>Forecasts 2027–2031</em>, 19 November 2026.</li>
+      <li>Hamptons, <em>Housing market forecasts</em>, 6 November 2026.</li>
+      <li>Office for Budget Responsibility, <em>Economic and fiscal outlook</em>, October 2026, Table A.1.</li>
+      <li>ONS, <em>Employee earnings in the UK: 2026</em>, 22 October 2026 — median full-time gross annual £40,911.</li>
+      <li>GOV.UK, <em>Stamp Duty Land Tax: residential property rates</em>; Autumn Budget 2026 confirmed no change to residential SDLT bands.</li>
+    </ol>
+    <p class="disclaimer">
+      This is an educational model, not advice, and not a valuation. Every figure it produces is a
+      consequence of the assumptions you set. If you are borrowing money, speak to a regulated
+      adviser; if you are buying a specific house, the only price that matters is the one a
+      specific buyer and a specific seller agree on.
+    </p>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <span>The Price of Money</span>
+  <span class="foot-dot">·</span>
+  <span>Data as at 20 November 2026</span>
+  <span class="foot-dot">·</span>
+  <span>Built as an explainer, not a forecast.</span>
+</footer>
+
+<script>
+/* ==== js/data.js ==== */
+/* ------------------------------------------------------------------
+   data.js — every number in the app, with its source and date.
+   Nothing here is invented. Where a figure is derived, the derivation
+   is written next to it.
+   ------------------------------------------------------------------ */
+
+const DATA = {
+  asOf: '20 November 2026',
+  asOfShort: 'Nov 2026',
+
+  /* ---- policy --------------------------------------------------- */
+  policy: {
+    bankRate: 4.00,
+    bankRatePrev: 3.75,
+    bankRateDate: '5 November 2026',
+    bankRateVote: '8–1',
+    bankRatePeak: 5.25,
+    cpi: 3.6,
+    cpiMonth: 'October 2026',
+    cpiPrev: 3.5,
+    cpiPeakForecast: 5.0,
+    cpiPeakWhen: 'mid-2027',
+    target: 2.0,
+    source: 'Bank of England, Monetary Policy Summary, 5 Nov 2026'
+  },
+
+  /* ---- market rates --------------------------------------------- */
+  market: {
+    swap2: 4.75,
+    swap5: 4.72,
+    swap10: 4.84,
+    swapDate: '19 November 2026',
+    avg2: 5.95,
+    avg5: 5.88,
+    best2: 4.78,
+    best5: 4.78,
+    svr: 7.13,
+    moneyfactsDate: '20 November 2026',
+    // Implied product margin: average 5-year fix less the 5-year swap.
+    get margin() { return +(this.avg5 - this.swap5).toFixed(2); },      // 1.16
+    // Implied term premium in the swap curve over Bank Rate.
+    get termPremium() { return +(this.swap5 - DATA.policy.bankRate).toFixed(2); }, // 0.72
+    source: 'Moneyfacts rate watch 20 Nov 2026; BoE OIS curve via Mortgage Compare'
+  },
+
+  /* ---- price levels --------------------------------------------- */
+  prices: {
+    hpi: 272642,          // UK HPI, September 2026
+    hpiYoy: 1.2,
+    nationwide: 273566,   // Nationwide, October 2026
+    nationwideYoy: 0.5,
+    lloyds: 296285,       // Lloyds (ex-Halifax), October 2026
+    lloydsYoy: -1.2,
+    start: 273000,        // Q4 2026 working level — the model's starting point
+    source: 'UK HPI (HM Land Registry/ONS), 18 Nov 2026; Nationwide & Lloyds HPIs, Oct 2026'
+  },
+
+  earnings: {
+    median: 40911,        // ONS ASHE median gross annual, full-time, April 2026
+    yoy: 4.5,
+    source: 'ONS, Employee earnings in the UK: 2026 (provisional)'
+  },
+
+  /* ---- regions --------------------------------------------------
+     price  = UK HPI average price, September 2026
+     yoy    = annual change to September 2026
+     growth5= Savills five-year forecast to 2031 where published;
+              null where Savills does not publish one (estimated here
+              from the affordability gap, and flagged in the UI).
+     -------------------------------------------------------------- */
+  regions: [
+    { id:'uk',      name:'United Kingdom',      price:272642, yoy: 1.2, growth5:15.8, published:true },
+    { id:'london',  name:'London',              price:545579, yoy:-3.5, growth5: 8.1, published:true },
+    { id:'se',      name:'South East',          price:378915, yoy:-0.2, growth5: 9.1, published:true },
+    { id:'east',    name:'East of England',     price:338357, yoy: 0.7, growth5:10.7, published:true },
+    { id:'sw',      name:'South West',          price:301616, yoy: 0.3, growth5:null, published:false },
+    { id:'wm',      name:'West Midlands',       price:250355, yoy: 0.9, growth5:16.3, published:true },
+    { id:'em',      name:'East Midlands',       price:242863, yoy: 1.3, growth5:15.7, published:true },
+    { id:'nw',      name:'North West',          price:220477, yoy: 3.2, growth5:23.3, published:true },
+    { id:'wales',   name:'Wales',               price:214548, yoy: 1.8, growth5:null, published:false },
+    { id:'yorks',   name:'Yorkshire & Humber',  price:210799, yoy: 2.9, growth5:null, published:false },
+    { id:'ni',      name:'Northern Ireland',    price:207272, yoy: 7.4, growth5:null, published:false },
+    { id:'scotland',name:'Scotland',            price:197975, yoy: 2.3, growth5:21.6, published:true },
+    { id:'ne',      name:'North East',          price:166649, yoy: 4.6, growth5:22.2, published:true }
+  ],
+
+  /* ---- published forecasts --------------------------------------
+     Prices are per cent per calendar year. Assumptions are the
+     forecaster's own where published; where not published, the
+     market-implied path is used and flagged.
+     -------------------------------------------------------------- */
+  forecasts: {
+    consensus: {
+      id:'consensus', label:'Consensus', short:'Consensus',
+      date:'Nov 2026', scope:'Average of four',
+      published:false,
+      price:{ 2027:0.85, 2028:3.08, 2029:3.45, 2030:3.73, 2031:3.25 },
+      priceNote:'Simple average of Savills, JLL, Hamptons and OBR for each year.',
+      rate:  { 2026:5.88, 2027:5.70, 2028:5.40, 2029:5.20, 2030:5.05, 2031:5.00 },
+      earn:  { 2026:4.5,  2027:2.6,  2028:2.7,  2029:2.8,  2030:2.8,  2031:2.8 },
+      cpi:   { 2026:3.6,  2027:2.8,  2028:2.1,  2029:2.0,  2030:2.0,  2031:2.0 },
+      note:'The blend used as this app\u2019s default: the mean of the four most recent published paths, applied to a mortgage-rate path that sits between the swap curve and Savills\u2019 assumptions.'
+    },
+    savills: {
+      id:'savills', label:'Savills', short:'Savills',
+      date:'4 Nov 2026', scope:'Mainstream UK, second-hand',
+      published:true,
+      price:{ 2026:0.0, 2027:-1.5, 2028:3.5, 2029:5.0, 2030:5.0, 2031:3.0 },
+      rate:  { 2026:5.32, 2027:5.09, 2028:4.23, 2029:4.00, 2030:4.00, 2031:4.00 },
+      base:  { 2026:4.00, 2027:4.25, 2028:3.25, 2029:3.00, 2030:3.00, 2031:3.00 },
+      earn:  { 2026:2.7, 2027:2.2, 2028:2.8, 2029:2.9, 2030:2.9, 2031:2.8 },
+      cpi:   { 2026:3.7, 2027:2.4, 2028:1.4, 2029:1.9, 2030:1.9, 2031:1.9 },
+      total5: 15.8,
+      note:'The most bearish of the four on 2026\u201327, and the only one publishing a full rate, earnings and inflation path. Expects a 3.0% peak-to-trough fall.'
+    },
+    jll: {
+      id:'jll', label:'JLL', short:'JLL',
+      date:'19 Nov 2026', scope:'UK residential',
+      published:true,
+      price:{ 2026:-0.5, 2027:1.0, 2028:3.5, 2029:4.0, 2030:3.5, 2031:3.5 },
+      rate:  { 2026:5.90, 2027:5.60, 2028:5.20, 2029:4.90, 2030:4.75, 2031:4.70 },
+      earn:  { 2026:3.0, 2027:2.6, 2028:2.8, 2029:2.9, 2030:2.9, 2031:2.9 },
+      cpi:   { 2026:3.6, 2027:2.8, 2028:2.1, 2029:2.0, 2030:2.0, 2031:2.0 },
+      total5: 16.5,
+      note:'Rate path is inferred from the market-implied curve and JLL\u2019s commentary; only the price path is published. Cut 2027 from 2.0% to 1.0% at this update.'
+    },
+    hamptons: {
+      id:'hamptons', label:'Hamptons', short:'Hamptons',
+      date:'6 Nov 2026', scope:'Great Britain',
+      published:true,
+      price:{ 2026:1.0, 2027:1.5, 2028:2.5, 2029:2.0 },
+      rate:  { 2026:5.90, 2027:5.65, 2028:5.30, 2029:5.00 },
+      earn:  { 2026:3.0, 2027:2.7, 2028:2.8, 2029:2.9 },
+      cpi:   { 2026:3.6, 2027:2.9, 2028:2.2, 2029:2.1 },
+      total5: null,
+      note:'Only publishes to 2029. Sees rate relief arriving earlier than the market prices, on lender competition rather than MPC cuts.'
+    },
+    obr: {
+      id:'obr', label:'OBR', short:'OBR',
+      date:'28 Oct 2026', scope:'UK, fiscal forecast',
+      published:true,
+      price:{ 2026:2.1, 2027:2.4, 2028:2.8, 2029:2.8, 2030:2.7 },
+      rate:  { 2026:5.95, 2027:5.70, 2028:5.45, 2029:5.25, 2030:5.05 },
+      earn:  { 2026:3.2, 2027:3.0, 2028:3.0, 2029:3.0, 2030:3.0 },
+      cpi:   { 2026:3.4, 2027:2.6, 2028:2.1, 2029:2.0, 2030:2.0 },
+      total5: null,
+      note:'The official forecaster, not a house. Table A.1 of the October 2026 Economic and Fiscal Outlook. Most optimistic on 2027.'
+    }
+  },
+
+  forecastOrder: ['savills','jll','hamptons','obr'],
+
+  /* ---- stamp duty, England & Northern Ireland, from 1 April 2025 -- */
+  sdlT: {
+    bands: [
+      { upTo: 125000,  rate: 0.00 },
+      { upTo: 250000,  rate: 0.02 },
+      { upTo: 925000,  rate: 0.05 },
+      { upTo: 1500000, rate: 0.10 },
+      { upTo: Infinity, rate: 0.12 }
+    ],
+    ftbBands: [
+      { upTo: 300000, rate: 0.00 },
+      { upTo: 500000, rate: 0.05 }
+    ],
+    ftbCap: 500000,
+    surcharge: 0.05,
+    nonResident: 0.02,
+    source: 'GOV.UK, SDLT residential rates; Autumn Budget 2026 left them unchanged'
+  },
+
+  /* ---- model constants (calibrated, see tools/calibrate2.py) ------ */
+  model: {
+    theta: 1.10,       // rate sensitivity of the equilibrium price-to-earnings ratio
+    lambda: 0.12,      // annual speed of reversion to equilibrium
+    refRate: 0.0588,   // reference mortgage rate for the anchor (decimal)
+    refPti: 6.00,      // equilibrium price-to-earnings at refRate
+    termYears: 25,
+    ltiRef: 4.50,      // loan-to-income multiple at refRate
+    ltvDefault: 0.75,
+    citation: 'theta and lambda fitted to Savills, JLL, Hamptons and OBR (Nov 2026); root-mean-square error 0.83pp per year.'
+  }
+};
+
+
+/* ==== js/engine.js ==== */
+/* ------------------------------------------------------------------
+   engine.js — mortgage arithmetic, stamp duty, the forecast model.
+   Pure functions, no DOM. Everything returns plain numbers/objects.
+   ------------------------------------------------------------------ */
+
+const Engine = (() => {
+
+  const M = DATA.model;
+
+  /* ---------------- basic finance ---------------- */
+
+  // Annuity factor: annual payment per £1 borrowed, repaid over n years.
+  function annuity(rate, years = M.termYears) {
+    if (rate <= 0) return 1 / years;
+    return rate / (1 - Math.pow(1 + rate, -years));
+  }
+
+  function monthlyPayment(principal, rate, years = M.termYears) {
+    if (principal <= 0) return 0;
+    return principal * annuity(rate, years) / 12;
+  }
+
+  // Outstanding balance after `paidYears` of a level-payment mortgage.
+  function balanceAfter(principal, rate, years, paidYears) {
+    if (principal <= 0) return 0;
+    if (paidYears >= years) return 0;
+    const pmt = monthlyPayment(principal, rate, years);
+    const r = rate / 12, n = paidYears * 12;
+    if (r === 0) return Math.max(0, principal - pmt * n);
+    return principal * Math.pow(1 + r, n) - pmt * (Math.pow(1 + r, n) - 1) / r;
+  }
+
+  function totalInterest(principal, rate, years = M.termYears) {
+    return monthlyPayment(principal, rate, years) * 12 * years - principal;
+  }
+
+  /* ---------------- stamp duty (England & NI) ---------------- */
+
+  function stampDuty(price, opts = {}) {
+    const { firstTimeBuyer = false, additional = false, nonResident = false } = opts;
+    const S = DATA.sdlT;
+    let tax = 0;
+
+    if (firstTimeBuyer && !additional && price <= S.ftbCap) {
+      let floor = 0;
+      for (const b of S.ftbBands) {
+        const slice = Math.min(price, b.upTo) - floor;
+        if (slice > 0) tax += slice * b.rate;
+        floor = b.upTo;
+        if (price <= b.upTo) break;
+      }
+      if (nonResident) tax += price * S.nonResident;
+      return Math.round(tax);
+    }
+
+    let floor = 0;
+    for (const b of S.bands) {
+      const slice = Math.min(price, b.upTo) - floor;
+      if (slice > 0) tax += slice * b.rate;
+      floor = b.upTo;
+      if (price <= b.upTo) break;
+    }
+    if (additional) tax += price * S.surcharge;
+    if (nonResident) tax += price * S.nonResident;
+    return Math.round(tax);
+  }
+
+  /* ---------------- take-home pay (2026/27, England) ----------------
+     Approximate. Employee, no pension or student loan. Rates frozen
+     since 2021/22 apart from the NI change in 2024.                    */
+
+  const TAX = {
+    personalAllowance: 12570,
+    basicLimit: 50270,
+    higherLimit: 125140,
+    basic: 0.20,
+    higher: 0.40,
+    additional: 0.45,
+    niMain: 0.08,
+    niUpper: 0.02,
+    niThreshold: 12570
+  };
+
+  function netIncome(gross) {
+    const g = Math.max(0, gross);
+    let tax = 0;
+    if (g > TAX.personalAllowance) {
+      const basic = Math.min(g, TAX.basicLimit) - TAX.personalAllowance;
+      tax += Math.max(0, basic) * TAX.basic;
+    }
+    if (g > TAX.basicLimit) {
+      const higher = Math.min(g, TAX.higherLimit) - TAX.basicLimit;
+      tax += Math.max(0, higher) * TAX.higher;
+    }
+    if (g > TAX.higherLimit) {
+      tax += (g - TAX.higherLimit) * TAX.additional;
+    }
+    let ni = 0;
+    if (g > TAX.niThreshold) {
+      ni += (Math.min(g, TAX.basicLimit) - TAX.niThreshold) * TAX.niMain;
+      if (g > TAX.basicLimit) ni += (g - TAX.basicLimit) * TAX.niUpper;
+    }
+    return g - tax - ni;
+  }
+
+  /* ---------------- affordability ---------------- */
+
+  // The loan-to-income a lender will stretch to at a given rate.
+  // Anchored at ltiRef when rates are at refRate, then scaled by the
+  // payment burden: the same monthly payment buys a smaller loan.
+  function ltiAt(rate) {
+    const scale = annuity(M.refRate) / annuity(rate);
+    return M.ltiRef * Math.pow(scale, M.theta);
+  }
+
+  // Price a household on `income` can support, given a deposit ratio.
+  // loan = lti x income;  price = loan / ltv.
+  function supportablePrice(rate, income, ltv = M.ltvDefault) {
+    return ltiAt(rate) * income / Math.max(0.05, ltv);
+  }
+
+  function equilibriumPti(rate) {
+    return M.refPti * Math.pow(annuity(M.refRate) / annuity(rate), M.theta);
+  }
+
+  // Extend a forecaster's published annual series to any horizon by
+  // carrying the last published value forward.
+  function seriesFor(fc, key, years, fallback) {
+    let last = null;
+    return years.map(y => {
+      if (fc[key] && fc[key][y] != null) last = fc[key][y];
+      return last != null ? last : fallback;
+    });
+  }
+
+  /* ---------------- the forecast model ----------------
+
+     PTI*(r)  = refPti * (A(refRate)/A(r))^theta
+     gap_t    = ln(PTI_{t-1} / PTI*(r_{t-1}))
+     g_t      = earn_t - lambda*gap_t-1 + lambda*theta*ln(A_{t-1}/A_t)
+                + credit_t - supply_t + region_t
+
+     The last three terms are dials; the first three are the structure.
+     Returns growth plus an exact decomposition.
+     ------------------------------------------------------------------ */
+
+  function modelGrowth(a) {
+    const { rate, earn, credit, supply, region, startPrice, startEarn } = a;
+    const theta = a.theta ?? M.theta;
+    const lambda = a.lambda ?? M.lambda;
+    const refRate = a.refRate ?? M.refRate;
+    const refPti = a.refPti ?? M.refPti;
+
+    const n = rate.length;
+    let pti = startPrice / startEarn;
+    let rPrev = a.rate0 ?? M.refRate;
+
+    const out = [];
+    for (let t = 0; t < n; t++) {
+      const Aprev = annuity(rPrev);
+      const At = annuity(rate[t]);
+      const ptiStarPrev = refPti * Math.pow(annuity(refRate) / Aprev, theta);
+      const gapPrev = Math.log(pti / ptiStarPrev);
+
+      const gapTerm = -lambda * gapPrev;
+      const rateTerm = lambda * theta * Math.log(Aprev / At);
+      const c = (credit && credit[t]) || 0;
+      const s = (supply && supply[t]) || 0;
+      const rg = (region && region[t]) || 0;
+
+      const g = earn[t] + gapTerm + rateTerm + c - s + rg;
+
+      out.push({
+        growth: g,
+        components: { earn: earn[t], gap: gapTerm, rate: rateTerm, credit: c, supply: s, region: rg }
+      });
+
+      pti = pti * (1 + g) / (1 + earn[t]);
+      rPrev = rate[t];
+    }
+    return out;
+  }
+
+  /* Applies a published path (or the model path), then adjusts it by the
+     ratio between the model run on the user's assumptions and the model
+     run on the baseline's own assumptions. One code path for both. */
+  function buildPath(cfg) {
+    const { years, startValue, baseline, user } = cfg;
+
+    const bRate = seriesFor(baseline, 'rate', years, 5.0);
+    const bEarn = seriesFor(baseline, 'earn', years, 2.8);
+
+    const baseA = {
+      rate: bRate.map(v => v / 100),
+      earn: bEarn.map(v => v / 100),
+      credit: years.map(() => 0),
+      supply: years.map(() => 0),
+      region: years.map(() => cfg.regionDrift || 0),
+      startPrice: startValue,
+      startEarn: DATA.earnings.median
+    };
+    const userA = {
+      rate: years.map(y => user.rate[y] / 100),
+      earn: years.map(y => user.earn[y] / 100),
+      credit: years.map(() => (user.credit || 0) / 100),
+      supply: years.map(() => (user.supply || 0) / 100),
+      region: years.map(() => cfg.regionDrift || 0),
+      startPrice: startValue,
+      startEarn: DATA.earnings.median
+    };
+
+    const gBase = modelGrowth(baseA);
+    const gUser = modelGrowth(userA);
+
+    // Published growth where the forecaster gives one, else the model's.
+    const published = years.map(y =>
+      baseline.price && baseline.price[y] != null ? baseline.price[y] / 100 : null);
+
+    let cumPub = 1, cumBase = 1, cumUser = 1;
+    let cumCpi = 1;
+    const rows = [];
+
+    for (let t = 0; t < years.length; t++) {
+      const y = years[t];
+      const gp = published[t] != null ? published[t] : gBase[t].growth;
+      cumPub *= (1 + gp);
+      cumBase *= (1 + gBase[t].growth);
+      cumUser *= (1 + gUser[t].growth);
+
+      // Ratio of the user's model path to the baseline's model path.
+      const ratio = cumUser / cumBase;
+      const nominal = startValue * cumPub * ratio;
+
+      const cpi = (user.cpi[y] ?? baseline.cpi?.[y] ?? 2.0) / 100;
+      cumCpi *= (1 + cpi);
+
+      rows.push({
+        year: y,
+        growth: 0,          // replaced by the year-on-year pass below
+        nominal,
+        baseline: startValue * cumPub,
+        real: nominal / cumCpi,
+        components: gUser[t].components,
+        publishedGrowth: published[t],
+        extrapolated: published[t] == null
+      });
+    }
+
+    // growth reported = year-on-year change of the final nominal line
+    let prev = startValue;
+    for (const r of rows) {
+      r.growth = r.nominal / prev - 1;
+      prev = r.nominal;
+    }
+
+    return { rows, endValue: rows.length ? rows[rows.length - 1].nominal : startValue };
+  }
+
+  /* ---------------- Monte Carlo ---------------- */
+
+  function randn() {
+    let u = 0, v = 0;
+    while (u === 0) u = Math.random();
+    while (v === 0) v = Math.random();
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+  }
+
+  function monteCarlo(cfg, paths = 1500) {
+    const { years, startValue, baseline, user } = cfg;
+    const n = years.length;
+
+    // Central line: published growth where the forecaster gives it.
+    const centralA = {
+      rate: seriesFor(baseline, 'rate', years, 5.0).map(v => v / 100),
+      earn: seriesFor(baseline, 'earn', years, 2.8).map(v => v / 100),
+      credit: years.map(() => 0), supply: years.map(() => 0),
+      region: years.map(() => cfg.regionDrift || 0),
+      startPrice: startValue, startEarn: DATA.earnings.median
+    };
+    const gCentral = modelGrowth(centralA);
+    const published = years.map((y, i) =>
+      baseline.price && baseline.price[y] != null ? baseline.price[y] / 100 : gCentral[i].growth);
+
+    const cumCpi = [];
+    let c = 1;
+    for (const y of years) {
+      c *= 1 + (user.cpi[y] ?? baseline.cpi?.[y] ?? 2.0) / 100;
+      cumCpi.push(c);
+    }
+
+    const samples = Array.from({ length: n }, () => []);
+    const ends = [];
+    let belowStart = new Array(n).fill(0);
+    let realBelow = new Array(n).fill(0);
+
+    for (let p = 0; p < paths; p++) {
+      // AR(1) shocks. Rate and credit are nudged together: tighter credit
+      // usually arrives with higher rates, which fattens the downside tail.
+      let rS = 0, eS = 0, cS = 0;
+      const rate = [], earn = [], credit = [];
+
+      for (let t = 0; t < n; t++) {
+        rS = 0.70 * rS + randn() * 0.55;
+        eS = 0.40 * eS + randn() * 0.80;
+        cS = 0.60 * cS + randn() * 1.20;
+        const common = randn() * 0.55;              // shared cycle factor
+        rate.push(user.rate[years[t]] / 100 + (rS + common) / 100);
+        earn.push(user.earn[years[t]] / 100 + eS / 100);
+        credit.push((user.credit || 0) / 100 + (cS + common * 0.8) / 100);
+      }
+
+      const g = modelGrowth({
+        rate, earn, credit, supply: years.map(() => (user.supply || 0) / 100),
+        region: years.map(() => cfg.regionDrift || 0),
+        startPrice: startValue, startEarn: DATA.earnings.median
+      });
+
+      // Ratio of this path to the central one, applied on top of the
+      // central cumulated line. Keeps the median on the published path.
+      // `cumResid` is the part of house-price variation the model does not
+      // claim to explain — sentiment, planning, credit rationing, the
+      // things that make forecast errors large rather than merely noisy.
+      let cumPub = 1, cumSim = 1, cumCen = 1, cumResid = 1, v = startValue;
+      let resid = 0;
+      for (let t = 0; t < n; t++) {
+        resid = 0.35 * resid + randn() * 2.60;
+        cumResid *= 1 + resid / 100;
+        cumPub *= 1 + published[t];
+        cumSim *= 1 + g[t].growth;
+        cumCen *= 1 + gCentral[t].growth;
+        v = startValue * cumPub * (cumSim / cumCen) * cumResid;
+        samples[t].push(v);
+        if (v < startValue) belowStart[t]++;
+        if (v < startValue * cumCpi[t]) realBelow[t]++;
+      }
+      ends.push(v);
+    }
+
+    const pick = (arr, k) => {
+      if (!arr.length) return 0;
+      const s = Float64Array.from(arr).sort();
+      return s[Math.min(s.length - 1, Math.max(0, Math.round(k * (s.length - 1))))];
+    };
+
+    const bands = samples.map(arr => ({
+      p10: pick(arr, 0.10), p25: pick(arr, 0.25), p50: pick(arr, 0.50),
+      p75: pick(arr, 0.75), p90: pick(arr, 0.90)
+    }));
+
+    return {
+      bands,
+      medianEnd: pick(ends, 0.5),
+      p10End: pick(ends, 0.10),
+      p90End: pick(ends, 0.90),
+      probBelowStart: belowStart.map(v => v / paths),
+      probRealBelow: realBelow.map(v => v / paths),
+      cumCpi
+    };
+  }
+
+  /* ---------------- sale economics ---------------- */
+
+  function saleOutcome(cfg) {
+    const {
+      price, depositPct, rate, years, horizon, sellCostPct,
+      sdlTOpts, legalPurchase, mortgageFee
+    } = cfg;
+
+    const deposit = price * depositPct;
+    const loan = price - deposit;
+    const sdlt = stampDuty(price, sdlTOpts);
+    const cashIn = deposit + sdlt + legalPurchase + mortgageFee;
+
+    const remaining = balanceAfter(loan, rate, years, horizon);
+    const exitValue = cfg.exitValue;
+    const sellCosts = exitValue * sellCostPct;
+    const netProceeds = exitValue - sellCosts - remaining;
+
+    const interestPaid = monthlyPayment(loan, rate, years) * 12 * horizon
+      - (loan - remaining);
+
+    return {
+      deposit, loan, sdlt, cashIn,
+      remaining, sellCosts, netProceeds,
+      interestPaid,
+      profit: netProceeds - cashIn,
+      moneyMultiple: netProceeds / cashIn,
+      cagr: cashIn > 0 ? Math.pow(netProceeds / cashIn, 1 / horizon) - 1 : 0
+    };
+  }
+
+  return {
+    annuity, monthlyPayment, balanceAfter, totalInterest,
+    stampDuty, netIncome, ltiAt, supportablePrice, equilibriumPti,
+    seriesFor, modelGrowth, buildPath, monteCarlo, saleOutcome
+  };
+})();
+
+
+/* ==== js/charts.js ==== */
+/* ------------------------------------------------------------------
+   charts.js — small canvas chart kit. No dependencies.
+   Every chart is drawn at device pixel ratio and redraws on resize.
+   ------------------------------------------------------------------ */
+
+const Charts = (() => {
+
+  // Every colour below is read from CSS custom properties, so a theme
+  // switch only needs refreshPalette() and a redraw.
+  const C = {};
+  const SERIES_COLORS = {};
+
+  function cssVar(name, fallback) {
+    if (typeof document === 'undefined') return fallback;
+    const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return v || fallback;
+  }
+
+  function withAlpha(colour, a) {
+    const hex = String(colour).replace('#', '');
+    const full = hex.length === 3 ? hex.split('').map(c => c + c).join('') : hex;
+    const r = parseInt(full.slice(0, 2), 16);
+    const g = parseInt(full.slice(2, 4), 16);
+    const b = parseInt(full.slice(4, 6), 16);
+    if ([r, g, b].some(Number.isNaN)) return `rgba(128,128,128,${a})`;
+    return `rgba(${r},${g},${b},${a})`;
+  }
+
+  function refreshPalette() {
+    C.ink = cssVar('--ink', '#14120F');
+    C.ink2 = cssVar('--ink-2', '#4E4942');
+    C.ink3 = cssVar('--ink-3', '#6E685F');
+    C.rule = cssVar('--rule', '#DCD5C8');
+    C.ruleSoft = cssVar('--rule-2', '#EAE4D9');
+    C.accent = cssVar('--accent', '#C0392B');
+    C.blue = cssVar('--blue', '#1B4B5A');
+    C.gold = cssVar('--gold', '#A87A2A');
+    C.green = cssVar('--green', '#2F6B4F');
+    C.violet = cssVar('--violet', '#6B5B7A');
+    C.neutral = cssVar('--neutral', '#9A9184');
+    C.paper = cssVar('--paper', '#FAF8F4');
+
+    SERIES_COLORS.savills = cssVar('--series-1', '#B07A55');
+    SERIES_COLORS.jll = cssVar('--series-2', '#7A8B5A');
+    SERIES_COLORS.hamptons = cssVar('--series-3', '#8A6E9E');
+    SERIES_COLORS.obr = cssVar('--series-4', '#5E7C96');
+    SERIES_COLORS.consensus = cssVar('--series-5', '#A87A2A');
+  }
+
+  refreshPalette();
+
+  function setup(canvas) {
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    const w = Math.max(1, rect.width);
+    const h = Math.max(1, rect.height || canvas.height / dpr);
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    return { ctx, w, h, dpr };
+  }
+
+  const gbp = n => '£' + Math.round(n).toLocaleString('en-GB');
+  const gbpK = n => {
+    const a = Math.abs(n);
+    if (a >= 1e6) return '£' + (n / 1e6).toFixed(a >= 1e7 ? 0 : 1) + 'm';
+    if (a >= 1e4) return '£' + Math.round(n / 1e3) + 'k';
+    return '£' + Math.round(n).toLocaleString('en-GB');
+  };
+  const pct = n => (n >= 0 ? '+' : '') + (n * 100).toFixed(1) + '%';
+
+  function niceTicks(min, max, count = 5) {
+    if (min === max) { min -= 1; max += 1; }
+    const span = max - min;
+    const raw = span / count;
+    const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    const norm = raw / mag;
+    const step = (norm >= 7.5 ? 10 : norm >= 3.5 ? 5 : norm >= 1.5 ? 2 : 1) * mag;
+    const start = Math.ceil(min / step) * step;
+    const ticks = [];
+    for (let v = start; v <= max + step * 0.001; v += step) ticks.push(v);
+    return ticks;
+  }
+
+  /* ---------------- forecast fan ---------------- */
+
+  function forecast(canvas, cfg) {
+    const { ctx, w, h } = setup(canvas);
+    const { years, nominal, real, bands, reference = [], startValue, showReal = true, showBand = true } = cfg;
+
+    const pad = { t: 22, r: 16, b: 34, l: 56 };
+    if (w < 560) { pad.l = 44; pad.r = 10; }
+    const plotW = w - pad.l - pad.r;
+    const plotH = h - pad.t - pad.b;
+
+    const all = [...nominal, ...(showReal ? real : [])];
+    bands.forEach(b => { if (b && showBand) all.push(b.p10, b.p90); });
+    reference.forEach(s => all.push(...s.values));
+    let min = Math.min(...all), max = Math.max(...all);
+    const padY = (max - min) * 0.12 || 1;
+    min -= padY; max += padY * 0.6;
+
+    const x = i => pad.l + (years.length === 1 ? plotW / 2 : (i / (years.length - 1)) * plotW);
+    const y = v => pad.t + plotH - ((v - min) / (max - min)) * plotH;
+
+    // grid
+    ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    niceTicks(min, max, 4).forEach(t => {
+      const yy = y(t);
+      ctx.strokeStyle = C.ruleSoft; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(pad.l, yy); ctx.lineTo(w - pad.r, yy); ctx.stroke();
+      ctx.fillStyle = C.ink3;
+      ctx.fillText(gbpK(t), pad.l - 8, yy);
+    });
+
+    // x labels
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    const stride = years.length > 8 ? 2 : 1;
+    years.forEach((yr, i) => {
+      if (i % stride !== 0 && i !== years.length - 1) return;
+      ctx.fillStyle = C.ink3;
+      ctx.fillText(String(yr), x(i), h - pad.b + 10);
+    });
+
+    // bands
+    if (showBand) {
+      const bandArea = (lo, hi, fill) => {
+        ctx.beginPath();
+        let started = false;
+        bands.forEach((b, i) => {
+          if (!b) return;
+          const xx = x(i + 1), yy = y(b[hi]);
+          started ? ctx.lineTo(xx, yy) : (ctx.moveTo(xx, yy), started = true);
+        });
+        for (let i = bands.length - 1; i >= 0; i--) {
+          const b = bands[i];
+          if (!b) continue;
+          ctx.lineTo(x(i + 1), y(b[lo]));
+        }
+        ctx.closePath();
+        ctx.fillStyle = fill;
+        ctx.fill();
+      };
+      bandArea('p10', 'p90', withAlpha(C.accent, 0.09));
+      bandArea('p25', 'p75', withAlpha(C.accent, 0.17));
+    }
+
+    // published reference lines
+    reference.forEach(s => {
+      ctx.beginPath();
+      ctx.strokeStyle = s.color || C.ink3;
+      ctx.lineWidth = 1.25;
+      ctx.globalAlpha = 0.85;
+      s.values.forEach((v, i) => {
+        if (v == null) return;
+        const xx = x(i + 1), yy = y(v);
+        i === 0 || s.values[i - 1] == null ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy);
+      });
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    });
+
+    // published-horizon boundary
+    if (cfg.publishedUntil != null) {
+      const idx = years.indexOf(cfg.publishedUntil);
+      if (idx >= 0 && idx < years.length - 1) {
+        const bx = x(idx);
+        ctx.fillStyle = withAlpha(C.ink, 0.035);
+        ctx.fillRect(bx, pad.t, w - pad.r - bx, plotH);
+        ctx.strokeStyle = C.rule; ctx.setLineDash([3, 3]); ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(bx, pad.t); ctx.lineTo(bx, pad.t + plotH); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = C.ink3;
+        ctx.font = '9px "JetBrains Mono", ui-monospace, monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        if (w - pad.r - bx > 70) {
+          ctx.fillText('MODELLED', (bx + w - pad.r) / 2, pad.t + 4);
+        }
+      }
+    }
+
+    // real line
+    if (showReal) {
+      ctx.beginPath();
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = C.blue; ctx.lineWidth = 1.5;
+      real.forEach((v, i) => i ? ctx.lineTo(x(i), y(v)) : ctx.moveTo(x(i), y(v)));
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    // nominal line
+    ctx.beginPath();
+    ctx.strokeStyle = C.accent; ctx.lineWidth = 2;
+    nominal.forEach((v, i) => i ? ctx.lineTo(x(i), y(v)) : ctx.moveTo(x(i), y(v)));
+    ctx.stroke();
+
+    // today marker
+    ctx.setLineDash([2, 3]);
+    ctx.strokeStyle = C.ink3; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x(0), y(startValue)); ctx.lineTo(w - pad.r, y(startValue)); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // end dot + label
+    const lastV = nominal[nominal.length - 1];
+    ctx.beginPath();
+    ctx.arc(x(nominal.length - 1), y(lastV), 3.5, 0, Math.PI * 2);
+    ctx.fillStyle = C.accent; ctx.fill();
+
+    canvas._geom = { x, y, pad, plotW, plotH, min, max, years, nominal, real, bands };
+  }
+
+  /* ---------------- decomposition bars ---------------- */
+
+  function decomp(canvas, cfg) {
+    const { ctx, w, h } = setup(canvas);
+    const { rows } = cfg;   // [{label, segments:[{key,label,value,color}]}]
+    const pad = { t: 18, r: 10, b: 30, l: 44 };
+    const plotW = w - pad.l - pad.r;
+    const plotH = h - pad.t - pad.b;
+
+    let min = 0, max = 0;
+    rows.forEach(r => {
+      let pos = 0, neg = 0;
+      r.segments.forEach(s => { s.value >= 0 ? pos += s.value : neg += s.value; });
+      max = Math.max(max, pos); min = Math.min(min, neg);
+    });
+    if (max === min) { max = 0.01; min = -0.01; }
+    const padY = (max - min) * 0.15;
+    max += padY; min -= padY;
+
+    const y = v => pad.t + plotH - ((v - min) / (max - min)) * plotH;
+    const bandW = plotW / rows.length;
+    const barW = Math.min(46, bandW * 0.56);
+
+    ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    niceTicks(min, max, 4).forEach(t => {
+      if (Math.abs(t) < 1e-9) return;
+      const yy = y(t);
+      ctx.strokeStyle = C.ruleSoft;
+      ctx.beginPath(); ctx.moveTo(pad.l, yy); ctx.lineTo(w - pad.r, yy); ctx.stroke();
+      ctx.fillStyle = C.ink3;
+      ctx.fillText((t * 100).toFixed(1), pad.l - 6, yy);
+    });
+
+    // zero line
+    ctx.strokeStyle = C.ink2; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad.l, y(0)); ctx.lineTo(w - pad.r, y(0)); ctx.stroke();
+
+    rows.forEach((r, i) => {
+      const cx = pad.l + bandW * (i + 0.5);
+      let pos = 0, neg = 0;
+      r.segments.forEach(s => {
+        const v = s.value;
+        const from = v >= 0 ? pos : neg;
+        const to = from + v;
+        v >= 0 ? pos = to : neg = to;
+        const y1 = y(Math.max(from, to)), y2 = y(Math.min(from, to));
+        ctx.fillStyle = s.color;
+        ctx.fillRect(cx - barW / 2, y1, barW, Math.max(1, y2 - y1));
+      });
+
+      ctx.fillStyle = C.ink3;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+      ctx.fillText(r.label, cx, h - pad.b + 10);
+
+      // Net growth: a tick across the bar at its true level, labelled in the
+      // gutter beside it. Above-the-stack labels lie whenever a year has a
+      // large negative component.
+      const total = pos + neg;
+      const ty = y(total);
+      ctx.strokeStyle = withAlpha(C.ink, 0.5);
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(cx - barW / 2 - 3, ty);
+      ctx.lineTo(cx + barW / 2 + 3, ty);
+      ctx.stroke();
+
+      ctx.fillStyle = C.ink2;
+      ctx.font = '9.5px "JetBrains Mono", ui-monospace, monospace';
+      ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      ctx.fillText((total * 100).toFixed(1), cx + barW / 2 + 7, ty);
+      ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+    });
+
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  }
+
+  /* ---------------- tornado ---------------- */
+
+  function tornado(canvas, cfg) {
+    const { ctx, w, h } = setup(canvas);
+    const { items } = cfg;  // [{label, low, high}] in currency delta
+    const pad = { t: 10, r: 78, b: 22, l: Math.min(168, w * 0.38) };
+    const plotW = w - pad.l - pad.r;
+    const rowH = (h - pad.t - pad.b) / Math.max(1, items.length);
+    const maxAbs = Math.max(1, ...items.map(i => Math.max(Math.abs(i.low), Math.abs(i.high))));
+
+    const zero = pad.l + plotW / 2;
+    const scale = (plotW / 2) / maxAbs;
+
+    ctx.font = '11px "Inter", ui-sans-serif, sans-serif';
+    items.forEach((it, i) => {
+      const cy = pad.t + rowH * (i + 0.5);
+      const bh = Math.min(15, rowH * 0.5);
+
+      ctx.fillStyle = C.ink2;
+      ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+      ctx.fillText(it.label, pad.l - 10, cy);
+
+      const lo = it.low, hi = it.high;
+
+      // downside (left) and upside (right) bars
+      ctx.fillStyle = withAlpha(C.accent, 0.62);
+      ctx.fillRect(Math.min(zero + lo * scale, zero), cy - bh / 2, Math.abs(lo * scale), bh);
+      ctx.fillStyle = withAlpha(C.green, 0.62);
+      ctx.fillRect(Math.min(zero + hi * scale, zero), cy - bh / 2, Math.abs(hi * scale), bh);
+
+      // total swing in the right-hand gutter
+      ctx.font = '9.5px "JetBrains Mono", ui-monospace, monospace';
+      ctx.fillStyle = C.ink2;
+      ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+      ctx.fillText(gbpK(hi - lo), w - 10, cy);
+      ctx.font = '11px "Inter", ui-sans-serif, sans-serif';
+    });
+
+    ctx.strokeStyle = C.ink2; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(zero, pad.t - 2); ctx.lineTo(zero, h - pad.b); ctx.stroke();
+
+    ctx.fillStyle = C.ink3; ctx.font = '9.5px "JetBrains Mono", monospace';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillText(gbpK(-maxAbs), pad.l, h - pad.b + 6);
+    ctx.fillText('£0', zero, h - pad.b + 6);
+    ctx.fillText(gbpK(maxAbs), pad.l + plotW, h - pad.b + 6);
+  }
+
+  /* ---------------- payment vs rate curve ---------------- */
+
+  function rateCurve(canvas, cfg) {
+    const { ctx, w, h } = setup(canvas);
+    const { fn, currentRate, currentValue, minRate = 2, maxRate = 9, label } = cfg;
+    const pad = { t: 16, r: 14, b: 30, l: 52 };
+    const plotW = w - pad.l - pad.r;
+    const plotH = h - pad.t - pad.b;
+
+    const N = 60;
+    const pts = [];
+    for (let i = 0; i <= N; i++) {
+      const r = minRate + (maxRate - minRate) * (i / N);
+      pts.push([r, fn(r / 100)]);
+    }
+    const vals = pts.map(p => p[1]);
+    let min = Math.min(...vals), max = Math.max(...vals);
+    const padY = (max - min) * 0.12 || 1;
+    min -= padY; max += padY;
+
+    const x = r => pad.l + ((r - minRate) / (maxRate - minRate)) * plotW;
+    const y = v => pad.t + plotH - ((v - min) / (max - min)) * plotH;
+
+    ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    niceTicks(min, max, 4).forEach(t => {
+      const yy = y(t);
+      ctx.strokeStyle = C.ruleSoft;
+      ctx.beginPath(); ctx.moveTo(pad.l, yy); ctx.lineTo(w - pad.r, yy); ctx.stroke();
+      ctx.fillStyle = C.ink3;
+      ctx.fillText(gbpK(t), pad.l - 8, yy);
+    });
+
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    [2, 3, 4, 5, 6, 7, 8, 9].forEach(r => {
+      if (r < minRate || r > maxRate) return;
+      ctx.fillStyle = C.ink3;
+      ctx.fillText(r + '%', x(r), h - pad.b + 8);
+    });
+
+    // area under curve
+    ctx.beginPath();
+    ctx.moveTo(x(minRate), pad.t + plotH);
+    pts.forEach(p => ctx.lineTo(x(p[0]), y(p[1])));
+    ctx.lineTo(x(maxRate), pad.t + plotH);
+    ctx.closePath();
+    ctx.fillStyle = withAlpha(C.accent, 0.08);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.strokeStyle = C.accent; ctx.lineWidth = 2;
+    pts.forEach((p, i) => i ? ctx.lineTo(x(p[0]), y(p[1])) : ctx.moveTo(x(p[0]), y(p[1])));
+    ctx.stroke();
+
+    if (currentRate != null) {
+      const cx = x(currentRate), cy = y(currentValue);
+      ctx.setLineDash([2, 3]);
+      ctx.strokeStyle = C.ink3;
+      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx, pad.t + plotH); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.beginPath(); ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+      ctx.fillStyle = C.accent; ctx.fill();
+      ctx.strokeStyle = C.paper; ctx.lineWidth = 2; ctx.stroke();
+
+      ctx.fillStyle = C.ink; ctx.font = '600 11px "Inter", sans-serif';
+      ctx.textAlign = currentRate > (minRate + maxRate) / 2 ? 'right' : 'left';
+      ctx.textBaseline = 'bottom';
+      const tx = ctx.textAlign === 'right' ? cx - 10 : cx + 10;
+      ctx.fillText(label || gbp(currentValue), tx, cy - 6);
+    }
+  }
+
+  /* ---------------- simple multi-line comparison ---------------- */
+
+  function multiLine(canvas, cfg) {
+    const { ctx, w, h } = setup(canvas);
+    const { years, series, startValue } = cfg;
+    const pad = { t: 16, r: Math.min(104, w * 0.2), b: 28, l: 48 };
+    const plotW = w - pad.l - pad.r;
+    const plotH = h - pad.t - pad.b;
+
+    const all = [];
+    series.forEach(s => all.push(...s.values.filter(v => v != null)));
+    all.push(startValue);
+    let min = Math.min(...all), max = Math.max(...all);
+    const padY = (max - min) * 0.2 || 1;
+    min -= padY; max += padY;
+
+    const x = i => pad.l + (i / (years.length - 1)) * plotW;
+    const y = v => pad.t + plotH - ((v - min) / (max - min)) * plotH;
+
+    ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    niceTicks(min, max, 4).forEach(t => {
+      const yy = y(t);
+      ctx.strokeStyle = C.ruleSoft;
+      ctx.beginPath(); ctx.moveTo(pad.l, yy); ctx.lineTo(w - pad.r, yy); ctx.stroke();
+      ctx.fillStyle = C.ink3;
+      ctx.fillText(gbpK(t), pad.l - 8, yy);
+    });
+
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    years.forEach((yr, i) => {
+      if (years.length > 7 && i % 2 === 1) return;
+      ctx.fillStyle = C.ink3;
+      ctx.fillText(String(yr), x(i), h - pad.b + 8);
+    });
+
+    series.forEach(s => {
+      ctx.beginPath();
+      ctx.strokeStyle = s.color; ctx.lineWidth = s.width || 1.6;
+      ctx.globalAlpha = s.faint ? 0.8 : 1;
+      let started = false;
+      s.values.forEach((v, i) => {
+        if (v == null) return;
+        const xx = x(i), yy = y(v);
+        started ? ctx.lineTo(xx, yy) : (ctx.moveTo(xx, yy), started = true);
+      });
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    });
+
+    // end labels, placed at the actual end of each line and nudged apart
+    // only where two lines finish close together
+    const labels = series.map(s => {
+      let idx = s.values.length - 1;
+      while (idx > 0 && s.values[idx] == null) idx--;
+      return {
+        label: s.label, color: s.color, x: x(idx) + 7, y: y(s.values[idx]),
+        weight: s.width > 2 ? 600 : 500, placed: false
+      };
+    });
+
+    labels.sort((a, b) => a.x - b.x || a.y - b.y);
+    const done = [];
+    labels.forEach(l => {
+      let guard = 0;
+      while (guard++ < 12) {
+        const clash = done.find(d => Math.abs(d.x - l.x) < 56 && Math.abs(d.y - l.y) < 11.5);
+        if (!clash) break;
+        l.y = clash.y + 11.5;
+      }
+      l.y = Math.max(pad.t + 6, Math.min(h - pad.b - 2, l.y));
+      done.push(l);
+
+      ctx.fillStyle = l.color;
+      ctx.font = `${l.weight} 9.5px "Inter", ui-sans-serif, sans-serif`;
+      ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      ctx.fillText(l.label, l.x, l.y);
+    });
+  }
+
+  return { forecast, decomp, tornado, rateCurve, multiLine, C, SERIES_COLORS, refreshPalette, withAlpha, gbp, gbpK, pct };
+})();
+
+
+/* ==== js/diagram.js ==== */
+/* ------------------------------------------------------------------
+   diagram.js — the transmission chain: six nodes, five links.
+   Values tween when the shock changes; the pipes carry a moving
+   highlight whose speed tracks the size of the move.
+   ------------------------------------------------------------------ */
+
+const Chain = (() => {
+
+  const REF_LOAN_RATIO = 0.75;          // LTV used for the illustrative buyer
+  const nodes = [
+    { id: 'bank',  tag: 'Policy',     name: 'Bank Rate',           note: "the Bank of England's rate" },
+    { id: 'swap',  tag: 'Wholesale',  name: 'Swap rate',           note: "banks' 5-year borrowing cost" },
+    { id: 'mort',  tag: 'Retail',     name: 'Fixed mortgage rate', note: 'what a lender charges you' },
+    { id: 'pay',   tag: 'Cash flow',  name: 'Monthly payment',     note: 'your bill, every month' },
+    { id: 'power', tag: 'Behaviour',  name: 'Buying power',        note: 'the most a buyer can pay' },
+    { id: 'price', tag: 'Outcome',    name: 'House price',         note: "today's average" }
+  ];
+
+  const passes = ['1 : 1', '+1.2pt', 'repayment', '4.5 ×', 'over years'];
+
+  let el = {};
+  let raf = null;
+  let state = { shown: null, target: null, t0: 0 };
+
+  const fmtPct = v => v.toFixed(2);
+  const fmtPp = v => (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(2) + ' pp';
+  const fmtMoney = v => '£' + Math.round(v).toLocaleString('en-GB');
+  const signClass = d => Math.abs(d) < 0.0005 ? '' : (d > 0 ? 'neg' : 'pos');
+  const fmtDeltaPct = v => (v >= 0 ? '+' : '−') + Math.abs(v * 100).toFixed(1) + '%';
+
+  function compute(shockBp) {
+    const s = shockBp / 100;
+    const bank = DATA.policy.bankRate + s;
+    const swap = DATA.market.swap5 + s;
+    const mort = DATA.market.avg5 + s;
+
+    const loan = DATA.prices.start * REF_LOAN_RATIO;
+    const pay = Engine.monthlyPayment(loan, mort / 100);
+    const power = Engine.supportablePrice(mort / 100, DATA.earnings.median, REF_LOAN_RATIO);
+    const price = DATA.prices.start;
+    const gap = power / price - 1;
+
+    return { bank, swap, mort, pay, power, price, gap, loan, shockBp };
+  }
+
+  function build(container) {
+    const frag = document.createDocumentFragment();
+
+    nodes.forEach((n, i) => {
+      if (i > 0) {
+        const c = document.createElement('div');
+        c.className = 'connector';
+        c.innerHTML = `<span class="pipe"></span><span class="pass">${passes[i - 1]}</span>`;
+        frag.appendChild(c);
+      }
+      const d = document.createElement('div');
+      d.className = 'node' + (i === 0 ? ' is-first' : '') + (i === nodes.length - 1 ? ' is-last' : '');
+      d.dataset.node = n.id;
+      d.innerHTML = `
+        <div class="node-top">
+          <span class="node-idx">${String(i + 1).padStart(2, '0')}</span>
+          <span class="node-tag">${n.tag}</span>
+        </div>
+        <div class="node-name">${n.name}</div>
+        <div class="node-value"><span class="v">—</span><span class="unit"></span></div>
+        <div class="node-delta"></div>
+        <div class="node-sub">${n.note}</div>`;
+      frag.appendChild(d);
+    });
+
+    container.innerHTML = '';
+    container.appendChild(frag);
+
+    el = {};
+    container.querySelectorAll('.node').forEach(n => {
+      el[n.dataset.node] = {
+        root: n,
+        value: n.querySelector('.v'),
+        unit: n.querySelector('.unit'),
+        delta: n.querySelector('.node-delta'),
+        sub: n.querySelector('.node-sub'),
+        note: n.querySelector('.node-sub').textContent
+      };
+    });
+    el.pipes = [...container.querySelectorAll('.connector .pipe')];
+  }
+
+  function render(v) {
+    const base = compute(0);
+    const paint = (id, num, unit, deltaText, deltaCls, sub) => {
+      const n = el[id];
+      if (!n) return;
+      n.value.textContent = num;
+      n.unit.textContent = unit || '';
+      n.delta.textContent = deltaText || '';
+      n.delta.className = 'node-delta' + (deltaCls ? ' ' + deltaCls : '');
+      n.sub.textContent = sub || n.note;
+      const changed = Math.abs(v.shockBp) > 0.5;
+      n.root.classList.toggle('is-changed', changed);
+    };
+
+    paint('bank', fmtPct(v.bank), '%', fmtPp(v.bank - base.bank), signClass(v.bank - base.bank), "the Bank of England's rate");
+    paint('swap', fmtPct(v.swap), '%', fmtPp(v.swap - base.swap), signClass(v.swap - base.swap), "banks' 5-year borrowing cost");
+    paint('mort', fmtPct(v.mort), '%', fmtPp(v.mort - base.mort), signClass(v.mort - base.mort),
+      `on a £${Math.round(v.loan / 1000)}k loan`);
+
+    const payDelta = v.pay / base.pay - 1;
+    paint('pay', '£' + Math.round(v.pay).toLocaleString('en-GB'), '', fmtDeltaPct(payDelta) + ' a month',
+      signClass(payDelta), 'every month, for 25 years');
+
+    const powerDelta = v.power / base.power - 1;
+    paint('power', '£' + Math.round(v.power / 1000).toLocaleString('en-GB') + 'k', '', fmtDeltaPct(powerDelta),
+      signClass(-powerDelta), 'at 4.5× a typical salary');
+
+    paint('price', '£' + (v.price / 1000).toFixed(0) + 'k', '',
+      fmtDeltaPct(v.gap) + ' to converge',
+      signClass(-v.gap),
+      `supports £${Math.round(v.power / 1000)}k`);
+
+    const speed = 2.7 - Math.min(1.9, Math.abs(v.shockBp) / 160);
+    el.pipes.forEach(p => p.style.setProperty('--dur', speed.toFixed(2) + 's'));
+  }
+
+  // A sentence that says what the diagram means, for a reader who would
+  // rather read than decode six cards.
+  function narrationText(v, base) {
+    const k = n => '£' + Math.round(n / 1000) + 'k';
+    const pay = '£' + Math.round(v.pay).toLocaleString('en-GB');
+    const gapPct = Math.round(Math.abs(v.gap) * 100);
+    const gapTxt = gapPct < 1
+      ? "which is roughly in line with today's average price"
+      : `which is ${gapPct}% ${v.gap > 0 ? 'above' : 'below'} today's £${Math.round(v.price / 1000)}k average`;
+
+    const diff = Math.round(v.pay - base.pay);
+    const diffTxt = diff === 0
+      ? ''
+      : `, £${Math.abs(diff).toLocaleString('en-GB')} ${diff > 0 ? 'more' : 'less'} than today`;
+
+    if (Math.abs(v.shockBp) < 0.5) {
+      return `At ${v.bank.toFixed(2)}%, a ${k(v.loan)} mortgage costs ${pay} a month. ` +
+        `A household on a typical salary can borrow enough to buy about ${k(v.power)}, ` +
+        `${gapTxt}.`;
+    }
+    const verb = v.shockBp > 0 ? 'rose' : 'fell';
+    const dir = v.power < base.power ? 'fall' : 'rise';
+    return `If Bank Rate ${verb} to ${v.bank.toFixed(2)}%, the same ${k(v.loan)} mortgage would ` +
+      `cost ${pay} a month${diffTxt}. The most a typical household could buy would ${dir} to ` +
+      `about ${k(v.power)}, ${gapTxt} — and prices take years to get there, not weeks.`;
+  }
+
+  let lastNarration = '';
+
+  function tweenTo(shockBp) {
+    state.target = shockBp;
+    state.t0 = performance.now();
+    const from = state.shown ? compute(state.shown) : compute(shockBp);
+    const to = compute(shockBp);
+    const dur = 420;
+
+    if (raf) cancelAnimationFrame(raf);
+
+    const step = now => {
+      const k = Math.min(1, (now - state.t0) / dur);
+      const e = 1 - Math.pow(1 - k, 3);
+      const mix = {};
+      for (const key of ['bank', 'swap', 'mort', 'pay', 'power', 'price', 'gap']) {
+        mix[key] = from[key] + (to[key] - from[key]) * e;
+      }
+      mix.loan = to.loan;
+      mix.shockBp = shockBp;
+      render(mix);
+      if (k === 1) {
+        const txt = narrationText(to, compute(0));
+        if (txt !== lastNarration) {
+          lastNarration = txt;
+          const el = document.getElementById('chainNarration');
+          if (el) el.textContent = txt;
+        }
+      }
+      if (k < 1) {
+        raf = requestAnimationFrame(step);
+      } else {
+        state.shown = shockBp;
+        raf = null;
+      }
+    };
+    raf = requestAnimationFrame(step);
+  }
+
+  return {
+    mount(container) { build(container); tweenTo(0); },
+    set(shockBp) { tweenTo(shockBp); },
+    compute
+  };
+})();
+
+
+/* ==== js/app.js ==== */
+/* ------------------------------------------------------------------
+   app.js — state, wiring, rendering.
+   ------------------------------------------------------------------ */
+
+(() => {
+'use strict';
+
+/* ─────────────── formatting ─────────────── */
+
+const F = {
+  money: n => '£' + Math.round(n).toLocaleString('en-GB'),
+  k: n => {
+    const a = Math.abs(n);
+    if (a >= 1e6) return '£' + (n / 1e6).toFixed(2) + 'm';
+    if (a >= 1e4) return '£' + Math.round(n / 1000) + 'k';
+    return F.money(n);
+  },
+  pct: (n, d = 1) => (n * 100).toFixed(d) + '%',
+  signed: (n, d = 1) => (n >= 0 ? '+' : '−') + Math.abs(n * 100).toFixed(d) + '%',
+  pp: (n, d = 2) => (n >= 0 ? '+' : '−') + Math.abs(n).toFixed(d) + ' pp',
+  bp: n => (n >= 0 ? '+' : '−') + Math.abs(n) + ' bp'
+};
+
+/* ─────────────── state ─────────────── */
+
+const S = {
+  shock: 0,
+  mortgage: { price: 273000, depPct: 25, rate: 5.88, term: 25, income: 55000, buyer: 'ftb' },
+  fc: { baseline: 'consensus', region: 'uk', value: 273000, horizon: 5, rateAdj: 0, earnAdj: 0, credit: 0, supply: 0 },
+  decompMode: 'simple'
+};
+
+function decompColours() {
+  const P = Charts.C;
+  return {
+    earn: P.blue, gap: P.gold, rate: P.accent, credit: P.green,
+    supply: P.violet, region: P.neutral, other: P.ink3, resid: P.rule
+  };
+}
+
+const DECOMP_LABEL = {
+  simple: {
+    earn: 'Incomes rising', gap: 'Prices vs incomes',
+    rate: 'Interest rates', other: 'Other forces'
+  },
+  detail: {
+    earn: 'Earnings growth', gap: 'Prices catching up to incomes',
+    rate: 'Rate change', credit: 'Credit conditions', supply: 'New housing supply',
+    region: 'Region', resid: 'Unexplained by the model'
+  }
+};
+
+const SIMPLE_NOTE = `<b>How to read it.</b> Blue is the good news for prices: wages rising means
+  buyers can pay more. Gold is prices catching up to — or falling back towards — what incomes
+  can actually support. Red is this year's move in mortgage rates. Grey is everything else — credit conditions,
+  new housing supply, the region, and anything a published forecast does that incomes and
+  rates cannot account for. The short black line marks the year's total.`;
+
+const DETAIL_NOTE = `<b>How to read it.</b> Every bar is one year, split into what pushed prices
+  up and what pulled them down. Credit conditions, supply and region are the forces the model
+  treats as judgement calls. Anything left over appears as <em>unexplained</em> rather than being
+  absorbed into another bar — it is largest for Savills in 2027, and it is the most interesting
+  number on the chart.`;
+
+const LEGAL_FEES = 2500;
+const ARRANGEMENT_FEE = 999;
+const SELL_COST = 0.015;
+
+/* ─────────────── helpers ─────────────── */
+
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+
+function setFill(input) {
+  const min = +input.min, max = +input.max, v = +input.value;
+  const p = ((v - min) / (max - min)) * 100;
+  if (input.dataset.bipolar === 'true' && min < 0) {
+    const zero = ((0 - min) / (max - min)) * 100;
+    input.style.setProperty('--a', Math.min(p, zero).toFixed(2) + '%');
+    input.style.setProperty('--b', Math.max(p, zero).toFixed(2) + '%');
+  } else {
+    input.style.setProperty('--fill', p.toFixed(2) + '%');
+  }
+}
+
+// Currency fields: type plain digits, get thousands separators on blur.
+function moneyField(el, min, max, onVal) {
+  const parse = v => {
+    const n = +String(v).replace(/[^\d]/g, '');
+    return Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : min;
+  };
+  const fmt = n => n.toLocaleString('en-GB');
+  el.value = fmt(parse(el.value));
+  el.addEventListener('input', () => onVal(parse(el.value)));
+  el.addEventListener('blur', () => { el.value = fmt(parse(el.value)); });
+  return { set: n => { el.value = fmt(n); }, get: () => parse(el.value) };
+}
+
+// The mortgage section and the forecast section describe the same property,
+// so the price is a single piece of state with two views of it.
+function setPropertyPrice(n, source) {
+  S.mortgage.price = n;
+  S.fc.value = n;
+  if (source !== 'mortgage') $('#mPrice').value = n.toLocaleString('en-GB');
+  if (source !== 'forecast') $('#fValue').value = n.toLocaleString('en-GB');
+  renderMortgage();
+  refresh();
+}
+
+function regionOf(id) {
+  return DATA.regions.find(r => r.id === id) || DATA.regions[0];
+}
+
+// Five-year growth Savills publishes, or an affordability-based estimate
+// where it does not. The estimate regresses regional growth on the gap
+// between the national and regional price-to-earnings ratio.
+function regionGrowth5(region) {
+  if (region.growth5 != null) return { value: region.growth5, published: true };
+  const uk = DATA.regions[0];
+  const ukPti = uk.price / DATA.earnings.median;
+  const rPti = region.price / DATA.earnings.median;
+  const est = 15.8 + (ukPti - rPti) * 6.0;
+  return { value: Math.max(4, Math.min(30, est)), published: false };
+}
+
+function regionDrift(region) {
+  const g = regionGrowth5(region).value;
+  const uk = 15.8;
+  return (g - uk) / 5 / 100;
+}
+
+
+/* ─────────────── mortgage section ─────────────── */
+
+function mortgageInputs() {
+  const m = S.mortgage;
+  const deposit = m.price * m.depPct / 100;
+  const loan = m.price - deposit;
+  const sdlTOpts = {
+    firstTimeBuyer: m.buyer === 'ftb',
+    additional: m.buyer === 'additional'
+  };
+  return { ...m, deposit, loan, sdlTOpts };
+}
+
+function renderMortgage() {
+  const m = mortgageInputs();
+  const monthly = Engine.monthlyPayment(m.loan, m.rate / 100, m.term);
+  const interest = Engine.totalInterest(m.loan, m.rate / 100, m.term);
+  const sdlt = Engine.stampDuty(m.price, m.sdlTOpts);
+  const cash = m.deposit + sdlt + LEGAL_FEES + ARRANGEMENT_FEE;
+  const net = Engine.netIncome(m.income);
+  const share = (monthly * 12) / net;
+  const stress = Engine.monthlyPayment(m.loan, (m.rate + 2) / 100, m.term);
+  const support = Engine.supportablePrice(m.rate / 100, m.income, Math.max(0.05, 1 - m.depPct / 100));
+  const lti = m.loan / m.income;
+
+  const stats = [
+    { label: 'Monthly payment', value: F.money(monthly), sub: shareOfIncome(share) },
+    { label: 'Loan', value: F.money(m.loan), sub: (100 - m.depPct) + '% LTV · ' + m.term + ' years' },
+    { label: 'Stamp duty', value: sdlt ? F.money(sdlt) : 'Nil', sub: buyerLabel(m.buyer) },
+    { label: 'Cash to complete', value: F.money(cash), sub: 'deposit, tax and fees' }
+  ];
+
+  $('#mStats').innerHTML = stats.map(s => `
+    <div class="stat">
+      <span class="stat-label">${s.label}</span>
+      <span class="stat-value">${s.value}</span>
+      <span class="stat-sub${s.warn ? ' warn' : ''}">${s.sub}</span>
+    </div>`).join('');
+
+  $('#mSummary').innerHTML =
+    `You would need <strong>${F.money(cash)}</strong> in cash on the day, then ` +
+    `<strong>${F.money(monthly)}</strong> a month for ${m.term} years. Over the whole term ` +
+    `you would hand the lender <strong>${F.money(interest)}</strong> in interest — ` +
+    `${interest > m.loan * 0.9 ? 'about as much again as you borrowed' : 'on top of the loan itself'}.`;
+
+  const rows = [
+    ['Deposit', `${m.depPct}%`, F.money(m.deposit)],
+    ['Stamp duty', buyerLabel(m.buyer), sdlt ? F.money(sdlt) : 'Nil'],
+    ['Legal, survey, moving', 'estimate', F.money(LEGAL_FEES)],
+    ['Arrangement fee', 'typical', F.money(ARRANGEMENT_FEE)],
+    ['__total', 'Cash to complete', F.money(cash)],
+    ['__gap', '', ''],
+    ['Payment as share of take-home', F.money(net) + ' net', F.pct(share)],
+    ['At +2 percentage points', F.money(stress) + '/mo', (share * (stress / monthly) * 100).toFixed(0) + '% of net'],
+    ['Loan-to-income', lti.toFixed(2) + '×', lti > 4.5 ? 'above 4.5× limit' : 'within 4.5× limit'],
+    ['Price this income supports', 'at ' + m.rate.toFixed(2) + '%', F.money(support)]
+  ];
+
+  $('#costLedger').innerHTML = rows.map(([k, mid, v]) => {
+    if (k === '__gap') return '<div class="ledger-note">Affordability uses approximate 2026/27 take-home pay for a single earner after income tax and National Insurance. Lenders also stress-test at around 1 percentage point above the reversion rate.</div>';
+    if (k === '__total') return `<div class="ledger-row total"><span class="k">${mid}</span><span class="v">${v}</span></div>`;
+    return `<div class="ledger-row"><span class="k">${k}${mid ? `<span class="note">${mid}</span>` : ''}</span><span class="v">${v}</span></div>`;
+  }).join('');
+
+  requestAnimationFrame(() => {
+    Charts.rateCurve($('#rateCurve'), {
+      fn: r => Engine.monthlyPayment(m.loan, r, m.term),
+      currentRate: m.rate,
+      currentValue: monthly,
+      label: F.money(monthly) + '/mo',
+      minRate: 2, maxRate: 9
+    });
+  });
+}
+
+function shareOfIncome(share) {
+  const p = share * 100;
+  if (p < 30) return p.toFixed(0) + '% of take-home';
+  if (p < 42) return p.toFixed(0) + '% of take-home · stretched';
+  return p.toFixed(0) + '% of take-home · unaffordable';
+}
+
+function buyerLabel(b) {
+  return b === 'ftb' ? 'first-time buyer relief' : b === 'additional' ? 'includes 5% surcharge' : 'standard rates';
+}
+
+/* ─────────────── forecast section ─────────────── */
+
+function forecastConfig() {
+  const fc = S.fc;
+  const horizon = fc.horizon;
+  const years = Array.from({ length: horizon }, (_, i) => 2027 + i);
+  const baseline = DATA.forecasts[fc.baseline];
+  const region = regionOf(fc.region);
+
+  const isModel = fc.baseline === 'model';
+  const base = isModel
+    ? { price: null, rate: DATA.forecasts.consensus.rate, earn: DATA.forecasts.consensus.earn, cpi: DATA.forecasts.consensus.cpi }
+    : baseline;
+
+  const baseRate = Engine.seriesFor(base, 'rate', years, isModel ? 5.0 : base.rate[2031] ?? 5.0);
+  const baseEarn = Engine.seriesFor(base, 'earn', years, isModel ? 2.8 : base.earn[2031] ?? 2.8);
+  const baseCpi = Engine.seriesFor(base, 'cpi', years, 2.0);
+
+  const rate = {}, earn = {}, cpi = {};
+  years.forEach((y, i) => {
+    rate[y] = baseRate[i] + fc.rateAdj / 100;
+    earn[y] = baseEarn[i] + fc.earnAdj;
+    cpi[y] = baseCpi[i];
+  });
+
+  const user = { rate, earn, cpi, credit: fc.credit, supply: fc.supply };
+  const drift = regionDrift(region);
+
+  return {
+    years, baseline: base, user, drift, region, isModel,
+    startValue: fc.value,
+    publishedUntil: (() => {
+      if (isModel) return null;
+      if (!base.price) return null;
+      const ys = Object.keys(base.price).map(Number).sort((a, b) => a - b);
+      return ys[ys.length - 1];
+    })()
+  };
+}
+
+function renderForecast() {
+  const cfg = forecastConfig();
+  const { years, baseline, user, drift, startValue } = cfg;
+
+  const path = Engine.buildPath({
+    years, startValue, baseline, user, regionDrift: drift
+  });
+  const mc = Engine.monteCarlo({
+    years, startValue, baseline, user, regionDrift: drift
+  }, 1400);
+
+  const end = path.endValue;
+  const lastYear = years[years.length - 1];
+  const realEnd = path.rows[path.rows.length - 1].real;
+  const cagr = Math.pow(end / startValue, 1 / years.length) - 1;
+  const prob = mc.probBelowStart[mc.probBelowStart.length - 1];
+  const realCagr = Math.pow(realEnd / startValue, 1 / years.length) - 1;
+  const lastBand = mc.bands[mc.bands.length - 1];
+  const belowN = Math.round(prob * 100);
+
+  $('#fResultLabel').textContent = `Value in ${lastYear}`;
+  $('#fResultValue').textContent = F.money(end);
+  $('#fResultSub').innerHTML =
+    `${F.signed(end / startValue - 1)} over ${years.length} year${years.length > 1 ? 's' : ''}` +
+    ` · ${F.money(Math.round(end - startValue))} change · ${cfg.region.name}`;
+
+  $('#fReal').textContent = F.money(realEnd);
+  $('#fCagr').textContent = F.signed(cagr);
+  $('#fProb').textContent = (prob * 100).toFixed(0) + '%';
+
+  $('#fSummary').innerHTML =
+    `<strong>${F.money(end)}</strong> is ${F.money(Math.abs(end - startValue))} ` +
+    `${end >= startValue ? 'more' : 'less'} than today. After inflation it is ` +
+    `<strong>${F.money(realEnd)}</strong>, or ${F.signed(realCagr)} a year in real terms. ` +
+    `Across 1,400 simulated futures, eight in ten landed between ` +
+    `<strong>${F.money(lastBand.p10)}</strong> and <strong>${F.money(lastBand.p90)}</strong>` +
+    (belowN >= 1 ? `, and ${belowN} in 100 ended below today's price.` : '.');
+
+  /* fan chart */
+  const chartYears = [2026, ...years];
+  const nominal = [startValue, ...path.rows.map(r => r.nominal)];
+  const real = [startValue, ...path.rows.map(r => r.real)];
+  const bands = [null, ...mc.bands];
+
+  requestAnimationFrame(() => {
+    Charts.forecast($('#fan'), {
+      years: chartYears, nominal, real, bands,
+      startValue,
+      showReal: true, showBand: true,
+      publishedUntil: cfg.publishedUntil,
+      reference: [{
+        label: 'Published path',
+        values: [startValue, ...path.rows.map(r => r.baseline)],
+        color: '#A87A2A'
+      }]
+    });
+  });
+
+  $('#fanLegend').innerHTML = `
+    <span><i style="background:#C0392B"></i>Your central path</span>
+    <span><i style="background:#A87A2A"></i>Baseline without your changes</span>
+    <span><i style="background:#1B4B5A;height:0;border-top:2px dashed #1B4B5A"></i>In today's money</span>
+    <span><i style="background:rgba(192,57,43,0.16);height:8px"></i>25–75%</span>
+    <span><i style="background:rgba(192,57,43,0.09);height:8px"></i>10–90%</span>`;
+
+  /* band cards */
+  const last = mc.bands[mc.bands.length - 1];
+  const cards = [
+    { k: 'Pessimistic · 1 in 10', v: F.money(last.p10), n: F.signed(last.p10 / startValue - 1) + ' against today' },
+    { k: 'Median simulation', v: F.money(last.p50), n: (mc.probRealBelow[mc.probRealBelow.length - 1] * 100).toFixed(0) + '% chance of a fall in real terms' },
+    { k: 'Optimistic · 9 in 10', v: F.money(last.p90), n: F.signed(last.p90 / startValue - 1) + ' against today' }
+  ];
+  $('#bandCards').innerHTML = cards.map(c => `
+    <div class="band-card"><span class="k">${c.k}</span><span class="v">${c.v}</span><span class="n">${c.n}</span></div>`).join('');
+
+  /* decomposition — two levels of detail, four bars or seven */
+  const DECOMP_COLOR = decompColours();
+  const detailed = S.decompMode === 'detail';
+  const keys = detailed
+    ? ['earn', 'rate', 'gap', 'credit', 'supply', 'region']
+    : ['earn', 'gap', 'rate'];
+
+  const rows = path.rows.map(r => {
+    const c = r.components;
+    const explained = c.earn + c.gap + c.rate + c.credit + c.supply + c.region;
+    const resid = r.growth - explained;
+
+    let segs;
+    if (detailed) {
+      segs = keys.map(k => ({ key: k, value: c[k], color: DECOMP_COLOR[k] }))
+        .filter(s => Math.abs(s.value) > 1e-5);
+      if (Math.abs(resid) > 0.0008) {
+        segs.push({ key: 'resid', value: resid, color: DECOMP_COLOR.resid });
+      }
+    } else {
+      segs = keys.map(k => ({ key: k, value: c[k], color: DECOMP_COLOR[k] }))
+        .filter(s => Math.abs(s.value) > 1e-5);
+      const other = c.credit + c.supply + c.region + resid;
+      if (Math.abs(other) > 1e-5) segs.push({ key: 'other', value: other, color: DECOMP_COLOR.other });
+    }
+    return {
+      label: path.rows.length > 7 ? String(r.year).slice(2) : String(r.year),
+      segments: segs, growth: r.growth
+    };
+  });
+
+  requestAnimationFrame(() => Charts.decomp($('#decomp'), { rows }));
+
+  const legendKeys = detailed
+    ? ['earn', 'rate', 'gap', 'credit', 'supply', 'region', 'resid']
+    : ['earn', 'gap', 'rate', 'other'];
+  $('#decompLegend').innerHTML = legendKeys
+    .map(k => `<span><i class="sw" style="background:${DECOMP_COLOR[k]}"></i>${DECOMP_LABEL[detailed ? 'detail' : 'simple'][k]}</span>`)
+    .join('');
+
+  $('#decompNote').innerHTML = detailed
+    ? DETAIL_NOTE
+    : SIMPLE_NOTE;
+
+  /* sale economics */
+  renderSale(cfg, end, lastYear);
+
+  return { cfg, path, mc, end, lastYear, cagr };
+}
+
+function renderSale(cfg, endValue, lastYear) {
+  const m = S.mortgage;
+  const price = S.fc.value;
+  const dep = price * m.depPct / 100;
+  const loan = price - dep;
+  const sdlt = Engine.stampDuty(price, {
+    firstTimeBuyer: m.buyer === 'ftb',
+    additional: m.buyer === 'additional'
+  });
+  const cashIn = dep + sdlt + LEGAL_FEES + ARRANGEMENT_FEE;
+  const outstanding = Engine.balanceAfter(loan, m.rate / 100, m.term, cfg.years.length);
+  const sellCosts = endValue * SELL_COST;
+  const net = endValue - sellCosts - outstanding;
+  const gain = net - cashIn;
+  const multiple = net / cashIn;
+
+  $('#saleYearLabel').textContent = String(lastYear);
+
+  const cells = [
+    { k: 'Sale value', v: F.money(endValue), n: 'central path, nominal' },
+    { k: 'Selling costs', v: '−' + F.money(sellCosts), n: '1.5% agent and legal', cls: 'neg' },
+    { k: 'Mortgage left', v: '−' + F.money(outstanding), n: `${m.term}-yr fix at ${m.rate.toFixed(2)}%` },
+    { k: 'Net proceeds', v: F.money(net), n: 'what lands in the bank' },
+    { k: 'Cash you put in', v: F.money(cashIn), n: 'deposit, stamp duty, fees' },
+    {
+      k: gain >= 0 ? 'Gain on cash' : 'Loss on cash',
+      v: (gain >= 0 ? '+' : '−') + F.money(Math.abs(gain)),
+      n: `${multiple.toFixed(2)}× your money · ${F.signed(Math.pow(multiple, 1 / cfg.years.length) - 1)} a year`,
+      cls: gain >= 0 ? 'pos' : 'neg'
+    }
+  ];
+
+  $('#saleGrid').innerHTML = cells.map(c => `
+    <div class="sale-cell">
+      <span class="k">${c.k}</span>
+      <span class="v ${c.cls || ''}">${c.v}</span>
+      <span class="n">${c.n}</span>
+    </div>`).join('');
+}
+
+/* ─────────────── comparison + sensitivity ─────────────── */
+
+function renderCompare() {
+  const start = DATA.prices.start;
+  const years = [2027, 2028, 2029, 2030, 2031];
+  const series = [];
+
+  const mk = (id, color, width) => {
+    const fc = DATA.forecasts[id];
+    let cum = 1;
+    const values = [start];
+    years.forEach(y => {
+      const g = fc.price[y];
+      if (g == null) { values.push(null); return; }
+      cum *= 1 + g / 100;
+      values.push(start * cum);
+    });
+    return { label: fc.short, color, values, width, faint: id !== 'consensus' };
+  };
+
+  series.push(mk('savills', Charts.SERIES_COLORS.savills));
+  series.push(mk('jll', Charts.SERIES_COLORS.jll));
+  series.push(mk('hamptons', Charts.SERIES_COLORS.hamptons));
+  series.push(mk('obr', Charts.SERIES_COLORS.obr));
+  series.push(mk('consensus', Charts.SERIES_COLORS.consensus, 2.4));
+
+  requestAnimationFrame(() => {
+    Charts.multiLine($('#compareChart'), {
+      years: [2026, ...years], series, startValue: start
+    });
+  });
+
+  /* table */
+  const order = ['savills', 'jll', 'hamptons', 'obr', 'consensus'];
+  const head = `<thead><tr>
+      <th scope="col">Forecast</th>
+      <th scope="col">2027 rate</th>
+      ${years.map(y => `<th scope="col">${y}</th>`).join('')}
+      <th scope="col">Total</th>
+    </tr></thead>`;
+
+  const body = order.map(id => {
+    const fc = DATA.forecasts[id];
+    let cum = 1, any = false;
+    const cells = years.map(y => {
+      const g = fc.price[y];
+      if (g == null) return '<td class="muted">—</td>';
+      cum *= 1 + g / 100; any = true;
+      return `<td class="${g >= 0 ? 'pos' : 'neg'}">${g >= 0 ? '+' : '−'}${Math.abs(g).toFixed(1)}</td>`;
+    }).join('');
+    const total = any ? ((cum - 1) * 100) : null;
+    const rate = fc.rate[2027];
+    return `<tr>
+      <th scope="row">${fc.label}${fc.published ? '' : ' <span class="muted">(calc)</span>'}</th>
+      <td>${rate != null ? rate.toFixed(2) + '%' : '—'}</td>
+      ${cells}
+      <td class="${total >= 0 ? 'pos' : 'neg'}"><strong>${total == null ? '—' : (total >= 0 ? '+' : '−') + Math.abs(total).toFixed(1)}</strong></td>
+    </tr>`;
+  }).join('');
+
+  $('#compareTable').innerHTML = head + `<tbody>${body}</tbody>`;
+  $('#compareNote').innerHTML =
+    'Totals run to the last year each forecaster publishes: Hamptons to 2029, OBR to 2030, the rest to 2031. ' +
+    'The rate column is each forecaster\u2019s own 2027 assumption where published, and the market-implied path otherwise.';
+
+  /* calibration table */
+  const calib = [
+    ['Savills', 1.70, 'Bearish on 2027 beyond what its own assumptions imply'],
+    ['JLL', 0.71, ''],
+    ['Hamptons', 0.55, ''],
+    ['OBR', 0.34, 'Closest to the model']
+  ];
+  $('#calibTable').innerHTML = `<thead><tr>
+      <th scope="col">Forecast</th><th scope="col">RMSE</th><th scope="col">Note</th>
+    </tr></thead><tbody>${calib.map(([n, e, note]) => `
+      <tr><th scope="row">${n}</th><td>${e.toFixed(2)} pp</td><td class="muted" style="text-align:left;white-space:normal">${note}</td></tr>`).join('')}
+    </tbody>`;
+
+  /* tornado */
+  renderTornado();
+}
+
+function endValueWith(over) {
+  const cfg = forecastConfig();
+  const { years, baseline, user, drift, startValue } = cfg;
+  const u = {
+    ...user,
+    credit: over.credit != null ? over.credit : user.credit,
+    supply: over.supply != null ? over.supply : user.supply
+  };
+  if (over.rateAdj != null) {
+    u.rate = {};
+    years.forEach(y => u.rate[y] = user.rate[y] + over.rateAdj);
+  }
+  if (over.earnAdj != null) {
+    u.earn = {};
+    years.forEach(y => u.earn[y] = user.earn[y] + over.earnAdj);
+  }
+  return Engine.buildPath({ years, startValue, baseline, user: u, regionDrift: drift }).endValue;
+}
+
+function renderTornado() {
+  const central = endValueWith({});
+  const drivers = [
+    { label: 'Mortgage rate ±1pp', low: endValueWith({ rateAdj: 1 }), high: endValueWith({ rateAdj: -1 }) },
+    { label: 'Earnings ±1pp', low: endValueWith({ earnAdj: -1 }), high: endValueWith({ earnAdj: 1 }) },
+    { label: 'Credit −2 / +1.5pp', low: endValueWith({ credit: -2 }), high: endValueWith({ credit: 1.5 }) },
+    { label: 'Supply +1.5 / −1pp', low: endValueWith({ supply: 1.5 }), high: endValueWith({ supply: -1 }) }
+  ];
+
+  const items = drivers
+    .map(d => ({ label: d.label, low: d.low - central, high: d.high - central }))
+    .sort((a, b) => (Math.abs(b.low) + Math.abs(b.high)) - (Math.abs(a.low) + Math.abs(a.high)));
+
+  $('#sensYear').textContent = String(forecastConfig().years.slice(-1)[0]);
+  requestAnimationFrame(() => Charts.tornado($('#tornado'), { items }));
+}
+
+/* ─────────────── chain ─────────────── */
+
+function applyShock(bp) {
+  S.shock = bp;
+  $('#shock').value = bp;
+  $('#shockOut').textContent = F.bp(bp);
+  setFill($('#shock'));
+  $$('.shock-control .btn-ghost').forEach(b => {
+    b.classList.toggle('is-active', +b.dataset.shock === bp);
+  });
+  Chain.set(bp);
+}
+
+/* ─────────────── init ─────────────── */
+
+function initChain() {
+  Chain.mount($('#chainGrid'));
+  $('#shock').addEventListener('input', e => applyShock(+e.target.value));
+  $$('.shock-control .btn-ghost').forEach(b => {
+    b.addEventListener('click', () => applyShock(+b.dataset.shock));
+  });
+  setFill($('#shock'));
+}
+
+function initCarry() {
+  $('#carryForecast').addEventListener('click', () => {
+    const bp = S.shock;
+    S.fc.rateAdj = bp;
+    const el = $('#fRate');
+    el.value = bp;
+    setFill(el);
+    $('#fRateOut').textContent = F.bp(bp);
+    refresh();
+    document.getElementById('forecast').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+}
+
+function initMortgage() {
+  moneyField($('#mPrice'), 40000, 5000000, v => setPropertyPrice(v, 'mortgage'));
+  moneyField($('#mIncome'), 12000, 1000000, v => {
+    S.mortgage.income = v; renderMortgage();
+    renderSale(forecastConfig(), currentForecastEnd, currentForecastYear);
+  });
+
+  const map = [
+    ['#mDepPct', v => S.mortgage.depPct = v],
+    ['#mRate', v => S.mortgage.rate = v],
+    ['#mTerm', v => S.mortgage.term = v]
+  ];
+
+  map.forEach(([sel, set]) => {
+    const el = $(sel);
+    const handler = () => {
+      set(+el.value);
+      $('#mDepPctOut').textContent = S.mortgage.depPct + '%';
+      $('#mRateOut').textContent = S.mortgage.rate.toFixed(2) + '%';
+      $('#mTermOut').textContent = S.mortgage.term + ' years';
+      setFill(el);
+      renderMortgage();
+      renderSale(forecastConfig(), currentForecastEnd, currentForecastYear);
+    };
+    el.addEventListener('input', handler);
+    setFill(el);
+  });
+
+  $$('[data-buyer]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      $$('[data-buyer]').forEach(b => b.setAttribute('aria-checked', 'false'));
+      btn.setAttribute('aria-checked', 'true');
+      S.mortgage.buyer = btn.dataset.buyer;
+      renderMortgage();
+      renderSale(forecastConfig(), currentForecastEnd, currentForecastYear);
+    });
+  });
+
+  $('#mDepPctOut').textContent = S.mortgage.depPct + '%';
+  $('#mRateOut').textContent = S.mortgage.rate.toFixed(2) + '%';
+  $('#mTermOut').textContent = S.mortgage.term + ' years';
+  renderMortgage();
+}
+
+let currentForecastEnd = 0;
+let currentForecastYear = 2031;
+
+function initForecast() {
+  const sel = $('#fRegion');
+  sel.innerHTML = DATA.regions
+    .map(r => `<option value="${r.id}"${r.id === 'uk' ? ' selected' : ''}>${r.name}</option>`)
+    .join('');
+
+  const on = (id, fn) => {
+    const el = $(id);
+    el.addEventListener('input', () => { fn(+el.value); setFill(el); refresh(); });
+  };
+
+  $('#fBaseline').addEventListener('change', e => { S.fc.baseline = e.target.value; refresh(); });
+  sel.addEventListener('change', e => {
+    S.fc.region = e.target.value;
+    const r = regionOf(e.target.value);
+    setPropertyPrice(Math.round(r.price / 1000) * 1000, 'region');
+  });
+
+  moneyField($('#fValue'), 30000, 20000000, v => setPropertyPrice(v, 'forecast'));
+
+  $('#fHorizon').addEventListener('input', e => {
+    S.fc.horizon = +e.target.value;
+    $('#fHorizonOut').textContent = S.fc.horizon + (S.fc.horizon === 1 ? ' year' : ' years');
+    setFill(e.target); refresh();
+  });
+
+  on('#fRate', v => { S.fc.rateAdj = v; $('#fRateOut').textContent = F.bp(v); });
+  on('#fEarn', v => { S.fc.earnAdj = v; $('#fEarnOut').textContent = (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(1) + ' pp'; });
+  on('#fCredit', v => { S.fc.credit = v; $('#fCreditOut').textContent = (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(1) + ' pp'; });
+  on('#fSupply', v => { S.fc.supply = v; $('#fSupplyOut').textContent = (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(1) + ' pp'; });
+
+  ['#fRate', '#fEarn', '#fCredit', '#fSupply', '#fHorizon'].forEach(id => {
+    const el = $(id);
+    el.dataset.bipolar = ['#fRate', '#fEarn', '#fCredit', '#fSupply'].includes(id) ? 'true' : 'false';
+    setFill(el);
+  });
+
+  $$('[data-decomp]').forEach(b => {
+    b.addEventListener('click', () => {
+      S.decompMode = b.dataset.decomp;
+      $$('[data-decomp]').forEach(x => x.classList.toggle('is-active', x === b));
+      refresh();
+    });
+  });
+
+  $('#fReset').addEventListener('click', () => {
+    S.fc.rateAdj = 0; S.fc.earnAdj = 0; S.fc.credit = 0; S.fc.supply = 0;
+    $('#fRate').value = 0; $('#fEarn').value = 0; $('#fCredit').value = 0; $('#fSupply').value = 0;
+    $('#fRateOut').textContent = '0 bp';
+    $('#fEarnOut').textContent = '0 pp';
+    $('#fCreditOut').textContent = '0 pp';
+    $('#fSupplyOut').textContent = '0 pp';
+    ['#fRate', '#fEarn', '#fCredit', '#fSupply'].forEach(id => setFill($(id)));
+    refresh();
+  });
+
+  $('#fHorizonOut').textContent = S.fc.horizon + ' years';
+}
+
+function refresh() {
+  const r = renderForecast();
+  currentForecastEnd = r.end;
+  currentForecastYear = r.lastYear;
+  renderTornado();
+}
+
+/* ─────────────── resize ─────────────── */
+
+let resizeTimer = null;
+let lastWidth = window.innerWidth;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if (window.innerWidth === lastWidth) return;
+    lastWidth = window.innerWidth;
+    renderMortgage();
+    refresh();
+    renderCompare();
+  }, 180);
+});
+
+/* ─────────────── theme ─────────────── */
+
+const THEMES = ['paper', 'broadsheet', 'terminal', 'salmon', 'swiss'];
+
+function applyTheme(name) {
+  if (!THEMES.includes(name)) name = 'swiss';
+  document.documentElement.setAttribute('data-theme', name);
+  $$('[data-theme-set]').forEach(b =>
+    b.setAttribute('aria-pressed', String(b.dataset.themeSet === name)));
+  Charts.refreshPalette();
+  renderMortgage();
+  refresh();
+  renderCompare();
+  try { localStorage.setItem('pom-theme-v2', name); } catch (e) { /* private mode */ }
+}
+
+function initTheme() {
+  let saved = null;
+  try { saved = localStorage.getItem('pom-theme-v2'); } catch (e) { /* ignore */ }
+  const start = THEMES.includes(saved) ? saved : 'swiss';
+  document.querySelectorAll('[data-theme-set]').forEach(b => {
+    b.addEventListener('click', () => applyTheme(b.dataset.themeSet));
+  });
+  applyTheme(start);
+}
+
+/* ─────────────── boot ─────────────── */
+
+document.addEventListener('DOMContentLoaded', () => {
+  initChain();
+  initCarry();
+  initMortgage();
+  initForecast();
+  refresh();
+  renderCompare();
+  initTheme();
+
+  // nav active state
+  const links = $$('.topnav a');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const id = '#' + e.target.id;
+      links.forEach(l => l.style.color = l.getAttribute('href') === id ? 'var(--header-ink)' : '');
+    });
+  }, { rootMargin: '-45% 0px -50% 0px' });
+  $$('section.section').forEach(s => obs.observe(s));
+});
+
+})();
+
+</script>
+</body>
+</html>

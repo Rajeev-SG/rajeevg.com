@@ -430,6 +430,28 @@ export const currentSolutions: PortfolioProject[] = [
     inclusionReason: "Public demonstrator kept as a companion to the multi-agent articles.",
     detailLinks: [{ label: "Multi-agent journey", href: "/blog/the-multi-agent-journey-what-survived-contact-with-reality" }],
   },
+  {
+    slug: "price-of-money",
+    title: "The Price of Money",
+    category: "Products & Operational Tools",
+    tagline:
+      "An interactive explainer that walks a Bank Rate decision down six links to a house price, then lets you set your own assumptions for what a UK property is worth.",
+    summary:
+      "Monetary policy reaches house prices indirectly, through the price of borrowing, and the chain is long enough that most explanations lose people in the middle. This walks it one link at a time and states the value at each step: Bank Rate to the swap rate that actually sets fixed mortgage pricing, to the rate a lender offers, to the monthly payment, to what a household can borrow, to what a home can therefore cost. A second section applies the same arithmetic to a real purchase: stamp duty, cash to complete, payment as a share of take-home pay, and the payment at two points higher. A third builds a forecast from four published private-sector paths and a Monte Carlo range, and a fourth shows where those four forecasters disagree and why.",
+    howItWorks:
+      "A dependency-free browser build: vanilla JavaScript, canvas charts and CSS custom properties, with no framework and no build step. The forecast is a reduced-form model whose equilibrium price-to-earnings ratio is a function of the annuity factor, so a change in rates moves what a household can pay; two coefficients set the speed of adjustment and the long-run sensitivity, and both are fitted to the four November 2026 forecasts rather than chosen, at 0.83 percentage points of root-mean-square error per year. Every displayed figure carries its source and date, the driver decomposition adds up exactly to the model's output, and anything a published forecast does that the arithmetic cannot explain is shown as unexplained rather than absorbed into another bar.",
+    imagePath: "/images/solutions/price-of-money.png",
+    imageAlt:
+      "The Price of Money explainer showing the six-link chain from Bank Rate to house price, with the values at each link and a plain-English sentence underneath.",
+    liveUrl: "https://rajeevg.com/price-of-money",
+    liveLabel: "Open the explainer",
+    lastUpdated: "2026-11-25",
+    tech: ["Vanilla JS", "Canvas", "Monte Carlo", "Bank of England data", "No build step"],
+    repoVisibility: "PRIVATE",
+    inclusionReason:
+      "A working analytical tool rather than a demonstration: every default is a dated public figure, the calibration is reproducible, the model's limits are stated on the page, and the assumptions a reader changes are the same ones the published forecasters disagree about.",
+    editableAsset: { label: "See how the model works", href: "/price-of-money#method" },
+  },
 ]
 
 export const earlierPortfolioProjects: PortfolioProject[] = [
@@ -606,6 +628,7 @@ const publicProjectOrder = [
   "ai-discovery",
   "capability-explorer",
   "agentic-media",
+  "price-of-money",
   "web-automation-microbenchmarks",
   "agent-benchmark-matrix",
   "llm-pareto-frontier",
