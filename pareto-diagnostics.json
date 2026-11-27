@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-11-27T01:01:44.658Z",
+  "generatedAt": "2026-11-27T15:10:06.912Z",
   "note": "Upstream records the canonical join layer could not place. Reason codes: not_in_alias_map (needs a curated alias; also the regression signal when identity fully verifies), org_unknown (new org), creator_name_mismatch (upstream renamed a creator), no_aa_counterpart (OpenRouter-only, no AA quality source), variant_excluded (effort-variant or batch/contributor record excluded by design).",
   "sources": {
     "aa": {
-      "upstreamRecords": 766,
-      "upstreamModelCount": 766,
-      "upstreamScoredModelCount": 89
+      "upstreamRecords": 768,
+      "upstreamModelCount": 768,
+      "upstreamScoredModelCount": 91
     },
     "openrouter": {
       "upstreamRecords": 477
@@ -280,6 +280,13 @@
     },
     {
       "source": "aa",
+      "sourceId": "ernie-5-5-flash",
+      "displayName": "ERNIE 5.5 Flash Preview (Baidu)",
+      "reasonCode": "not_in_alias_map",
+      "org": "Baidu"
+    },
+    {
+      "source": "aa",
       "sourceId": "gpt-6-1-terra-non-reasoning",
       "displayName": "GPT-6.1 Terra (Non-reasoning) (OpenAI)",
       "reasonCode": "not_in_alias_map",
@@ -417,6 +424,13 @@
       "displayName": "Gemini 1.5 Pro (May '24) (Google)",
       "reasonCode": "not_in_alias_map",
       "org": "Google"
+    },
+    {
+      "source": "aa",
+      "sourceId": "quasar-1-2-358b",
+      "displayName": "Quasar 1.2 358B (Max, Based on GLM-5.3) (Multiverse Computing)",
+      "reasonCode": "not_in_alias_map",
+      "org": "Multiverse Computing"
     },
     {
       "source": "aa",
@@ -1047,22 +1061,8 @@
       "displayName": "Molmo2-8B (Allen Institute for AI)",
       "reasonCode": "not_in_alias_map",
       "org": "Allen Institute for AI"
-    },
-    {
-      "source": "aa",
-      "sourceId": "mistral-small-4",
-      "displayName": "Mistral Small 4 (Reasoning) (Mistral)",
-      "reasonCode": "not_in_alias_map",
-      "org": "Mistral"
-    },
-    {
-      "source": "aa",
-      "sourceId": "qwen3-5-0-8b-non-reasoning",
-      "displayName": "Qwen3.5 0.8B (Non-reasoning) (Alibaba)",
-      "reasonCode": "not_in_alias_map",
-      "org": "Alibaba"
     }
   ],
-  "diagnosticCount": 925,
+  "diagnosticCount": 927,
   "truncated": true
 }
