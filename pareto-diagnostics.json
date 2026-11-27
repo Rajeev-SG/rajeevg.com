@@ -1,17 +1,24 @@
 {
-  "generatedAt": "2026-11-23T16:03:30.869Z",
+  "generatedAt": "2026-11-27T01:01:44.658Z",
   "note": "Upstream records the canonical join layer could not place. Reason codes: not_in_alias_map (needs a curated alias; also the regression signal when identity fully verifies), org_unknown (new org), creator_name_mismatch (upstream renamed a creator), no_aa_counterpart (OpenRouter-only, no AA quality source), variant_excluded (effort-variant or batch/contributor record excluded by design).",
   "sources": {
     "aa": {
       "upstreamRecords": 766,
       "upstreamModelCount": 766,
-      "upstreamScoredModelCount": 91
+      "upstreamScoredModelCount": 89
     },
     "openrouter": {
       "upstreamRecords": 477
     }
   },
   "diagnostics": [
+    {
+      "source": "aa",
+      "sourceId": "mimo-v2-5-pro",
+      "displayName": "MiMo-V2.5-Pro (Reasoning) (Xiaomi)",
+      "reasonCode": "not_in_alias_map",
+      "org": "Xiaomi"
+    },
     {
       "source": "aa",
       "sourceId": "jt-35b-flash",
@@ -137,6 +144,13 @@
       "displayName": "Claude Fable 5.1 (Low, Default Fallback) (Anthropic)",
       "reasonCode": "variant_excluded",
       "org": "Anthropic"
+    },
+    {
+      "source": "aa",
+      "sourceId": "mistral-medium-3-1",
+      "displayName": "Mistral Medium 3.1 (Mistral)",
+      "reasonCode": "not_in_alias_map",
+      "org": "Mistral"
     },
     {
       "source": "aa",
@@ -1047,22 +1061,8 @@
       "displayName": "Qwen3.5 0.8B (Non-reasoning) (Alibaba)",
       "reasonCode": "not_in_alias_map",
       "org": "Alibaba"
-    },
-    {
-      "source": "aa",
-      "sourceId": "claude-haiku-5-5-xhigh",
-      "displayName": "Claude Haiku 5.5 (Xhigh) (Anthropic)",
-      "reasonCode": "variant_excluded",
-      "org": "Anthropic"
-    },
-    {
-      "source": "aa",
-      "sourceId": "qwen-chat-72b",
-      "displayName": "Qwen Chat 72B (Alibaba)",
-      "reasonCode": "not_in_alias_map",
-      "org": "Alibaba"
     }
   ],
-  "diagnosticCount": 917,
+  "diagnosticCount": 925,
   "truncated": true
 }
